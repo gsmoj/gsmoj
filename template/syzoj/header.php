@@ -21,6 +21,7 @@
          */
         function get_menu_news() {
             $result = "";
+            /** @noinspection SqlNoDataSourceInspection */
             $sql_news_menu = "select `news_id`,`title` FROM `news` WHERE `menu`=1 AND `title`!='faqs.cn' ORDER BY `importance` ASC,`time` DESC LIMIT 10";
             $sql_news_menu_result = mysql_query_cache( $sql_news_menu );
             if ( $sql_news_menu_result ) {

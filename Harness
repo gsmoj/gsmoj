@@ -192,6 +192,19 @@ php -l .\lang\ko.php
 
 변경 파일이 많을 때는 수정한 PHP 파일 전체에 `php -l`을 실행한다.
 
+현재 Windows 작업 환경의 PHP 검사 규칙:
+
+- PHP CLI는 winget으로 설치된 `PHP.PHP.8.3`을 사용한다.
+- 현재 셸에서 `php` 명령이 바로 잡히지 않으면 아래처럼 PHP 설치 경로를 세션 PATH에 붙인 뒤 검사한다.
+
+```powershell
+$env:Path = "C:\Users\master\AppData\Local\Microsoft\WinGet\Packages\PHP.PHP.8.3_Microsoft.Winget.Source_8wekyb3d8bbwe;" + $env:Path
+php -l .\template\syzoj\header.php
+```
+
+- `php -l`에는 `-y` 옵션이 없으므로 문법 검사 명령에 `-y`를 붙이지 않는다.
+- PHP 실행이 샌드박스 권한 문제로 막히면 권한 상승을 요청한 뒤 같은 `php -l` 검사를 다시 실행한다.
+
 ## 코드 수정 기준
 
 - PHP 파일은 기존 스타일을 따라 최소 변경한다.
