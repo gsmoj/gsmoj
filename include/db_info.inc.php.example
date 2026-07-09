@@ -1,0 +1,128 @@
+<?php
+// GSMOJ local configuration example.
+//
+// Usage:
+// 1. Copy this file to include/db_info.inc.php.
+// 2. Fill in local/server values.
+// 3. Never commit include/db_info.inc.php. It is intentionally ignored by Git.
+
+// Database connection
+$DB_HOST = "127.0.0.1";
+$DB_NAME = "jol";
+$DB_USER = "judge";
+$DB_PASS = "change-me";
+
+// Basic site settings
+$OJ_NAME = "GSMOJ";
+$OJ_HOME = "/";
+$OJ_LANG = "ko";
+$OJ_TEMPLATE = "syzoj";
+$OJ_CSS = "white.css";
+$OJ_CDN_URL = "";
+$OJ_BEIAN = "";
+
+// User/account settings
+$OJ_REGISTER = true;
+$OJ_REG_NEED_CONFIRM = false;
+$OJ_EMAIL_CONFIRM = false;
+$OJ_EXPIRY_DAYS = 3650;
+$OJ_KEEP_TIME = 30;
+$OJ_LOGIN_FAIL_LIMIT = 5;
+$OJ_LONG_LOGIN = true;
+$OJ_NEED_LOGIN = false;
+$OJ_LIMIT_TO_1_IP = false;
+$OJ_NICK_IMMUTABLE = false;
+
+// UI/menu settings
+$OJ_MENU_NEWS = true;
+$OJ_MENU_DROPDOWN = true;
+$OJ_INDEX_NEWS_TITLE = "GSMOJ";
+$OJ_RECENT_CONTEST = "";
+$OJ_LANGMASK = 0;
+$OJ_ACE_EDITOR = true;
+$OJ_AUTO_SHOW_OFF = false;
+$OJ_MATHJAX = true;
+$OJ_MARKDOWN = "marked.js";
+
+// Judge/submission settings
+$OJ_SUBMIT_COOLDOWN_TIME = 3;
+$OJ_TEST_RUN = true;
+$OJ_ENCODE_SUBMIT = false;
+$OJ_APPENDCODE = false;
+$OJ_INDENT = false;
+$OJ_BLOCKLY = false;
+$OJ_DOWNLOAD = false;
+$OJ_FREE_PRACTICE = true;
+$OJ_PUBLIC_STATUS = false;
+$OJ_HIDE_RIGHT_ANSWER = false;
+
+// Contest/rank settings
+$OJ_RANK_HIDDEN = "'admin'";
+$OJ_RANK_LOCK_PERCENT = 0;
+$OJ_RANK_LOCK_DELAY = 0;
+$OJ_CONTEST_RANK_FIX_HEADER = false;
+$OJ_CONTEST_LIMIT_KEYWORD = "";
+$OJ_NOIP_KEYWORD = "NOIP";
+$OJ_NOIP_HINT = false;
+$OJ_OI_MODE = false;
+$OJ_OI_1_SOLUTION_ONLY = false;
+$OJ_CE_PENALTY = false;
+$OJ_MARK = "mark";
+$OJ_CONTEST_TOTAL_100 = false;
+$OJ_NO_CONTEST_WATCHER = false;
+
+// Feature toggles
+$OJ_MAIL = false;
+$OJ_VCODE = true;
+$OJ_BBS = false;
+$OJ_ONLINE = true;
+$OJ_PRINTER = false;
+$OJ_SIM = false;
+$OJ_DICT = false;
+$OJ_AUTO_SHARE = false;
+$OJ_SHARE_CODE = false;
+$OJ_DIV_FILTER = false;
+$OJ_FANCY_RESULT = false;
+$OJ_SHOW_DIFF = false;
+$OJ_SHOW_METAL = false;
+$OJ_AINO = false;
+$OJ_OLD_FASHIONED = false;
+$OJ_REMOTE_JUDGE = false;
+
+// Redis/Memcache/APCu
+$OJ_REDIS = false;
+$OJ_REDISSERVER = "127.0.0.1";
+$OJ_REDISPORT = 6379;
+$OJ_REDISQNAME = "gsmoj";
+$OJ_MEMCACHE = false;
+$OJ_MEMSERVER = "127.0.0.1";
+$OJ_MEMPORT = 11211;
+
+// Logging
+$OJ_LOG_ENABLED = false;
+$OJ_LOG_DATETIME_FORMAT = "Y-m-d H:i:s";
+$OJ_LOG_PID_ENABLED = false;
+$OJ_LOG_USER_ENABLED = true;
+$OJ_LOG_URL_ENABLED = true;
+$OJ_LOG_URL_HOST_ENABLED = true;
+$OJ_LOG_URL_PARAM_ENABLED = false;
+$OJ_LOG_TRACE_ENABLED = false;
+
+// SMTP. Use real values only in include/db_info.inc.php.
+$SMTP_SERVER = "";
+$SMTP_PORT = 587;
+$SMTP_USER = "";
+$SMTP_PASS = "";
+
+// SaaS/domain mode
+$OJ_SaaS_ENABLE = false;
+$domain = $_SERVER["HTTP_HOST"] ?? "localhost";
+$DOMAIN = $domain;
+
+// Optional integrations
+$OJ_AI_HTML = "";
+$OJ_AI_API_URL = "";
+$OJ_LIP_URL = "";
+$OJ_BG = "";
+$OJ_POISON_BOT_COUNT = 0;
+$OJ_REG_SPEED = 0;
