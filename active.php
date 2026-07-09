@@ -22,4 +22,3 @@ if (isset($OJ_EMAIL_CONFIRM) && $OJ_EMAIL_CONFIRM) {
 // 계정 업데이트 완료 후 로그인 페이지로 리다이렉트
 header("location:loginpage.php");
 ?>
-r
