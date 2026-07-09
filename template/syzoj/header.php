@@ -191,7 +191,7 @@
     <div id="page-header" class="ui fixed borderless menu" style="position: fixed; height: 49px; z-index:99999">
         <div id="menu" class="ui stackable mobile ui container computer" style="margin-left:auto;margin-right:auto;">
             <a class="header item"  href="/"><span
-                    style="font-family: 'Exo 2'; font-size: 1.5em; font-weight: 600; "><?php echo $domain==$DOMAIN?$OJ_NAME:ucwords($OJ_NAME)."'s OJ"?></span></a>
+                    style="font-family: 'Exo 2'; font-size: 1.5em; font-weight: 600; ">TEST COMPLETE GSMOJ</span></a>
             
           <?php
             // 홈 버튼 하이라이트 검사
