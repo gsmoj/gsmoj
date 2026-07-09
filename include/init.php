@@ -1,5 +1,8 @@
 <?php
-// 启用 XSS 保护，仅对同源资源启用
+// 모든 사용자 페이지가 공통으로 거치는 초기화 파일이다.
+// 보안 헤더, 세션, DB 연결, 언어, 템플릿, 접속 IP, 로깅 기본값을 여기서 준비한다.
+
+// XSS 보호 헤더를 켜고, 같은 출처 리소스 기준으로 브라우저 보안 정책을 제한한다.
 header("X-XSS-Protection: 1; mode=block; sameorigin");
 header("X-Download-Options: noopen");
 header("Referrer-Policy: same-origin");
@@ -9,18 +12,18 @@ session_set_cookie_params([
           'lifetime' => 0,
             'path' => '/',
 //              'domain' => $domain ,
-//                'secure' => true,      // 仅HTTPS
-                  'httponly' => true,    // 防止JavaScript访问
+//                'secure' => true,      // HTTPS 환경에서만 쿠키 전송
+                  'httponly' => true,    // JavaScript에서 세션 쿠키 접근 방지
                     'samesite' => 'Strict'
 ]);
 @session_start();
 require_once(dirname(__FILE__)."/pdo.php");
 require_once(dirname(__FILE__)."/memcache.php");
 
-//自动切换夜间模式
+// 시간대나 URL 파라미터에 따라 야간 모드를 자동 적용할 때 쓰는 예시 코드.
 //if(date('H')<5||date('H')>21||isset($_GET['dark'])) $OJ_CSS="dark.css";
 
-//允许用参数tp临时切换皮肤
+// tp 파라미터나 쿠키로 템플릿을 임시 전환할 때 쓰던 레거시 코드.
 /*
 if(in_array($_GET['tp'],$OJ_TP)){
     $OJ_TEMPLATE=$_GET['tp'];
@@ -30,7 +33,7 @@ if(in_array($_GET['tp'],$OJ_TP)){
 }
 */
 
-//自动识别语言
+// 세션, 쿠키, URL 파라미터, 브라우저 언어 순서로 화면 언어를 결정한다.
 if (isset($_SESSION[$OJ_NAME . '_' . 'OJ_LANG'])) {
 	$OJ_LANG=$_SESSION[$OJ_NAME . '_' . 'OJ_LANG'];
 } else if (isset($_COOKIE['lang']) && in_array($_COOKIE['lang'], array("cn", "ug", "en", 'fa', 'ko', 'th'))) {
@@ -52,7 +55,7 @@ if (isset($_SESSION[$OJ_NAME . '_' . 'OJ_LANG'])) {
 require(dirname(__FILE__)."/../lang/$OJ_LANG.php");
 
 if($OJ_SaaS_ENABLE){
-	$DOMAIN="my.hustoj.com";   //   如启用，需要替换为SaaS服务的主域名。
+	$DOMAIN="my.hustoj.com";   // SaaS를 사용할 경우 실제 서비스의 메인 도메인으로 바꿔야 한다.
 	if(isset($_SERVER["HTTP_HOST"])) $OJ_SaaS_CONF=realpath(dirname(__FILE__)."/..")."/SaaS/".basename($_SERVER["HTTP_HOST"]).".php";
 	if(isset($OJ_SaaS_CONF) && file_exists($OJ_SaaS_CONF)){
 		require_once($OJ_SaaS_CONF);
@@ -60,13 +63,13 @@ if($OJ_SaaS_ENABLE){
 		echo "You need \$_SERVER[\"HTTP_HOST\"] to enable \$OJ_SaaS_ENABLE ";
 		//exit();
 	}
-	if($domain==$DOMAIN)  $MSG_REG_INFO.="/初始化MyOJ";
+	if($domain==$DOMAIN)  $MSG_REG_INFO.="/MyOJ 초기화";
 }else{
 	$DOMAIN=$domain;
 }
 
 $UA="";
-if(isset($_SERVER["HTTP_USER_AGENT"])){  // 360 or IE use bs3 instead
+if(isset($_SERVER["HTTP_USER_AGENT"])){  // w3m 또는 구형 IE는 syzoj 대신 bs3 템플릿으로 우회한다.
     $UA=$_SERVER["HTTP_USER_AGENT"];
     if(strpos($UA,"w3m") !== false || strpos($UA,"MSIE") !== false)
         $OJ_TEMPLATE="bs3";
@@ -84,7 +87,7 @@ if (isset($_SERVER['HTTP_X_FORWARDED_FOR']) && !empty(trim($_SERVER['HTTP_X_FORW
 } else if (isset($_SERVER['HTTP_X_REAL_IP']) && !empty(trim($_SERVER['HTTP_X_REAL_IP']))) {
     $ip = trim($_SERVER['HTTP_X_REAL_IP']);
 }
-// 验证IP格式
+// 프록시 헤더에서 얻은 IP라도 최종적으로 올바른 IP 형식인지 검증한다.
 $ip = filter_var($ip, FILTER_VALIDATE_IP) ? $ip : '0.0.0.0';
 
 if(isset($OJ_LIP_URL) && isset($_COOKIE['lip']) ){
@@ -122,8 +125,8 @@ $logger=new Logger(isset($_SESSION[$OJ_NAME . '_' . 'user_id'])?$_SESSION[$OJ_NA
 					$OJ_LOG_URL_PARAM_ENABLED,
 					$OJ_LOG_TRACE_ENABLED);
 $logger->info();
-// these lines can help you make a SaaS platform of HUSTOJ with the help of JudgeHub
-// 傻瓜级保姆配置系统
+// JudgeHub 기반 SaaS 운영을 쉽게 켜기 위한 HUSTOJ 호환 옵션 묶음.
+// 숫자가 높을수록 더 많은 편의 기능을 자동으로 활성화한다.
 switch($OJ_FRIENDLY_LEVEL) {
 	case 9:
 	   $OJ_GUEST=true;
@@ -155,11 +158,11 @@ switch($OJ_FRIENDLY_LEVEL) {
 	   
 }
 if(!isset($OJ_SUBMIT_COOLDOWN_TIME)) $OJ_SUBMIT_COOLDOWN_TIME=3;
-// if using EXAM or ON site auto turn off free practice
+// 시험 모드나 현장 대회가 켜져 있으면 자유 연습을 자동으로 끈다.
 if(isset($OJ_ON_SITE_CONTEST_ID) || isset($OJ_EXAM_CONTEST_ID)) $OJ_FREE_PRACTICE=false;
 
-// $OJ_BG="/image/bg".date('H').".jpg";  //每个整点更换壁纸，需要准备bg[0~23].jpg在image目录
-// if (time() < strtotime('2025-3-31')) $OJ_BG="http://cdn.hustoj.com/upload/bg/nz0".(date('i')%9+1).".png";  //哪吒2上映期间，每分钟更换一张哪吒壁纸
+// $OJ_BG="/image/bg".date('H').".jpg";  // 매 정시마다 배경을 바꿀 때 사용한다. image/bg0.jpg ~ bg23.jpg가 필요하다.
+// if (time() < strtotime('2025-3-31')) $OJ_BG="http://cdn.hustoj.com/upload/bg/nz0".(date('i')%9+1).".png";  // 기간 한정 배경을 분 단위로 바꾸는 예시.
 
 if (!empty($OJ_CDN_URL)) {
         header('Access-Control-Allow-Origin:'.$OJ_CDN_URL);

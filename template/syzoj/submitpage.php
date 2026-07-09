@@ -9,10 +9,10 @@
     background-color:rgb(255,225,225,0.5);
 }
 
-.ace-chrome .ace_marker-layer .ace_active-line{   /*当前行*/
+.ace-chrome .ace_marker-layer .ace_active-line{   /* 현재 줄 */
    background-color: rgba(0,0,199,0.3);
 }
-            .button, input, optgroup, select, textarea {  /*选择题的题号大小*/
+            .button, input, optgroup, select, textarea {  /* 선택형 문제 번호 크기 */
     font-family: sans-serif;
     font-size: 150%;
     line-height: 1.2;
@@ -23,10 +23,10 @@ body{
         background: url("http://m.hustoj.com:8090/bg/nz.gif") 0% 0% / 100% no-repeat;
 }
 <?php } ?>
- /* 定义错误行的样式 */
+ /* 오류가 발생한 줄을 표시하는 스타일 */
   .ace_error_marker {
     position: absolute;
-    background-color: rgba(255, 0, 0, 0.3); /* 红色半透明背景 */
+    background-color: rgba(255, 0, 0, 0.3); /* 빨간색 반투명 배경 */
   }
   </style>
     
@@ -83,7 +83,7 @@ echo"<option value=$i ".( $lastlang==$i?"selected":"").">
 <?php if (isset($_SESSION[$OJ_NAME.'_administrator'])){?>
 <input class="btn btn-danger" title="AI everythin..." type=button value="AI一下"  onclick="ai_gen('Main.'+$('#language option:selected').text().trim());" id='ai_bt'>
 <?php }?>
-<!--选择题状态-->
+<!-- 선택형 문제 상태 -->
 <?php if ($spj>1 || !$OJ_TEST_RUN ){?>
 <span class="btn" id=result><?php echo $MSG_STATUS?></span>	
 <?php }?>
@@ -185,7 +185,7 @@ echo"<option value=$i ".( $lastlang==$i?"selected":"").">
    </div>
 <?php }	 ?>
 <?php if (isset($OJ_TEST_RUN)&&$OJ_TEST_RUN && $spj!=2 && !$solution_name  ){?>
-        <!--运行按钮-->
+        <!-- 실행 버튼 -->
             <input style="
              margin-top: 30px;
             margin-left: 15px ;
@@ -217,20 +217,20 @@ foreach($judge_result as $result){
 }
 ?>''];
 function removeContentBeforeSeparator(text) {
-    // 查找分隔符 "--|--|--|--|--" 的位置
+    // 채점 서버가 붙인 결과 헤더 위치를 찾는다.
     const separator = "filename|size|result|memory|time";
     const separatorIndex = text.indexOf(separator);
 
-    // 如果找到了分隔符
+    // 헤더가 있으면 그 앞의 불필요한 내용을 제거한다.
     if (separatorIndex !== -1) {
-        // 计算分隔符结束的位置
+        // 헤더 시작 위치부터 결과 표로 취급한다.
         const separatorEndIndex = separatorIndex ;
 
-        // 删除分隔符及其之前的所有内容，返回剩余部分
+        // 헤더 앞의 내용을 제거하고 결과 표만 반환한다.
         return text.substring(separatorEndIndex);
     }
 
-    // 如果没有找到分隔符，返回原始字符串
+    // 헤더가 없으면 원문을 그대로 반환한다.
     return text;
 }
 function parseToCompactCards(data) {
@@ -244,7 +244,7 @@ function parseToCompactCards(data) {
 	resultContainer.empty();
 	resultContainer.show();
 	
-	// 统计结果
+	// 테스트 케이스별 실행 결과를 집계한다.
 	let acCount = 0, waCount = 0, reCount = 0;
 	
 	dataLines.forEach(line => {
@@ -257,9 +257,9 @@ function parseToCompactCards(data) {
 		item[header] = values[index] || '';
 	    });
 	    
-	    // 确定结果类型
+	    // 결과 상태에 맞는 카드 색상을 결정한다.
 	    const resultType = item.result.split('/')[0];
-	    let resultClass = 'warning'; // 默认
+	    let resultClass = 'warning'; // 기본값
 	    
 	    if (resultType === 'AC') {
 		resultClass = 'success';
@@ -273,7 +273,7 @@ function parseToCompactCards(data) {
 		acCount++;
 	    }
 	    
-	    // 创建紧凑卡片
+	    // 한 테스트 케이스 결과를 작은 카드 HTML로 만든다.
 	    const $card = $(`
 		<div class="label label-${resultClass}" title="${item.filename}">
 		    <span class="filename">${item.filename}</span>
@@ -293,7 +293,7 @@ function parseToCompactCards(data) {
 	    resultContainer.append($card);
 	});
 	
-	// 更新统计信息
+	// 상단 요약 통계를 갱신한다.
 	const totalCount = acCount + waCount + reCount;
 	const passRate = totalCount > 0 ? ((acCount / totalCount) * 100).toFixed(1) : 0;
 	
@@ -305,6 +305,7 @@ function parseToCompactCards(data) {
 	    <div class="stats-item">RE: <span class="stats-value re-count">${reCount}</span></div>
 	`);
 }
+// AJAX 제출 후 채점 결과를 가져와 실행 결과 영역에 표시한다.
 function print_result(solution_id) {
 var sid = solution_id;
 
@@ -347,11 +348,13 @@ error: function(xhr, status, error) {
 }
 });
 }
+// 결과 테이블의 채점 상태 셀을 클릭 가능한 상세 링크로 바꾼다.
 function fancy(td){
 $("body",parent.document).append("<div id='bannerFancy' style='position:absolute;top:0px;left:0px;width:100%;z-index:3' class='ui main container'></div><audio autoplay=\"autoplay\" preload=\"auto\" src=\"<?php echo $OJ_FANCY_MP3 ?>\"> </audio>");
 window.setTimeout("$(\"#bannerFancy\",parent.document).html(\"<iframe border=0 src='fancy.php' width='100%' height='800px'></iframe>\");",500);
 window.setTimeout("$(\"#bannerFancy\",parent.document).remove();",10000);
 }
+// 제출 직후 일정 시간마다 결과를 다시 조회해 화면을 갱신한다.
 function fresh_result(solution_id)
 {
 var tb=window.document.getElementById('result');
@@ -419,6 +422,7 @@ xmlhttp.onreadystatechange=function()
 	xmlhttp.open("GET","status-ajax.php?solution_id="+solution_id,true);
 	xmlhttp.send();
 }
+// 현재 URL에서 solution_id 성격의 쿼리 값을 가져올 때 사용하는 보조 함수.
 function getSID(){
 var ofrm1 = document.getElementById("testRun").document;
 var ret="0";
@@ -437,6 +441,7 @@ return ret+"";
 }
 var count=0;
  
+// 에디터 내용을 base64로 인코딩한 뒤 AJAX 제출한다.
 function encoded_submit(){
 
       var mark="<?php echo isset($id)?'problem_id':'cid';?>";
@@ -461,7 +466,7 @@ function encoded_submit(){
 //      source.value=source.value.split("").reverse().join("");
 //      alert(source.value);
 <?php if(isset($_GET['spa'])){?>
-	<?php if($solution_name) { ?>document.getElementById("frmSolution").submit(); <?php } ?>  //如果是指定文件名，则强制用文件post方式提交。
+	<?php if($solution_name) { ?>document.getElementById("frmSolution").submit(); <?php } ?>  // 지정 파일명이 필요한 문제는 일반 form POST 방식으로 강제 제출한다.
         $.post("submit.php?ajax",$("#frmSolution").serialize(),function(data){fresh_result(data);});
         $("#Encoded").prop('disabled', true);
         $("#TestRun").prop('disabled', true);
@@ -473,6 +478,7 @@ function encoded_submit(){
 <?php }?>
 }
 
+// 일반 제출 버튼이 호출하는 제출 진입점.
 function do_submit(){
 	 $("#Submit").attr("disabled","true");   // mouse has a bad key1
 	if(using_blockly) 
@@ -489,7 +495,7 @@ function do_submit(){
 	document.getElementById("frmSolution").target="_self";
 	
 <?php if(isset($_GET['spa'])){?>
-	<?php if($solution_name) { ?>document.getElementById("frmSolution").submit(); <?php } ?>  //如果是指定文件名，则强制用文件post方式提交。
+	<?php if($solution_name) { ?>document.getElementById("frmSolution").submit(); <?php } ?>  // 지정 파일명이 필요한 문제는 일반 form POST 방식으로 강제 제출한다.
         $.post("submit.php?ajax",$("#frmSolution").serialize(),function(data){fresh_result(data);});
         $("#Submit").prop('disabled', true);
         $("#TestRun").prop('disabled', true);
@@ -514,6 +520,7 @@ function do_submit(){
 
 ?>
 
+// SQL 문제에서 sqlite3 워커를 초기화하고 기본 데이터와 사용자 SQL을 순서대로 실행한다.
 function startSQL (sqlite3,input_sql,user_sql){
  // log('Running SQLite3 version', sqlite3.version.libVersion);
   const db = new sqlite3.oo1.DB('/mydb.sqlite3', 'ct');
@@ -537,6 +544,7 @@ function startSQL (sqlite3,input_sql,user_sql){
   }
 };
 
+// SQL 테스트 실행 요청을 준비해 브라우저 안의 sqlite 실행기로 넘긴다.
 function runSQL(input,sql){
 //      log('Loading and initializing SQLite3 module...');
         sqlite3InitModule().then((sqlite3) => {
@@ -553,6 +561,7 @@ function runSQL(input,sql){
 
 
 var handler_interval;
+// 제출 전 샘플 입력으로 테스트 실행을 요청한다.
 function do_test_run(){
 	if( handler_interval) window.clearInterval( handler_interval);
 	var loader="<img width=18 src=image/loader.gif>";
@@ -584,6 +593,7 @@ function do_test_run(){
 	count=<?php echo isset($OJ_SUBMIT_COOLDOWN_TIME)?$OJ_SUBMIT_COOLDOWN_TIME:5  ?> * 2 ;
 	handler_interval= window.setTimeout("resume();",1000);
 }
+// 임시 저장된 코드를 에디터로 복구한다.
 function resume(){
 	count--;
 	var s=$("#Submit")[0];
@@ -602,11 +612,13 @@ function resume(){
 		window.setTimeout("resume();",1000);
 	}
 }
+// 언어 선택을 바꿨을 때 에디터 모드와 관련 설정을 갱신한다.
 function switchLang(lang){
    var langnames=new Array("c_cpp","c_cpp","pascal","java","ruby","sh","python","php","perl","csharp","objectivec","vbscript","scheme","c_cpp","c_cpp","lua","javascript","golang","sql","fortran","matlab","cobol","r","c_cpp","python");
    editor.getSession().setMode("ace/mode/"+langnames[lang]);
 
 }
+// 선택 언어에 맞는 기본 코드 템플릿을 다시 불러온다.
 function reloadtemplate(lang){
    if(lang==undefined){
         switchLang(1);
@@ -621,6 +633,7 @@ function reloadtemplate(lang){
         document.location.href=url;
 }
 
+// Blockly 편집기를 별도 창으로 연다.
 function openBlockly(){
    $("#source").hide();
    $("#TestRun").hide();
@@ -635,6 +648,7 @@ function openBlockly(){
   using_blockly=true;
   
 }
+// Blockly에서 생성한 코드를 현재 제출 에디터로 가져온다.
 function translate(){
   var blockly=$(window.frames['frmBlockly'].document);
   var tb=blockly.find('td[id=tab_python]');
@@ -646,6 +660,7 @@ function translate(){
   $("#language").val(6);
  
 }
+// Blockly 창에서 저장한 코드를 읽어 에디터에 반영한다.
 function loadFromBlockly(){
  translate();
  do_test_run();
@@ -669,7 +684,7 @@ function loadFromBlockly(){
     editor.setOptions({
         enableBasicAutocompletion: true,
         enableSnippets: true,
-        enableLiveAutocompletion: true,  //改为true,打开自动补齐功能，改为false关闭
+        enableLiveAutocompletion: true,  // true면 자동완성을 켜고, false면 끈다.
         // fontFamily: "Consolas",  // MacOS missing align
 	// theme: "ace/theme/ambiance",   // Black theme
         fontSize: "18px"
@@ -706,7 +721,7 @@ editor.getSession().on("change", function() {
 		let key="<?php echo htmlentities($_SESSION[$OJ_NAME.'_user_id'])?>source:"+location.href;
 		let saved=localStorage.getItem(key);
 		   if(saved!=null&&saved!=""&&saved.length>editor.getValue().length){
-                        //let load=confirm("发现自动保存的源码，是否加载？（仅有一次机会）");
+                        //let load=confirm("자동 저장된 소스가 있습니다. 불러오겠습니까? 이 기회는 한 번만 제공됩니다.");
                         //if(load){
                                 console.log("loading "+saved.length);
                                 if(typeof(editor) != "undefined")
@@ -859,66 +874,65 @@ function formatCode() {
   cleanCStyle(session.getValue());
 }
 
-// 使用 PHP 判断，如果开启了缩进检测，才绑定 change 事件
+// PHP 설정에서 들여쓰기 검사가 켜져 있을 때만 change 이벤트를 연결한다.
 <?php if (isset($OJ_INDENT) && $OJ_INDENT == true): ?>
 editor.getSession().on('change', function() {
-    // 建议增加一个防抖，避免高频输入时卡顿
+    // 잦은 입력으로 브라우저가 버벅이지 않도록 짧은 디바운스를 둔다.
     if (this.indentTimer) clearTimeout(this.indentTimer);
     this.indentTimer = setTimeout(checkAndMarkIndentationInstant, 300);
 });
 <?php endif; ?>
 
-// 下方是核心检测逻辑，只要上方没绑定事件，这个函数就不会运行，不占用浏览器性能
+// 아래 함수는 실제 들여쓰기 검사 로직이다. 이벤트가 연결되지 않으면 실행되지 않아 성능 부담이 없다.
 function checkAndMarkIndentationInstant() {
     let session = editor.getSession();
     
-    // 1. 只检测 C/C++/Java 等使用大括号的语言
+    // 1. C/C++/Java처럼 중괄호를 쓰는 언어만 검사한다.
     let mode = session.getMode().$id || "";
     if (mode.indexOf("c_cpp") === -1 && mode.indexOf("java") === -1) {
         return; 
     }
 
     let lines = session.getDocument().getAllLines();
-    let expectedIndentLevel = 0;      // 基础期望层级
-    let expectExtraIndent = false;    // 处理无大括号的 if/for
+    let expectedIndentLevel = 0;      // 기본 기대 들여쓰기 단계
+    let expectExtraIndent = false;    // 중괄호 없는 if/for 다음 줄 보정
     let formatWarnings = [];
 
     for (let i = 0; i < lines.length; i++) {
         let line = lines[i];
         let trimmed = line.trim();
 
-        // --- 核心优化：利用 Ace Token 过滤注释 ---
+        // Ace Token 정보를 활용해 주석 줄을 검사 대상에서 제외한다.
         let tokens = session.getTokens(i);
-        // 判断这一行是否主要是注释，或者是否处于多行注释中
+        // 현재 줄이 주석 위주인지, 또는 여러 줄 주석 안에 있는지 판단한다.
         let isCommentLine = tokens.length > 0 && tokens.every(t => t.type.indexOf("comment") !== -1);
         let hasBlockComment = tokens.some(t => t.type.indexOf("comment.block") !== -1);
 
-        // 如果是纯注释行，或者该行包含块注释（/* */），跳过缩进检查和括号计数
+        // 순수 주석 줄이나 블록 주석 줄은 들여쓰기 검사와 중괄호 계산에서 제외한다.
         if (isCommentLine || hasBlockComment || trimmed.length === 0 || trimmed.startsWith("#")) {
-            // 如果这一行仅仅是单行注释 //，我们需要保留当前的 expectedIndentLevel 进入下一行
-            // 但不更新大括号计数
+            // 한 줄 주석이면 다음 줄을 위해 현재 expectedIndentLevel은 유지하되 중괄호 카운트는 갱신하지 않는다.
             continue; 
         }
 
-        // 2. 计算当前行【应该】有多少层缩进
+        // 2. 현재 줄에 기대되는 들여쓰기 단계를 계산한다.
         let currentLineExpected = expectedIndentLevel;
         if (expectExtraIndent) {
             currentLineExpected += 1;
         }
 
-        // 如果当前行以 } 开头，退回一层对齐
+        // 현재 줄이 }로 시작하면 한 단계 줄여 맞춘다.
         if (trimmed.startsWith("}")) {
             currentLineExpected = Math.max(0, expectedIndentLevel - 1);
         }
 
-        // 3. 计算【实际】空格数 (1个 Tab = 4个空格)
+        // 3. 실제 공백 수를 계산한다. 탭 1개는 공백 4개로 본다.
         let leadingWhitespace = line.match(/^[\s\t]*/)[0];
         let actualSpaces = 0;
         for (let j = 0; j < leadingWhitespace.length; j++) {
             actualSpaces += (leadingWhitespace[j] === '\t') ? 4 : 1;
         }
 
-        // 4. 判定并记录警告
+        // 4. 기대값과 실제값을 비교해 경고를 기록한다.
         let expectedSpaces = currentLineExpected * 4;
         if (actualSpaces !== expectedSpaces) {
             formatWarnings.push({
@@ -929,8 +943,8 @@ function checkAndMarkIndentationInstant() {
             });
         }
 
-        // 5. 更新下一行的基础层级
-        // 过滤掉字符串中的括号，只统计代码中的括号
+        // 5. 다음 줄의 기본 들여쓰기 단계를 갱신한다.
+        // 문자열 안의 괄호는 제외하고 실제 코드의 괄호만 센다.
         let openBraces = 0;
         let closeBraces = 0;
         tokens.forEach(t => {
@@ -943,7 +957,7 @@ function checkAndMarkIndentationInstant() {
         expectedIndentLevel += (openBraces - closeBraces);
         expectedIndentLevel = Math.max(0, expectedIndentLevel); 
 
-        // 6. 探测无大括号的 if/for/while/else
+        // 6. 중괄호 없는 if/for/while/else 다음 줄을 보정한다.
         if (openBraces === 0 && closeBraces === 0) {
             if ((trimmed.startsWith("if") || trimmed.startsWith("for") || trimmed.startsWith("while")) && trimmed.endsWith(")")) {
                 expectExtraIndent = true;
@@ -957,7 +971,7 @@ function checkAndMarkIndentationInstant() {
         }
     }
 
-    // 7. 渲染警告，保留系统错误
+    // 7. 시스템 오류 표시는 유지하면서 들여쓰기 경고만 렌더링한다.
     let currentAnnotations = session.getAnnotations();
     let existingErrors = currentAnnotations.filter(a => a.type === "error");
     session.setAnnotations(existingErrors.concat(formatWarnings));
@@ -986,31 +1000,31 @@ function auto_submit(){
 ?>
 
 function removeCodeBlockMarkers(str) {
-    // 如果字符串为空，直接返回
+    // 문자열이 비어 있으면 그대로 반환한다.
     if (!str || typeof str !== 'string') {
         return str || '';
     }
-    // 将字符串按行分割
+    // 문자열을 줄 단위로 나눈다.
     const lines = str.split('\n');
     const resultLines = [];
-    // 遍历每一行
+    // 각 줄을 순회한다.
     for (let i = 0; i < lines.length; i++) {
         const line = lines[i];
         const trimmedLine = line.trim();
-        // 如果是第一行且包含```Python，跳过不添加到结果中
+        // 첫 줄이 ```Python 같은 코드 블록 시작이면 결과에 넣지 않는다.
         if (i === 0 && (trimmedLine === '```Python' || trimmedLine.startsWith('```'))) {
-            continue; // 跳过首行标记
+            continue; // 첫 줄 마커 건너뛰기
         }
-        // 如果是最后一行且是```，跳过不添加到结果中
+        // 마지막 줄이 ``` 코드 블록 종료이면 결과에 넣지 않는다.
         if (i === lines.length - 1 && trimmedLine === '```') {
-            continue; // 跳过末尾标记
+            continue; // 끝 마커 건너뛰기
         }
-        // 否则将行添加到结果中
+        // 나머지 줄은 결과에 추가한다.
         resultLines.push(line);
     }
-    // 重新组合字符串
+    // 줄 배열을 다시 문자열로 합친다.
     const result = resultLines.join('\n');
-    // 如果移除标记后结果为空，返回空字符串
+    // 마커 제거 후 내용이 없으면 빈 문자열을 반환한다.
     return result;
 }
 	function ai_gen(filename){
@@ -1034,10 +1048,11 @@ function removeCodeBlockMarkers(str) {
 				}
 		    });
 	}
+// AI 생성 결과나 외부 도구 결과를 문제 입력/코드 입력 영역에 채운다.
 function fill_data(data){
         data=data.replace(/<think>[\s\S]*?<\/think>/g, '');
         if(typeof(editor) != "undefined")
-                editor.setValue(removeCodeBlockMarkers(data.trim())); // 假设 #file_data 是 div
+                editor.setValue(removeCodeBlockMarkers(data.trim())); // 코드 블록 마커를 제거한 뒤 에디터에 반영한다.
         else
                 $("#source").val(data.trim());
         $('#ai_bt').prop('disabled', false);

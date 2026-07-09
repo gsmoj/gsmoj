@@ -166,7 +166,7 @@ pats[i]=/应在名为.*的文件中声明/;
 exps[i++]="<?php echo $MSG_DECLARED_FILE_NAMED; ?>";
 pats[i]=/variably modified/;
 exps[i++]="<?php echo $MSG_VARIABLY_MODIFIED; ?>";
-// 继续添加更多gcc/g++编译错误模式
+// gcc/g++ 컴파일 오류 패턴 추가
 pats[i]=/error: expected initializer before/;
 exps[i++]="<?php echo $MSG_EXPECTED_INITIALIZER; ?>";
 pats[i]=/error: '.*' does not name a type/;
@@ -224,7 +224,7 @@ exps[i++]="<?php echo $MSG_EXPECTED_PRIMARY_EXPRESSION; ?>";
 pats[i]=/error: expected ',' or ';' before/;
 exps[i++]="<?php echo $MSG_EXPECTED_COMMA_OR_SEMICOLON; ?>";
 
-// 添加更多警告信息
+// 경고 메시지 패턴 추가
 pats[i]=/warning: control reaches end of non-void function/;
 exps[i++]="<?php echo $MSG_CONTROL_REACHES_END; ?>";
 pats[i]=/warning: comparison between signed and unsigned integer/;
@@ -242,7 +242,7 @@ exps[i++]="<?php echo $MSG_AUTO_CHANGES_MEANING; ?>";
 pats[i]=/warning: lambda expressions only available with/;
 exps[i++]="<?php echo $MSG_LAMBDA_EXPRESSIONS; ?>";
 
-// 链接器错误
+// 링커 오류
 pats[i]=/undefined reference to/;
 exps[i++]="<?php echo $MSG_UNDEFINED_REFERENCE; ?>";
 pats[i]=/multiple definition of/;
@@ -252,7 +252,7 @@ exps[i++]="<?php echo $MSG_LD_RETURNED_EXIT_STATUS; ?>";
 pats[i]=/collect2: error: ld returned 1 exit status/;
 exps[i++]="<?php echo $MSG_COLLECT2_LD_ERROR; ?>";
 
-// C++特定错误
+// C++ 전용 오류
 pats[i]=/error: '.*' is not a member of '.*'/;
 exps[i++]="<?php echo $MSG_NOT_A_MEMBER_OF; ?>";
 pats[i]=/error: '.*' was not declared in this scope/;
@@ -268,7 +268,7 @@ exps[i++]="<?php echo $MSG_EXPECTED_COMMA_OR_ELLIPSIS; ?>";
 pats[i]=/error: ISO C\+\+ forbids declaration of '.*' with no type/;
 exps[i++]="<?php echo $MSG_FORBIDS_DECLARATION_NO_TYPE; ?>";
 
-// 模板相关错误
+// 템플릿 관련 오류
 pats[i]=/error: missing template arguments before/;
 exps[i++]="<?php echo $MSG_MISSING_TEMPLATE_ARGUMENTS; ?>";
 pats[i]=/error: 'template' keyword may not be used in this context/;
@@ -276,7 +276,7 @@ exps[i++]="<?php echo $MSG_TEMPLATE_KEYWORD_CONTEXT; ?>";
 pats[i]=/error: too many template-parameter-lists/;
 exps[i++]="<?php echo $MSG_TOO_MANY_TEMPLATE_PARAMS; ?>";
 
-// 预处理错误
+// 전처리기 오류
 pats[i]=/error: #error.*/;
 exps[i++]="<?php echo $MSG_PREPROCESSOR_ERROR; ?>";
 pats[i]=/error: missing terminating " character/;
@@ -288,7 +288,7 @@ exps[i++]="<?php echo $MSG_UNTERMINATED_IFNDEF; ?>";
 pats[i]=/error: #include expects "FILENAME" or <FILENAME>/;
 exps[i++]="<?php echo $MSG_INCLUDE_EXPECTS; ?>";
 
-// 内存相关错误
+// 메모리 관련 오류
 pats[i]=/error: invalid use of void expression/;
 exps[i++]="<?php echo $MSG_INVALID_USE_OF_VOID; ?>";
 pats[i]=/error: double free or corruption/;
@@ -298,7 +298,7 @@ exps[i++]="<?php echo $MSG_INVALID_NEXT_SIZE; ?>";
 pats[i]=/error: corrupted double-linked list/;
 exps[i++]="<?php echo $MSG_CORRUPTED_DOUBLE_LINKED_LIST; ?>";
 
-// 标准库相关错误
+// 표준 라이브러리 관련 오류
 pats[i]=/error: '.*' is not a member of 'std'/;
 exps[i++]="<?php echo $MSG_NOT_MEMBER_OF_STD; ?>";
 pats[i]=/error: 'cout' was not declared in this scope/;
@@ -308,7 +308,7 @@ exps[i++]="<?php echo $MSG_CIN_NOT_DECLARED; ?>";
 pats[i]=/error: 'endl' was not declared in this scope/;
 exps[i++]="<?php echo $MSG_ENDL_NOT_DECLARED; ?>";
 
-// C++11/14/17特性相关错误
+// C++11/14/17 기능 관련 오류
 pats[i]=/error: 'nullptr' was not declared in this scope/;
 exps[i++]="<?php echo $MSG_NULLPTR_NOT_DECLARED; ?>";
 pats[i]=/error: 'constexpr' was not declared in this scope/;
@@ -316,7 +316,7 @@ exps[i++]="<?php echo $MSG_CONSTEXPR_NOT_DECLARED; ?>";
 pats[i]=/error: range-based 'for' loops are not allowed in C\+\+98 mode/;
 exps[i++]="<?php echo $MSG_RANGE_BASED_FOR_NOT_ALLOWED; ?>";
 
-// 添加更多中文错误信息（针对中文版编译器）
+// 중국어 로케일 컴파일러가 출력하는 오류 메시지 패턴
 pats[i]=/错误：expected/;
 exps[i++]="<?php echo $MSG_CHINESE_EXPECTED; ?>";
 pats[i]=/错误：在.*之前应有/;
@@ -326,7 +326,7 @@ exps[i++]="<?php echo $MSG_CHINESE_CANNOT_CONVERT; ?>";
 pats[i]=/错误：对.*的引用未定义/;
 exps[i++]="<?php echo $MSG_CHINESE_UNDEFINED_REFERENCE; ?>";
 
-// 数学和算法相关错误
+// 수학/알고리즘 관련 오류
 pats[i]=/error: 'pow' was not declared in this scope/;
 exps[i++]="<?php echo $MSG_POW_NOT_DECLARED; ?>";
 pats[i]=/error: 'sqrt' was not declared in this scope/;
@@ -334,13 +334,13 @@ exps[i++]="<?php echo $MSG_SQRT_NOT_DECLARED; ?>";
 pats[i]=/error: 'abs' was not declared in this scope/;
 exps[i++]="<?php echo $MSG_ABS_NOT_DECLARED; ?>";
 
-// 文件操作错误
+// 파일 처리 관련 오류
 pats[i]=/error: 'fopen' was not declared in this scope/;
 exps[i++]="<?php echo $MSG_FOPEN_NOT_DECLARED; ?>";
 pats[i]=/error: 'FILE' was not declared in this scope/;
 exps[i++]="<?php echo $MSG_FILE_NOT_DECLARED; ?>";
 
-// 时间函数错误
+// 시간 함수 관련 오류
 pats[i]=/error: 'clock' was not declared in this scope/;
 exps[i++]="<?php echo $MSG_CLOCK_NOT_DECLARED; ?>";
 pats[i]=/error: 'CLOCKS_PER_SEC' was not declared in this scope/;

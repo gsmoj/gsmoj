@@ -3,10 +3,15 @@
 <head>
 <link rel="stylesheet" href="<?php echo "template/$OJ_TEMPLATE";?>/css/slide.css">
 </head>
+<?php
+// syzoj 메인 페이지는 왼쪽 11칸, 오른쪽 5칸의 Semantic UI 그리드로 구성된다.
+// 왼쪽은 공지/랭킹/메인 콘텐츠, 오른쪽은 검색/최근 문제/최근 대회를 담당한다.
+?>
 <div class="padding">
     <div class="ui three column grid">
         <div class="eleven wide column">
             
+            <?php // 최근 공지 10개를 메인 영역 최상단에 노출한다. ?>
             <h4 class="ui top attached block header" style='margin-top: 10px;'><i class="ui info icon"></i><?php echo $MSG_NEWS;?></h4>
             <div class="ui bottom attached segment">
                 <table class="ui very basic table">
@@ -35,7 +40,8 @@
                 </table>
             </div>
 
-            <?php /* 이미지 스라이싱 처리
+            <?php /* 이미지 슬라이드 영역.
+            image/slide1.jpg, slide2.jpg ... 파일이 있으면 캐러셀을 보여주던 코드지만 현재는 비활성화되어 있다.
             <?php if(file_exists("image/slide1.jpg")){ ?>
             <h4 class="ui top attached block header" style='margin-top: 15px;'><i class="th icon"></i><?php echo $OJ_NAME ?></h4>
             <div class="ui bottom attached center aligned segment carousel">
@@ -52,7 +58,8 @@
             <?php } ?>
             */ ?>
 
-            <?php
+<?php
+// 페이지네이션 영역. 현재 메인 공지 목록이 여러 페이지로 나뉠 때만 표시된다.
 if(isset($pages) && $pages>1 ){
   echo "<div style='display:inline;'>";
   echo "<nav class='center'>";
@@ -71,7 +78,10 @@ if(isset($pages) && $pages>1 ){
 ?>
 
 <?php
-/* 🌟 [이달의 스타 유저] 이번 달에 가장 많은 문제를 해결(AC)한 랭킹 TOP 10 산출 부 */
+/* 이달의 스타 유저.
+ * 이번 달에 처음 정답 처리된 문제 수를 기준으로 TOP 10을 계산한다.
+ * 진행 중인 NOIP/시험성 대회 문제는 $not_in_noip_contests 조건으로 제외된다.
+ */
 $month_id=mysql_query_cache("select solution_id from solution where  in_date<date_add(curdate(),interval -day(curdate())+1 DAY) order by solution_id desc limit 1;");
 if(!empty( $month_id) && isset($month_id[0][0]) ) $month_id=$month_id[0][0];else $month_id=0;
 $view_month_rank=mysql_query_cache("select user_id,nick,count(distinct(problem_id)) ac from solution where solution_id>$month_id and problem_id>0  $not_in_noip_contests and user_id not in (".$OJ_RANK_HIDDEN.")  and result=4 and first_time=1 group by user_id,nick order by ac desc limit 10");
@@ -95,9 +105,10 @@ $view_month_rank=mysql_query_cache("select user_id,nick,count(distinct(problem_i
             </div>
         <?php
             }
-/* [이달의 스타 유저 마감] */
+/* 이달의 스타 유저 영역 끝 */
 ?>
 
+            <?php // $OJ_INDEX_NEWS_TITLE과 같은 제목의 공지를 메인 안내 콘텐츠로 표시한다. ?>
             <h4 class="ui top attached block header"><i class="ui star icon"></i><?php echo $OJ_INDEX_NEWS_TITLE;?></h4>
             <div class="ui bottom attached segment">
                 <table class="ui very basic left aligned table" style="table-layout: fixed; ">
@@ -128,6 +139,7 @@ $view_month_rank=mysql_query_cache("select user_id,nick,count(distinct(problem_i
         
         <div class="right floated five wide column">
             
+            <?php // 문제 번호를 바로 입력해 problem.php?id=... 로 이동하는 빠른 검색 폼. ?>
             <h4 class="ui top attached block header" style="margin-top: 10px;"><i class="ui search icon"></i><?php echo $MSG_SEARCH;?></h4>
             <div class="ui bottom attached segment">
                 <form action="problem.php" method="get">
@@ -152,7 +164,7 @@ $view_month_rank=mysql_query_cache("select user_id,nick,count(distinct(problem_i
                     </thead>
                     <tbody>
                     <?php
-                        // 현재 진행 중인 특수 올림피아드(NOIP) 모드 대회의 문항들은 유출 방지를 위해 추천 목록에서 제외함
+                        // 현재 진행 중인 특수 올림피아드(NOIP) 모드 대회의 문항들은 유출 방지를 위해 추천 목록에서 제외한다.
         $noip_problems=array_merge(...mysql_query_cache("select problem_id from contest c left join contest_problem cp on start_time<'$now' and end_time>'$now' and  (c.title like ? or (c.contest_type & 20) >0) and c.contest_id=cp.contest_id","%$OJ_NOIP_KEYWORD%"));
         $noip_problems=array_unique($noip_problems);
                          if(isset($_SESSION[$OJ_NAME."_user_id"])) $user_id=$_SESSION[$OJ_NAME."_user_id"]; else $user_id='guest';
@@ -187,6 +199,7 @@ $view_month_rank=mysql_query_cache("select user_id,nick,count(distinct(problem_i
                     </thead>
                     <tbody>
                     <?php
+                        // 최근 생성된 공개 대회 5개를 보여준다.
                         $sql_contests = "select * FROM `contest` where defunct='N' ORDER BY `contest_id` DESC LIMIT 5";
                         $result_contests = mysql_query_cache( $sql_contests );
                         if ( $result_contests ) {

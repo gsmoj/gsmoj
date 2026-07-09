@@ -11,10 +11,10 @@
 <head>
 <title><?php echo $MSG_ADMIN?></title>
 <link rel="stylesheet" href="<?php echo $OJ_CDN_URL.$path_fix."template/$OJ_TEMPLATE/"?>bootstrap-theme.min.css">
-<!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
+<!-- Bootstrap JavaScript가 jQuery에 의존하므로 jQuery를 먼저 불러온다. -->
 <script src="<?php echo $OJ_CDN_URL.$path_fix."template/$OJ_TEMPLATE/"?>jquery.min.js"></script>
 
-<!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+<!-- 관리자 드롭다운 메뉴에 필요한 Bootstrap JavaScript. -->
 <script src="<?php echo $OJ_CDN_URL.$path_fix."template/$OJ_TEMPLATE/"?>bootstrap.min.js"></script>
 
 </head>
@@ -129,14 +129,14 @@
 
 <?php if (isset($_SESSION[$OJ_NAME.'_'.'administrator'])){?>
   <br><a class='btn btn-sm' href="https://github.com/zhblue/hustoj/" target="_blank"><b>HUSTOJ</b></a>
-  <br><a class='btn btn-sm' href="https://yuanqi.tencent.com/agent/jADpOEWqLvTv" target="_blank"><b>小张老师(AI-help)</b></a>
+  <br><a class='btn btn-sm' href="https://yuanqi.tencent.com/agent/jADpOEWqLvTv" target="_blank"><b>샤오장 선생님(AI-help)</b></a>
   <br><div><a class="btn btn-sm" target='main' href="http://hustoj.com"><?php echo $MSG_ADMIN." ".$MSG_FAQ?></a></div>
   <br><a class='btn btn-sm' href="https://github.com/zhblue/freeproblemset/" target="_blank"><b>FreeProblemSet</b></a>
-  <br><a class='btn btn-sm' href="http://tk.hustoj.com" target="_blank"><b>自助题库</b></a>
+  <br><a class='btn btn-sm' href="http://tk.hustoj.com" target="_blank"><b>셀프 문제은행</b></a>
   <?php if(isset($OJ_REMOTE_JUDGE)&&$OJ_REMOTE_JUDGE){ ?>
-        <br><a class='btn btn-sm' href="https://www.ssoier.cn/api/" target="_blank"><b>一本通远程账户管理</b></a>
+        <br><a class='btn btn-sm' href="https://www.ssoier.cn/api/" target="_blank"><b>원격 계정 관리</b></a>
   <?php } ?>
-  <br><a class='btn btn-sm' href="https://mp.weixin.qq.com/s?__biz=MzI1MTAwMTI2NA==&mid=2656403287&idx=1&sn=2b1b9a5cd0b271aa4a050c349981e715" target="_blank"><b>二次开发教程</b></a>
+  <br><a class='btn btn-sm' href="https://mp.weixin.qq.com/s?__biz=MzI1MTAwMTI2NA==&mid=2656403287&idx=1&sn=2b1b9a5cd0b271aa4a050c349981e715" target="_blank"><b>2차 개발 문서</b></a>
   <br>
 <?php }?>
 

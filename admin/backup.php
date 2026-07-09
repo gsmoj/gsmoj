@@ -14,13 +14,13 @@ if(isset($_POST['do'])){
 
 require_once(dirname(__FILE__)."/../include/backup.php");
 
-// 安全时间字符串，避免冒号
-$time_str = date('Y-m-d_H:i:s');
+// 파일명에 넣을 백업 시각이다. 윈도우/리눅스 경로에서 문제 없도록 안전한 문자열로 만든다.
+$time_str = date('Y-m-d_H-i-s');
 $target = $OJ_DATA."/0/".$DB_NAME."_".$time_str.".sql";
 $db_file = basename($target);
 $dirpath = dirname($target);
 
-// 确保目录存在且可写
+// 백업 파일을 저장할 데이터 디렉터리가 없으면 생성한다.
 if (!file_exists($dirpath)) {
     mkdir($dirpath, 0755, true);
 }
@@ -37,11 +37,14 @@ $config = [
 
 $bak = new DatabaseTool($config);
 if (!$bak->backup()) {
-    echo "数据库备份失败: ".$bak->getError();
+    echo "데이터베이스 백업 실패: ".$bak->getError();
     exit;
 }
 
-// 修正 addDirToZip 函数
+/**
+ * 지정한 디렉터리의 파일을 ZIP 백업에 재귀적으로 추가한다.
+ * data/0은 방금 만든 백업 파일이 있는 위치라 중복 압축을 피하기 위해 건너뛴다.
+ */
 function addDirToZip($path, $zip) {
     global $OJ_DATA;
     if ($path == "data/0") return;
@@ -55,7 +58,7 @@ function addDirToZip($path, $zip) {
                     if (is_dir($fullpath)) {
                         addDirToZip($fullpath, $zip);
                     } else {
-                        $zip->addFile($fullpath, $fullpath); // 保留相对路径
+                        $zip->addFile($fullpath, $fullpath); // 원래 경로 구조를 유지해 복구 시 위치를 알 수 있게 한다.
                     }
                 }
         }
@@ -63,21 +66,21 @@ function addDirToZip($path, $zip) {
     closedir($handler);
 }
 
-// ZIP 文件路径安全化
+// SQL 백업과 채점 데이터/업로드 파일을 하나의 ZIP 파일로 묶는다.
 $ztar = dirname($target)."/backup_".$time_str.".zip";
 $zip = new ZipArchive();
 
 if ($zip->open($ztar, ZipArchive::CREATE | ZipArchive::OVERWRITE) === TRUE) {
     chdir(dirname($OJ_DATA));
     if (is_dir("data"))
-        addDirToZip("data", $zip); // 测试数据
+        addDirToZip("data", $zip); // 채점 테스트 데이터
     chdir(realpath(dirname(dirname(__FILE__))));
     if ($OJ_SaaS_ENABLE && $DOMAIN != $domain) {
         if (is_dir("upload/$domain"))
-            addDirToZip(realpath("upload/$domain"), $zip); // 子域题目图片
+            addDirToZip(realpath("upload/$domain"), $zip); // SaaS 서브도메인별 문제 이미지
     } else {
         if (is_dir("upload/"))
-            addDirToZip(realpath("upload"), $zip); // 题目图片
+            addDirToZip(realpath("upload"), $zip); // 문제 이미지
     }
     chdir($OJ_DATA."/0");
     if (file_exists($db_file)) {
@@ -85,11 +88,11 @@ if ($zip->open($ztar, ZipArchive::CREATE | ZipArchive::OVERWRITE) === TRUE) {
     }
 
     if (!$zip->close()) {
-        echo "ZIP 文件生成失败，请检查目标目录权限: $ztar";
+        echo "ZIP 파일 생성 실패. 대상 디렉터리 권한을 확인하세요: $ztar";
         exit;
     }
 } else {
-    echo "无法创建 ZIP 文件: $ztar";
+    echo "ZIP 파일을 만들 수 없습니다: $ztar";
     exit;
 }
 
@@ -107,9 +110,10 @@ if ($zip->open($ztar, ZipArchive::CREATE | ZipArchive::OVERWRITE) === TRUE) {
 }
 ?>
 
-<button onclick="phpfm(0)">查看备份文件</button>
+<button onclick="phpfm(0)">백업 파일 보기</button>
 <script src='../template/bs3/jquery.min.js'></script>
 <script>
+// 백업 저장 위치(data/0)를 내장 파일 관리자 화면으로 연다.
 function phpfm(pid){
     $.post("phpfm.php",{'frame':3,'pid':pid,'pass':''},function(data,status){
         if(status=="success"){

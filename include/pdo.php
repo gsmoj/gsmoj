@@ -1,8 +1,17 @@
 <?php
+/**
+ * HUSTOJ 전역 DB 헬퍼.
+ *
+ * 사용 예:
+ *   pdo_query("select * from users where user_id=?", $user_id);
+ *
+ * SELECT는 fetchAll() 배열, INSERT는 lastInsertId(), 그 외 UPDATE/DELETE는 영향 받은 행 수를 반환한다.
+ * 구형 코드가 전역 함수 하나로 DB를 쓰도록 설계되어 있어, 대부분의 페이지가 이 함수를 통해 쿼리한다.
+ */
 function pdo_query($sql){
     $query_start_time=microtime(true);
     $num_args = func_num_args();
-    $args = func_get_args();       //获得传入的所有参数的数组
+    $args = func_get_args();       // 전달된 전체 인자를 배열로 받는다.
     $args = array_slice($args,1,--$num_args);
     if(isset($args[0])&&is_array($args[0])) $args=$args[0]; 
     global $DB_HOST,$DB_NAME,$DB_USER,$DB_PASS,$dbh,$OJ_TEMPLATE;
@@ -25,6 +34,7 @@ function pdo_query($sql){
 	    $sth = $dbh->prepare($sql);
 	    $sth->execute($args);
 	    $result=array();
+	    // 쿼리 종류에 따라 기존 HUSTOJ 호출부가 기대하는 반환 타입을 맞춘다.
 	    if(stripos($sql,"select") === 0){
 		$result=$sth->fetchAll();
 	    }else if(stripos($sql,"insert") === 0){
@@ -42,7 +52,7 @@ function pdo_query($sql){
         }
 	    return $result;
     }catch(PDOException $e){
-//	    echo "<span class=red>".$e->getMessage()."</span>";    // open this line to debug SQL fail problems 
+//	    echo "<span class=red>".$e->getMessage()."</span>";    // SQL 오류를 직접 확인해야 할 때 임시로 켠다.
 //	$view_errors="SQL:".$sql."\n".$e->getMessage();
 //	echo htmlentities($view_errors."\n\n");
 	GLOBAL $MSG_UPDATE_DATABASE,$MSG_HELP_UPDATE_DATABASE;

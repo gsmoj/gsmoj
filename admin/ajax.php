@@ -4,6 +4,13 @@ require_once("../include/db_info.inc.php");
 if(!(isset($_SESSION[$OJ_NAME.'_administrator'])||isset($_SESSION[$OJ_NAME.'_problem_editor'])||isset($_SESSION[$OJ_NAME.'_contest_creator'])||isset($_SESSION[$OJ_NAME.'_tag_adder']))){
   exit(1);  
 }
+/**
+ * 관리자 목록 화면의 인라인 수정 요청을 처리한다.
+ *
+ * $tb: 대상 테이블 접두어(user, problem, news 등)
+ * $fd: 수정할 필드명
+ * $pr: 필요한 권한명
+ */
 function try_ajax($tb,$fd,$pr){
 	global $OJ_NAME,$_SESSION,$_POST;
 	if(!isset($_POST["m"])) return;
@@ -21,14 +28,19 @@ function try_ajax($tb,$fd,$pr){
                 echo pdo_query($sql,$new_value,$data_id);
         }
 }
+
+/**
+ * 공백으로 구분된 source/tag 문자열에서 중복 값을 제거한다.
+ * 문제 출처나 태그를 AJAX로 추가할 때 같은 단어가 반복 저장되는 것을 막는다.
+ */
 function uniqueSource($str) {
-    // 用正则分割字符串，支持多个连续空格
+    // 정규식으로 분리하여 여러 개의 연속 공백을 하나의 구분자로 처리한다.
     $arr = preg_split('/\s+/', trim($str));
 
-    // 去除数组中的重复项
+    // 배열 안의 중복 값을 제거한다.
     $uniqueArr = array_unique($arr);
 
-    // 重新拼接为空格分割的字符串
+    // 다시 공백 하나로 이어 붙여 DB에 저장할 문자열을 만든다.
     $result = implode(' ', $uniqueArr);
 
     return $result;

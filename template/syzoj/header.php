@@ -1,7 +1,11 @@
 <?php
         require_once(dirname(__FILE__)."/../../include/memcache.php");
         
-        function checkmail(){  // check if has mail
+        /**
+         * 로그인한 사용자의 읽지 않은 쪽지 개수를 메뉴에 표시한다.
+         * 반환값은 헤더에서 바로 출력할 수 있는 작은 HTML 조각이다.
+         */
+        function checkmail(){
           global $OJ_NAME;
           $sql="select count(1) cnt FROM `mail` WHERE new_mail=1 AND `to_user`=?";
           $result=pdo_query($sql,$_SESSION[$OJ_NAME.'_'.'user_id']);
@@ -11,6 +15,10 @@
           return $retmsg;
         }
 
+        /**
+         * 상단 메뉴에 노출할 공지(news.menu=1)를 HTML 링크 목록으로 만든다.
+         * Redis 또는 세션 캐시에 저장되는 값이므로 여기서는 완성된 HTML 문자열을 반환한다.
+         */
         function get_menu_news() {
             $result = "";
             $sql_news_menu = "select `news_id`,`title` FROM `news` WHERE `menu`=1 AND `title`!='faqs.cn' ORDER BY `importance` ASC,`time` DESC LIMIT 10";
@@ -23,7 +31,8 @@
             return $result;
         }
         
-        // 💡 [수정] 꼬리표(?page=1 등)를 무시하고 순수 파일명만 가져오도록 변경하여 하이라이트 버그 해결
+        // 현재 요청 파일명을 기준으로 상단 메뉴의 active 상태를 계산한다.
+        // 꼬리표(?page=1 등)는 무시하고 순수 파일명만 사용해야 하이라이트가 안정적으로 동작한다.
         $url = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
         if ($url == "") $url = "index.php"; // 기본 루트 접속 시 index.php로 간주
         
@@ -31,6 +40,7 @@
         if($dir=="discuss3") $path_fix="../";
         else $path_fix="";
         
+        // 로그인 필수 모드일 때는 로그인/비밀번호 찾기/회원가입 화면만 예외로 열어 둔다.
         if(isset($OJ_NEED_LOGIN)&&$OJ_NEED_LOGIN&&(
                   $url!='loginpage.php'&&
                   $url!='lostpassword.php'&&
@@ -42,6 +52,7 @@
            exit();
         }
 
+        // 온라인 사용자 집계가 켜져 있으면 현재 접속자를 기록한다.
         if($OJ_ONLINE){
                 require_once($path_fix.'include/online.php');
                 $on = new online();
@@ -49,7 +60,7 @@
 
         $sql_news_menu_result_html = "";
 
-        // 공지사항(News) 메뉴 캐싱 처리부
+        // 공지사항 메뉴는 매 요청마다 DB를 치지 않도록 Redis 또는 세션에 캐시한다.
         if ($OJ_MENU_NEWS) {
             if ($OJ_REDIS) {
                 $redis = new Redis();
@@ -77,8 +88,8 @@
                 }
             }
             
-            // 💡 [추가] 동적 공지(News) 메뉴 하이라이트 처리
-            // 캐시에서 꺼내온 HTML 덩어리에서, 현재 보고 있는 공지글 id를 찾아 'active' 클래스를 강제로 씌워줍니다.
+            // 동적 공지 메뉴 하이라이트 처리.
+            // 캐시된 HTML에서 현재 보고 있는 공지 id를 찾아 active 클래스를 강제로 붙인다.
             if ($url == 'viewnews.php' && isset($_GET['id'])) {
                 $nid = intval($_GET['id']);
                 $target = 'class="item" href="/viewnews.php?id=' . $nid . '"';

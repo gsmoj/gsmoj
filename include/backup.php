@@ -1,7 +1,8 @@
 <?php
 /**
- * 数据库备份还原类（utf8mb4 优化版）
- * 保持接口完全兼容
+ * 데이터베이스 백업/복구 도구.
+ *
+ * admin/backup.php에서 호출되며, 기존 HUSTOJ 인터페이스를 유지하면서 utf8mb4로 백업한다.
  */
 class DatabaseTool
 {
@@ -12,7 +13,7 @@ class DatabaseTool
         'user'     => 'root',
         'password' => '',
         'database' => 'jol',
-        'charset'  => 'utf8mb4',  // ✅ 改为 utf8mb4
+        'charset'  => 'utf8mb4',  // 한글/이모지까지 안전하게 저장하기 위한 문자셋
         'target'   => 'sql.sql'
     ];
     private $tables = [];
@@ -40,17 +41,17 @@ class DatabaseTool
     {
         $this->setTables($tables);
         if (empty($this->tables)) {
-            $this->error = '数据库中没有表!';
+            $this->error = '데이터베이스에 테이블이 없습니다!';
             return false;
         }
 
         $fp = @fopen($this->config['target'], 'w');
         if (!$fp) {
-            $this->error = '无法写入目标文件';
+            $this->error = '대상 파일에 쓸 수 없습니다';
             return false;
         }
 
-        // 文件头
+        // 복구 시 필요한 기본 정보와 외래키 검사 해제 구문을 파일 머리말에 기록한다.
         $head = "/*\r\nMySQL Database Backup Tool\r\n";
         $head .= "Server: {$this->config['host']}:{$this->config['port']}\r\n";
         $head .= "Database: {$this->config['database']}\r\n";
@@ -82,24 +83,28 @@ class DatabaseTool
         $this->tables = (!empty($tables) && is_array($tables)) ? $tables : $this->getTables();
     }
 
+    // 단순 조회용 내부 헬퍼. 결과는 숫자 인덱스 배열로 반환된다.
     private function query($sql)
     {
         $stmt = $this->handler->query($sql);
         return $stmt ? $stmt->fetchAll() : [];
     }
 
+    // 현재 DB에 존재하는 전체 테이블 목록을 가져온다.
     private function getTables()
     {
         $list = $this->query('SHOW TABLES');
         return array_column($list, 0);
     }
 
+    // 테이블 생성 SQL을 백업 파일에 그대로 남기기 위해 SHOW CREATE TABLE을 사용한다.
     private function getDDL($table)
     {
         $ddl = $this->query("SHOW CREATE TABLE `{$table}`");
         return $ddl[0][1] . ';';
     }
 
+    // 테이블의 모든 행을 INSERT 문으로 변환해 백업 파일에 기록한다.
     private function dumpData($fp, $table)
     {
         $columns = array_column($this->query("SHOW COLUMNS FROM `{$table}`"), 0);
@@ -116,7 +121,7 @@ class DatabaseTool
     public function restore($path = '')
     {
         if (!file_exists($path)) {
-            $this->error = 'SQL文件不存在!';
+            $this->error = 'SQL 파일이 존재하지 않습니다!';
             return false;
         }
 
@@ -127,7 +132,7 @@ class DatabaseTool
                     $this->handler->exec($sql);
                 }
             }
-            echo '还原成功! 花费时间 ' . round((microtime(true) - $this->begin) * 1000, 2) . " ms";
+            echo '복구 성공! 걸린 시간 ' . round((microtime(true) - $this->begin) * 1000, 2) . " ms";
             return true;
         } catch (PDOException $e) {
             $this->error = $e->getMessage();
@@ -135,6 +140,7 @@ class DatabaseTool
         }
     }
 
+    // 백업 파일에서 주석을 제거하고 세미콜론 단위의 SQL 문장 배열로 나눈다.
     private function parseSQL($path)
     {
         $sql = file_get_contents($path);

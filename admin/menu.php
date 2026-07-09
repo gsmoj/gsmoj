@@ -12,13 +12,13 @@ $OJ_TEMPLATE = "bs3";
 <head>
     <title><?php echo $MSG_ADMIN?></title>
     <link rel="stylesheet" href="<?php echo $OJ_CDN_URL.$path_fix."template/$OJ_TEMPLATE/"?>bootstrap-theme.min.css">
-    <!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
+    <!-- Bootstrap JavaScript가 jQuery에 의존하므로 jQuery를 먼저 불러온다. -->
     <script src="<?php echo $OJ_CDN_URL.$path_fix."template/$OJ_TEMPLATE/"?>jquery.min.js"></script>
-    <!-- 最新的 Bootstrap 核心JavaScript文件 -->
+    <!-- 관리자 메뉴 접기/버튼 동작에 필요한 Bootstrap JavaScript. -->
     <script src="<?php echo $OJ_CDN_URL.$path_fix."template/$OJ_TEMPLATE/"?>bootstrap.min.js"></script>
     <link rel="stylesheet" href="admin.css">
 </head>
-<body style="text-align:center;min-width:100px; margin-left: 250px;"> <!-- 给主体内容预留侧边栏宽度的边距 -->
+<body style="text-align:center;min-width:100px; margin-left: 250px;"> <!-- 고정 사이드바 폭만큼 본문 영역을 오른쪽으로 밀어 둔다. -->
     <div id="sidebar">
         <a class='btn btn-sm' href="help.php" target="main" title="<?php echo $MSG_ADMIN?>"><i class="glyphicon glyphicon-star-empty"></i><b><?php echo $MSG_ADMIN?></b></a>
         <a class='btn btn-sm' href="../status.php" target="_top" title="<?php echo $MSG_HELP_SEEOJ?>"><i class="glyphicon glyphicon-eye"></i><b><?php echo $MSG_SEEOJ?></b></a>
@@ -101,14 +101,14 @@ $OJ_TEMPLATE = "bs3";
 
         <?php if (isset($_SESSION[$OJ_NAME.'_'.'administrator'])){?>
             <a class='btn btn-sm' href="https://github.com/zhblue/hustoj/" target="_blank"><i class="fab glyphicon-github"></i><b>HUSTOJ</b></a><br>
-            <a class='btn btn-sm' href="https://yuanqi.tencent.com/agent/jADpOEWqLvTv" target="_blank"><i class="glyphicon glyphicon-robot"></i><b>小张老师(AI-help)</b></a><br>
+            <a class='btn btn-sm' href="https://yuanqi.tencent.com/agent/jADpOEWqLvTv" target="_blank"><i class="glyphicon glyphicon-robot"></i><b>샤오장 선생님(AI-help)</b></a><br>
             <div><a class="btn btn-sm" target='main' href="http://hustoj.com"><i class="glyphicon glyphicon-question-circle"></i><?php echo $MSG_ADMIN." ".$MSG_FAQ?></a></div>
             <a class='btn btn-sm' href="https://github.com/zhblue/freeproblemset/" target="_blank"><i class="fab glyphicon-github"></i><b>FreeProblemSet</b></a><br>
-            <a class='btn btn-sm' href="http://tk.hustoj.com" target="_blank"><i class="glyphicon glyphicon-book"></i><b>自助题库</b></a><br>
+            <a class='btn btn-sm' href="http://tk.hustoj.com" target="_blank"><i class="glyphicon glyphicon-book"></i><b>셀프 문제은행</b></a><br>
             <?php if(isset($OJ_REMOTE_JUDGE)&&$OJ_REMOTE_JUDGE){?>
-                <a class='btn btn-sm' href="https://www.ssoier.cn/api/" target="_blank"><i class="glyphicon glyphicon-link"></i><b>一本通远程账户管理</b></a><br>
+                <a class='btn btn-sm' href="https://www.ssoier.cn/api/" target="_blank"><i class="glyphicon glyphicon-link"></i><b>원격 계정 관리</b></a><br>
             <?php }?>
-            <a class='btn btn-sm' href="https://mp.weixin.qq.com/s?__biz=MzI1MTAwMTI2NA==&mid=2656403287&idx=1&sn=2b1b9a5cd0b271aa4a050c349981e715" target="_blank"><i class="glyphicon glyphicon-book-open"></i><b>二次开发教程</b></a><br>
+            <a class='btn btn-sm' href="https://mp.weixin.qq.com/s?__biz=MzI1MTAwMTI2NA==&mid=2656403287&idx=1&sn=2b1b9a5cd0b271aa4a050c349981e715" target="_blank"><i class="glyphicon glyphicon-book-open"></i><b>2차 개발 문서</b></a><br>
         <?php }?>
 
         <?php if (isset($_SESSION[$OJ_NAME.'_'.'administrator'])){?>
