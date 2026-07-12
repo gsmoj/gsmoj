@@ -135,6 +135,30 @@
             color: #ffffff !important;
             background-color: transparent !important; 
         }
+
+        #page-header.ui.menu .item,
+        #page-header.ui.menu .item:hover,
+        #page-header.ui.menu .item:focus,
+        #page-header.ui.menu .item:active,
+        #page-header.ui.menu .item.active,
+        #page-header.ui.menu .ui.dropdown .menu .item,
+        #page-header.ui.menu .ui.dropdown .menu .item:hover,
+        #page-header.ui.menu .ui.dropdown .menu .item:focus,
+        #page-header.ui.menu .ui.dropdown .menu .item:active {
+            outline: none !important;
+            box-shadow: none !important;
+            -webkit-box-shadow: none !important;
+            text-decoration: none !important;
+        }
+
+        #page-header.ui.menu .item::before,
+        #page-header.ui.menu .item::after,
+        #page-header.ui.menu .ui.dropdown .menu .item::before,
+        #page-header.ui.menu .ui.dropdown .menu .item::after {
+            background: transparent !important;
+            box-shadow: none !important;
+            -webkit-box-shadow: none !important;
+        }
         
         #page-header.ui.menu .item.active {
             border-bottom: 3px solid #2563eb !important;
