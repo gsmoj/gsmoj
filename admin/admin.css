@@ -433,6 +433,55 @@ input:focus, select:focus, textarea:focus { border-color: #60a5fa; box-shadow: 0
     box-shadow: 0 4px 18px rgba(15, 23, 42, .06);
 }
 
+/* 관리자 등록·수정 화면 공통 전체 폭 레이아웃 */
+body.admin-form-page {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #fff !important;
+    background-image: none !important;
+    opacity: 1 !important;
+}
+.admin-form-shell {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: none !important;
+    min-height: 100vh;
+    margin: 0 !important;
+    padding: 0 24px 32px !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: #fff !important;
+    box-shadow: none !important;
+}
+.admin-form-title {
+    position: sticky;
+    z-index: 30;
+    top: 0;
+    margin: 0 -24px 24px;
+    padding: 16px 24px 14px;
+    border-bottom: 1px solid var(--admin-border);
+    background: #fff;
+}
+.admin-form-title h3 { margin: 0; color: var(--admin-text); }
+.admin-form-shell form { width: 100%; }
+.admin-form-shell .ke-container { box-sizing: border-box; width: 100% !important; }
+.admin-form-shell textarea { width: 100%; }
+.admin-form-shell .col {
+    min-width: 0;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+@media (max-width: 760px) {
+    .admin-form-shell { padding: 0 16px 24px !important; }
+    .admin-form-title { margin: 0 -16px 18px; padding: 14px 16px 12px; }
+}
+
 /* frameset 왼쪽 메뉴 */
 body[style*="text-align:center"] { padding: 14px 12px; background: #111827 !important; color: #e5e7eb; }
 html:has(body[style*="text-align:center"]), body[style*="text-align:center"] { overflow-x: hidden; scrollbar-width: none; }

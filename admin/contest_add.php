@@ -8,11 +8,11 @@
 if(!(isset($_SESSION[$OJ_NAME.'_'.'administrator'])||isset($_SESSION[$OJ_NAME.'_'.'contest_creator']))){
     exit(1);
   }
-  echo "<center><h3>".$MSG_CONTEST."-".$MSG_ADD."</h3></center>";
+  $page_heading = $MSG_CONTEST." - ".$MSG_ADD;
   
 ?>
 
-<body leftmargin="30" >
+<body class="admin-form-page">
 <?php
 $description = "";
 if(isset($_POST['startdate'])){
@@ -169,17 +169,16 @@ else{
 <head>
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Cache-Control" content="no-cache">
-  <meta http-equiv="Content-Language" content="zh-cn">
+  <meta http-equiv="Content-Language" content="ko">
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
   <title>Contest Add</title>
 </head>
-<hr>
-
 <?php 
   include_once("kindeditor.php") ;
 ?>
 
-  <div class="padding">
+  <div class="admin-form-shell">
+    <header class="admin-form-title"><h3><?php echo htmlentities($page_heading, ENT_QUOTES, 'UTF-8')?></h3></header>
     <form method=POST>
     <p align=left>
       <?php echo "<h3>".$MSG_CONTEST."-".$MSG_TITLE."</h3>"?>

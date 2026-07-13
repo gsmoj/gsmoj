@@ -2,29 +2,37 @@
 <?php include("template/$OJ_TEMPLATE/header.php");?>
 
 <style>
-.problemset-page { padding: 1.5rem !important; }
+.problemset-page { box-sizing:border-box; width:min(100% - 2rem,1280px); margin:1.25rem auto !important; padding:1.25rem !important; border:1px solid #e2e8f0; border-radius:.75rem !important; background:#fff; box-shadow:none !important; font-size:14px; }
+.problemset-page::before { display:none; }
+.problemset-page::after { border-radius:inherit; background:#fff !important; box-shadow:none !important; }
 .problemset-toolbar { display:flex; align-items:center; justify-content:space-between; gap:1rem; margin-bottom:1.25rem; }
 .problemset-searches { display:flex; flex-wrap:wrap; gap:.75rem; }
 .problemset-searches .ui.input { width:18rem; }
 .problemset-searches .problem-id-input { width:9rem; }
-.problemset-actions { display:flex; align-items:center; gap:.75rem; white-space:nowrap; }
-.problemset-table { margin:0 !important; }
-.problemset-table thead th { background:#f7f9fc !important; color:#4b5563 !important; font-size:.85rem; letter-spacing:.02em; }
+.problemset-searches input { height:40px; font-size:14px !important; }
+.problemset-actions { display:flex; align-items:center; gap:.75rem; color:#475569; font-size:14px; white-space:nowrap; }
+.problemset-actions .button { font-size:13px !important; }
+.problemset-table-wrap { overflow-x:auto; border:1px solid #e2e8f0; border-radius:.65rem; background:#fff; }
+.problemset-table { width:100%; margin:0 !important; color:#334155 !important; font-size:14px !important; line-height:1.4; }
+.problemset-table thead th { padding:.8rem .75rem !important; background:#f8fafc !important; color:#475569 !important; font-size:12px !important; font-weight:700 !important; letter-spacing:.04em; text-transform:none !important; }
 .problemset-table tbody tr { transition:background-color .15s ease; }
 .problemset-table tbody tr:hover { background:#f8fbff !important; }
-.problemset-table td { padding:1rem .75rem !important; vertical-align:middle !important; }
-.problem-title-link { color:#1f2937; font-size:1rem; font-weight:600; }
+.problemset-table td { padding:.85rem .75rem !important; color:#334155; font-size:14px !important; vertical-align:middle !important; }
+.problemset-table td > strong { color:#64748b; font-family:Consolas,monospace; font-size:13px; }
+.problem-title-link { color:#1e293b; font-size:15px; font-weight:600; line-height:1.4; }
 .problem-title-link:hover { color:#2185d0; }
-.problem-tags { float:right; display:inline-flex; flex-wrap:wrap; justify-content:flex-end; gap:.35rem; }
+.problem-tags { float:right; display:inline-flex; flex-wrap:wrap; justify-content:flex-end; gap:.3rem; }
+.problem-tags .ui.label, .problemset-table .ui.tiny.label { margin:0 0 0 .35rem; font-size:11px !important; }
 .problem-rate { min-width:8rem; }
 .problem-rate-track { height:.5rem; overflow:hidden; border-radius:999px; background:#e5e7eb; }
 .problem-rate-fill { height:100%; min-width:0; border-radius:inherit; background:linear-gradient(90deg,#21ba45,#16ab39); }
 .problem-rate-text { display:block; margin-top:.3rem; color:#6b7280; font-size:.8rem; }
 .problemset-pagination { display:flex; justify-content:center; margin:1.5rem 0; }
-.problemset-pagination .ui.menu { box-shadow:none; }
+.problemset-pagination .ui.menu { min-height:36px; box-shadow:none; }
+.problemset-pagination .ui.menu .item { min-width:36px; padding:.65rem .8rem; font-size:13px; }
 .show_tag_controled.is-hidden { display:none !important; }
 @media (max-width:767px) {
-  .problemset-page { padding:1rem !important; }
+  .problemset-page { width:100%; margin:0 !important; padding:1rem !important; border-right:0; border-left:0; border-radius:0 !important; }
   .problemset-toolbar { align-items:stretch; flex-direction:column; }
   .problemset-searches .ui.input, .problemset-searches .problem-id-input { width:100%; }
   .problemset-actions { justify-content:space-between; }
@@ -83,7 +91,7 @@ function render_problemset_pagination($page,$start,$end,$view_total_page,$safe_p
 
   <?php if(!isset($_GET['list'])) render_problemset_pagination($page,$start,$end,$view_total_page,$safe_postfix); ?>
 
-  <div class="ui segment" style="padding:0;overflow-x:auto">
+  <div class="problemset-table-wrap">
     <table class="ui very basic center aligned table problemset-table">
       <thead><tr>
         <?php if(isset($_SESSION[$OJ_NAME.'_user_id'])){?><th class="one wide"><?php echo $MSG_STATUS?></th><?php }?>

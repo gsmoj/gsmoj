@@ -97,22 +97,30 @@ body{
     #language { flex:1 1 10rem; width:auto; }
     .editor-tools { flex:0 0 auto; }
   }
-  body.embedded-workspace { background:#eef2f7 !important; }
+  html:has(body.embedded-workspace), body.embedded-workspace { width:100%; height:100%; overflow:hidden !important; }
+  body.embedded-workspace { min-height:0; background:#eef2f7 !important; }
   body.embedded-workspace::after { display:none !important; content:none !important; }
   body.embedded-workspace #language_span,
   body.embedded-workspace #Submit,
   body.embedded-workspace #countDown,
   body.embedded-workspace .submission-problem-label { display:none !important; }
-  body.embedded-workspace #frmSolution { min-height:100%; padding:0; background:#eef2f7; }
-  body.embedded-workspace #source { width:100% !important; height:100vh !important; min-height:520px; border:0; border-radius:0; box-shadow:none; }
+  body.embedded-workspace #frmSolution { height:100%; min-height:0; padding:0; overflow:hidden; background:#eef2f7; }
+  body.embedded-workspace #source { width:100% !important; height:100% !important; min-height:0; margin:0 !important; border:0; border-radius:0; box-shadow:none; }
   body.embedded-workspace .ace_scrollbar-h { display:none !important; height:0 !important; }
-  body.embedded-workspace #frmSolution > .row { box-sizing:border-box; padding:12px; }
+  body.embedded-workspace #frmSolution > .row { display:none !important; }
+  body.embedded-workspace .ace_scroller { right:0 !important; bottom:0 !important; }
+  body.editor-dark, body.editor-dark #frmSolution { background:#111827 !important; color:#e5e7eb !important; }
+  body.editor-dark #language_span, body.editor-dark::after { border-color:#334155 !important; background:#1f2937 !important; color:#e5e7eb !important; }
+  body.editor-dark #language, body.editor-dark .editor-tool-button { border-color:#475569; background:#111827; color:#e5e7eb; }
+  body.editor-dark #countDown { color:#cbd5e1; }
 <?php if(isset($_GET['spa'])){ ?>
   #language_span, #Submit, #countDown, .submission-problem-label { display:none !important; }
   body::after { display:none !important; content:none !important; }
-  #frmSolution { min-height:100%; padding:0 !important; background:#eef2f7 !important; }
-  #source { width:100% !important; height:100vh !important; min-height:520px; border:0 !important; border-radius:0 !important; box-shadow:none !important; }
+  html, body { width:100%; height:100%; overflow:hidden !important; }
+  #frmSolution { height:100%; min-height:0; padding:0 !important; overflow:hidden; background:#eef2f7 !important; }
+  #source { width:100% !important; height:100% !important; min-height:0; margin:0 !important; border:0 !important; border-radius:0 !important; box-shadow:none !important; }
   .ace_scrollbar-h { display:none !important; height:0 !important; }
+  #frmSolution > .row { display:none !important; }
 <?php } ?>
   </style>
     
@@ -761,7 +769,7 @@ function loadFromBlockly(){
     ace.require("ace/ext/language_tools");
     var editor = ace.edit("source");
     var savedEditorTheme = localStorage.getItem('gsmoj_editor_theme');
-    editor.setTheme(savedEditorTheme === 'monokai' ? 'ace/theme/monokai' : 'ace/theme/xcode');
+    applyEditorTheme(savedEditorTheme === 'monokai' ? 'monokai' : 'xcode');
     switchLang(<?php echo $lastlang ?>);
     editor.setOptions({
         enableBasicAutocompletion: true,
@@ -834,13 +842,22 @@ editor.getSession().on("change", function() {
         var currentSize = parseInt(editor.getFontSize());
         editor.setFontSize(currentSize - 3);
     }
+   function applyEditorTheme(themeName) {
+    const normalizedTheme = themeName === 'monokai' ? 'monokai' : 'xcode';
+    editor.setTheme('ace/theme/' + normalizedTheme);
+    document.body.classList.toggle('editor-dark', normalizedTheme === 'monokai');
+    localStorage.setItem('gsmoj_editor_theme', normalizedTheme);
+    if (window.parent !== window && typeof window.parent.setProblemWorkspaceTheme === 'function') {
+        window.parent.setProblemWorkspaceTheme(normalizedTheme);
+    }
+    editor.resize();
+   }
+
    function toggleTheme(event) {
     event.preventDefault();
     const useDarkTheme = editor.getTheme() === "ace/theme/xcode";
     const themeName = useDarkTheme ? 'monokai' : 'xcode';
-    editor.setTheme('ace/theme/' + themeName);
-    localStorage.setItem('gsmoj_editor_theme', themeName);
-    editor.resize();
+    applyEditorTheme(themeName);
 }
 
 	var level = 0;

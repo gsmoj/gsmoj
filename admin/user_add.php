@@ -10,10 +10,10 @@ if(isset($OJ_LANG)){
 ?>
 
 <title>Add User</title>
-<hr>
-<center><h3><?php echo $MSG_USER."-".$MSG_ADD?></h3></center>
+<script>document.body.classList.add('admin-form-page');</script>
 
-<div class='container'>
+<div class="admin-form-shell">
+<header class="admin-form-title"><h3><?php echo htmlentities($MSG_USER." - ".$MSG_ADD, ENT_QUOTES, 'UTF-8')?></h3></header>
 
 <?php
 if(isset($_POST['do'])){

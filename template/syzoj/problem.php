@@ -22,6 +22,20 @@ div[class*=ace_br] {
     border-radius: 0 !important;
 }
 
+<?php if (isset($_GET['spa'])) { ?>
+html, body { margin:0 !important; background:#fff !important; }
+.padding {
+  width:100% !important;
+  max-width:none !important;
+  margin:0 !important;
+  border:0 !important;
+  border-radius:0 !important;
+  background:#fff !important;
+  box-shadow:none !important;
+}
+.padding::before, .padding::after { border-radius:0 !important; box-shadow:none !important; backdrop-filter:none !important; filter:none !important; }
+<?php } ?>
+
 </style>
 <script src="<?php echo $OJ_CDN_URL.$path_fix."template/$OJ_TEMPLATE/"?>clipboard.min.js"></script>
 
@@ -388,6 +402,31 @@ body.problem-split-active { overflow:hidden !important; background:#eef2f7 !impo
 #dragButton { z-index:40; left:-19px; width:24px; touch-action:none; }
 #dragButton::before { left:11px; background:#b9c5d3; }
 #dragButton::after { left:4px; width:16px; height:76px; margin-top:-38px; border-color:#9eacbc; border-radius:4px; background:#d7e0ea; box-shadow:0 2px 7px rgba(15,23,42,.16); }
+body.problem-workspace-dark, body.problem-workspace-dark .problem-split-shell,
+body.problem-workspace-dark #main.problem-split-pane,
+body.problem-workspace-dark #main.problem-split-pane .padding,
+body.problem-workspace-dark #main.problem-split-pane .padding::after,
+body.problem-workspace-dark #submitPage,
+body.problem-workspace-dark #ansFrame { background:#111827 !important; color:#e5e7eb !important; }
+body.problem-workspace-dark #workspaceTopBar,
+body.problem-workspace-dark #workspaceBottomBar { border-color:#334155; background:#1f2937; }
+body.problem-workspace-dark .workspace-language-label,
+body.problem-workspace-dark #workspaceCountdown { color:#cbd5e1; }
+body.problem-workspace-dark #workspaceLanguage,
+body.problem-workspace-dark .workspace-tool-button { color:#e5e7eb; border-color:#475569; background:#111827; }
+body.problem-workspace-dark #main .ui.header,
+body.problem-workspace-dark #main .font-content,
+body.problem-workspace-dark #main p,
+body.problem-workspace-dark #main li { color:#e5e7eb !important; }
+body.problem-workspace-dark #main .ui.segment { color:#e5e7eb !important; border-color:#374151 !important; background:#1f2937 !important; }
+body.problem-workspace-dark #main .ui.block.header { color:#f8fafc !important; border-color:#374151 !important; background:#0f172a !important; }
+body.problem-workspace-dark #main .ui.label { color:#e5e7eb !important; background:#374151 !important; }
+body.problem-workspace-dark #main a { color:#93c5fd; }
+body.problem-workspace-dark #dragButton::before { background:#475569; }
+body.problem-workspace-dark #dragButton::after { border-color:#64748b; background:#334155; box-shadow:none; }
+body.problem-workspace-dark #submitPage.is-loading::after { color:#cbd5e1; background:#111827; }
+body.problem-workspace-dark .ui.menu { border-color:#334155 !important; background:#1f2937 !important; }
+body.problem-workspace-dark .ui.menu .item { color:#e5e7eb !important; }
 @media (max-width:900px) {
   .problem-split-shell { display:block !important; padding:108px 0 64px; overflow-y:auto; }
   #workspaceTopBar { position:fixed; top:49px; height:108px; }
@@ -541,6 +580,12 @@ $(document).ready(function() {
     function answerWindow(){
       return answerFrame && answerFrame.contentWindow ? answerFrame.contentWindow : null;
     }
+    window.setProblemWorkspaceTheme=function(themeName){
+      const dark=themeName==='monokai';
+      document.body.classList.toggle('problem-workspace-dark',dark);
+      localStorage.setItem('gsmoj_editor_theme',dark?'monokai':'xcode');
+    };
+    window.setProblemWorkspaceTheme(localStorage.getItem('gsmoj_editor_theme')==='monokai'?'monokai':'xcode');
     function syncWorkspaceControls(){
       const frameWindow=answerWindow();
       if(!frameWindow || !frameWindow.document) return;

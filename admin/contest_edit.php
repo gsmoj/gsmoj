@@ -7,20 +7,18 @@
   if(!(isset($_SESSION[$OJ_NAME.'_'.'administrator'])||isset($_SESSION[$OJ_NAME.'_'.'contest_creator']))){
     exit(1);
   }
-  echo "<center><h3>"."Edit-".$MSG_CONTEST."</h3></center>";
+  $page_heading = $MSG_CONTEST." - 수정";
   include_once("kindeditor.php") ;
 ?>
 <html>
 <head>
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Cache-Control" content="no-cache">
-  <meta http-equiv="Content-Language" content="zh-cn">
+  <meta http-equiv="Content-Language" content="ko">
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
   <title>Edit Contest</title>
 </head>
-<hr>
-
-<body leftmargin="30" >
+<body class="admin-form-page">
 <?php
 if(isset($_POST['startdate'])){
   require_once("../include/check_post_key.php");
@@ -160,7 +158,8 @@ if(isset($_POST['startdate'])){
 }
 ?>
 
-<div class="padding">
+<div class="admin-form-shell">
+  <header class="admin-form-title"><h3><?php echo htmlentities($page_heading, ENT_QUOTES, 'UTF-8')?></h3></header>
   <form method=POST>
     <?php require_once("../include/set_post_key.php");?>
     <input type=hidden name='cid' value=<?php echo $cid?>>

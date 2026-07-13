@@ -48,12 +48,13 @@ if(isset($_POST['news_id'])){
   $title = htmlentities($row['title'],ENT_QUOTES,"UTF-8");
   $content = $row['content'];
   $showInMenu = $row['menu'] == 1;
-echo "<hr>";
-echo "<center><h3>".$MSG_NEWS."-"."Edit"."</h3></center>";
+$page_heading = $MSG_NEWS." - 수정";
 }
 ?>
 
-<div class="padding">
+<script>document.body.classList.add('admin-form-page');</script>
+<div class="admin-form-shell">
+  <header class="admin-form-title"><h3><?php echo htmlentities($page_heading, ENT_QUOTES, 'UTF-8')?></h3></header>
   <form method=POST action=news_edit.php>
     <input type=hidden name='news_id' value=<?php echo $news_id?>>
     <p align=left>

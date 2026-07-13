@@ -5,8 +5,7 @@ if(!(isset($_SESSION[$OJ_NAME.'_'.'administrator']))){
   exit(1);
 }
 
-echo "<hr>";
-echo "<center><h3>".$MSG_NEWS."-".$MSG_ADD."</h3></center>";
+$page_heading = $MSG_NEWS." - ".$MSG_ADD;
 
 include_once("kindeditor.php");
 ?>
@@ -41,7 +40,9 @@ if(isset($_POST['pid'])){
 }
 ?>
 
-<div class="padding">
+<script>document.body.classList.add('admin-form-page');</script>
+<div class="admin-form-shell">
+  <header class="admin-form-title"><h3><?php echo htmlentities($page_heading, ENT_QUOTES, 'UTF-8')?></h3></header>
   <form method=POST action=news_add.php>
     <p align=left>
       <label class="col control-label"><?php echo $MSG_TITLE?></label>
