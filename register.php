@@ -90,6 +90,8 @@ if ($needs_email_confirmation) {
 }
 
 $group_name = function_exists('getMappedSpecial') ? getMappedSpecial($user_id) : '';
+if ($needs_email_confirmation) pdo_query('START TRANSACTION');
+
 $insert_result = pdo_query(
     'INSERT INTO `users` (`user_id`,`email`,`ip`,`accesstime`,`password`,`reg_time`,`nick`,`school`,`group_name`,`defunct`,`activecode`) VALUES (?,?,?,NOW(),?,NOW(),?,?,?,?,?)',
     $user_id,
@@ -102,9 +104,9 @@ $insert_result = pdo_query(
     $defunct,
     $active_code
 );
-pdo_query('COMMIT');
 
 if ($insert_result === false || (is_array($insert_result) && count($insert_result) === 0)) {
+    if ($needs_email_confirmation) pdo_query('ROLLBACK');
     echo '<h2>[DB 에러] 유저 생성(INSERT) 쿼리가 반영되지 않았습니다.</h2>';
     echo '아이디: ' . htmlspecialchars($user_id, ENT_QUOTES, 'UTF-8') . '<br>';
     exit(0);
@@ -118,11 +120,14 @@ if ($needs_email_confirmation) {
     $mail_sent = email($email, $subject, strip_tags($mail_body), $mail_body, $mail_error);
 
     if ($mail_sent) {
+        pdo_query('COMMIT');
         $mark = 100;
         $view_errors = "<span style='font-size:18px;font-weight:bold;'>📩 인증 메일이 발송되었습니다.</span><br><br><strong>" . htmlspecialchars($email, ENT_QUOTES, 'UTF-8') . "</strong> 주소로 계정 활성화 링크를 전송했습니다.<br>메일함을 확인하신 후 인증 링크를 클릭하여 가입을 완료해 주세요.";
     } else {
+        pdo_query('ROLLBACK');
+        $_SESSION[$OJ_NAME . '_activecode'] = '';
         $mark = 0;
-        $view_errors = "<span style='font-size:18px;font-weight:bold;'>인증 메일을 발송하지 못했습니다.</span><br><br>SMTP 인증 설정을 확인한 뒤 다시 시도하거나 관리자에게 문의해 주세요.<br>계정은 이메일 인증 전까지 로그인할 수 없습니다.";
+        $view_errors = "<span style='font-size:18px;font-weight:bold;'>회원가입을 완료하지 못했습니다.</span><br><br>인증 메일을 발송하지 못해 계정이 생성되지 않았습니다.<br>SMTP 설정이 복구된 후 다시 가입해 주세요.";
     }
     require('template/' . $OJ_TEMPLATE . '/error.php');
     exit(0);
