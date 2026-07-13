@@ -598,14 +598,26 @@ $(document).ready(function() {
       if(!frameWindow || !frameWindow.document) return;
       const frameDocument=$(frameWindow.document);
       frameDocument.find('body').addClass('embedded-workspace');
-      if(frameWindow.editor) frameWindow.editor.resize(true);
+      const savedTheme=localStorage.getItem('gsmoj_editor_theme')==='monokai'?'monokai':'xcode';
+      if(typeof frameWindow.applyEditorTheme==='function') frameWindow.applyEditorTheme(savedTheme);
+      if(frameWindow.editor){
+        frameWindow.editor.getSession().setUseWrapMode(true);
+        frameWindow.editor.getSession().setWrapLimitRange(null,null);
+        frameWindow.editor.setOption('wrap','free');
+        frameWindow.editor.setOption('hScrollBarAlwaysVisible',false);
+      }
       $('#submitPage').removeClass('is-loading');
       const sourceLanguage=frameDocument.find('#language');
       const workspaceLanguage=$('#workspaceLanguage');
       if(sourceLanguage.length){
         workspaceLanguage.html(sourceLanguage.html()).val(sourceLanguage.val()).prop('disabled',false);
+        if(typeof frameWindow.switchLang==='function') frameWindow.switchLang(parseInt(sourceLanguage.val(),10));
       }else{
         workspaceLanguage.empty().prop('disabled',true);
+      }
+      if(frameWindow.editor){
+        frameWindow.editor.resize(true);
+        frameWindow.editor.renderer.updateFull();
       }
     }
     $(answerFrame).on('load',syncWorkspaceControls);

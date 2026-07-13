@@ -110,6 +110,8 @@ body{
   body.embedded-workspace #frmSolution > .row { display:none !important; }
   body.embedded-workspace .ace_scroller { right:0 !important; bottom:0 !important; }
   body.editor-dark, body.editor-dark #frmSolution { background:#111827 !important; color:#e5e7eb !important; }
+  body.editor-dark #source.ace_editor { background:#272822 !important; color:#f8f8f2 !important; }
+  body.editor-dark #source .ace_gutter { background:#1f201b !important; color:#9ca3af !important; }
   body.editor-dark #language_span, body.editor-dark::after { border-color:#334155 !important; background:#1f2937 !important; color:#e5e7eb !important; }
   body.editor-dark #language, body.editor-dark .editor-tool-button { border-color:#475569; background:#111827; color:#e5e7eb; }
   body.editor-dark #countDown { color:#cbd5e1; }
@@ -769,8 +771,6 @@ function loadFromBlockly(){
     ace.require("ace/ext/language_tools");
     var editor = ace.edit("source");
     var savedEditorTheme = localStorage.getItem('gsmoj_editor_theme');
-    applyEditorTheme(savedEditorTheme === 'monokai' ? 'monokai' : 'xcode');
-    switchLang(<?php echo $lastlang ?>);
     editor.setOptions({
         enableBasicAutocompletion: true,
         enableSnippets: true,
@@ -778,10 +778,13 @@ function loadFromBlockly(){
         // fontFamily: "Consolas",  // MacOS missing align
 	// theme: "ace/theme/ambiance",   // Black theme
         fontSize: "18px",
-        wrap: true,
+        wrap: "free",
         hScrollBarAlwaysVisible: false
     });
+    switchLang(<?php echo $lastlang ?>);
     editor.getSession().setUseWrapMode(true);
+    editor.getSession().setWrapLimitRange(null, null);
+    applyEditorTheme(savedEditorTheme === 'monokai' ? 'monokai' : 'xcode');
     
 editor.getSession().on("change", function() {
    
@@ -852,7 +855,10 @@ editor.getSession().on("change", function() {
     if (window.parent !== window && typeof window.parent.setProblemWorkspaceTheme === 'function') {
         window.parent.setProblemWorkspaceTheme(normalizedTheme);
     }
-    editor.resize();
+    window.requestAnimationFrame(function(){
+        editor.resize(true);
+        editor.renderer.updateFull();
+    });
    }
 
    function toggleTheme(event) {
