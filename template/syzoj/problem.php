@@ -100,7 +100,6 @@ if(file_exists($solution_file)){
               echo "<a class=\"small ui orange button\" href=\"status.php?problem_id=$PID[$pid]&cid=$cid\">$MSG_THIS_CONTEST$MSG_SUBMIT_RECORD</a>";
 
             }
-              if(!file_exists($OJ_DATA."/".$id."/solution.name")) echo "<a class='small ui primary button' href='#' onclick='transform()' role='button'>$MSG_SHOW_OFF</a>";
           ?>
 
       </div>
@@ -278,7 +277,6 @@ document.addEventListener('keydown', function(e) {
                         echo "<a id='submit'  class=\"small ui primary button\" href=\"submitpage.php?cid=$cid&pid=$pid&langmask=$langmask\">$MSG_SUBMIT</a>";
               echo "<a class=\"small ui positive button\" href=\"status.php?problem_id=$PID[$pid]&cid=$cid\">$MSG_SUBMIT_RECORD</a>";
             }
-	    if(!file_exists($OJ_DATA."/".$id."/solution.name"))   echo "<a class='small ui primary button' href='#' onclick='transform()' role='button'>$MSG_SHOW_OFF</a>";
           ?>
           
       </div>
@@ -295,14 +293,25 @@ document.addEventListener('keydown', function(e) {
 }
 </style>
 <style>
-body.problem-split-active { overflow-x:auto; }
-.problem-split-shell { display:flex !important; align-items:stretch; width:100%; min-width:960px; margin-top:49px !important; }
-#main.problem-split-pane { flex:0 0 50%; width:50%; min-width:480px; height:calc(100vh - 49px); margin:0 !important; padding:0 1rem; overflow:auto; }
-#submitPage { position:relative; flex:0 0 50%; width:50%; min-width:480px; height:calc(100vh - 49px); background:rgba(255,255,255,.96); overflow:hidden; }
+body.problem-split-active { overflow-x:hidden; }
+.problem-split-shell { display:flex !important; align-items:stretch; width:100%; min-width:0; margin-top:49px !important; }
+#main.problem-split-pane { flex:1 1 50%; width:50%; min-width:0; height:calc(100vh - 49px); margin:0 !important; padding:0 1rem; overflow:auto; }
+#submitPage { position:relative; flex:1 1 50%; width:50%; min-width:0; height:calc(100vh - 49px); background:rgba(255,255,255,.96); overflow:hidden; }
 #ansFrame { display:block; width:100%; height:100%; border:0; background:#fff; }
 #dragButton { position:absolute; z-index:5; top:0; left:-5px; width:10px; height:100%; cursor:col-resize; background:linear-gradient(90deg,transparent 0 35%,#cbd5e1 35% 65%,transparent 65%); }
 #dragButton::after { content:''; position:absolute; top:50%; left:2px; width:6px; height:48px; margin-top:-24px; border-radius:999px; background:#94a3b8; box-shadow:0 0 0 3px rgba(255,255,255,.9); }
 #dragButton.is-dragging::after { background:#2185d0; }
+a#submit, a[onclick='transform()'] { display:none !important; }
+.problem-split-footer { width:100%; clear:both; }
+@media (max-width:900px) {
+  body.problem-split-active { overflow-x:hidden; overflow-y:auto; }
+  .problem-split-shell { flex-direction:column; }
+  #main.problem-split-pane, #submitPage { flex:0 0 auto !important; width:100% !important; min-width:0; }
+  #main.problem-split-pane { height:auto; min-height:calc(100vh - 49px); overflow:visible; }
+  #submitPage { height:max(680px,calc(100vh - 49px)); border-top:1px solid #cbd5e1; }
+  #dragButton { top:-5px; left:0; width:100%; height:10px; cursor:default; background:linear-gradient(180deg,transparent 0 35%,#cbd5e1 35% 65%,transparent 65%); }
+  #dragButton::after { display:none; }
+}
 </style>
   <script type="text/javascript">
   
@@ -438,6 +447,8 @@ $(document).ready(function() {
     main.removeClass('container').addClass('problem-split-pane');
     shell.append("<section id='submitPage' aria-label='답안 작성'><div id='dragButton' role='separator' aria-label='문제와 답안 영역 너비 조절' aria-orientation='vertical'></div><iframe id='ansFrame' title='답안 작성' src='"+submitURL+separator+"spa=1'></iframe></section>");
     $('a#submit').remove();
+    const footer=$('.footer').first();
+    if(footer.length) footer.detach().addClass('problem-split-footer').insertAfter(shell);
 
     <?php if($row['spj']>1 && !isset($_GET['spa'])){ ?>
     window.setTimeout(function(){
@@ -449,9 +460,10 @@ $(document).ready(function() {
     let dragging=false;
     let startX=0;
     let initialWidth=0;
-    const minPaneWidth=480;
+    const minPaneWidth=280;
 
     $('#dragButton').on('mousedown',function(event){
+      if(window.matchMedia('(max-width: 900px)').matches) return;
       dragging=true;
       startX=event.pageX;
       initialWidth=main.outerWidth();
@@ -470,6 +482,12 @@ $(document).ready(function() {
       dragging=false;
       $('#dragButton').removeClass('is-dragging');
       $('#ansFrame').css('pointer-events','auto');
+    });
+    $(window).on('resize.problemSplit',function(){
+      if(window.matchMedia('(max-width: 900px)').matches){
+        main.css('flex-basis','');
+        $('#submitPage').css('flex-basis','');
+      }
     });
   }
 

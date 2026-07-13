@@ -3,13 +3,15 @@
 <?php include("template/$OJ_TEMPLATE/header.php");?>
 
   <style>
-html, body { min-width:480px; min-height:100%; background:#f8fafc; }
+html, body { min-width:0; min-height:100%; background:#f8fafc; }
 body { margin:0 !important; overflow:auto !important; }
-#frmSolution { box-sizing:border-box; width:100%; min-height:100vh; padding:1rem; text-align:left; }
+#frmSolution { box-sizing:border-box; width:100%; min-height:100vh; padding:1rem 1rem 5.5rem; text-align:left; }
 #frmSolution > span:first-of-type { display:inline-flex; align-items:center; min-height:38px; margin-right:.75rem; color:#334155 !important; font-weight:600; }
-#language_span { display:inline-flex; align-items:center; flex-wrap:wrap; gap:.5rem; color:#334155; }
-#language { min-width:9rem; padding:.45rem .6rem; border:1px solid #d8dee8; border-radius:.4rem; background:#fff; }
-#Submit { margin-left:.25rem; }
+#language_span { display:flex; align-items:center; flex-wrap:wrap; gap:.6rem; width:100%; margin:.75rem 0; padding:.75rem; box-sizing:border-box; color:#334155; border:1px solid rgba(34,36,38,.12); border-radius:.5rem; background:rgba(255,255,255,.82); box-shadow:0 1px 3px rgba(15,23,42,.06); }
+#language { flex:0 1 12rem; min-width:0; max-width:100%; padding:.55rem 2.2rem .55rem .75rem; border:1px solid #d8dee8; border-radius:.45rem; color:#334155; background:#fff; font-size:1rem; }
+#Submit { position:fixed; z-index:101; right:1rem; bottom:.75rem; min-width:8rem; margin:0; border-radius:.45rem !important; font-size:1rem !important; box-shadow:0 2px 8px rgba(33,133,208,.28) !important; }
+#countDown { position:fixed; z-index:101; right:10rem; bottom:1.3rem; color:#475569; font-size:.9rem; }
+body::after { content:''; position:fixed; z-index:100; right:0; bottom:0; left:0; height:4rem; border-top:1px solid rgba(34,36,38,.12); background:rgba(255,255,255,.92); box-shadow:0 -2px 12px rgba(15,23,42,.08); backdrop-filter:blur(10px); }
 #source { box-sizing:border-box; width:100% !important; border:1px solid #d8dee8; border-radius:.5rem; background:#fff !important; box-shadow:0 1px 3px rgba(15,23,42,.08); }
 #reinfo { width:100%; }
 #source {
@@ -36,6 +38,16 @@ body{
   .ace_error_marker {
     position: absolute;
     background-color: rgba(255, 0, 0, 0.3); /* 빨간색 반투명 배경 */
+  }
+  #frmSolution input, #frmSolution select, #frmSolution textarea, #frmSolution button { max-width:100%; font-size:1rem; }
+  #frmSolution .row > .column { box-sizing:border-box; max-width:100%; }
+  @media (max-width:700px) {
+    #frmSolution { padding:.75rem .75rem 5.5rem; }
+    #language_span { align-items:stretch; flex-direction:column; }
+    #language { flex:none; width:100%; }
+    #frmSolution .row > .column { flex-wrap:wrap; }
+    #input_text, #out { width:100% !important; }
+    #TestRun { width:100% !important; height:auto !important; min-height:44px; margin:.75rem 0 0 !important; }
   }
   </style>
     
