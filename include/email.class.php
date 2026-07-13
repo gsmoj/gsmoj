@@ -62,7 +62,7 @@ function gsmoj_password_reset_mail($user_id, $reset_key)
         '안녕하세요, ' . $user_id . ' 회원님!',
         'GSMOJ 계정의 비밀번호 재설정 요청을 받았습니다.<br>아래 버튼을 눌러 재설정 화면으로 돌아간 뒤 인증 코드를 입력해 주세요.',
         '비밀번호 재설정 화면 열기',
-        gsmoj_absolute_url('lostpassword.php'),
+        gsmoj_absolute_url('lostpassword.php?step=verify'),
         '비밀번호 재설정 인증 코드:<br><strong style="display:inline-block;margin-top:10px;padding:12px 16px;color:#111827;background:#f3f4f6;border-radius:6px;font-size:18px;letter-spacing:2px;">' . $safe_key . '</strong><br><span style="color:#9ca3af;font-size:13px;">인증이 완료되면 이 코드가 임시 비밀번호로 설정됩니다.</span>',
         '본인이 요청한 비밀번호 재설정이 아니라면 이 메일을 무시하셔도 됩니다.'
     );

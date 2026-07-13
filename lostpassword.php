@@ -9,6 +9,18 @@ $lost_user_id = trim($_POST['user_id'] ?? '');
 $lost_email = trim($_POST['email'] ?? '');
 $vcode = trim($_POST['vcode'] ?? '');
 
+$show_verification_step = ($_GET['step'] ?? '') === 'verify';
+if ($show_verification_step) {
+    if (!empty($_SESSION[$OJ_NAME . '_lost_user_id']) && !empty($_SESSION[$OJ_NAME . '_lost_key'])) {
+        require('template/' . $OJ_TEMPLATE . '/lostpassword2.php');
+        exit(0);
+    }
+
+    $error_msg = '재설정 요청을 시작한 브라우저에서 다시 진행해 주세요.';
+    require('template/' . $OJ_TEMPLATE . '/lostpassword.php');
+    exit(0);
+}
+
 if ($lost_user_id === '') {
     require('template/' . $OJ_TEMPLATE . '/lostpassword.php');
     exit(0);

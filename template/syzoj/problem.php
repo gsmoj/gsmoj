@@ -329,6 +329,71 @@ a#submit, a[onclick='transform()'] { display:none !important; }
   #dragButton::before { top:5px; right:0; bottom:auto; left:0; width:100%; height:1px; }
 }
 </style>
+<style>
+body.problem-split-active { overflow:hidden !important; background:#eef2f7 !important; }
+.problem-split-shell {
+  position:fixed;
+  z-index:20;
+  top:49px;
+  right:0;
+  bottom:0;
+  left:0;
+  box-sizing:border-box;
+  height:auto;
+  margin:0 !important;
+  padding:60px 0 64px;
+  overflow:hidden;
+  background:#eef2f7;
+}
+#main.problem-split-pane, #submitPage { height:100%; background:#eef2f7; }
+#main.problem-split-pane .padding, #main.problem-split-pane .padding::after { background:#eef2f7 !important; }
+#submitPage { overflow:visible; }
+#ansFrame { background:#eef2f7; }
+.problem-split-footer { display:none !important; }
+#workspaceTopBar, #workspaceBottomBar {
+  position:absolute;
+  z-index:30;
+  right:0;
+  left:0;
+  display:flex;
+  align-items:center;
+  box-sizing:border-box;
+  padding:0 18px;
+  border-color:#d6dde7;
+  background:#eef2f7;
+}
+#workspaceTopBar { top:0; height:60px; justify-content:flex-end; border-bottom:1px solid #d6dde7; }
+#workspaceBottomBar { bottom:0; height:64px; justify-content:flex-end; gap:14px; border-top:1px solid #d6dde7; }
+.workspace-controls { display:flex; align-items:center; justify-content:flex-end; gap:8px; }
+.workspace-language-label { margin-right:2px; color:#475569; font-size:14px; font-weight:700; }
+#workspaceLanguage { width:180px; height:40px; padding:0 36px 0 12px; color:#334155; border:1px solid #c3cedb; border-radius:7px; background:#fff; }
+.workspace-tool-button, #workspaceSubmit {
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  height:40px;
+  margin:0;
+  border-radius:7px;
+  font-weight:700;
+  cursor:pointer;
+}
+.workspace-tool-button { width:40px; padding:0; color:#475569; border:1px solid #c3cedb; background:#fff; }
+.workspace-tool-button:hover { color:#1d4ed8; border-color:#8eadd8; }
+.workspace-tool-button .icon { margin:0 !important; }
+#workspaceSubmit { min-width:112px; padding:0 22px; color:#fff; border:1px solid #2563eb; background:#2563eb; }
+#workspaceSubmit:hover { border-color:#1d4ed8; background:#1d4ed8; }
+#workspaceCountdown { color:#64748b; font-size:14px; }
+#dragButton { z-index:40; left:-19px; width:24px; touch-action:none; }
+#dragButton::before { left:11px; background:#b9c5d3; }
+#dragButton::after { left:5px; width:13px; height:84px; margin-top:-42px; border-color:#aebccb; background:#dce4ed; }
+@media (max-width:900px) {
+  .problem-split-shell { padding-top:108px; overflow-y:auto; }
+  #workspaceTopBar { height:108px; }
+  .workspace-controls { flex-wrap:wrap; }
+  #main.problem-split-pane, #submitPage { height:calc(100vh - 172px); min-height:620px; }
+  #dragButton { top:-14px; left:0; width:100%; height:18px; }
+}
+</style>
   <script type="text/javascript">
   
   function legacyTransform(){
@@ -461,10 +526,55 @@ $(document).ready(function() {
     $('body').addClass('problem-split-active');
     shell.addClass('problem-split-shell');
     main.removeClass('container').addClass('problem-split-pane');
+    shell.prepend("<header id='workspaceTopBar'><div class='workspace-controls'><label class='workspace-language-label' for='workspaceLanguage'>언어</label><select id='workspaceLanguage' aria-label='제출 언어 선택'></select><button type='button' class='workspace-tool-button' data-editor-action='theme' title='편집기 테마 전환'><i class='adjust icon'></i></button><button type='button' class='workspace-tool-button' data-editor-action='increase' title='글자 확대'><i class='plus icon'></i></button><button type='button' class='workspace-tool-button' data-editor-action='decrease' title='글자 축소'><i class='minus icon'></i></button></div></header>");
+    shell.append("<footer id='workspaceBottomBar'><span id='workspaceCountdown'></span><button type='button' id='workspaceSubmit'><i class='paper plane icon'></i>제출</button></footer>");
     shell.append("<section id='submitPage' aria-label='답안 작성'><div id='dragButton' role='separator' aria-label='문제와 답안 영역 너비 조절' aria-orientation='vertical'></div><iframe id='ansFrame' title='답안 작성' src='"+submitURL+separator+"spa=1'></iframe></section>");
     $('a#submit').remove();
     const footer=$('.footer').first();
     if(footer.length) footer.detach().addClass('problem-split-footer').insertAfter(shell);
+
+    const answerFrame=document.getElementById('ansFrame');
+    function answerWindow(){
+      return answerFrame && answerFrame.contentWindow ? answerFrame.contentWindow : null;
+    }
+    function syncWorkspaceControls(){
+      const frameWindow=answerWindow();
+      if(!frameWindow || !frameWindow.document) return;
+      const frameDocument=$(frameWindow.document);
+      frameDocument.find('body').addClass('embedded-workspace');
+      const sourceLanguage=frameDocument.find('#language');
+      const workspaceLanguage=$('#workspaceLanguage');
+      if(sourceLanguage.length){
+        workspaceLanguage.html(sourceLanguage.html()).val(sourceLanguage.val()).prop('disabled',false);
+      }else{
+        workspaceLanguage.empty().prop('disabled',true);
+      }
+    }
+    $(answerFrame).on('load',syncWorkspaceControls);
+    window.setTimeout(syncWorkspaceControls,0);
+    $('#workspaceLanguage').on('change',function(){
+      const frameWindow=answerWindow();
+      if(!frameWindow) return;
+      frameWindow.$('#language').val(this.value);
+      frameWindow.reloadtemplate(this.value);
+    });
+    $('.workspace-tool-button').on('click',function(){
+      const frameWindow=answerWindow();
+      if(!frameWindow || !frameWindow.editor) return;
+      const action=$(this).data('editor-action');
+      const eventProxy={preventDefault:function(){}};
+      if(action==='theme') frameWindow.toggleTheme(eventProxy);
+      if(action==='increase') frameWindow.increaseFontSize(eventProxy);
+      if(action==='decrease') frameWindow.decreaseFontSize(eventProxy);
+    });
+    $('#workspaceSubmit').on('click',function(){
+      const frameWindow=answerWindow();
+      if(frameWindow && typeof frameWindow.do_submit==='function') frameWindow.do_submit();
+    });
+    window.setInterval(function(){
+      const frameWindow=answerWindow();
+      if(frameWindow && frameWindow.$) $('#workspaceCountdown').text(frameWindow.$('#countDown').text());
+    },500);
 
     <?php if($row['spj']>1 && !isset($_GET['spa'])){ ?>
     window.setTimeout(function(){
@@ -489,7 +599,7 @@ $(document).ready(function() {
     });
     $(document).on('mousemove.problemSplit',function(event){
       if(!dragging) return;
-      const totalWidth=shell.innerWidth();
+      const totalWidth=shell.innerWidth()-14;
       const newWidth=Math.max(minPaneWidth,Math.min(totalWidth-minPaneWidth,initialWidth+event.pageX-startX));
       main.css('flex-basis',newWidth+'px');
       $('#submitPage').css('flex-basis',(totalWidth-newWidth)+'px');

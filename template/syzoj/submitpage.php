@@ -97,6 +97,12 @@ body{
     #language { flex:1 1 10rem; width:auto; }
     .editor-tools { flex:0 0 auto; }
   }
+  body.embedded-workspace { background:#eef2f7 !important; }
+  body.embedded-workspace::after { display:none !important; content:none !important; }
+  body.embedded-workspace #language_span,
+  body.embedded-workspace #Submit,
+  body.embedded-workspace #countDown { display:none !important; }
+  body.embedded-workspace #frmSolution { min-height:100%; padding:1rem; background:#eef2f7; }
   </style>
     
 <center>
