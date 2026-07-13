@@ -587,12 +587,21 @@ function do_submit(){
 	
 <?php if(isset($_GET['spa'])){?>
 	<?php if($solution_name) { ?>document.getElementById("frmSolution").submit(); <?php } ?>  // 지정 파일명이 필요한 문제는 일반 form POST 방식으로 강제 제출한다.
-        $.post("submit.php?ajax",$("#frmSolution").serialize(),function(data){fresh_result(data);});
+        var submitRequest=$.post("submit.php?ajax",$("#frmSolution").serialize());
+        submitRequest.done(function(data){
+                if(window.parent!==window && typeof window.parent.updateWorkspaceSubmission==='function') window.parent.updateWorkspaceSubmission('success',data);
+                fresh_result(data);
+        });
+        submitRequest.fail(function(){
+                $("#Submit").prop('disabled',false);
+                if(window.parent!==window && typeof window.parent.updateWorkspaceSubmission==='function') window.parent.updateWorkspaceSubmission('error');
+        });
         $("#Submit").prop('disabled', true);
         $("#TestRun").prop('disabled', true);
         count=<?php echo $OJ_SUBMIT_COOLDOWN_TIME?> * 2 ;
         handler_interval= window.setTimeout("resume();",1000);
 	 <?php if(isset($OJ_REMOTE_JUDGE)&&$OJ_REMOTE_JUDGE) {?>$("#sk").attr("src","remote.php"); <?php } ?>
+        return submitRequest;
 <?php }else{?>
         document.getElementById("frmSolution").submit();
 <?php }?>

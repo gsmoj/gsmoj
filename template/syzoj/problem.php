@@ -592,6 +592,28 @@ $(document).ready(function() {
       document.body.classList.toggle('problem-workspace-dark',dark);
       localStorage.setItem('gsmoj_editor_theme',dark?'monokai':'xcode');
     };
+    let workspaceStatusLocked=false;
+    window.updateWorkspaceSubmission=function(state,data){
+      const button=$('#workspaceSubmit');
+      workspaceStatusLocked=true;
+      if(state==='submitting'){
+        button.prop('disabled',true).html("<i class='spinner loading icon'></i>제출 중");
+        $('#workspaceCountdown').text('답안을 제출하고 있습니다.');
+        return;
+      }
+      if(state==='success'){
+        const solutionId=parseInt(data,10);
+        button.html("<i class='check icon'></i>제출 완료");
+        $('#workspaceCountdown').text(solutionId>0?'제출 번호 '+solutionId+'로 접수되었습니다.':'답안이 접수되었습니다.');
+      }else{
+        button.html("<i class='warning sign icon'></i>제출 실패");
+        $('#workspaceCountdown').text('제출하지 못했습니다. 잠시 후 다시 시도해 주세요.');
+      }
+      window.setTimeout(function(){
+        button.prop('disabled',false).html("<i class='paper plane icon'></i>제출");
+        workspaceStatusLocked=false;
+      },1500);
+    };
     window.setProblemWorkspaceTheme(localStorage.getItem('gsmoj_editor_theme')==='monokai'?'monokai':'xcode');
     function syncWorkspaceControls(){
       const frameWindow=answerWindow();
@@ -640,11 +662,21 @@ $(document).ready(function() {
     });
     $('#workspaceSubmit').on('click',function(){
       const frameWindow=answerWindow();
-      if(frameWindow && typeof frameWindow.do_submit==='function') frameWindow.do_submit();
+      if(!frameWindow || typeof frameWindow.do_submit!=='function'){
+        window.updateWorkspaceSubmission('error');
+        return;
+      }
+      window.updateWorkspaceSubmission('submitting');
+      try{
+        frameWindow.do_submit();
+      }catch(error){
+        console.error('Submit failed:',error);
+        window.updateWorkspaceSubmission('error');
+      }
     });
     window.setInterval(function(){
       const frameWindow=answerWindow();
-      if(frameWindow && frameWindow.$) $('#workspaceCountdown').text(frameWindow.$('#countDown').text());
+      if(!workspaceStatusLocked && frameWindow && frameWindow.$) $('#workspaceCountdown').text(frameWindow.$('#countDown').text());
     },500);
 
     <?php if($row['spj']>1 && !isset($_GET['spa'])){ ?>
