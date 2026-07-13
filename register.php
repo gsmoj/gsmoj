@@ -114,10 +114,16 @@ if ($needs_email_confirmation) {
     $activation_url = gsmoj_absolute_url('active.php?code=' . urlencode($active_code));
     $subject = '=?UTF-8?B?' . base64_encode('[광주소프트웨어마이스터고] GSMOJ 회원가입 인증 메일') . '?=';
     $mail_body = gsmoj_registration_mail($user_id, $activation_url);
-    email($email, $subject, strip_tags($mail_body), $mail_body);
+    $mail_error = null;
+    $mail_sent = email($email, $subject, strip_tags($mail_body), $mail_body, $mail_error);
 
-    $mark = 100;
-    $view_errors = "<span style='font-size:18px;font-weight:bold;'>📩 인증 메일이 발송되었습니다.</span><br><br><strong>" . htmlspecialchars($email, ENT_QUOTES, 'UTF-8') . "</strong> 주소로 계정 활성화 링크를 전송했습니다.<br>메일함을 확인하신 후 인증 링크를 클릭하여 가입을 완료해 주세요.";
+    if ($mail_sent) {
+        $mark = 100;
+        $view_errors = "<span style='font-size:18px;font-weight:bold;'>📩 인증 메일이 발송되었습니다.</span><br><br><strong>" . htmlspecialchars($email, ENT_QUOTES, 'UTF-8') . "</strong> 주소로 계정 활성화 링크를 전송했습니다.<br>메일함을 확인하신 후 인증 링크를 클릭하여 가입을 완료해 주세요.";
+    } else {
+        $mark = 0;
+        $view_errors = "<span style='font-size:18px;font-weight:bold;'>인증 메일을 발송하지 못했습니다.</span><br><br>SMTP 인증 설정을 확인한 뒤 다시 시도하거나 관리자에게 문의해 주세요.<br>계정은 이메일 인증 전까지 로그인할 수 없습니다.";
+    }
     require('template/' . $OJ_TEMPLATE . '/error.php');
     exit(0);
 }

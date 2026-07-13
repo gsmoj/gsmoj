@@ -35,7 +35,13 @@ require_once('./include/email.class.php');
 $reset_key = $_SESSION[$OJ_NAME . '_lost_key'];
 $subject = '=?UTF-8?B?' . base64_encode('[광주소프트웨어마이스터고] GSMOJ 비밀번호 재설정') . '?=';
 $mail_body = gsmoj_password_reset_mail($lost_user_id, $reset_key);
-email($registered_email, $subject, strip_tags($mail_body), $mail_body);
+$mail_error = null;
+if (!email($registered_email, $subject, strip_tags($mail_body), $mail_body, $mail_error)) {
+    unset($_SESSION[$OJ_NAME . '_lost_user_id'], $_SESSION[$OJ_NAME . '_lost_key']);
+    $error_msg = '비밀번호 재설정 메일을 발송하지 못했습니다. 관리자에게 문의해 주세요.';
+    require('template/' . $OJ_TEMPLATE . '/lostpassword.php');
+    exit(0);
+}
 
 require('template/' . $OJ_TEMPLATE . '/lostpassword2.php');
 ?>

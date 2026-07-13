@@ -68,56 +68,56 @@ function gsmoj_password_reset_mail($user_id, $reset_key)
     );
 }
 
-function email($address,$mailtitle,$mailcontent,$html=""){
-        
-        global $OJ_NAME,$SMTP_SERVER,$SMTP_PORT,$SMTP_USER,$SMTP_PASS;
+function email($address, $mailtitle, $mailcontent, $html = '', &$error_message = null)
+{
+    global $OJ_NAME, $SMTP_SERVER, $SMTP_PORT, $SMTP_USER, $SMTP_PASS;
+
+    $error_message = null;
+    if (empty($SMTP_SERVER) || empty($SMTP_USER) || empty($SMTP_PASS) || $SMTP_USER === 'mailer@qq.com') {
+        $error_message = 'SMTP configuration is incomplete.';
+        error_log('[GSMOJ mail] ' . $error_message);
+        return false;
+    }
 
     $mail = new PHPMailer(true);
-    
-    // 만약 주석 검증 플래그가 원래대로 유지되어 있다면 발송 처리 진행
-    if( $SMTP_USER != "mailer@qq.com") {      
-        try {
-            // Server settings
-            // 💡 에러가 날 경우 DEBUG_SERVER(2)로 바꾸면 브라우저에 구글 대화 로그가 상세히 찍힙니다.
-            $mail->SMTPDebug = SMTP::DEBUG_OFF;                      
-            $mail->isSMTP();                                            // Send using SMTP
-            $mail->Host       = $SMTP_SERVER;                     // Set the SMTP server to send through
-            $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
-            $mail->Username   = $SMTP_USER;                     // SMTP username
-            $mail->Password   = $SMTP_PASS;                               // SMTP password
-            
-            // 🛠️ [수정 1] 구글 587 포트에 맞게 STARTTLS 암호화 방식으로 변경
-            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;            
-            $mail->Port       = $SMTP_PORT;                                    
+    try {
+        $mail->SMTPDebug = SMTP::DEBUG_OFF;
+        $mail->isSMTP();
+        $mail->Host = $SMTP_SERVER;
+        $mail->SMTPAuth = true;
+        $mail->Username = $SMTP_USER;
+        $mail->Password = $SMTP_PASS;
+        $mail->SMTPSecure = intval($SMTP_PORT) === 465
+            ? PHPMailer::ENCRYPTION_SMTPS
+            : PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->Port = intval($SMTP_PORT);
+        $mail->CharSet = 'UTF-8';
 
-            // 🛠️ [수정 2] 우분투 로컬 환경 인증서 검증 우회 설정 주입 (구글 튕김 방지 필수 코드)
-            $mail->SMTPOptions = array(
-                'ssl' => array(
-                    'verify_peer' => false,
-                    'verify_peer_name' => false,
-                    'allow_self_signed' => true
-                )
-            );
+        $mail->SMTPOptions = array(
+            'ssl' => array(
+                'verify_peer' => false,
+                'verify_peer_name' => false,
+                'allow_self_signed' => true
+            )
+        );
 
-            // Recipients
-            $mail->setFrom($SMTP_USER, $OJ_NAME );
-            $mail->addAddress($address, $OJ_NAME.' User');     // Add a recipient
+        $mail->setFrom($SMTP_USER, $OJ_NAME);
+        $mail->addAddress($address, $OJ_NAME . ' User');
+        $mail->Subject = $mailtitle;
+        $mail->AltBody = $mailcontent;
+        if ($html !== '') {
+            $mail->isHTML(true);
+            $mail->Body = $html;
+        } else {
+            $mail->isHTML(false);
+            $mail->Body = $mailcontent;
+        }
 
-            // Content
-            if($html!=""){
-                $mail->Body= $html;
-                $mail->isHTML(true);    // Set email format to HTML
-            }else{
-                $mail->Body= $mailcontent;
-                $mail->isHTML(false);
-            }
-            $mail->Subject= $mailtitle;
-            $mail->AltBody = $mailcontent;
-            
-            $mail->send();
-            echo 'Message has been sent';
-        } catch (Exception $e) {
-            echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
-        }       
-    }       
+        $mail->send();
+        return true;
+    } catch (Exception $exception) {
+        $error_message = $mail->ErrorInfo ?: $exception->getMessage();
+        error_log('[GSMOJ mail] Send failed: ' . $error_message);
+        return false;
+    }
 }

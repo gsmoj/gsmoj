@@ -12,12 +12,13 @@ body { margin:0 !important; overflow:auto !important; }
 #Submit { position:fixed; z-index:101; right:1rem; bottom:.75rem; min-width:8rem; margin:0; border-radius:.45rem !important; font-size:1rem !important; box-shadow:0 2px 8px rgba(33,133,208,.28) !important; }
 #countDown { position:fixed; z-index:101; right:10rem; bottom:1.3rem; color:#475569; font-size:.9rem; }
 body::after { content:''; position:fixed; z-index:100; right:0; bottom:0; left:0; height:4rem; border-top:1px solid rgba(34,36,38,.12); background:rgba(255,255,255,.92); box-shadow:0 -2px 12px rgba(15,23,42,.08); backdrop-filter:blur(10px); }
-#source { box-sizing:border-box; width:100% !important; border:1px solid #d8dee8; border-radius:.5rem; background:#fff !important; box-shadow:0 1px 3px rgba(15,23,42,.08); }
+#source { box-sizing:border-box; width:100% !important; border:1px solid #d8dee8; border-radius:.5rem; box-shadow:0 1px 3px rgba(15,23,42,.08); }
+.ace-xcode#source { border-color:#d8dee8; background-color:#fff !important; }
+.ace-monokai#source { border-color:#3e3d32; background-color:#272822 !important; box-shadow:0 1px 4px rgba(0,0,0,.22); }
 #reinfo { width:100%; }
 #source {
     width: 80%;
     height: 600px;
-    background-color:rgb(255,225,225,0.5);
 }
 
 .ace-chrome .ace_marker-layer .ace_active-line{   /* 현재 줄 */
@@ -742,7 +743,8 @@ function loadFromBlockly(){
 <script>
     ace.require("ace/ext/language_tools");
     var editor = ace.edit("source");
-    editor.setTheme("ace/theme/xcode");
+    var savedEditorTheme = localStorage.getItem('gsmoj_editor_theme');
+    editor.setTheme(savedEditorTheme === 'monokai' ? 'ace/theme/monokai' : 'ace/theme/xcode');
     switchLang(<?php echo $lastlang ?>);
     editor.setOptions({
         enableBasicAutocompletion: true,
@@ -814,12 +816,11 @@ editor.getSession().on("change", function() {
     }
    function toggleTheme(event) {
     event.preventDefault();
-    
-    if (editor.getTheme() === "ace/theme/xcode") {
-        editor.setTheme("ace/theme/monokai");
-    } else {
-        editor.setTheme("ace/theme/xcode");
-    }
+    const useDarkTheme = editor.getTheme() === "ace/theme/xcode";
+    const themeName = useDarkTheme ? 'monokai' : 'xcode';
+    editor.setTheme('ace/theme/' + themeName);
+    localStorage.setItem('gsmoj_editor_theme', themeName);
+    editor.resize();
 }
 
 	var level = 0;
