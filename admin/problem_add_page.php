@@ -11,28 +11,37 @@
 <head>
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Cache-Control" content="no-cache">
-  <meta http-equiv="Content-Language" content="zh-cn">
+  <meta http-equiv="Content-Language" content="ko">
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
   <title>Problem Add</title>
   <style>
-    #preview { box-sizing: border-box; background: #fff; bottom: 0; position: fixed; right: 0; top: 49px; width: 60%; z-index: 1000; }
+    html, body { margin: 0; min-height: 100%; width: 100%; }
+    body { background: #fff !important; opacity: 1 !important; }
+    body.preview-active { overflow: hidden; }
+    #main { box-sizing: border-box; width: 100%; padding: 0 24px 24px; }
+    #main.preview-open { bottom: 0; left: 0; margin: 0 !important; overflow-y: auto; position: fixed; top: 0; width: 50%; }
+    .problem-page-title { background: #fff; border-bottom: 1px solid #e5e7eb; margin: 0 -24px 20px; padding: 16px 24px 14px; position: sticky; top: 0; z-index: 20; }
+    .problem-page-title h3 { margin: 0; }
+    #main .ke-container { box-sizing: border-box; width: 100% !important; }
+    #preview { box-sizing: border-box; background: #fff; border-left: 1px solid #d8dee8; bottom: 0; position: fixed; right: 0; top: 0; width: 50%; z-index: 1000; }
     #previewFrame { border: 0; display: block; height: 100%; width: 100%; }
     @media (max-width: 1000px) {
-      #main.preview-open { width: auto !important; margin: 0 10px !important; }
-      #preview { position: static; width: 100%; height: 720px; margin-top: 24px; }
+      body.preview-active { overflow: auto; }
+      #main.preview-open { position: static; width: 100%; }
+      #preview { border-left: 0; border-top: 1px solid #d8dee8; height: 720px; position: static; width: 100%; }
     }
   </style>
 </head>	  
 	  <?php
-  echo "<center><h3>".$MSG_PROBLEM."-".$MSG_ADD."</h3></center>";
+  $page_heading = $MSG_PROBLEM." - ".$MSG_ADD;
   include_once("kindeditor.php") ;
   $source=pdo_query("select source from problem order by problem_id desc limit 1"); //默认续用最后一次的分类标签
   if(!empty($source)&&isset($source[0]))$source=$source[0][0];else $source="";
 ?>
 
-<hr>
-<body leftmargin="30" >
-  <div id="main" class="padding">
+<body>
+  <div id="main">
+    <header class="problem-page-title"><h3><?php echo htmlentities($page_heading, ENT_QUOTES, 'UTF-8')?></h3></header>
     <form method=POST action=problem_add.php>
       <input type=hidden name=problem_id value="New Problem">
         <p align=left>
@@ -63,19 +72,16 @@
         </p>
         <p align=left>
           <?php echo "<h4>".$MSG_Description."(<64kB)</h4>"?>
-	  <textarea class="kindeditor" rows=33 name=description cols=80><span class='md auto_select'>&nbsp;
-&nbsp;</span></textarea><br>
+	  <textarea class="kindeditor" rows=33 name=description cols=80></textarea><br>
         </p>
 	<span class="full" >
         <p align=left>
           <?php echo "<h4>".$MSG_Input."(<64kB)</h4>"?>
-          <textarea class="kindeditor" rows=13 name=input cols=80><span class='md'>
-</span></textarea><br>
+          <textarea class="kindeditor" rows=13 name=input cols=80></textarea><br>
         </p>
         <p align=left>
           <?php echo "<h4>".$MSG_Output."(<64kB)</h4>"?>
-          <textarea class="kindeditor" rows=13 name=output cols=80><span class='md'>
-</span></textarea><br>
+          <textarea class="kindeditor" rows=13 name=output cols=80></textarea><br>
         </p>
         <p align=left>
           <?php echo "<h4>".$MSG_Sample_Input."(<64kB)</h4>"?>
@@ -97,8 +103,7 @@
         </p>
         <p align=left>
           <?php echo "<h4>".$MSG_HINT."(<64kB)</h4>"?>
-          <textarea class="kindeditor" rows=13 name=hint cols=80><span class='md'>
-</span></textarea><br>
+          <textarea class="kindeditor" rows=13 name=hint cols=80></textarea><br>
         </p>
 	</span>
         <p>
@@ -141,8 +146,8 @@
         let submitURL="../problem.php?id=1000";
         let main=$("#main");
         if ($("#preview").length) return;
+        $("body").addClass("preview-active");
         main.removeClass("container").addClass("preview-open");
-        if (window.matchMedia("(min-width: 1001px)").matches) main.css({width: "40%", "margin-left": "10px"});
         main.parent().append("<div id='preview'></div>");
         $("#preview").html("<iframe id='previewFrame' src='"+submitURL+"&spa'></iframe>");
         $("#submit").remove();
@@ -173,36 +178,30 @@
 	
 	let description=$("textarea[name='description']").val();
 	console.log("description:"+description);
-	preFrame.find("#description").html(description);
-	preFrame.find("#description .md").each(function(){
-		if($("#previewFrame")[0] != undefined) $("#previewFrame")[0].contentWindow.MathJax.typeset();
-		$(this).html(marked.parse($(this).html(), { breaks: true, gfm: true }));
-	});
+	renderMarkdownPreview(preFrame.find("#description"), description, true);
   
 	let input=$("textarea[name='input']").val();
-	preFrame.find("#input").html(input);
-	preFrame.find("#input .md").each(function(){
-		if($("#previewFrame")[0] != undefined) $("#previewFrame")[0].contentWindow.MathJax.typeset();
-		$(this).html(marked.parse($(this).html(), { breaks: true, gfm: true }));
-	});
+	renderMarkdownPreview(preFrame.find("#input"), input, false);
 	let output=$("textarea[name='output']").val();
-	preFrame.find("#output").html(output);
-	preFrame.find("#output .md").each(function(){
-		if($("#previewFrame")[0] != undefined) $("#previewFrame")[0].contentWindow.MathJax.typeset();
-		$(this).html(marked.parse($(this).html(), { breaks: true, gfm: true }));
-	});
+	renderMarkdownPreview(preFrame.find("#output"), output, false);
 
 	let sinput=$("textarea[name='sample_input']").val();
 	preFrame.find("#sinput").html(sinput);
 	let soutput=$("textarea[name='sample_output']").val();
 	preFrame.find("#soutput").html(soutput);
 	let hint=$("textarea[name='hint']").val();
-	preFrame.find("#hint").html(hint);
-	preFrame.find("#hint .md").each(function(){
-		if($("#previewFrame")[0] != undefined) $("#previewFrame")[0].contentWindow.MathJax.typeset();
-		$(this).html(marked.parse($(this).html(), { breaks: true, gfm: true }));
-	});
+	renderMarkdownPreview(preFrame.find("#hint"), hint, false);
 	if($("#previewFrame")[0] != undefined && $("#previewFrame")[0].contentWindow.MathJax != undefined ) $("#previewFrame")[0].contentWindow.MathJax.typeset();
+  }
+
+  function renderMarkdownPreview(target, content, autoSelect) {
+    let source = content || "";
+    let existing = $("<div>").html(source).find(".md").first();
+    if (existing.length) source = existing.html();
+    if (!source.trim()) source = "\u00a0";
+    let wrapper = $("<span>").addClass(autoSelect ? "md auto_select" : "md");
+    wrapper.html(marked.parse(source, { breaks: true, gfm: true }));
+    target.empty().append(wrapper);
   }
  
    $(document).ready(function(){
@@ -220,22 +219,13 @@
             });
             $('#full-toggle').change(function() {
 		$(".full").toggle();
-                if(this.checked) {
-		    if($("textarea").eq(3).val().trim()=="") $("textarea").eq(2).val("<span class='md'>\n</span>");
-		    if($("textarea").eq(5).val().trim()=="") $("textarea").eq(4).val("<span class='md'>\n</span>");
-		    if($("textarea").eq(9).val().trim()=="") $("textarea").eq(8).val("<span class='md'>\n</span>");
-		    console.log("trim["+$("textarea").eq(8).val()+"]");
-                } else {
-		    if($("textarea").eq(3).val().trim()=="<span class='md'>\n</span>") $("textarea").eq(2).val("");
-		    if($("textarea").eq(5).val().trim()=="<span class='md'>\n</span>") $("textarea").eq(4).val("");
-		    if($("textarea").eq(9).val().trim()=="<span class='md'>\n</span>") $("textarea").eq(8).val("");
-		    console.log("trim["+$("textarea").eq(8).val()+"]");
-                }
+                sync();
             });
         });
 function untransform() {
     let main = $("#main");
-    main.addClass("padding").removeClass("preview-open");
+    $("body").removeClass("preview-active");
+    main.removeClass("preview-open");
     main.css("width", "");
     main.css("margin-left", "");
 
@@ -290,10 +280,9 @@ function fill_data( data ){
 			} catch(e) {
 			    console.log("JSON解析失败,使用旧格式");
 			    // 如果解析失败,按旧格式处理
-			    let description = "<span class='md'>" + data + "</span>";
+			    let description = data.trim();
 			    $("textarea[name='description']").val(description);
-			    //parsedData = null;
-			    parsedData.description = description.trim();
+			    parsedData = { description: description };
 			}
 		    }
 		    
@@ -310,7 +299,7 @@ function fill_data( data ){
 			
 			// 处理description - 需要特殊处理kindeditor
 			if(parsedData.description) {
-			    let descContent = "<span class='md'>" + parsedData.description + "</span>";
+			    let descContent = parsedData.description;
 			    // 先尝试设置textarea的值
 			    $("textarea[name='description']").val(descContent);
 			    // 如果有kindeditor实例,也设置它的值
@@ -330,7 +319,7 @@ function fill_data( data ){
 			
 			// 处理input - 也是kindeditor
 			if(parsedData.input) {
-			    let inputContent = "<span class='md'>" + parsedData.input + "</span>";
+			    let inputContent = parsedData.input;
 			    $("textarea[name='input']").val(inputContent);
 			    try {
 				if(typeof KindEditor !== 'undefined') {
@@ -347,7 +336,7 @@ function fill_data( data ){
 			
 			// 处理output - 也是kindeditor
 			if(parsedData.output) {
-			    let outputContent = "<span class='md'>" + parsedData.output + "</span>";
+			    let outputContent = parsedData.output;
 			    $("textarea[name='output']").val(outputContent);
 			    try {
 				if(typeof KindEditor !== 'undefined') {
@@ -373,7 +362,7 @@ function fill_data( data ){
 			
 			// 处理hint - 也是kindeditor
 			if(parsedData.hint) {
-			    let hintContent = "<span class='md'>" + parsedData.hint + "</span>";
+			    let hintContent = parsedData.hint;
 			    $("textarea[name='hint']").val(hintContent);
 			    try {
 				if(typeof KindEditor !== 'undefined') {

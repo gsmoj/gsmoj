@@ -6,30 +6,45 @@ require_once("../include/my_func.inc.php");
 if (!(isset($_SESSION[$OJ_NAME.'_'.'administrator']) || isset($_SESSION[$OJ_NAME.'_'.'problem_editor']))) {
   exit(1);
 }
+
+function problem_editor_content($content) {
+  if (preg_match('/^\s*<span\s+class=(["\'])[^"\']*\bmd\b[^"\']*\1\s*>([\s\S]*)<\/span>\s*$/i', (string)$content, $matches)) {
+    return $matches[2];
+  }
+  return (string)$content;
+}
 ?>
   <html>
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
   <title>Edit Problem</title>
   <style>
-    #preview { box-sizing: border-box; background: #fff; bottom: 0; position: fixed; right: 0; top: 49px; width: 60%; z-index: 1000; }
+    html, body { margin: 0; min-height: 100%; width: 100%; }
+    body { background: #fff !important; opacity: 1 !important; }
+    body.preview-active { overflow: hidden; }
+    #main { box-sizing: border-box; width: 100%; padding: 0 24px 24px; }
+    #main.preview-open { bottom: 0; left: 0; margin: 0 !important; overflow-y: auto; position: fixed; top: 0; width: 50%; }
+    .problem-page-title { background: #fff; border-bottom: 1px solid #e5e7eb; margin: 0 -24px 20px; padding: 16px 24px 14px; position: sticky; top: 0; z-index: 20; }
+    .problem-page-title h3 { margin: 0; }
+    #main .ke-container { box-sizing: border-box; width: 100% !important; }
+    #preview { box-sizing: border-box; background: #fff; border-left: 1px solid #d8dee8; bottom: 0; position: fixed; right: 0; top: 0; width: 50%; z-index: 1000; }
     #previewFrame { border: 0; display: block; height: 100%; width: 100%; }
     @media (max-width: 1000px) {
-      #main.preview-open { width: auto !important; margin: 0 10px !important; }
-      #preview { position: static; width: 100%; height: 720px; margin-top: 24px; }
+      body.preview-active { overflow: auto; }
+      #main.preview-open { position: static; width: 100%; }
+      #preview { border-left: 0; border-top: 1px solid #d8dee8; height: 720px; position: static; width: 100%; }
     }
   </style>
 </head>
-<hr>
-  
   <?php
-echo "<center><h3>"."Edit-".$MSG_PROBLEM."</h3></center>";
+$page_heading = $MSG_PROBLEM." - 수정";
 include_once("kindeditor.php") ;
 ?>
 
 
-<body leftmargin="30" >
-  <div id="main" class="container">
+<body>
+  <div id="main">
+    <header class="problem-page-title"><h3><?php echo htmlentities($page_heading, ENT_QUOTES, 'UTF-8')?></h3></header>
     <?php
     if (isset($_GET['id'])) {
       ;//require_once("../include/check_get_key.php");
@@ -75,17 +90,17 @@ include_once("kindeditor.php") ;
         </p>
       <p align=left>
         <?php echo "<h4>".$MSG_Description."</h4>"?>
-        <textarea class="kindeditor" rows=33 name=description cols=80><?php echo htmlentities($row['description'],ENT_QUOTES,"UTF-8")?></textarea><br>
+        <textarea class="kindeditor" rows=33 name=description cols=80><?php echo htmlentities(problem_editor_content($row['description']),ENT_QUOTES,"UTF-8")?></textarea><br>
       </p>
 <span class="full" >
       <p align=left>
         <?php echo "<h4>".$MSG_Input."</h4>"?>
-        <textarea class="kindeditor" rows=13 name=input cols=80><?php echo htmlentities($row['input'],ENT_QUOTES,"UTF-8")?></textarea><br>
+        <textarea class="kindeditor" rows=13 name=input cols=80><?php echo htmlentities(problem_editor_content($row['input']),ENT_QUOTES,"UTF-8")?></textarea><br>
       </p>
 
       <p align=left>
         <?php echo "<h4>".$MSG_Output."</h4>"?>
-        <textarea  class="kindeditor" rows=13 name=output cols=80><?php echo htmlentities($row['output'],ENT_QUOTES,"UTF-8")?></textarea><br>
+        <textarea  class="kindeditor" rows=13 name=output cols=80><?php echo htmlentities(problem_editor_content($row['output']),ENT_QUOTES,"UTF-8")?></textarea><br>
       </p>
 
       <p align=left>
@@ -100,7 +115,7 @@ include_once("kindeditor.php") ;
 
       <p align=left>
         <?php echo "<h4>".$MSG_HINT."</h4>"?>
-        <textarea class="kindeditor" rows=13 name=hint cols=80><?php echo htmlentities($row['hint'],ENT_QUOTES,"UTF-8")?></textarea><br>
+        <textarea class="kindeditor" rows=13 name=hint cols=80><?php echo htmlentities(problem_editor_content($row['hint']),ENT_QUOTES,"UTF-8")?></textarea><br>
       </p>
 </span>
       <p>
@@ -133,7 +148,8 @@ include_once("kindeditor.php") ;
 <script>
 function untransform() {
     let main = $("#main");
-    main.addClass("padding").removeClass("preview-open");
+    $("body").removeClass("preview-active");
+    main.removeClass("preview-open");
     main.css("width", "");
     main.css("margin-left", "");
 
@@ -149,8 +165,8 @@ function untransform() {
 	let submitURL="../problem.php?id=<?php echo $pid ?>";
         let main=$("#main");
         if ($("#preview").length) return;
+        $("body").addClass("preview-active");
         main.removeClass("container").addClass("preview-open");
-        if (window.matchMedia("(min-width: 1001px)").matches) main.css({width: "40%", "margin-left": "10px"});
         main.parent().append("<div id='preview'></div>");
         $("#preview").html("<iframe id='previewFrame' src='"+submitURL+"&spa'></iframe>");
         $("#submit").remove();
@@ -180,36 +196,29 @@ function untransform() {
 	preview.find("span.ui.label").eq(1).html("<?php echo $MSG_Memory_Limit ?>："+memory);
 	
 	let description=$("textarea[name='description']").val();
-	preview.find("#description").html(description);
-	preview.find("#description .md").each(function(){
-		if($("#previewFrame")[0] != undefined) $("#previewFrame")[0].contentWindow.MathJax.typeset();
-		$(this).html(marked.parse($(this).html()));
-	});
+	renderMarkdownPreview(preview.find("#description"), description, true);
   
 	let input=$("textarea[name='input']").val();
-	preview.find("#input").html(input);
-	preview.find("#input .md").each(function(){
-		if($("#previewFrame")[0] != undefined) $("#previewFrame")[0].contentWindow.MathJax.typeset();
-		$(this).html(marked.parse($(this).html()));
-	});
+	renderMarkdownPreview(preview.find("#input"), input, false);
 	let output=$("textarea[name='output']").val();
-	preview.find("#output").html(output);
-	preview.find("#output .md").each(function(){
-		if($("#previewFrame")[0] != undefined) $("#previewFrame")[0].contentWindow.MathJax.typeset();
-		$(this).html(marked.parse($(this).html()));
-	});
+	renderMarkdownPreview(preview.find("#output"), output, false);
 
 	let sinput=$("textarea[name='sample_input']").val();
 	preview.find("#sinput").html(sinput);
 	let soutput=$("textarea[name='sample_output']").val();
 	preview.find("#soutput").html(soutput);
 	let hint=$("textarea[name='hint']").val();
-	preview.find("#hint").html(hint);
-	preview.find("#hint .md").each(function(){
-		if($("#previewFrame")[0] != undefined) $("#previewFrame")[0].contentWindow.MathJax.typeset();
-		$(this).html(marked.parse($(this).html()));
-	});
+	renderMarkdownPreview(preview.find("#hint"), hint, false);
 	if($("#previewFrame")[0] != undefined) $("#previewFrame")[0].contentWindow.MathJax.typeset();
+  }
+  function renderMarkdownPreview(target, content, autoSelect) {
+    let source = content || "";
+    let existing = $("<div>").html(source).find(".md").first();
+    if (existing.length) source = existing.html();
+    if (!source.trim()) source = "\u00a0";
+    let wrapper = $("<span>").addClass(autoSelect ? "md auto_select" : "md");
+    wrapper.html(marked.parse(source, { breaks: true, gfm: true }));
+    target.empty().append(wrapper);
   }
   $(document).ready(function(){
   
@@ -226,17 +235,7 @@ function untransform() {
             });
             $('#full-toggle').change(function() {
 		$(".full").toggle();
-                if(this.checked) {
-		    if($("textarea").eq(3).val().trim()=="") $("textarea").eq(2).val("<span class='md'>\n</span>");
-		    if($("textarea").eq(5).val().trim()=="") $("textarea").eq(4).val("<span class='md'>\n</span>");
-		    if($("textarea").eq(9).val().trim()=="") $("textarea").eq(8).val("<span class='md'>\n</span>");
-		    console.log("trim["+$("textarea").eq(8).val()+"]");
-                } else {
-		    if($("textarea").eq(3).val().trim()=="<span class='md'>\n</span>") $("textarea").eq(2).val("");
-		    if($("textarea").eq(5).val().trim()=="<span class='md'>\n</span>") $("textarea").eq(4).val("");
-		    if($("textarea").eq(9).val().trim()=="<span class='md'>\n</span>") $("textarea").eq(8).val("");
-		    console.log("trim["+$("textarea").eq(8).val()+"]");
-                }
+                sync();
             });
   }); 
 </script>
