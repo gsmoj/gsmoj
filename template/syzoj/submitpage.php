@@ -101,8 +101,19 @@ body{
   body.embedded-workspace::after { display:none !important; content:none !important; }
   body.embedded-workspace #language_span,
   body.embedded-workspace #Submit,
-  body.embedded-workspace #countDown { display:none !important; }
-  body.embedded-workspace #frmSolution { min-height:100%; padding:1rem; background:#eef2f7; }
+  body.embedded-workspace #countDown,
+  body.embedded-workspace .submission-problem-label { display:none !important; }
+  body.embedded-workspace #frmSolution { min-height:100%; padding:0; background:#eef2f7; }
+  body.embedded-workspace #source { width:100% !important; height:100vh !important; min-height:520px; border:0; border-radius:0; box-shadow:none; }
+  body.embedded-workspace .ace_scrollbar-h { display:none !important; height:0 !important; }
+  body.embedded-workspace #frmSolution > .row { box-sizing:border-box; padding:12px; }
+<?php if(isset($_GET['spa'])){ ?>
+  #language_span, #Submit, #countDown, .submission-problem-label { display:none !important; }
+  body::after { display:none !important; content:none !important; }
+  #frmSolution { min-height:100%; padding:0 !important; background:#eef2f7 !important; }
+  #source { width:100% !important; height:100vh !important; min-height:520px; border:0 !important; border-radius:0 !important; box-shadow:none !important; }
+  .ace_scrollbar-h { display:none !important; height:0 !important; }
+<?php } ?>
   </style>
     
 <center>
@@ -114,13 +125,13 @@ body{
 <?php } ?>
 
 <?php if (isset($id)){?>
-<span>문제 <b><?php echo $id?></b></span>
+<span class="submission-problem-label">문제 <b><?php echo $id?></b></span>
 <input id=problem_id type='hidden' value='<?php echo $id?>' name="id" >
 <?php }else{
 //$PID="ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 //if ($pid>25) $pid=25;
 ?>
-대회 <span class=blue><b><?php echo $cid?></b></span>의 문제 <span class=blue><b><?php echo chr($pid+ord('A'))?></b></span>
+<span class="submission-problem-label">대회 <span class=blue><b><?php echo $cid?></b></span>의 문제 <span class=blue><b><?php echo chr($pid+ord('A'))?></b></span></span>
 <input id="cid" type='hidden' value='<?php echo $cid?>' name="cid">
 <input id="pid" type='hidden' value='<?php echo $pid?>' name="pid">
 <?php }?>
@@ -758,8 +769,11 @@ function loadFromBlockly(){
         enableLiveAutocompletion: true,  // true면 자동완성을 켜고, false면 끈다.
         // fontFamily: "Consolas",  // MacOS missing align
 	// theme: "ace/theme/ambiance",   // Black theme
-        fontSize: "18px"
+        fontSize: "18px",
+        wrap: true,
+        hScrollBarAlwaysVisible: false
     });
+    editor.getSession().setUseWrapMode(true);
     
 editor.getSession().on("change", function() {
    

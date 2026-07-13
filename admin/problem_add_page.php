@@ -14,6 +14,14 @@
   <meta http-equiv="Content-Language" content="zh-cn">
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
   <title>Problem Add</title>
+  <style>
+    #preview { box-sizing: border-box; background: #fff; bottom: 0; position: fixed; right: 0; top: 49px; width: 60%; z-index: 1000; }
+    #previewFrame { border: 0; display: block; height: 100%; width: 100%; }
+    @media (max-width: 1000px) {
+      #main.preview-open { width: auto !important; margin: 0 10px !important; }
+      #preview { position: static; width: 100%; height: 720px; margin-top: 24px; }
+    }
+  </style>
 </head>	  
 	  <?php
   echo "<center><h3>".$MSG_PROBLEM."-".$MSG_ADD."</h3></center>";
@@ -55,16 +63,19 @@
         </p>
         <p align=left>
           <?php echo "<h4>".$MSG_Description."(<64kB)</h4>"?>
-	  <textarea class="kindeditor" rows=33 name=description cols=80></textarea><br>
+	  <textarea class="kindeditor" rows=33 name=description cols=80><span class='md auto_select'>&nbsp;
+&nbsp;</span></textarea><br>
         </p>
 	<span class="full" >
         <p align=left>
           <?php echo "<h4>".$MSG_Input."(<64kB)</h4>"?>
-          <textarea class="kindeditor" rows=13 name=input cols=80></textarea><br>
+          <textarea class="kindeditor" rows=13 name=input cols=80><span class='md'>
+</span></textarea><br>
         </p>
         <p align=left>
           <?php echo "<h4>".$MSG_Output."(<64kB)</h4>"?>
-          <textarea class="kindeditor" rows=13 name=output cols=80></textarea><br>
+          <textarea class="kindeditor" rows=13 name=output cols=80><span class='md'>
+</span></textarea><br>
         </p>
         <p align=left>
           <?php echo "<h4>".$MSG_Sample_Input."(<64kB)</h4>"?>
@@ -86,7 +97,8 @@
         </p>
         <p align=left>
           <?php echo "<h4>".$MSG_HINT."(<64kB)</h4>"?>
-          <textarea class="kindeditor" rows=13 name=hint cols=80></textarea><br>
+          <textarea class="kindeditor" rows=13 name=hint cols=80><span class='md'>
+</span></textarea><br>
         </p>
 	</span>
         <p>
@@ -126,19 +138,13 @@
 <script src="<?php echo $OJ_CDN_URL."/template/bs3/"?>marked.min.js"></script>
 <script>
   function transform(){
-        let height=document.body.clientHeight;
-        let width=parseInt(document.body.clientWidth*0.6);
-        let width2=parseInt(document.body.clientWidth*0.4);
-	if(width<500) width2=300;
         let submitURL="../problem.php?id=1000";
-        console.log(width);
         let main=$("#main");
-        let problem=main.html();
-                main.removeClass("container");
-                main.css("width",width2);
-                main.css("margin-left","10px");
-                main.parent().append("<div id='preview' class='container' style='opacity:0.95;position:fixed;z-index:1000;top:49px;right:-"+width2+"px'></div>");
-                $("#preview").html("<iframe id='previewFrame' src='"+submitURL+"&spa' width='"+width+"px' height='"+height+"px' ></iframe>");
+        if ($("#preview").length) return;
+        main.removeClass("container").addClass("preview-open");
+        if (window.matchMedia("(min-width: 1001px)").matches) main.css({width: "40%", "margin-left": "10px"});
+        main.parent().append("<div id='preview'></div>");
+        $("#preview").html("<iframe id='previewFrame' src='"+submitURL+"&spa'></iframe>");
         $("#submit").remove();
         setTimeout('hide()',1500);	
 	$("input").keyup(sync);
@@ -165,7 +171,7 @@
 	let memory=$("input[name=memory_limit]").val();
 	preFrame.find("span.ui.label").eq(1).html("<?php echo $MSG_Memory_Limit ?>："+memory);
 	
-	let description=$("textarea").eq(1).val();
+	let description=$("textarea[name='description']").val();
 	console.log("description:"+description);
 	preFrame.find("#description").html(description);
 	preFrame.find("#description .md").each(function(){
@@ -173,24 +179,24 @@
 		$(this).html(marked.parse($(this).html(), { breaks: true, gfm: true }));
 	});
   
-	let input=$("textarea").eq(3).val();
+	let input=$("textarea[name='input']").val();
 	preFrame.find("#input").html(input);
 	preFrame.find("#input .md").each(function(){
 		if($("#previewFrame")[0] != undefined) $("#previewFrame")[0].contentWindow.MathJax.typeset();
 		$(this).html(marked.parse($(this).html(), { breaks: true, gfm: true }));
 	});
-	let output=$("textarea").eq(5).val();
+	let output=$("textarea[name='output']").val();
 	preFrame.find("#output").html(output);
 	preFrame.find("#output .md").each(function(){
 		if($("#previewFrame")[0] != undefined) $("#previewFrame")[0].contentWindow.MathJax.typeset();
 		$(this).html(marked.parse($(this).html(), { breaks: true, gfm: true }));
 	});
 
-	let sinput=$("textarea").eq(6).val();
+	let sinput=$("textarea[name='sample_input']").val();
 	preFrame.find("#sinput").html(sinput);
-	let soutput=$("textarea").eq(7).val();
+	let soutput=$("textarea[name='sample_output']").val();
 	preFrame.find("#soutput").html(soutput);
-	let hint=$("textarea").eq(11).val();
+	let hint=$("textarea[name='hint']").val();
 	preFrame.find("#hint").html(hint);
 	preFrame.find("#hint .md").each(function(){
 		if($("#previewFrame")[0] != undefined) $("#previewFrame")[0].contentWindow.MathJax.typeset();
@@ -228,10 +234,8 @@
             });
         });
 function untransform() {
-    console.log("预览关闭");
-    // 恢复原始的 #main 元素样式
     let main = $("#main");
-    main.addClass("padding");
+    main.addClass("padding").removeClass("preview-open");
     main.css("width", "");
     main.css("margin-left", "");
 

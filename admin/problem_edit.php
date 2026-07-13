@@ -11,6 +11,14 @@ if (!(isset($_SESSION[$OJ_NAME.'_'.'administrator']) || isset($_SESSION[$OJ_NAME
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
   <title>Edit Problem</title>
+  <style>
+    #preview { box-sizing: border-box; background: #fff; bottom: 0; position: fixed; right: 0; top: 49px; width: 60%; z-index: 1000; }
+    #previewFrame { border: 0; display: block; height: 100%; width: 100%; }
+    @media (max-width: 1000px) {
+      #main.preview-open { width: auto !important; margin: 0 10px !important; }
+      #preview { position: static; width: 100%; height: 720px; margin-top: 24px; }
+    }
+  </style>
 </head>
 <hr>
   
@@ -42,12 +50,12 @@ include_once("kindeditor.php") ;
       <input type=hidden name=problem_id value='<?php echo $row['problem_id']?>'>
   <div class="ui toggle checkbox">
         <input type="checkbox" id="preview-toggle" checked>
-        <label for="preview-toggle">题目预览</label>
+        <label for="preview-toggle">문제 미리보기</label>
   </div>
         &nbsp;&nbsp;
   <div class="ui toggle checkbox">
         <input type="checkbox" id="full-toggle" checked>
-        <label for="full-toggle">完整结构</label>
+        <label for="full-toggle">전체 항목 표시</label>
   </div>
 
       <p align=left>
@@ -124,35 +132,27 @@ include_once("kindeditor.php") ;
 <script src="<?php echo $OJ_CDN_URL."/template/bs3/"?>marked.min.js"></script>
 <script>
 function untransform() {
-    console.log("预览关闭");
-    // 恢复原始的 #main 元素样式
     let main = $("#main");
-    main.addClass("padding");
+    main.addClass("padding").removeClass("preview-open");
     main.css("width", "");
     main.css("margin-left", "");
 
-    // 移除预览的 iframe
+    // 미리보기 iframe 제거
     $("#preview").remove();
 
   
-    // 移除同步事件
+    // 미리보기 동기화 이벤트 제거
     $("input").off('keyup', sync);
     $("textarea").off('keyup', sync);
 }
   function transform(){
-        let height=document.body.clientHeight;
-        let width=parseInt(document.body.clientWidth*0.6);
-        let width2=parseInt(document.body.clientWidth*0.4);
-	if(width<500) width2=300;
 	let submitURL="../problem.php?id=<?php echo $pid ?>";
-        console.log(width);
         let main=$("#main");
-        let problem=main.html();
-                main.removeClass("container");
-                main.css("width",width2);
-                main.css("margin-left","10px");
-                main.parent().append("<div id='preview' class='container' style='opacity:0.95;position:fixed;z-index:1000;top:49px;right:-"+width2+"px'></div>");
-                $("#preview").html("<iframe id='previewFrame' src='"+submitURL+"&spa' width='"+width+"px' height='"+height+"px' ></iframe>");
+        if ($("#preview").length) return;
+        main.removeClass("container").addClass("preview-open");
+        if (window.matchMedia("(min-width: 1001px)").matches) main.css({width: "40%", "margin-left": "10px"});
+        main.parent().append("<div id='preview'></div>");
+        $("#preview").html("<iframe id='previewFrame' src='"+submitURL+"&spa'></iframe>");
         $("#submit").remove();
         setTimeout('hide()',1500);	
 	$("input").keyup(sync);
@@ -179,31 +179,31 @@ function untransform() {
 	let memory=$("input[name=memory_limit]").val();
 	preview.find("span.ui.label").eq(1).html("<?php echo $MSG_Memory_Limit ?>："+memory);
 	
-	let description=$("textarea").eq(1).val();
+	let description=$("textarea[name='description']").val();
 	preview.find("#description").html(description);
 	preview.find("#description .md").each(function(){
 		if($("#previewFrame")[0] != undefined) $("#previewFrame")[0].contentWindow.MathJax.typeset();
 		$(this).html(marked.parse($(this).html()));
 	});
   
-	let input=$("textarea").eq(3).val();
+	let input=$("textarea[name='input']").val();
 	preview.find("#input").html(input);
 	preview.find("#input .md").each(function(){
 		if($("#previewFrame")[0] != undefined) $("#previewFrame")[0].contentWindow.MathJax.typeset();
 		$(this).html(marked.parse($(this).html()));
 	});
-	let output=$("textarea").eq(5).val();
+	let output=$("textarea[name='output']").val();
 	preview.find("#output").html(output);
 	preview.find("#output .md").each(function(){
 		if($("#previewFrame")[0] != undefined) $("#previewFrame")[0].contentWindow.MathJax.typeset();
 		$(this).html(marked.parse($(this).html()));
 	});
 
-	let sinput=$("textarea").eq(6).val();
+	let sinput=$("textarea[name='sample_input']").val();
 	preview.find("#sinput").html(sinput);
-	let soutput=$("textarea").eq(7).val();
+	let soutput=$("textarea[name='sample_output']").val();
 	preview.find("#soutput").html(soutput);
-	let hint=$("textarea").eq(9).val();
+	let hint=$("textarea[name='hint']").val();
 	preview.find("#hint").html(hint);
 	preview.find("#hint .md").each(function(){
 		if($("#previewFrame")[0] != undefined) $("#previewFrame")[0].contentWindow.MathJax.typeset();
@@ -213,15 +213,14 @@ function untransform() {
   }
   $(document).ready(function(){
   
-            // 默认开启预览功能
+            // 기본적으로 미리보기 활성화
            <?php if (!(isset($OJ_OLD_FASHINED) && $OJ_OLD_FASHINED )) echo " transform();" ?>
             
-            // 监听checkbox的点击事件
+            // 미리보기 전환 처리
             $('#preview-toggle').change(function() {
                 if(this.checked) {
                     transform();
                 } else {
-                    // 假设这里是关闭预览的函数
                     untransform();
                 }
             });

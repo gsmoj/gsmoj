@@ -349,6 +349,8 @@ body.problem-split-active { overflow:hidden !important; background:#eef2f7 !impo
 #main.problem-split-pane .padding, #main.problem-split-pane .padding::after { background:#eef2f7 !important; }
 #submitPage { overflow:visible; }
 #ansFrame { background:#eef2f7; }
+#submitPage.is-loading #ansFrame { visibility:hidden; }
+#submitPage.is-loading::after { content:'편집기 불러오는 중…'; position:absolute; z-index:25; inset:0; display:flex; align-items:center; justify-content:center; color:#64748b; background:#eef2f7; font-size:14px; }
 .problem-split-footer { display:none !important; }
 #workspaceTopBar, #workspaceBottomBar {
   position:absolute;
@@ -385,12 +387,14 @@ body.problem-split-active { overflow:hidden !important; background:#eef2f7 !impo
 #workspaceCountdown { color:#64748b; font-size:14px; }
 #dragButton { z-index:40; left:-19px; width:24px; touch-action:none; }
 #dragButton::before { left:11px; background:#b9c5d3; }
-#dragButton::after { left:5px; width:13px; height:84px; margin-top:-42px; border-color:#aebccb; background:#dce4ed; }
+#dragButton::after { left:4px; width:16px; height:76px; margin-top:-38px; border-color:#9eacbc; border-radius:4px; background:#d7e0ea; box-shadow:0 2px 7px rgba(15,23,42,.16); }
 @media (max-width:900px) {
-  .problem-split-shell { padding-top:108px; overflow-y:auto; }
-  #workspaceTopBar { height:108px; }
+  .problem-split-shell { display:block !important; padding:108px 0 64px; overflow-y:auto; }
+  #workspaceTopBar { position:fixed; top:49px; height:108px; }
+  #workspaceBottomBar { position:fixed; }
   .workspace-controls { flex-wrap:wrap; }
-  #main.problem-split-pane, #submitPage { height:calc(100vh - 172px); min-height:620px; }
+  #main.problem-split-pane, #submitPage { position:relative; display:block; flex:none !important; width:100% !important; height:calc(100vh - 172px) !important; min-height:620px; }
+  #main.problem-split-pane { overflow:auto; }
   #dragButton { top:-14px; left:0; width:100%; height:18px; }
 }
 </style>
@@ -528,7 +532,7 @@ $(document).ready(function() {
     main.removeClass('container').addClass('problem-split-pane');
     shell.prepend("<header id='workspaceTopBar'><div class='workspace-controls'><label class='workspace-language-label' for='workspaceLanguage'>언어</label><select id='workspaceLanguage' aria-label='제출 언어 선택'></select><button type='button' class='workspace-tool-button' data-editor-action='theme' title='편집기 테마 전환'><i class='adjust icon'></i></button><button type='button' class='workspace-tool-button' data-editor-action='increase' title='글자 확대'><i class='plus icon'></i></button><button type='button' class='workspace-tool-button' data-editor-action='decrease' title='글자 축소'><i class='minus icon'></i></button></div></header>");
     shell.append("<footer id='workspaceBottomBar'><span id='workspaceCountdown'></span><button type='button' id='workspaceSubmit'><i class='paper plane icon'></i>제출</button></footer>");
-    shell.append("<section id='submitPage' aria-label='답안 작성'><div id='dragButton' role='separator' aria-label='문제와 답안 영역 너비 조절' aria-orientation='vertical'></div><iframe id='ansFrame' title='답안 작성' src='"+submitURL+separator+"spa=1'></iframe></section>");
+    shell.append("<section id='submitPage' class='is-loading' aria-label='답안 작성'><div id='dragButton' role='separator' aria-label='문제와 답안 영역 너비 조절' aria-orientation='vertical'></div><iframe id='ansFrame' title='답안 작성' src='"+submitURL+separator+"spa=1'></iframe></section>");
     $('a#submit').remove();
     const footer=$('.footer').first();
     if(footer.length) footer.detach().addClass('problem-split-footer').insertAfter(shell);
@@ -542,6 +546,7 @@ $(document).ready(function() {
       if(!frameWindow || !frameWindow.document) return;
       const frameDocument=$(frameWindow.document);
       frameDocument.find('body').addClass('embedded-workspace');
+      $('#submitPage').removeClass('is-loading');
       const sourceLanguage=frameDocument.find('#language');
       const workspaceLanguage=$('#workspaceLanguage');
       if(sourceLanguage.length){
@@ -555,6 +560,7 @@ $(document).ready(function() {
     $('#workspaceLanguage').on('change',function(){
       const frameWindow=answerWindow();
       if(!frameWindow) return;
+      $('#submitPage').addClass('is-loading');
       frameWindow.$('#language').val(this.value);
       frameWindow.reloadtemplate(this.value);
     });

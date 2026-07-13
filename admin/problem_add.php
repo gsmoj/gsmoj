@@ -9,36 +9,23 @@ require_once ("../include/db_info.inc.php");
 require_once ("../include/my_func.inc.php");
 require_once ("../include/problem.php");
 
-function normalize_problem_markdown($content, $auto_select = false)
-{
-  global $OJ_MARKDOWN;
-
-  $content = str_replace(array("\r\n", "\r"), "\n", trim($content));
-  $plain_content = trim(html_entity_decode(strip_tags($content), ENT_QUOTES, 'UTF-8'), " \t\n\r\0\x0B\xC2\xA0");
-  if ($plain_content === '') return '';
-  if (empty($OJ_MARKDOWN) || preg_match('/class=["\'][^"\']*\\bmd\\b/i', $content)) return $content;
-
-  $class_name = $auto_select ? 'md auto_select' : 'md';
-  return "<span class='" . $class_name . "'>\n" . $content . "\n</span>";
-}
-
 // contest_id
 $title = $_POST['title'];
 $title = str_replace(",", "&#44;", $title);
 $time_limit = $_POST['time_limit'];
 $memory_limit = $_POST['memory_limit'];
 
-$description = normalize_problem_markdown($_POST['description'], true);
+$description = $_POST['description'];
 //$description = str_replace("<p>", "", $description); 
 //$description = str_replace("</p>", "<br />", $description);
 $description = str_replace(",", "&#44;", $description); 
 
-$input = normalize_problem_markdown($_POST['input']);
+$input = $_POST['input'];
 //$input = str_replace("<p>", "", $input); 
 //$input = str_replace("</p>", "<br />", $input); 
 $input = str_replace(",", "&#44;", $input);
 
-$output = normalize_problem_markdown($_POST['output']);
+$output = $_POST['output'];
 //$output = str_replace("<p>", "", $output); 
 //$output = str_replace("</p>", "<br />", $output);
 $output = str_replace(",", "&#44;", $output); 
@@ -53,7 +40,7 @@ if ($sample_output=="") $sample_output="\n";
 if ($test_input=="") $test_input="\n";
 if ($test_output=="") $test_output="\n";
 */
-$hint = normalize_problem_markdown($_POST['hint']);
+$hint = $_POST['hint'];
 //$hint = str_replace("<p>", "", $hint); 
 //$hint = str_replace("</p>", "<br />", $hint); 
 $hint = str_replace(",", "&#44;", $hint);
