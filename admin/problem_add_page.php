@@ -30,17 +30,17 @@
         <p align=left>
   <div class="ui toggle checkbox">
         <input type="checkbox" id="preview-toggle" checked>
-        <label for="preview-toggle">题目预览</label>
+        <label for="preview-toggle">문제 미리보기</label>
   </div>
 	&nbsp;&nbsp;
   <div class="ui toggle checkbox">
         <input type="checkbox" id="full-toggle" checked>
-        <label for="full-toggle">完整结构</label>
+        <label for="full-toggle">전체 항목 표시</label>
   </div>
           <?php echo "<h3>".$MSG_TITLE."</h3>"?>
           <input class="input input-large" style="width:100%;" type=text name='title' id='title' > 
 		<input class="btn btn-success" type=submit value='<?php echo $MSG_SAVE?>' name=submit> 
-	  <input class='btn btn-primary' id='ai_bt' type=button value='AI一下' onclick='ai_gen()' >
+		<input class='btn btn-primary' id='ai_bt' type=button value='AI 생성' onclick='ai_gen()' >
 		<input class='btn btn-danger'  type=reset value='<?php echo $MSG_RESET?>' >
 	</p>
         <p align=left>
@@ -55,19 +55,16 @@
         </p>
         <p align=left>
           <?php echo "<h4>".$MSG_Description."(<64kB)</h4>"?>
-	  <textarea class="kindeditor" rows=33 name=description cols=80><span class='md auto_select'>&nbsp;
-&nbsp;</span></textarea><br>
+	  <textarea class="kindeditor" rows=33 name=description cols=80></textarea><br>
         </p>
 	<span class="full" >
         <p align=left>
           <?php echo "<h4>".$MSG_Input."(<64kB)</h4>"?>
-          <textarea class="kindeditor" rows=13 name=input cols=80><span class='md'>
-</span></textarea><br></textarea><br>
+          <textarea class="kindeditor" rows=13 name=input cols=80></textarea><br>
         </p>
         <p align=left>
           <?php echo "<h4>".$MSG_Output."(<64kB)</h4>"?>
-          <textarea  class="kindeditor" rows=13 name=output cols=80><span class='md'>
-</span></textarea><br></textarea><br>
+          <textarea class="kindeditor" rows=13 name=output cols=80></textarea><br>
         </p>
         <p align=left>
           <?php echo "<h4>".$MSG_Sample_Input."(<64kB)</h4>"?>
@@ -89,15 +86,14 @@
         </p>
         <p align=left>
           <?php echo "<h4>".$MSG_HINT."(<64kB)</h4>"?>
-          <textarea class="kindeditor" rows=13 name=hint cols=80><span class='md'>
-</span></textarea><br></textarea><br>
+          <textarea class="kindeditor" rows=13 name=hint cols=80></textarea><br>
         </p>
 	</span>
         <p>
           <?php echo "<h4>".$MSG_SPJ."</h4>"?>
-	  <input type=radio name=spj value='0' checked ><?php echo $MSG_NJ?> 更多测试数据，在题目添加后补充。<br> 
+	  <input type=radio name=spj value='0' checked ><?php echo $MSG_NJ?> 추가 테스트 데이터는 문제 등록 후 입력할 수 있습니다.<br>
 	  <input type=radio name=spj value='1' ><?php echo $MSG_SPJ?> <?php echo "(".$MSG_HELP_SPJ.")"?><br>
-	  <input type=radio name=spj value='2' ><?php echo $MSG_RTJ?>(用于选择判断填空题，用法见<a target='_blank' href='http://hustoj.com'>hustoj.com</a>)<br>
+	  <input type=radio name=spj value='2' ><?php echo $MSG_RTJ?> (선택형·빈칸형 문제에 사용, <a target='_blank' href='http://hustoj.com'>사용법</a>)<br>
       <input type=radio name=spj value='3' ><?php echo $MSG_INTERACT?><br>
         </p>
         <p align=left>
@@ -392,7 +388,7 @@ function fill_data( data ){
    	}
 	window.setTimeout('sync()',1000);
 	$('#ai_bt').prop('disabled', false);;
-	$('#ai_bt').val('AI一下');
+	$('#ai_bt').val('AI 생성');
 }
 function pull_result(id){
 	console.log(id);
@@ -408,14 +404,14 @@ function pull_result(id){
 		}
 	},
 	error: function() {
-	    $('#ai_bt').val('获取数据失败');
+	    $('#ai_bt').val('데이터를 가져오지 못했습니다.');
 	$('#ai_bt').prop('disabled', false);
 	}
     });
 }
 	function ai_gen(filename){
 		    let oldval=$('#ai_bt').val();
-		    $('#ai_bt').val('AI思考中...请稍候...');
+		    $('#ai_bt').val('AI 생성 중... 잠시 기다려 주세요.');
 		    $('#ai_bt').prop('disabled', true);;
 		    let title=$('#title').val();
 		    $.ajax({
@@ -427,7 +423,7 @@ function pull_result(id){
 					window.setTimeout('pull_result('+data+')',1000);
 			},
 			error: function() {
-			    $('#ai_bt').val('获取数据失败');
+			    $('#ai_bt').val('데이터를 가져오지 못했습니다.');
 		    	$('#ai_bt').prop('disabled', false);
 			}
 		    });

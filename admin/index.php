@@ -4,7 +4,7 @@
 <head>
 <title><?php echo $OJ_NAME.$MSG_ADMIN?></title>
 </head>
-<frameset cols="16%,*">
+<frameset cols="260,*" frameborder="0" border="0">
   <?php if($OJ_TEMPLATE=="sidebar"){ ?>
           <frame name="menu" src="menu.php">                            
   <?php }else{?>
