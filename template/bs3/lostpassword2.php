@@ -25,20 +25,14 @@
     <?php include("template/$OJ_TEMPLATE/nav.php");?>	    
       <!-- Main component for a primary marketing message or call to action -->
       <div class="jumbotron">
- <form action=lostpassword2.php method=post>
+ <form action="lostpassword2.php" method="post">
 <center>
 <table algin=center>
-<tr><td><?php echo $MSG_USER_ID?>:<td><input name="user_id" type="text" size=20></td></tr>
-<tr><td><?php echo $MSG_LOSTPASSWORD_MAILBOX ?>:<td><input name="lost_key" type="text" size=20>*
-        <?php echo $MSG_LOSTPASSWORD_WILLBENEW ?></td></tr>
-<?php // if($OJ_VCODE){
-  ?>
-<tr><td><?php echo $MSG_VCODE?>:</td>
-<td><input name="vcode" size=4 type=text autocomplete=off ><img alt="click to change" src=vcode.php onclick="this.src='vcode.php#'+Math.random()">*</td>
-</tr>
-<?php // }
-  ?>
-<tr><td><td><input name="submit" type="submit" size=10 value="Submit">
+<input name="user_id" type="hidden" value="<?php echo htmlentities($_SESSION[$OJ_NAME.'_lost_user_id']??'',ENT_QUOTES,'UTF-8')?>">
+<input name="lost_key" type="hidden" value="<?php echo htmlentities($_SESSION[$OJ_NAME.'_lost_key']??'',ENT_QUOTES,'UTF-8')?>">
+<tr><td>새 비밀번호:<td><input name="new_password" type="password" minlength="6" autocomplete="new-password" required></td></tr>
+<tr><td>새 비밀번호 확인:<td><input name="confirm_password" type="password" minlength="6" autocomplete="new-password" required></td></tr>
+<tr><td><td><input name="submit" type="submit" size=10 value="비밀번호 재설정">
 </tr>
 </table>
 <center>

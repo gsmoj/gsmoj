@@ -78,5 +78,6 @@ if (!email($registered_email, $subject, strip_tags($mail_body), $mail_body, $mai
     exit(0);
 }
 
-require('template/' . $OJ_TEMPLATE . '/lostpassword2.php');
+$mail_sent = true;
+require('template/' . $OJ_TEMPLATE . '/lostpassword.php');
 ?>

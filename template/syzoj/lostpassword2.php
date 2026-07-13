@@ -12,35 +12,29 @@
 .password-reset-card .ui.input { width:100%; }
 .password-reset-card .ui.input input { border-radius:.55rem !important; }
 .password-reset-card .ui.primary.button { width:100%; margin-top:.5rem; padding:.9rem 1rem; border-radius:.55rem; }
-.password-reset-vcode { display:flex; align-items:center; gap:.65rem; }
-.password-reset-vcode .ui.input { flex:1; min-width:0; }
-.password-reset-vcode img { flex:0 0 auto; height:38px; border:1px solid #d8dee8; border-radius:.45rem; cursor:pointer; background:#fff; }
 .password-reset-notice { margin-bottom:1.25rem !important; text-align:left; }
 @media (max-width:520px) { .password-reset-page { padding:2rem .75rem; } .password-reset-card { padding:1.4rem !important; } }
 </style>
 
 <main class="password-reset-page">
   <section class="padding password-reset-card" aria-labelledby="password-reset-title">
-    <div class="password-reset-icon"><i class="envelope open outline icon"></i></div>
-    <h1 id="password-reset-title">인증 코드 확인</h1>
-    <p class="password-reset-description">메일로 받은 인증 코드를 입력해 주세요.<br>확인 후 해당 코드가 임시 비밀번호로 설정됩니다.</p>
-    <div class="ui info message password-reset-notice"><i class="info circle icon"></i>로그인 후 내 정보에서 새 비밀번호로 변경해 주세요.</div>
+    <div class="password-reset-icon"><i class="key icon"></i></div>
+    <h1 id="password-reset-title">새 비밀번호 설정</h1>
+    <p class="password-reset-description">사용할 새 비밀번호를 입력해 주세요.</p>
+    <?php if (!empty($reset_error)): ?>
+      <div class="ui negative message password-reset-notice"><i class="warning circle icon"></i><?php echo htmlentities($reset_error, ENT_QUOTES, 'UTF-8')?></div>
+    <?php endif; ?>
 
     <form class="ui form" action="lostpassword2.php" method="post">
+      <input name="user_id" type="hidden" value="<?php echo htmlentities($_SESSION[$OJ_NAME.'_lost_user_id']??'',ENT_QUOTES,'UTF-8')?>">
+      <input name="lost_key" type="hidden" value="<?php echo htmlentities($_SESSION[$OJ_NAME.'_lost_key']??'',ENT_QUOTES,'UTF-8')?>">
       <div class="field">
-        <label for="reset-user-id"><?php echo $MSG_USER_ID?></label>
-        <div class="ui left icon input"><i class="user icon"></i><input id="reset-user-id" name="user_id" type="text" autocomplete="username" value="<?php echo htmlentities($_SESSION[$OJ_NAME.'_lost_user_id']??'',ENT_QUOTES,'UTF-8')?>" required></div>
+        <label for="new-password">새 비밀번호</label>
+        <div class="ui left icon input"><i class="lock icon"></i><input id="new-password" name="new_password" type="password" minlength="6" autocomplete="new-password" required autofocus></div>
       </div>
       <div class="field">
-        <label for="reset-key">비밀번호 재설정 인증 코드</label>
-        <div class="ui left icon input"><i class="key icon"></i><input id="reset-key" name="lost_key" type="text" autocomplete="one-time-code" required></div>
-      </div>
-      <div class="field">
-        <label for="reset-vcode"><?php echo $MSG_VCODE?></label>
-        <div class="password-reset-vcode">
-          <div class="ui left icon input"><i class="shield alternate icon"></i><input id="reset-vcode" name="vcode" type="text" autocomplete="off" required></div>
-          <img src="vcode.php" alt="인증 코드 새로고침" title="클릭하여 새 인증 코드 받기" onclick="this.src='vcode.php?'+Math.random()">
-        </div>
+        <label for="confirm-password">새 비밀번호 확인</label>
+        <div class="ui left icon input"><i class="lock icon"></i><input id="confirm-password" name="confirm_password" type="password" minlength="6" autocomplete="new-password" required></div>
       </div>
       <button class="ui primary button" name="submit" type="submit"><i class="check icon"></i>비밀번호 재설정</button>
     </form>
