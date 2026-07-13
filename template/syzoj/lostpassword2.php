@@ -1,58 +1,50 @@
 <?php $show_title="$MSG_LOSTPASSWORD_MAILBOX - $OJ_NAME"; ?>
 <?php include("template/$OJ_TEMPLATE/header.php");?>
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="">
-    <meta name="author" content="">
-    <link rel="icon" href="../../favicon.ico">
 
-    <title><?php echo $OJ_NAME?></title>  
-    <?php include("template/$OJ_TEMPLATE/css.php");?>	    
+<style>
+.password-reset-page { display:flex; align-items:flex-start; justify-content:center; min-height:calc(100vh - 170px); padding:4rem 1rem 2rem; }
+.password-reset-card { box-sizing:border-box; width:100%; max-width:480px; padding:2rem !important; border-radius:1rem !important; }
+.password-reset-icon { display:flex; align-items:center; justify-content:center; width:3.5rem; height:3.5rem; margin:0 auto 1rem; border-radius:50%; color:#2185d0; background:#eaf5ff; font-size:1.5rem; }
+.password-reset-card h1 { margin:0 0 .65rem; color:#1f2937; font-size:1.65rem; text-align:center; }
+.password-reset-description { margin:0 0 1.75rem; color:#64748b; line-height:1.65; text-align:center; }
+.password-reset-card .field { margin-bottom:1.15rem !important; }
+.password-reset-card .field label { margin-bottom:.5rem !important; color:#374151 !important; }
+.password-reset-card .ui.input { width:100%; }
+.password-reset-card .ui.input input { border-radius:.55rem !important; }
+.password-reset-card .ui.primary.button { width:100%; margin-top:.5rem; padding:.9rem 1rem; border-radius:.55rem; }
+.password-reset-vcode { display:flex; align-items:center; gap:.65rem; }
+.password-reset-vcode .ui.input { flex:1; min-width:0; }
+.password-reset-vcode img { flex:0 0 auto; height:38px; border:1px solid #d8dee8; border-radius:.45rem; cursor:pointer; background:#fff; }
+.password-reset-notice { margin-bottom:1.25rem !important; text-align:left; }
+@media (max-width:520px) { .password-reset-page { padding:2rem .75rem; } .password-reset-card { padding:1.4rem !important; } }
+</style>
 
+<main class="password-reset-page">
+  <section class="padding password-reset-card" aria-labelledby="password-reset-title">
+    <div class="password-reset-icon"><i class="envelope open outline icon"></i></div>
+    <h1 id="password-reset-title">인증 코드 확인</h1>
+    <p class="password-reset-description">메일로 받은 인증 코드를 입력해 주세요.<br>확인 후 해당 코드가 임시 비밀번호로 설정됩니다.</p>
+    <div class="ui info message password-reset-notice"><i class="info circle icon"></i>로그인 후 내 정보에서 새 비밀번호로 변경해 주세요.</div>
 
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!--[if lt IE 9]>
-      <script src="template/<?php echo $OJ_TEMPLATE?>/js/html5shiv.js"></script>
-      <script src="template/<?php echo $OJ_TEMPLATE?>/js/respond.min.js"></script>
-    <![endif]-->
-  </head>
-
-  <body>
-
-    <div class="container">
-      <!-- Main component for a primary marketing message or call to action -->
-      <div class="padding">
- <form action=lostpassword2.php method=post>
-<center>
-<table algin=center>
-<tr><td><?php echo $MSG_USER_ID?>:<td><input name="user_id" type="text" size=20></td></tr>
-<tr><td><?php echo $MSG_LOSTPASSWORD_MAILBOX ?>:<td><input name="lost_key" type="text" size=20>*
-        <?php echo $MSG_LOSTPASSWORD_WILLBENEW ?></td></tr>
-<?php // if($OJ_VCODE){
-  ?>
-<tr><td><?php echo $MSG_VCODE?>:</td>
-<td><input name="vcode" size=4 type=text autocomplete=off ><img alt="click to change" src=vcode.php onclick="this.src='vcode.php#'+Math.random()">*</td>
-</tr>
-<?php // }
-  ?>
-<tr><td><td><input name="submit" type="submit" size=10 value="Submit">
-</tr>
-</table>
-<center>
-</form>
-
+    <form class="ui form" action="lostpassword2.php" method="post">
+      <div class="field">
+        <label for="reset-user-id"><?php echo $MSG_USER_ID?></label>
+        <div class="ui left icon input"><i class="user icon"></i><input id="reset-user-id" name="user_id" type="text" autocomplete="username" value="<?php echo htmlentities($_SESSION[$OJ_NAME.'_lost_user_id']??'',ENT_QUOTES,'UTF-8')?>" required></div>
       </div>
+      <div class="field">
+        <label for="reset-key">비밀번호 재설정 인증 코드</label>
+        <div class="ui left icon input"><i class="key icon"></i><input id="reset-key" name="lost_key" type="text" autocomplete="one-time-code" required></div>
+      </div>
+      <div class="field">
+        <label for="reset-vcode"><?php echo $MSG_VCODE?></label>
+        <div class="password-reset-vcode">
+          <div class="ui left icon input"><i class="shield alternate icon"></i><input id="reset-vcode" name="vcode" type="text" autocomplete="off" required></div>
+          <img src="vcode.php" alt="인증 코드 새로고침" title="클릭하여 새 인증 코드 받기" onclick="this.src='vcode.php?'+Math.random()">
+        </div>
+      </div>
+      <button class="ui primary button" name="submit" type="submit"><i class="check icon"></i>비밀번호 재설정</button>
+    </form>
+  </section>
+</main>
 
-    </div> <!-- /container -->
-
-
-    <!-- Bootstrap core JavaScript
-    ================================================== -->
-    <!-- Placed at the end of the document so the pages load faster -->
-    <?php include("template/$OJ_TEMPLATE/js.php");?>	    
-  </body>
-</html>
+<?php include("template/$OJ_TEMPLATE/footer.php");?>
