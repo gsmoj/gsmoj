@@ -313,6 +313,22 @@ a#submit, a[onclick='transform()'] { display:none !important; }
   #dragButton::after { display:none; }
 }
 </style>
+<style>
+.problem-split-shell { gap:14px; background:#eef2f7; }
+#main.problem-split-pane { padding:0; background:#fff; }
+#main.problem-split-pane .padding { border-radius:0 !important; box-shadow:none !important; background:#fff; }
+#main.problem-split-pane .padding::before { backdrop-filter:none !important; filter:none !important; }
+#main.problem-split-pane .padding::after { background:#fff !important; box-shadow:none !important; }
+#submitPage { border-left:1px solid #d6dde7; background:#fff; }
+#dragButton { left:-17px; width:18px; background:transparent; }
+#dragButton::before { content:''; position:absolute; top:0; bottom:0; left:8px; width:1px; background:#cbd5e1; }
+#dragButton::after { left:3px; width:11px; height:72px; margin-top:-36px; border:1px solid #b8c3d1; background:#e8edf3; box-shadow:0 2px 7px rgba(15,23,42,.14); }
+@media (max-width:900px) {
+  .problem-split-shell { gap:12px; }
+  #dragButton { top:-12px; left:0; width:100%; height:12px; }
+  #dragButton::before { top:5px; right:0; bottom:auto; left:0; width:100%; height:1px; }
+}
+</style>
   <script type="text/javascript">
   
   function legacyTransform(){
@@ -612,6 +628,7 @@ function admin_mod(){
                   async: true,
                   pedantic: false,
                   gfm: true,
+                  breaks: true,
                   mangle: false,
                   headerIds: false
                 });

@@ -49,6 +49,53 @@ body{
     #input_text, #out { width:100% !important; }
     #TestRun { width:100% !important; height:auto !important; min-height:44px; margin:.75rem 0 0 !important; }
   }
+  /* 제출 화면 고정 도구 모음 */
+  body { background:#f7f9fc !important; }
+  #frmSolution { padding-top:5.75rem; }
+  #language_span {
+    position:fixed;
+    z-index:100;
+    top:0;
+    right:0;
+    left:0;
+    justify-content:flex-end;
+    width:auto;
+    min-height:4.25rem;
+    margin:0;
+    padding:.7rem 1rem;
+    border:0;
+    border-bottom:1px solid #d6dee9;
+    border-radius:0;
+    background:#eaf0f7;
+    box-shadow:0 2px 8px rgba(15,23,42,.08);
+  }
+  #language { flex:0 1 12rem; height:40px; border-color:#c4cfdd; background:#fff; }
+  .editor-tools { display:inline-flex; align-items:center; gap:.35rem; }
+  .editor-tool-button {
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:40px;
+    height:40px;
+    padding:0;
+    color:#475569;
+    border:1px solid #c4cfdd;
+    border-radius:.45rem;
+    background:#f8fafc;
+    cursor:pointer;
+    transition:color .15s ease,border-color .15s ease,background-color .15s ease;
+  }
+  .editor-tool-button:hover { color:#1d4ed8; border-color:#93b4e8; background:#fff; }
+  .editor-tool-button .icon { margin:0 !important; }
+  body::after { border-top-color:#d6dee9; background:#edf2f7; backdrop-filter:none; }
+  #Submit { background:#2563eb !important; box-shadow:0 2px 8px rgba(37,99,235,.24) !important; }
+  #Submit:hover { background:#1d4ed8 !important; }
+  @media (max-width:700px) {
+    #frmSolution { padding-top:8.75rem; }
+    #language_span { align-items:center; flex-direction:row; min-height:7.25rem; padding:.6rem .75rem; }
+    #language { flex:1 1 10rem; width:auto; }
+    .editor-tools { flex:0 0 auto; }
+  }
   </style>
     
 <center>
@@ -91,6 +138,13 @@ echo"<option value=$i ".( $lastlang==$i?"selected":"").">
 }
 ?>
 </select>
+<?php if($spj <= 1 && !$solution_name){ ?>
+<span class="editor-tools" aria-label="코드 편집기 도구">
+  <button type="button" class="editor-tool-button" onclick="toggleTheme(event)" title="편집기 테마 전환"><i class="adjust icon"></i></button>
+  <button type="button" class="editor-tool-button" onclick="increaseFontSize(event)" title="글자 확대"><i class="plus icon"></i></button>
+  <button type="button" class="editor-tool-button" onclick="decreaseFontSize(event)" title="글자 축소"><i class="minus icon"></i></button>
+</span>
+<?php } ?>
 <?php if($OJ_VCODE){?>
 <?php echo $MSG_VCODE?>:
 <input name="vcode" size=4 type=text autocomplete=off ><img id="vcode" alt="click to change" src="vcode.php" onclick="this.src='vcode.php?'+Math.random()">
@@ -109,18 +163,6 @@ echo"<option value=$i ".( $lastlang==$i?"selected":"").">
 <span class="btn" id=result><?php echo $MSG_STATUS?></span>	
 <?php }?>
 </span>
-<?php if($spj <= 1 &&  !$solution_name){ ?>
-    <button onclick="toggleTheme(event)" style="background-color: bisque; position: absolute; top: 5px; right:70px;" v-if="false">
-        <i>🌗</i>
-    </button>
-    <button onclick="increaseFontSize(event)" style="background-color: bisque; position: absolute; top: 5px; right:40px;" v-if="false">
-        <i>➕</i>
-    </button>
-    <button onclick="decreaseFontSize(event)" style="background-color: bisque; position: absolute; top: 5px; right:10px;" v-if="false">
-        <i>➖</i>
-    </button>
-<?php } ?>
-
 <?php 
         if(!$solution_name){
                 if($OJ_ACE_EDITOR){
@@ -178,7 +220,7 @@ echo"<option value=$i ".( $lastlang==$i?"selected":"").">
         <div style="  
         display: flex;
     border-radius: 8px;
-    background-color: rgb(255,255,255,0.4);" id="language_span"><?php echo $MSG_Input?></div>
+    background-color: rgb(255,255,255,0.4);" class="testcase-header"><?php echo $MSG_Input?></div>
          <textarea style="width:100%" cols=40 rows=5 id="input_text" name="input_text" ><?php echo $view_sample_input?></textarea>
     </div>
     <div style="
@@ -189,7 +231,7 @@ echo"<option value=$i ".( $lastlang==$i?"selected":"").">
          <div style="    display: flex;
    
     border-radius: 8px;
-    background-color: rgb(255,255,255,0.4);justify-content: space-between;" id="language_span"><?php echo $MSG_Output ?>
+    background-color: rgb(255,255,255,0.4);justify-content: space-between;" class="testcase-header"><?php echo $MSG_Output ?>
     
    <span class="btn" id=result><?php echo $MSG_STATUS?></span>	
     

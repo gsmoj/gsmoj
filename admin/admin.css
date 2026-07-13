@@ -435,9 +435,14 @@ input:focus, select:focus, textarea:focus { border-color: #60a5fa; box-shadow: 0
 
 /* frameset 왼쪽 메뉴 */
 body[style*="text-align:center"] { padding: 14px 12px; background: #111827 !important; color: #e5e7eb; }
+html:has(body[style*="text-align:center"]), body[style*="text-align:center"] { overflow-x: hidden; scrollbar-width: none; }
+body[style*="text-align:center"]::-webkit-scrollbar { width: 0; height: 0; display: none; }
+body[style*="text-align:center"] *, body[style*="text-align:center"] *::before, body[style*="text-align:center"] *::after { box-sizing: border-box; }
 body[style*="text-align:center"] hr { margin: 12px 0; border-color: #334155; }
 body[style*="text-align:center"] > .btn { width: 100%; margin-bottom: 6px; color: #e5e7eb; border: 1px solid #374151; background: #1f2937; }
 body[style*="text-align:center"] > .btn:hover { background: #374151; }
+body[style*="text-align:center"] > .admin-brand { padding: 11px 12px; color:#fff; border-color:#2563eb; background:#2563eb; font-size:17px; letter-spacing:.04em; }
+body[style*="text-align:center"] > .admin-brand:hover { background:#1d4ed8; }
 body[style*="text-align:center"] .btn-group-vertical { width: 100%; }
 body[style*="text-align:center"] .btn-group { width: 100%; margin-bottom: 7px; }
 body[style*="text-align:center"] .dropdown-toggle { width: 100%; padding: 10px 12px; text-align: left; color: #e5e7eb; border-color: #374151; background: #1f2937; }
