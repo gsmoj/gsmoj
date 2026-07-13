@@ -380,10 +380,12 @@ body.problem-split-active { overflow:hidden !important; background:#eef2f7 !impo
 }
 #workspaceTopBar { top:0; height:60px; justify-content:flex-end; border-bottom:1px solid #d6dde7; }
 #workspaceBottomBar { bottom:0; height:64px; justify-content:flex-end; gap:14px; border-top:1px solid #d6dde7; }
+.workspace-run-result { flex:1 1 auto; min-width:0; max-height:48px; padding:4px 8px; overflow:auto; color:#475569; font:13px/1.35 Consolas,monospace; white-space:pre-wrap; overflow-wrap:anywhere; scrollbar-width:thin; }
+.workspace-run-result:empty::before { content:'실행 결과가 여기에 표시됩니다.'; color:#94a3b8; font-family:inherit; }
 .workspace-controls { display:flex; align-items:center; justify-content:flex-end; gap:8px; }
 .workspace-language-label { margin-right:2px; color:#475569; font-size:14px; font-weight:700; }
 #workspaceLanguage { width:180px; height:40px; padding:0 36px 0 12px; color:#334155; border:1px solid #c3cedb; border-radius:7px; background:#fff; }
-.workspace-tool-button, #workspaceSubmit {
+.workspace-tool-button, #workspaceRun, #workspaceSubmit {
   display:inline-flex;
   align-items:center;
   justify-content:center;
@@ -398,6 +400,9 @@ body.problem-split-active { overflow:hidden !important; background:#eef2f7 !impo
 .workspace-tool-button .icon { margin:0 !important; }
 #workspaceSubmit { min-width:112px; padding:0 22px; color:#fff; border:1px solid #2563eb; background:#2563eb; }
 #workspaceSubmit:hover { border-color:#1d4ed8; background:#1d4ed8; }
+#workspaceRun { min-width:88px; padding:0 18px; color:#fff; border:1px solid #16a34a; background:#16a34a; }
+#workspaceRun:hover { border-color:#15803d; background:#15803d; }
+#workspaceRun:disabled, #workspaceSubmit:disabled { cursor:wait; opacity:.72; }
 #workspaceCountdown { color:#64748b; font-size:14px; }
 #dragButton { z-index:40; left:-19px; width:24px; touch-action:none; }
 #dragButton::before { left:11px; background:#b9c5d3; }
@@ -412,6 +417,8 @@ body.problem-workspace-dark #workspaceTopBar,
 body.problem-workspace-dark #workspaceBottomBar { border-color:#334155; background:#1f2937; }
 body.problem-workspace-dark .workspace-language-label,
 body.problem-workspace-dark #workspaceCountdown { color:#cbd5e1; }
+body.problem-workspace-dark .workspace-run-result { color:#e2e8f0; }
+body.problem-workspace-dark .workspace-run-result:empty::before { color:#64748b; }
 body.problem-workspace-dark #workspaceLanguage,
 body.problem-workspace-dark .workspace-tool-button { color:#e5e7eb; border-color:#475569; background:#111827; }
 body.problem-workspace-dark #main .ui.header,
@@ -577,7 +584,8 @@ $(document).ready(function() {
     shell.addClass('problem-split-shell');
     main.removeClass('container').addClass('problem-split-pane');
     shell.prepend("<header id='workspaceTopBar'><div class='workspace-controls'><label class='workspace-language-label' for='workspaceLanguage'>언어</label><select id='workspaceLanguage' aria-label='제출 언어 선택'></select><button type='button' class='workspace-tool-button' data-editor-action='theme' title='편집기 테마 전환'><i class='adjust icon'></i></button><button type='button' class='workspace-tool-button' data-editor-action='increase' title='글자 확대'><i class='plus icon'></i></button><button type='button' class='workspace-tool-button' data-editor-action='decrease' title='글자 축소'><i class='minus icon'></i></button></div></header>");
-    shell.append("<footer id='workspaceBottomBar'><span id='workspaceCountdown'></span><button type='button' id='workspaceSubmit'><i class='paper plane icon'></i>제출</button></footer>");
+    const runButtonHtml=<?php echo json_encode((isset($OJ_TEST_RUN) && $OJ_TEST_RUN && intval($row['spj']) !== 2 && empty($solution_name)) ? "<button type='button' id='workspaceRun'><i class='play icon'></i>실행</button>" : "")?>;
+    shell.append("<footer id='workspaceBottomBar'><div id='workspaceRunResult' class='workspace-run-result' role='status' aria-live='polite'></div><span id='workspaceCountdown'></span>"+runButtonHtml+"<button type='button' id='workspaceSubmit'><i class='paper plane icon'></i>제출</button></footer>");
     shell.append("<section id='submitPage' class='is-loading' aria-label='답안 작성'><div id='dragButton' role='separator' aria-label='문제와 답안 영역 너비 조절' aria-orientation='vertical'></div><iframe id='ansFrame' title='답안 작성' src='"+submitURL+separator+"spa=1'></iframe></section>");
     $('a#submit').remove();
     const footer=$('.footer').first();
@@ -603,8 +611,17 @@ $(document).ready(function() {
       }
       if(state==='success'){
         const solutionId=parseInt(data,10);
+        if(!(solutionId>0)){
+          window.updateWorkspaceSubmission('error');
+          return;
+        }
         button.html("<i class='check icon'></i>제출 완료");
-        $('#workspaceCountdown').text(solutionId>0?'제출 번호 '+solutionId+'로 접수되었습니다.':'답안이 접수되었습니다.');
+        $('#workspaceCountdown').text('제출 번호 '+solutionId+'로 접수되었습니다.');
+        const statusUrl=<?php echo json_encode($pr_flag ? 'status.php' : 'status.php?cid='.intval($cid))?>;
+        window.setTimeout(function(){
+          window.location.href=statusUrl+(statusUrl.indexOf('?')===-1?'?':'&')+'top='+solutionId;
+        },350);
+        return;
       }else{
         button.html("<i class='warning sign icon'></i>제출 실패");
         $('#workspaceCountdown').text('제출하지 못했습니다. 잠시 후 다시 시도해 주세요.');
@@ -613,6 +630,18 @@ $(document).ready(function() {
         button.prop('disabled',false).html("<i class='paper plane icon'></i>제출");
         workspaceStatusLocked=false;
       },1500);
+    };
+    window.updateWorkspaceRun=function(state,data){
+      const button=$('#workspaceRun');
+      const result=$('#workspaceRunResult');
+      if(state==='running'){
+        button.prop('disabled',true).html("<i class='spinner loading icon'></i>실행 중");
+        result.text(data||'코드를 실행하고 있습니다.');
+        return;
+      }
+      button.prop('disabled',false).html("<i class='play icon'></i>실행");
+      result.text(data|| (state==='error'?'실행 결과를 가져오지 못했습니다.':'실행이 완료되었습니다.'));
+      result.scrollTop(0);
     };
     window.setProblemWorkspaceTheme(localStorage.getItem('gsmoj_editor_theme')==='monokai'?'monokai':'xcode');
     function syncWorkspaceControls(){
@@ -672,6 +701,20 @@ $(document).ready(function() {
       }catch(error){
         console.error('Submit failed:',error);
         window.updateWorkspaceSubmission('error');
+      }
+    });
+    $('#workspaceRun').on('click',function(){
+      const frameWindow=answerWindow();
+      if(!frameWindow || typeof frameWindow.do_test_run!=='function'){
+        window.updateWorkspaceRun('error','실행 기능을 불러오지 못했습니다.');
+        return;
+      }
+      window.updateWorkspaceRun('running');
+      try{
+        frameWindow.do_test_run();
+      }catch(error){
+        console.error('Test run failed:',error);
+        window.updateWorkspaceRun('error','실행 중 오류가 발생했습니다.');
       }
     });
     window.setInterval(function(){

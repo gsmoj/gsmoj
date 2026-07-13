@@ -406,6 +406,7 @@ type: "GET",
 data: { tr: 1, solution_id: solution_id },
 success: function(data) {
     $("#out").val(data);
+    if(window.parent!==window && typeof window.parent.updateWorkspaceRun==='function') window.parent.updateWorkspaceRun('success',data);
      console.log(jresult);
     var resultVariable = data;
      if (jresult== 11) {
@@ -436,6 +437,7 @@ success: function(data) {
 },
 error: function(xhr, status, error) {
     console.error("Error fetching data: ", error);
+    if(window.parent!==window && typeof window.parent.updateWorkspaceRun==='function') window.parent.updateWorkspaceRun('error','실행 결과를 가져오지 못했습니다.');
 }
 });
 }
@@ -451,6 +453,7 @@ function fresh_result(solution_id)
 var tb=window.document.getElementById('result');
 if(solution_id==undefined){
 	tb.innerHTML="Vcode Error!";		
+	if(window.parent!==window && typeof window.parent.updateWorkspaceRun==='function') window.parent.updateWorkspaceRun('error','인증 코드 또는 실행 요청을 확인해 주세요.');
 	if($("#vcode")!=null) $("#vcode").click();
 	return ;
 }
@@ -458,6 +461,7 @@ if(solution_id==undefined){
 sid=parseInt(solution_id);
 if(sid<=0){
 	tb.innerHTML="<?php echo  str_replace("10",$OJ_SUBMIT_COOLDOWN_TIME,$MSG_BREAK_TIME) ?>";
+	if(window.parent!==window && typeof window.parent.updateWorkspaceRun==='function') window.parent.updateWorkspaceRun('error','잠시 후 다시 실행해 주세요.');
 	if($("#vcode")!=null) $("#vcode").click();
 	return ;
 }
@@ -677,7 +681,11 @@ function do_test_run(){
                 runSQL($("#input_text").val(),source);
                 return;
         }
-	if(source.length<10) return alert("too short!");
+	if(source.length<10){
+                if(window.parent!==window && typeof window.parent.updateWorkspaceRun==='function') window.parent.updateWorkspaceRun('error','코드를 10자 이상 입력해 주세요.');
+                return false;
+        }
+	if(window.parent!==window && typeof window.parent.updateWorkspaceRun==='function') window.parent.updateWorkspaceRun('running','코드를 실행하고 있습니다.');
 	if(tb!=null)tb.innerHTML=loader;
 
 	var mark="<?php echo isset($id)?'problem_id':'cid';?>";
@@ -686,12 +694,16 @@ function do_test_run(){
 	document.getElementById("frmSolution").target="testRun";
 	//$("#hide_source").val(editor.getValue());
 	//document.getElementById("frmSolution").submit();
-	$.post("submit.php?ajax",$("#frmSolution").serialize(),function(data){fresh_result(data);});
+	var testRequest=$.post("submit.php?ajax",$("#frmSolution").serialize(),function(data){fresh_result(data);});
+	testRequest.fail(function(){
+                if(window.parent!==window && typeof window.parent.updateWorkspaceRun==='function') window.parent.updateWorkspaceRun('error','실행 요청을 전송하지 못했습니다.');
+        });
   	$("#Submit").prop('disabled', true);
   	$("#TestRun").prop('disabled', true);
 	problem_id.value=-problem_id.value;
 	count=<?php echo isset($OJ_SUBMIT_COOLDOWN_TIME)?$OJ_SUBMIT_COOLDOWN_TIME:5  ?> * 2 ;
 	handler_interval= window.setTimeout("resume();",1000);
+	return testRequest;
 }
 // 임시 저장된 코드를 에디터로 복구한다.
 function resume(){
