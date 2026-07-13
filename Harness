@@ -1,5 +1,52 @@
 # GSMOJ Harness
 
+## HUSTOJ 기본 구조
+
+```text
+HUSTOJ
+├─ Web Interface (db_info.inc.php)
+│  ├─ Practice Interface
+│  │  ├─ Test Run
+│  │  ├─ Output Diff
+│  │  └─ Download Data
+│  │
+│  ├─ Contest Interface
+│  │  ├─ OI Mode
+│  │  ├─ Single Submission Limit
+│  │  └─ Private Contest
+│  │
+│  ├─ Management Interface
+│  │  ├─ Problem Management
+│  │  │  ├─ Import / Export (fpx/xml, etc.)
+│  │  │  └─ Test Data (Auto Gen, Templates)
+│  │  ├─ Remote Judge (HDU, PKU, etc.)
+│  │  ├─ User Management
+│  │  │  ├─ Batch Import / Export
+│  │  │  └─ Password / School / Email
+│  │  ├─ Contest Management
+│  │  │  └─ Create / Edit / Export
+│  │  └─ Privileges
+│  │     └─ Admin, Problem Editor, Contest Creator, VIP
+│  │
+│  └─ Customization & Others
+│     ├─ Skins / Templates
+│     ├─ Language Control
+│     ├─ Localization
+│     └─ News, Problem Sets, Resources
+│
+├─ Database
+│  └─ Triggers (Auto Data Sync)
+│
+└─ Judge Machine (judge.conf)
+   ├─ Judged / Judge Client
+   │  ├─ Security (ptrace, chroot, rlimit, alarm)
+   │  └─ Similarity Check (sim)
+   │
+   └─ Virtualization (Docker / Podman)
+      ├─ Dockerfile Support
+      └─ Supported Languages (Python, Java, FreePascal, Node.js, Bash, Ruby)
+```
+
 ## 프로젝트 목적
 
 이 저장소는 HUSTOJ 기반 온라인 저지 웹 프로젝트이며, 개인 학교 운영에 맞게 GSMOJ로 수정 중이다. 작업의 최우선 목표는 다음 세 가지다.
