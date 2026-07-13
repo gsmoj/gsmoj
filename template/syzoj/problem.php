@@ -422,6 +422,13 @@ body.problem-workspace-dark #main .ui.segment { color:#e5e7eb !important; border
 body.problem-workspace-dark #main .ui.block.header { color:#f8fafc !important; border-color:#374151 !important; background:#0f172a !important; }
 body.problem-workspace-dark #main .ui.label { color:#e5e7eb !important; background:#374151 !important; }
 body.problem-workspace-dark #main a { color:#93c5fd; }
+body.problem-workspace-dark #main .ui.button { color:#e5e7eb !important; border-color:#475569 !important; background:#334155 !important; box-shadow:none !important; }
+body.problem-workspace-dark #main .ui.button:hover { color:#fff !important; border-color:#64748b !important; background:#475569 !important; }
+body.problem-workspace-dark #main .ui.primary.button { border-color:#3b82f6 !important; background:#2563eb !important; }
+body.problem-workspace-dark #main .ui.positive.button { border-color:#22c55e !important; background:#15803d !important; }
+body.problem-workspace-dark #main .ui.orange.button { border-color:#f97316 !important; background:#c2410c !important; }
+body.problem-workspace-dark #main .ui.red.button { border-color:#ef4444 !important; background:#b91c1c !important; }
+body.problem-workspace-dark #main .ui.buttons .button { border-left-color:rgba(255,255,255,.18) !important; }
 body.problem-workspace-dark #dragButton::before { background:#475569; }
 body.problem-workspace-dark #dragButton::after { border-color:#64748b; background:#334155; box-shadow:none; }
 body.problem-workspace-dark #submitPage.is-loading::after { color:#cbd5e1; background:#111827; }
@@ -591,6 +598,7 @@ $(document).ready(function() {
       if(!frameWindow || !frameWindow.document) return;
       const frameDocument=$(frameWindow.document);
       frameDocument.find('body').addClass('embedded-workspace');
+      if(frameWindow.editor) frameWindow.editor.resize(true);
       $('#submitPage').removeClass('is-loading');
       const sourceLanguage=frameDocument.find('#language');
       const workspaceLanguage=$('#workspaceLanguage');

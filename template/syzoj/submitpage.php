@@ -97,15 +97,15 @@ body{
     #language { flex:1 1 10rem; width:auto; }
     .editor-tools { flex:0 0 auto; }
   }
-  html:has(body.embedded-workspace), body.embedded-workspace { width:100%; height:100%; overflow:hidden !important; }
+  html:has(body.embedded-workspace), body.embedded-workspace, body.embedded-workspace > center { width:100%; height:100%; overflow:hidden !important; }
   body.embedded-workspace { min-height:0; background:#eef2f7 !important; }
   body.embedded-workspace::after { display:none !important; content:none !important; }
   body.embedded-workspace #language_span,
   body.embedded-workspace #Submit,
   body.embedded-workspace #countDown,
   body.embedded-workspace .submission-problem-label { display:none !important; }
-  body.embedded-workspace #frmSolution { height:100%; min-height:0; padding:0; overflow:hidden; background:#eef2f7; }
-  body.embedded-workspace #source { width:100% !important; height:100% !important; min-height:0; margin:0 !important; border:0; border-radius:0; box-shadow:none; }
+  body.embedded-workspace #frmSolution { position:relative; height:100%; min-height:0; padding:0; overflow:hidden; background:#eef2f7; }
+  body.embedded-workspace #source { position:absolute; inset:0; width:100% !important; height:100% !important; min-height:0; margin:0 !important; border:0; border-radius:0; box-shadow:none; }
   body.embedded-workspace .ace_scrollbar-h { display:none !important; height:0 !important; }
   body.embedded-workspace #frmSolution > .row { display:none !important; }
   body.embedded-workspace .ace_scroller { right:0 !important; bottom:0 !important; }
@@ -116,9 +116,9 @@ body{
 <?php if(isset($_GET['spa'])){ ?>
   #language_span, #Submit, #countDown, .submission-problem-label { display:none !important; }
   body::after { display:none !important; content:none !important; }
-  html, body { width:100%; height:100%; overflow:hidden !important; }
-  #frmSolution { height:100%; min-height:0; padding:0 !important; overflow:hidden; background:#eef2f7 !important; }
-  #source { width:100% !important; height:100% !important; min-height:0; margin:0 !important; border:0 !important; border-radius:0 !important; box-shadow:none !important; }
+  html, body, body > center { width:100%; height:100%; overflow:hidden !important; }
+  #frmSolution { position:relative; height:100%; min-height:0; padding:0 !important; overflow:hidden; background:#eef2f7 !important; }
+  #source { position:absolute; inset:0; width:100% !important; height:100% !important; min-height:0; margin:0 !important; border:0 !important; border-radius:0 !important; box-shadow:none !important; }
   .ace_scrollbar-h { display:none !important; height:0 !important; }
   #frmSolution > .row { display:none !important; }
 <?php } ?>
@@ -807,7 +807,9 @@ editor.getSession().on("change", function() {
 	}
    }
    $(document).ready(function(){
-   	$("#source").css("height",window.innerHeight-180);  
+<?php if(!isset($_GET['spa'])){ ?>
+    $("#source").css("height",window.innerHeight-180);
+<?php } ?>
 	if($("#vcode")!=undefined) $("#vcode").click();
 	$("#Encoded").bind("click",encoded_submit);
 	if(!!localStorage){
@@ -855,8 +857,8 @@ editor.getSession().on("change", function() {
 
    function toggleTheme(event) {
     event.preventDefault();
-    const useDarkTheme = editor.getTheme() === "ace/theme/xcode";
-    const themeName = useDarkTheme ? 'monokai' : 'xcode';
+    const currentTheme = localStorage.getItem('gsmoj_editor_theme') === 'monokai' ? 'monokai' : 'xcode';
+    const themeName = currentTheme === 'monokai' ? 'xcode' : 'monokai';
     applyEditorTheme(themeName);
 }
 
