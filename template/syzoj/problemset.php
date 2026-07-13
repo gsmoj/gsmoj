@@ -1,244 +1,141 @@
 <?php $show_title="$MSG_PROBLEMS - $OJ_NAME"; ?>
 <?php include("template/$OJ_TEMPLATE/header.php");?>
-<div class="padding">
 
-  <div class="ui grid" style="margin-bottom: 10px; ">
-    <div class="row" style="white-space: nowrap; ">
-      <div class="seven wide column">
-          <form action="" method="get">
-            <div class="ui search" style="width: 280px; height: 28px; margin-top: -5.3px;float:left ">
-              <div class="ui left icon input" style="width: 100%; ">
-                <input class="prompt" style="width: 100%; " type="text" placeholder=" <?php echo $MSG_TITLE;?> …" name="search"
-		       value="<?php if(isset($_GET['search']))echo htmlentities($_GET['search'],ENT_QUOTES,'UTF-8') ?>"
-                >
+<style>
+.problemset-page { padding: 1.5rem !important; }
+.problemset-toolbar { display:flex; align-items:center; justify-content:space-between; gap:1rem; margin-bottom:1.25rem; }
+.problemset-searches { display:flex; flex-wrap:wrap; gap:.75rem; }
+.problemset-searches .ui.input { width:18rem; }
+.problemset-searches .problem-id-input { width:9rem; }
+.problemset-actions { display:flex; align-items:center; gap:.75rem; white-space:nowrap; }
+.problemset-table { margin:0 !important; }
+.problemset-table thead th { background:#f7f9fc !important; color:#4b5563 !important; font-size:.85rem; letter-spacing:.02em; }
+.problemset-table tbody tr { transition:background-color .15s ease; }
+.problemset-table tbody tr:hover { background:#f8fbff !important; }
+.problemset-table td { padding:1rem .75rem !important; vertical-align:middle !important; }
+.problem-title-link { color:#1f2937; font-size:1rem; font-weight:600; }
+.problem-title-link:hover { color:#2185d0; }
+.problem-tags { float:right; display:inline-flex; flex-wrap:wrap; justify-content:flex-end; gap:.35rem; }
+.problem-rate { min-width:8rem; }
+.problem-rate-track { height:.5rem; overflow:hidden; border-radius:999px; background:#e5e7eb; }
+.problem-rate-fill { height:100%; min-width:0; border-radius:inherit; background:linear-gradient(90deg,#21ba45,#16ab39); }
+.problem-rate-text { display:block; margin-top:.3rem; color:#6b7280; font-size:.8rem; }
+.problemset-pagination { display:flex; justify-content:center; margin:1.5rem 0; }
+.problemset-pagination .ui.menu { box-shadow:none; }
+.show_tag_controled.is-hidden { display:none !important; }
+@media (max-width:767px) {
+  .problemset-page { padding:1rem !important; }
+  .problemset-toolbar { align-items:stretch; flex-direction:column; }
+  .problemset-searches .ui.input, .problemset-searches .problem-id-input { width:100%; }
+  .problemset-actions { justify-content:space-between; }
+  .problem-tags { display:none; }
+  .problemset-table th:nth-last-child(2), .problemset-table td:nth-last-child(2) { display:none; }
+}
+</style>
 
-                <i class="search icon"></i>
-              </div>
-              <div class="results" style="width: 100%; "></div>
-            </div>
-          </form>
+<?php
+if (!isset($page)) $page=1;
+$page=intval($page);
+$section=8;
+$start=$page>$section?$page-$section:1;
+$end=$page+$section>$view_total_page?$view_total_page:$page+$section;
+$safe_postfix=htmlentities($postfix,ENT_QUOTES,'UTF-8');
 
-          <form action="problem.php" method="get">
-            <div class="ui search" style="width: 120px; height: 28px; margin-top: -5.3px; ">
-              <div class="ui icon input" style="width: 100%; ">
-                <input class="prompt" style="width: 100%; " type="text" value="" placeholder="ID" name="id">
-                <i class="search icon"></i>
-              </div>
-              <div class="results" style="width: 100%; "></div>
-            </div>
-          </form>
+function render_problemset_pagination($page,$start,$end,$view_total_page,$safe_postfix){
+?>
+  <nav class="problemset-pagination" aria-label="문제 목록 페이지 이동">
+    <div class="ui pagination menu">
+      <a href="problemset.php?page=1<?php echo $safe_postfix?>" class="<?php if($page==1) echo 'disabled '?>icon item" aria-label="첫 페이지"><i class="fast backward icon"></i></a>
+      <a href="<?php if($page>1) echo 'problemset.php?page='.($page-1).$safe_postfix; else echo '#';?>" class="<?php if($page==1) echo 'disabled '?>icon item" aria-label="이전 페이지"><i class="left chevron icon"></i></a>
+      <?php for($i=$start;$i<=$end;$i++){ ?>
+        <a class="<?php if($page==$i) echo 'active '?>item" href="problemset.php?page=<?php echo $i.$safe_postfix?>"><?php echo $i?></a>
+      <?php } ?>
+      <a href="<?php if($page<$view_total_page) echo 'problemset.php?page='.($page+1).$safe_postfix; else echo '#';?>" class="<?php if($page==$view_total_page) echo 'disabled '?>icon item" aria-label="다음 페이지"><i class="right chevron icon"></i></a>
+      <a href="problemset.php?page=<?php echo $view_total_page.$safe_postfix?>" class="<?php if($page==$view_total_page) echo 'disabled '?>icon item" aria-label="마지막 페이지"><i class="fast forward icon"></i></a>
+    </div>
+  </nav>
+<?php } ?>
 
-      </div>
-
-
-      <div class="nine wide right aligned column">
-        <div class="ui toggle checkbox" id="show_tag">
-        <style id="show_tag_style">
-          .show_tag_controled { display: none !important; }
-          .no-transition * { transition: none !important; }
-          
-          #show_tag { 
-            cursor: pointer !important; 
-            padding: 5px 10px !important; 
-            user-select: none;
-            display: inline-flex !important;
-            align-items: center;
-          }
-          #show_tag label { 
-            cursor: pointer !important; 
-            padding-left: 3.5rem !important;
-          }
-        </style>
-
-        <div class="ui toggle checkbox no-transition" id="show_tag">
-          <input type="checkbox" id="show_tag_input" style="pointer-events: none;">
-          <label><?php echo $MSG_SHOW_TAGS;?></label>
+<div class="padding problemset-page">
+  <div class="problemset-toolbar">
+    <div class="problemset-searches">
+      <form action="" method="get">
+        <div class="ui left icon input">
+          <input type="search" name="search" placeholder="문제 제목 또는 분류 검색" value="<?php if(isset($_GET['search'])) echo htmlentities($_GET['search'],ENT_QUOTES,'UTF-8')?>">
+          <i class="search icon"></i>
         </div>
-
-        <script>
-        (function() {
-          var container = document.getElementById('show_tag');
-          var input = document.getElementById('show_tag_input');
-          var style = document.getElementById('show_tag_style');
-          var wantShow = (localStorage.getItem('show_tag') !== '0');
-
-          if (wantShow) {
-            input.checked = true;
-            container.classList.add('checked');
-            style.innerHTML = ''; 
-          } else {
-            input.checked = false;
-            container.classList.remove('checked');
-            style.innerHTML = '.show_tag_controled { display: none !important; }';
-          }
-
-          setTimeout(function() {
-            container.classList.remove('no-transition');
-          }, 50);
-        })();
-
-        $(document).ready(function() {
-          $('#show_tag').on('click', function(e) {
-            e.preventDefault(); 
-            e.stopPropagation();
-
-            var $input = $('#show_tag_input');
-            var $container = $(this);
-            var $style = $('#show_tag_style');
-            var isNowChecked = !$input.prop('checked');
-            $input.prop('checked', isNowChecked);
-            
-            if (isNowChecked) {
-              $container.addClass('checked');
-              $style.html('');
-              localStorage.setItem('show_tag', '1');
-            } else {
-              $container.removeClass('checked');
-              $style.html('.show_tag_controled { display: none !important; }');
-              localStorage.setItem('show_tag', '0');
-            }
-          });
-        });
-        </script>
-
-        <div style="margin-left: 10px; display: inline-block; ">
-               <a style="margin-left: 10px; " href="category.php" class="ui labeled icon mini green button"><i class="plus icon"></i> <?php echo $MSG_SHOW_ALL_TAGS;?></a>
-          
+      </form>
+      <form action="problem.php" method="get">
+        <div class="ui left icon input problem-id-input">
+          <input type="number" name="id" min="1" placeholder="문제 번호">
+          <i class="hashtag icon"></i>
         </div>
-
+      </form>
+    </div>
+    <div class="problemset-actions">
+      <div class="ui toggle checkbox" id="problem-tag-toggle">
+        <input type="checkbox" id="problem-tag-toggle-input">
+        <label for="problem-tag-toggle-input"><?php echo $MSG_SHOW_TAGS?></label>
       </div>
+      <a href="category.php" class="ui labeled icon mini green button"><i class="tags icon"></i><?php echo $MSG_SHOW_ALL_TAGS?></a>
     </div>
   </div>
 
-<?php if (!isset($_GET['list'])){ ?>
+  <?php if(!isset($_GET['list'])) render_problemset_pagination($page,$start,$end,$view_total_page,$safe_postfix); ?>
 
-<div style="margin-bottom: 30px; ">
-    
-    <?php
-      if(!isset($page)) $page=1;
-      $page=intval($page);
-      $section=8;
-      $start=$page>$section?$page-$section:1;
-      $end=$page+$section>$view_total_page?$view_total_page:$page+$section;
-    ?>
-<div style="text-align: center; ">
-  <div class="ui pagination menu" style="box-shadow: none; ">
-    <a href="problemset.php?page=1" class="icon item">  
-      <i class="fast backward icon"></i>
-    </a>
-    <a class="<?php if($page==1) echo "disabled "; ?>icon item" href="<?php if($page<>1) echo "problemset.php?page=".($page-1).htmlentities($postfix,ENT_QUOTES,'UTF-8'); ?>" id="page_prev">  
-      <i class="left chevron icon"></i>
-    </a>
-    <?php
-      for ($i=$start;$i<=$end;$i++){
-        echo "<a class=\"".($page==$i?"active ":"")."item\" href=\"problemset.php?page=".$i.htmlentities($postfix,ENT_QUOTES,'UTF-8')."\">".$i."</a>";
-      }
-    ?>
-    <a class="<?php if($page==$view_total_page) echo "disabled "; ?> icon item" href="<?php if($page<>$view_total_page) echo "problemset.php?page=".($page+1).htmlentities($postfix,ENT_QUOTES,'UTF-8'); ?>" id="page_next">
-    <i class="right chevron icon"></i>
-    </a>  
-    <a href="problemset.php?page=<?php echo $view_total_page?>" class="icon item">  
-      <i class="fast forward icon"></i>
-    </a>
-  </div>
-</div>
-</div>
-<?php } ?>
-
-
-  <table class="ui very basic center aligned table">
-    <thead>
-      <tr>
-
-        <?php if (isset($_SESSION[$OJ_NAME.'_'.'user_id'])){?>
-          <th class="one wide"><?php echo $MSG_STATUS?></th>
-        <?php } ?>
+  <div class="ui segment" style="padding:0;overflow-x:auto">
+    <table class="ui very basic center aligned table problemset-table">
+      <thead><tr>
+        <?php if(isset($_SESSION[$OJ_NAME.'_user_id'])){?><th class="one wide"><?php echo $MSG_STATUS?></th><?php }?>
         <th class="one wide"><?php echo $MSG_PROBLEM_ID?></th>
         <th class="left aligned"><?php echo $MSG_TITLE?></th>
-        <th class="one wide"><?php echo $MSG_SOVLED."/".$MSG_SUBMIT?></th>
-        
-        <th class="one wide"><?php echo $MSG_PASS_RATE?></th>
-      </tr>
-    </thead>
-    <tbody>
-    <?php
-          $color=array("blue","teal","orange","pink","olive","red","yellow","green","purple");
-          $tcolor=0;
-          $i=0;
-          foreach ($result as $row){
-		echo "<tr>";
-            if (isset($_SESSION[$OJ_NAME.'_'.'user_id'])){
-
-              if (isset($sub_arr[$row['problem_id']])){
-                if (isset($acc_arr[$row['problem_id']])) 
-                  echo "<td><span class=\"status accepted\"><i class=\"checkmark icon\"></i></span></td>";
-                else 
-                  echo "<td><span class=\"status wrong_answer\"><i class=\"remove icon\"></i></span></td>";
-              }else{
-                echo "<td><span class=\"status\"><i class=\"icon\"></i></span></td>";
-              }
-            }
-
-             echo  "<td><b>".$row['problem_id']."</b></td>";
-             echo "<td class=\"left aligned\">";
-             echo "<a style=\"vertical-align: middle; \" href=\"problem.php?id=".$row['problem_id']."\">";
-             echo $row['title'];
-             echo "</a>";
-             if($row['defunct']=='Y')
-              {echo "<a href=admin/problem_df_change.php?id=".$row['problem_id']."&getkey=".htmlentities($_SESSION[$OJ_NAME.'_'.'getkey']).">".("<span class=\"ui tiny red label\">未公开</span>")."</a>";}
-              if(intval($row['coin'])>0) echo str_repeat('<span style=\'color:orange\'>✦</span>', min(intval($row['coin']), 5));
-
-              echo "<div class=\"show_tag_controled\" style=\"float: right; \">";
-              //echo "<span class=\"ui header\">";
-              echo  $view_problemset[$i][3];
-              //echo "</span></div>";
-	      echo "</div>";
-            echo "</td>";
-          echo "<td><a href=\"status.php?problem_id=".$row['problem_id']."&jresult=4\">".$row['accepted']."/".$row['submit']."</a></td>";
-           // echo "<td><a href='status.php?problem_id=".$row['problem_id']."'>".$row['submit']."</a></td>";
-            if ($row['submit'] == 0) {
-    echo '<td><div class="progress" style="margin-bottom:-20px; "><div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%;">0.000%</div></div></td>';
-} else {
-    $percentage = round(100 * $row['accepted'] / $row['submit'], 3);
-    echo '<td><div class="progress" style="margin-bottom:-20px;"><div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" aria-valuenow="'.$percentage.'" aria-valuemin="0" aria-valuemax="100" style="width:'.$percentage.'%;">'.$percentage.'%</div></div></td>';
-}
-            echo  "</tr>";
-            $i++;
-          }
-        ?>
-
-
-
-    </tbody>
-  </table><br>
-<?php if (!isset($_GET['list'])){ ?>
-  <div style="margin-bottom: 30px; ">
-    
-    <?php
-      if(!isset($page)) $page=1;
-      $page=intval($page);
-      $section=8;
-      $start=$page>$section?$page-$section:1;
-      $end=$page+$section>$view_total_page?$view_total_page:$page+$section;
-    ?>
-<div style="text-align: center; ">
-  <div class="ui pagination menu" style="box-shadow: none; ">
-    <a class="<?php if($page==1) echo "disabled "; ?>icon item" href="<?php if($page<>1) echo "problemset.php?page=".($page-1).htmlentities($postfix,ENT_QUOTES,'UTF-8'); ?>" id="page_prev">  
-      <i class="left chevron icon"></i>
-    </a>
-    <?php
-      for ($i=$start;$i<=$end;$i++){
-        echo "<a class=\"".($page==$i?"active ":"")."item\" href=\"problemset.php?page=".$i.htmlentities($postfix,ENT_QUOTES,'UTF-8')."\">".$i."</a>";
-      }
-    ?>
-    <a class="<?php if($page==$view_total_page) echo "disabled "; ?> icon item" href="<?php if($page<>$view_total_page) echo "problemset.php?page=".($page+1).htmlentities($postfix,ENT_QUOTES,'UTF-8'); ?>" id="page_next">
-    <i class="right chevron icon"></i>
-    </a>  
+        <th class="two wide"><?php echo $MSG_SOVLED.'/'.$MSG_SUBMIT?></th>
+        <th class="three wide"><?php echo $MSG_PASS_RATE?></th>
+      </tr></thead>
+      <tbody>
+      <?php
+      $i=0;
+      foreach($result as $row){
+        $problem_id=intval($row['problem_id']);
+        $submit_count=intval($row['submit']);
+        $accepted_count=intval($row['accepted']);
+        $percentage=$submit_count>0?round(100*$accepted_count/$submit_count,1):0;
+      ?>
+        <tr>
+          <?php if(isset($_SESSION[$OJ_NAME.'_user_id'])){?>
+          <td><?php if(isset($acc_arr[$problem_id])){?><span class="status accepted" title="해결"><i class="checkmark icon"></i></span><?php }elseif(isset($sub_arr[$problem_id])){?><span class="status wrong_answer" title="시도함"><i class="remove icon"></i></span><?php }else{?><span class="status" title="미제출"><i class="minus icon"></i></span><?php }?></td>
+          <?php }?>
+          <td><strong><?php echo $problem_id?></strong></td>
+          <td class="left aligned">
+            <a class="problem-title-link" href="problem.php?id=<?php echo $problem_id?>"><?php echo htmlentities($row['title'],ENT_QUOTES,'UTF-8')?></a>
+            <?php if($row['defunct']=='Y'){?><span class="ui tiny red label">비공개</span><?php }?>
+            <?php if(intval($row['coin'])>0){?><span class="ui tiny orange label">보상 <?php echo min(intval($row['coin']),5)?></span><?php }?>
+            <span class="problem-tags show_tag_controled"><?php echo $view_problemset[$i][3]?></span>
+          </td>
+          <td><a href="status.php?problem_id=<?php echo $problem_id?>&amp;jresult=4"><?php echo $accepted_count.'/'.$submit_count?></a></td>
+          <td class="problem-rate">
+            <div class="problem-rate-track" title="정답률 <?php echo $percentage?>%"><div class="problem-rate-fill" style="width:<?php echo $percentage?>%"></div></div>
+            <span class="problem-rate-text"><?php echo number_format($percentage,1)?>%</span>
+          </td>
+        </tr>
+      <?php $i++; } ?>
+      </tbody>
+    </table>
   </div>
-</div>
-<?php } ?>
-<script type="text/javascript" src="include/jquery.tablesorter.js"></script>
 
+  <?php if(!isset($_GET['list'])) render_problemset_pagination($page,$start,$end,$view_total_page,$safe_postfix); ?>
 </div>
+
+<script>
+$(function(){
+  var $toggle=$('#problem-tag-toggle-input');
+  function setTagsVisible(visible){
+    $toggle.prop('checked',visible);
+    $('.show_tag_controled').toggleClass('is-hidden',!visible);
+    localStorage.setItem('show_tag',visible?'1':'0');
+  }
+  setTagsVisible(localStorage.getItem('show_tag')!=='0');
+  $toggle.on('change',function(){setTagsVisible(this.checked);});
+});
+</script>
 <?php include("template/$OJ_TEMPLATE/footer.php");?>
-   

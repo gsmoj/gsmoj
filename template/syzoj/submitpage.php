@@ -3,6 +3,15 @@
 <?php include("template/$OJ_TEMPLATE/header.php");?>
 
   <style>
+html, body { min-width:480px; min-height:100%; background:#f8fafc; }
+body { margin:0 !important; overflow:auto !important; }
+#frmSolution { box-sizing:border-box; width:100%; min-height:100vh; padding:1rem; text-align:left; }
+#frmSolution > span:first-of-type { display:inline-flex; align-items:center; min-height:38px; margin-right:.75rem; color:#334155 !important; font-weight:600; }
+#language_span { display:inline-flex; align-items:center; flex-wrap:wrap; gap:.5rem; color:#334155; }
+#language { min-width:9rem; padding:.45rem .6rem; border:1px solid #d8dee8; border-radius:.4rem; background:#fff; }
+#Submit { margin-left:.25rem; }
+#source { box-sizing:border-box; width:100% !important; border:1px solid #d8dee8; border-radius:.5rem; background:#fff !important; box-shadow:0 1px 3px rgba(15,23,42,.08); }
+#reinfo { width:100%; }
 #source {
     width: 80%;
     height: 600px;
@@ -35,21 +44,21 @@ body{
 <script src="<?php echo $OJ_CDN_URL?>include/checksource.js"></script>
 <form id=frmSolution action="submit.php<?php if (isset($_GET['spa'])) echo "?spa" ?>" method="post" onsubmit='do_submit()' enctype="multipart/form-data" >
 <?php if (!isset($_GET['spa']) || $solution_name ) {?>
-        <input type='file' name='answer' placeholder='Upload answer file' >
+        <input type='file' name='answer' aria-label='답안 파일 업로드' >
 <?php } ?>
 
 <?php if (isset($id)){?>
-<span style="color:#0000ff">Problem <b><?php echo $id?></b></span>
+<span>문제 <b><?php echo $id?></b></span>
 <input id=problem_id type='hidden' value='<?php echo $id?>' name="id" >
 <?php }else{
 //$PID="ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 //if ($pid>25) $pid=25;
 ?>
-Problem <span class=blue><b><?php echo chr($pid+ord('A'))?></b></span> of Contest <span class=blue><b><?php echo $cid?></b></span>
+대회 <span class=blue><b><?php echo $cid?></b></span>의 문제 <span class=blue><b><?php echo chr($pid+ord('A'))?></b></span>
 <input id="cid" type='hidden' value='<?php echo $cid?>' name="cid">
 <input id="pid" type='hidden' value='<?php echo $pid?>' name="pid">
 <?php }?>
-<span id="language_span">Language: 
+<span id="language_span">언어:
 <select id="language" name="language" onChange="reloadtemplate($(this).val());" >
 <?php
 $lang_count=count($language_ext);
@@ -81,7 +90,7 @@ echo"<option value=$i ".( $lastlang==$i?"selected":"").">
 <input type=hidden id="encoded_submit_mark" name="reverse2" value="reverse"/>
 <?php }?>
 <?php if (isset($_SESSION[$OJ_NAME.'_administrator'])){?>
-<input class="btn btn-danger" title="AI everythin..." type=button value="AI一下"  onclick="ai_gen('Main.'+$('#language option:selected').text().trim());" id='ai_bt'>
+<input class="btn btn-danger" title="AI로 코드 생성" type=button value="AI 생성" onclick="ai_gen('Main.'+$('#language option:selected').text().trim());" id='ai_bt'>
 <?php }?>
 <!-- 선택형 문제 상태 -->
 <?php if ($spj>1 || !$OJ_TEST_RUN ){?>
@@ -116,7 +125,7 @@ echo"<option value=$i ".( $lastlang==$i?"selected":"").">
         <?php }
 
         }else{
-                echo "<br><h2>指定上传文件：$solution_name</h2>";
+                echo "<br><h2>지정된 제출 파일: $solution_name</h2>";
 
         }
 
@@ -280,11 +289,11 @@ function parseToCompactCards(data) {
 		    <span class="size">${item.size} B</span><br>
 		    <span class="result">${item.result}</span><br>
 			<span class="stat-item">
-			    <span class="stat-label">内存:</span>
+			    <span class="stat-label">메모리:</span>
 			    <span class="stat-value">${item.memory}</span>
 			</span><br>
 			<span class="stat-item">
-			    <span class="stat-label">时间:</span>
+			    <span class="stat-label">시간:</span>
 			    <span class="stat-value">${item.time}</span>
 			</span>
 		</div>
@@ -298,8 +307,8 @@ function parseToCompactCards(data) {
 	const passRate = totalCount > 0 ? ((acCount / totalCount) * 100).toFixed(1) : 0;
 	
 	$('#statsSummary').html(`
-	    <div class="stats-item">总计: <span class="stats-value">${totalCount}</span></div>
-	    <div class="stats-item">通过率: <span class="stats-value">${passRate}%</span></div>
+	    <div class="stats-item">전체: <span class="stats-value">${totalCount}</span></div>
+	    <div class="stats-item">통과율: <span class="stats-value">${passRate}%</span></div>
 	    <div class="stats-item">AC: <span class="stats-value ac-count">${acCount}</span></div>
 	    <div class="stats-item">WA: <span class="stats-value wa-count">${waCount}</span></div>
 	    <div class="stats-item">RE: <span class="stats-value re-count">${reCount}</span></div>
@@ -734,7 +743,7 @@ editor.getSession().on("change", function() {
 	window.setInterval('autoSave();',5000);
 	$("body").dblclick(function(){
                  if (event.ctrlKey==1) formatCode();
-        }).attr("title","Ctrl+双击鼠标,自动整理缩进");
+        }).attr("title","Ctrl+두 번 클릭: 들여쓰기 자동 정리");
    });
 </script>
 <script>
@@ -938,7 +947,7 @@ function checkAndMarkIndentationInstant() {
             formatWarnings.push({
                 row: i,
                 column: 0,
-                text: `缩进不规范：此处期望 ${expectedSpaces} 个空格，目前有 ${actualSpaces} 个`,
+                text: `들여쓰기 오류: 공백 ${expectedSpaces}개가 필요하지만 현재 ${actualSpaces}개입니다.`,
                 type: "warning" 
             });
         }
@@ -1029,7 +1038,7 @@ function removeCodeBlockMarkers(str) {
 }
 	function ai_gen(filename){
 		    let oldval=$('#ai_bt').val();
-		    $('#ai_bt').val('AI思考中...请稍候...');
+		    $('#ai_bt').val('AI 생성 중... 잠시 기다려 주세요.');
 		    $('#ai_bt').prop('disabled', true);
 		    $.ajax({
 		    	url: '<?php echo $OJ_AI_API_URL?>', 
@@ -1043,7 +1052,7 @@ function removeCodeBlockMarkers(str) {
 					}
 				},
 				error: function() {
-				    $('#ai_bt').val('获取数据失败');
+				    $('#ai_bt').val('데이터를 가져오지 못했습니다.');
 					$('#ai_bt').prop('disabled', false);
 				}
 		    });
@@ -1056,7 +1065,7 @@ function fill_data(data){
         else
                 $("#source").val(data.trim());
         $('#ai_bt').prop('disabled', false);
-        $('#ai_bt').val("再来一次");
+        $('#ai_bt').val("다시 생성");
 }
 function pull_result(id){
 	console.log(id);
@@ -1069,12 +1078,12 @@ function pull_result(id){
 			window.setTimeout('pull_result('+id+')',1000);
 		}else{
 			fill_data(data);
-		    $('#ai_bt').val('再来一次');
+		    $('#ai_bt').val('다시 생성');
 		    $('#ai_bt').prop('disabled', false);
 		}
 	},
 	error: function() {
-	    $('#ai_bt').val('获取数据失败');
+	    $('#ai_bt').val('데이터를 가져오지 못했습니다.');
 	    $('#ai_bt').prop('disabled', false);
 	}
     });
