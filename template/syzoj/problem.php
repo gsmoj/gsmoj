@@ -412,6 +412,11 @@ $(document).ready(function() {
 
   }
 
+  // 문제 페이지를 열면 답안 작성 화면을 기본으로 함께 표시한다.
+  $(function () {
+    transform();
+  });
+
   function submit_code() {
     if (!$('#submit_code input[name=answer]').val().trim() && !editor.getValue().trim()) return false;
     $('#submit_code input[name=language]').val($('#languages-menu .item.active').data('value'));
