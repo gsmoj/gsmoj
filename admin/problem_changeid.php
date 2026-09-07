@@ -27,7 +27,7 @@ function writable($path){
 			$sql="UPDATE `problem` SET `problem_id`=? WHERE `problem_id`=?";
 			if(pdo_query($sql,$to,$from)==0){
 				 rename("$OJ_DATA/$to","$OJ_DATA/$from");
-				 echo "fail...";
+				 echo "<div class='alert alert-danger' style='max-width:520px;margin:16px auto;'>변경 실패...</div>";
 				 exit(1);
 			}
 			$sql="UPDATE `solution` SET `problem_id`=? WHERE `problem_id`=?";
@@ -45,10 +45,10 @@ function writable($path){
 				pdo_query($sql);
 			}
 			
-			echo "done!";
+			echo "<div class='alert alert-success' style='max-width:520px;margin:16px auto;'>변경 완료!</div>";
 		}else{
-			
-				echo "fail...";
+
+				echo "<div class='alert alert-danger' style='max-width:520px;margin:16px auto;'>변경 실패...</div>";
 		}
 
 	}
@@ -56,24 +56,37 @@ function writable($path){
 
  $show_form=true;
 	   if(!writable($OJ_DATA)){
-		   echo " You need to add  $OJ_DATA into your open_basedir setting of php.ini,<br>
-					or you need to execute:<br>
-					   <b>chmod 775 -R $OJ_DATA && chgrp -R www-data $OJ_DATA</b><br>
-					you can't use import function at this time.<br>"; 
-			$show_form=false;
+		   $show_form=false;
 	   }
-	if($show_form){
 ?>
-<b>Change ProblemID</b>
-	<ol>
-	<li>Problem
-	<form action='problem_changeid.php' method=post>
-		Move<input type=input name='from'>->
-		<input type=input name='to'>
-		<input type='hidden' name='do' value='do'>
-		<input type=submit value=submit>
-		<?php require_once("../include/set_post_key.php");?>
-	</form>
-	
+<title>Change Problem ID</title>
+<style>
+  .changeid-card { max-width: 520px; margin: 0 auto; }
+  .changeid-card .alert { margin-bottom: 16px; }
+  .changeid-form { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .changeid-form input[type=input] { width: 100px; text-align: center; }
+</style>
+<hr>
+<h3 style="text-align:center;">문제 번호 변경</h3>
+<div class="padding changeid-card">
+<?php if(!$show_form){ ?>
+  <div class="alert alert-danger">
+    <?php echo "$OJ_DATA"?> 를 php.ini의 open_basedir 설정에 추가하거나,<br>
+    다음 명령을 실행해야 합니다:<br>
+    <b>chmod 775 -R <?php echo "$OJ_DATA"?> &amp;&amp; chgrp -R www-data <?php echo "$OJ_DATA"?></b><br>
+    현재는 이 기능을 사용할 수 없습니다.
+  </div>
+<?php }else{ ?>
+  <p style="color:#b91c1c;font-weight:600;">주의: 문제 번호를 바꾸면 되돌리기 어렵습니다. 신중히 진행하세요.</p>
+  <form action='problem_changeid.php' method=post class="changeid-form">
+    <span>Move</span>
+    <input class="input input-mini" type=input name='from' placeholder="from">
+    <span>&rarr;</span>
+    <input class="input input-mini" type=input name='to' placeholder="to">
+    <input type='hidden' name='do' value='do'>
+    <input class="btn btn-primary btn-sm" type=submit value=submit>
+    <?php require_once("../include/set_post_key.php");?>
+  </form>
 <?php }
 ?>
+</div>
