@@ -16,7 +16,7 @@
   <meta http-equiv="Cache-Control" content="no-cache">
   <meta http-equiv="Content-Language" content="ko">
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <title>Edit Contest</title>
+  <title>대회 수정</title>
 </head>
 <body class="admin-form-page">
 <?php
@@ -164,32 +164,32 @@ if(isset($_POST['startdate'])){
     <?php require_once("../include/set_post_key.php");?>
     <input type=hidden name='cid' value=<?php echo $cid?>>
     <p align=left>
-      <?php echo "<h3>".$MSG_CONTEST."-".$MSG_TITLE."</h3>"?>
+      <label class="admin-field-label">대회 이름</label>
       <input class="input input-xxlarge" style="width:100%;" type=text name=title value="<?php echo $title?>"><br><br>
     </p>
     <p align=left>
-      <?php echo $MSG_CONTEST.$MSG_Start?>:
+      <label class="admin-field-label">시작 시간</label>
       <input class=input-large type=date name='startdate' value='<?php echo substr($starttime,0,10)?>' size=4 >
-      Hour: <input class=input-mini type=text name=shour size=2 value='<?php echo substr($starttime,11,2)?>'>&nbsp;
-      Minute: <input class=input-mini type=text name=sminute value='<?php echo substr($starttime,14,2)?>' size=2 >
+      시: <input class=input-mini type=text name=shour size=2 value='<?php echo substr($starttime,11,2)?>'>&nbsp;
+      분: <input class=input-mini type=text name=sminute value='<?php echo substr($starttime,14,2)?>' size=2 >
     </p>
     <p align=left>
-      <?php echo $MSG_CONTEST.$MSG_End?>:
+      <label class="admin-field-label">종료 시간</label>
       <input class=input-large type=date name='enddate' value='<?php echo substr($endtime,0,10)?>' size=4 >
-      Hour: <input class=input-mini type=text name=ehour size=2 value='<?php echo substr($endtime,11,2)?>'>&nbsp;
-      Minute: <input class=input-mini type=text name=eminute value='<?php echo substr($endtime,14,2)?>' size=2 >
+      시: <input class=input-mini type=text name=ehour size=2 value='<?php echo substr($endtime,11,2)?>'>&nbsp;
+      분: <input class=input-mini type=text name=eminute value='<?php echo substr($endtime,14,2)?>' size=2 >
     </p>
     <br>
     <p align=left>
-      <?php echo $MSG_CONTEST."-".$MSG_PROBLEM_ID?>
-      <?php echo "( Add problemIDs with coma , )"?><br>
+      <label class="admin-field-label">문제 번호</label>
+      <span class="admin-field-help">쉼표로 구분해 입력하세요.</span><br>
       <input id="plist" onchange="showTitles()" class=input-xxlarge type=text style="width:100%" name=cproblem value='<?php echo $plist?>'>
       <div id="ptitles"></div>
     </p>
-    <br><?php echo $MSG_SUBNET ?>
+    <br><label class="admin-field-label">접속 허용 IP 대역</label>
       <input class=input-xxlarge type=text style="width:100%" name=subnet value='<?php echo htmlentities($subnet)?>' placeholder='0.0.0.0/0'>
     <p align=left>
-      <?php echo "<h4>".$MSG_CONTEST."-".$MSG_Description."</h4>"?>
+      <label class="admin-field-label">대회 설명</label>
       <textarea class=kindeditor rows=13 name=description cols=80>
         <?php echo htmlentities($description,ENT_QUOTES,'UTF-8')?>
       </textarea>
@@ -199,8 +199,7 @@ if(isset($_POST['startdate'])){
           <td rowspan=2>
             <p aligh=left>
               <?php echo $MSG_CONTEST."-".$MSG_LANG?>
-              <?php echo "( Add PLs with Ctrl+click )"?><br>
-              <?php echo $MSG_PLS_ADD?><br>
+              <span class="admin-field-help">Ctrl(Windows) 또는 Cmd(macOS)를 누른 채 여러 언어를 선택할 수 있습니다.</span><br>
               <select name="lang[]" multiple="multiple" style="height:220px">
               <?php
               $lang_count = count($language_ext);
@@ -248,7 +247,7 @@ if(isset($_POST['startdate'])){
           <td height="*">
             <p align=left>
               <?php echo $MSG_CONTEST."-".$MSG_USER?>
-              <?php echo "( Add private contest's userIDs with newline &#47;n )"?>
+              <span class="admin-field-help">비공개 대회에 참여할 사용자 ID를 한 줄에 하나씩 입력하세요.</span>
               <br>
               <textarea name='ulist' rows='10' style='width:100%;' placeholder='user1<?php echo "\n"?>user2<?php echo "\n"?>user3<?php echo "\n"?>
               <?php echo $MSG_PRIVATE_USERS_ADD?><?php echo "\n"?>'><?php if(isset($ulist)){ echo $ulist;}?></textarea>
@@ -259,7 +258,7 @@ if(isset($_POST['startdate'])){
 
       <div align=center>
         <?php require_once("../include/set_post_key.php");?>
-        <input type=submit value='<?php echo $MSG_SAVE?>' name=submit> <input type=reset value=Reset name=reset>
+        <input class="btn btn-primary" type=submit value='<?php echo $MSG_SAVE?>' name=submit> <input class="btn btn-default" type=reset value="초기화" name=reset>
       </div>
     </p>
   </form>

@@ -171,7 +171,7 @@ else{
   <meta http-equiv="Cache-Control" content="no-cache">
   <meta http-equiv="Content-Language" content="ko">
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <title>Contest Add</title>
+  <title>대회 등록</title>
 </head>
 <?php 
   include_once("kindeditor.php") ;
@@ -181,33 +181,33 @@ else{
     <header class="admin-form-title"><h3><?php echo htmlentities($page_heading, ENT_QUOTES, 'UTF-8')?></h3></header>
     <form method=POST>
     <p align=left>
-      <?php echo "<h3>".$MSG_CONTEST."-".$MSG_TITLE."</h3>"?>
+      <label class="admin-field-label">대회 이름</label>
       <input class="input input-xxlarge" style="width:100%;" type=text name=title value="<?php echo isset($title)?$title:""?>"><br><br>
     </p>
     <p align=left>
-      <?php echo $MSG_CONTEST.$MSG_Start?>:
+      <label class="admin-field-label">시작 시간</label>
       <input class=input-large type=date name='startdate' value='<?php echo date('Y').'-'. date('m').'-'.date('d')?>' size=4 >
-      Hour: <input class=input-mini type=text name=shour size=2 value=<?php echo date('H')?>>&nbsp;
-      Minute: <input class=input-mini type=text name=sminute value=00 size=2 >
+      시: <input class=input-mini type=text name=shour size=2 value=<?php echo date('H')?>>&nbsp;
+      분: <input class=input-mini type=text name=sminute value=00 size=2 >
     </p>
     <p align=left>
-      <?php echo $MSG_CONTEST.$MSG_End?>:
+      <label class="admin-field-label">종료 시간</label>
       <input class=input-large type=date name='enddate' value='<?php echo date('Y').'-'. date('m').'-'.date('d')?>' size=4 >
-      Hour: <input class=input-mini type=text name=ehour size=2 value=<?php echo (date('H')+4)%24?>>&nbsp;
-      Minute: <input class=input-mini type=text name=eminute value=00 size=2 >
+      시: <input class=input-mini type=text name=ehour size=2 value=<?php echo (date('H')+4)%24?>>&nbsp;
+      분: <input class=input-mini type=text name=eminute value=00 size=2 >
     </p>
     <br>
     <p align=left>
-      <?php echo $MSG_CONTEST."-".$MSG_PROBLEM_ID?>
-      <?php echo "( Add problemIDs with coma , )"?><br>
-      <input id="plist" onchange="showTitles()" class=input-xxlarge placeholder="Example:1000,1001,1002" type=text style="width:100%" name=cproblem value="<?php echo isset($plist)?$plist:""?>">
+      <label class="admin-field-label">문제 번호</label>
+      <span class="admin-field-help">쉼표로 구분해 입력하세요.</span><br>
+      <input id="plist" onchange="showTitles()" class=input-xxlarge placeholder="예: 1000, 1001, 1002" type=text style="width:100%" name=cproblem value="<?php echo isset($plist)?$plist:""?>">
       <div id="ptitles"></div>
     </p>
-    <br><?php echo $MSG_SUBNET ?>
+    <br><label class="admin-field-label">접속 허용 IP 대역</label>
       <input class=input-xxlarge type=text style="width:100%" name=subnet value='' placeholder='0.0.0.0/0'>
     <br>
     <p align=left>
-      <?php echo "<h4>".$MSG_CONTEST."-".$MSG_Description."</h4>"?>
+      <label class="admin-field-label">대회 설명</label>
       <textarea class=kindeditor rows=13 name=description cols=80><?php echo isset($description)?$description:""?></textarea>
       <br>
       <table width="100%">
@@ -215,8 +215,7 @@ else{
           <td rowspan=2>
             <p aligh=left>
               <?php echo $MSG_CONTEST."-".$MSG_LANG?>
-              <?php echo "( Add PLs with Ctrl+click )"?><br>
-              <?php echo $MSG_PLS_ADD?><br>
+              <span class="admin-field-help">Ctrl(Windows) 또는 Cmd(macOS)를 누른 채 여러 언어를 선택할 수 있습니다.</span><br>
               <select name="lang[]" multiple="multiple" style="height:220px">
               <?php
               $lang_count = count($language_ext);
@@ -262,7 +261,7 @@ else{
           <td height="*">
             <p align=left>
               <?php echo $MSG_CONTEST."-".$MSG_USER?>
-              <?php echo "( Add private contest's userIDs with newline &#92;n )"?>
+              <span class="admin-field-help">비공개 대회에 참여할 사용자 ID를 한 줄에 하나씩 입력하세요.</span>
               <select id="copy_from" onchange="copy_user_from_contest($(this).val());" >
               <option value=0 ><?php echo $MSG_COPY_USER_LIST_FROM_CONTEST ?></option>
                         <?php

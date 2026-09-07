@@ -19,9 +19,8 @@ require_once ("../include/problem.php");
 <?php
 ?>
 
-<hr>
-&nbsp;&nbsp;- Import Offline ... <br>
-<b><?php echo $MSG_CONTEST."-".$MSG_IMPORT ?></b>
+<div class="admin-form-shell admin-compact-form">
+<header class="admin-form-title"><h3>대회 데이터 업로드</h3><p>오프라인 대회 ZIP 파일을 업로드해 문제와 제출 데이터를 가져옵니다.</p></header>
 <?php
 function startsWith( $haystack, $needle ) {
      $length = strlen( $needle );
@@ -112,7 +111,7 @@ function import_dir($json) {
 
 
 if (!isset($_FILES ["offline"])||$_FILES ["offline"] ["error"] > 0) {
-  echo "&nbsp;&nbsp;- Error: File size is too big, change in PHP.ini<br />";
+  echo "<div class='alert alert-info'>업로드할 ZIP 파일을 선택하세요. 파일 크기 제한을 초과하면 PHP 설정을 확인하세요.</div>";
 
   echo $MSG_OFFLINE_ZIP_IMPORT;	
 ?>
@@ -144,9 +143,10 @@ if (!isset($_FILES ["offline"])||$_FILES ["offline"] ["error"] > 0) {
 	     |
 	     ......
 </pre>
-	<form method="post" action="offline_import.php" enctype="multipart/form-data">
-		<input type=file name="offline" >
-		<input type=submit >
+	<form class="admin-upload-form" method="post" action="offline_import.php" enctype="multipart/form-data">
+		<label class="admin-field-label">대회 ZIP 파일</label>
+		<input type=file name="offline" accept=".zip">
+		<input class="btn btn-primary" type=submit value="데이터 업로드">
 
 	</form>
 
@@ -301,3 +301,4 @@ else {
  
 
 ?>
+</div>

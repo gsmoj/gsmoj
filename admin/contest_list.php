@@ -11,11 +11,13 @@ if(isset($OJ_LANG)){
 }
 ?>
 
-<title>Contest List</title>
-<hr>
-<center><h3><?php echo $MSG_CONTEST."-".$MSG_LIST?></h3></center>
+<title>대회 목록</title>
 
-<div class='padding'>
+<div class='padding admin-content-page'>
+<div class="admin-page-heading">
+  <div><h3>대회 목록</h3><p>대회를 검색하고 공개 여부, 사용 상태, 관리 기능을 확인합니다.</p></div>
+  <a href="contest_add.php" class="btn btn-primary">대회 등록</a>
+</div>
 
 <?php
 $sql = "SELECT COUNT('contest_id') AS ids FROM `contest`";
@@ -50,17 +52,15 @@ if(isset($_GET['keyword']) && $_GET['keyword']!=""){
 }
 ?>
 
-<center>
 <form action=contest_list.php class="form-search form-inline">
   <input type="text" name='keyword' class="form-control search-query" 
     value="<?php echo htmlentities($_GET['keyword']??"")?>"
     placeholder="<?php echo $MSG_CONTEST_NAME.', '.$MSG_EXPLANATION?>">
-  <button type="submit" class="form-control"><?php echo $MSG_SEARCH?></button>
+  <button type="submit" class="btn btn-primary"><?php echo $MSG_SEARCH?></button>
 </form>
-</center>
 
-<center>
-  <table width=100% border=1 style="text-align:center;">
+  <div class="admin-table-wrap">
+  <table class="table admin-contest-table">
     <tr>
     <td><?php echo $MSG_CONTEST_ID?></td>
       <td><?php echo $MSG_CONTEST_NAME?></td>
@@ -100,8 +100,8 @@ if(isset($_GET['keyword']) && $_GET['keyword']!=""){
       echo "</tr>";
     }
   ?>
-</table>
-</center>
+  </table>
+  </div>
 
 <?php
 if(!(isset($_GET['keyword']) && $_GET['keyword']!=""))

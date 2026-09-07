@@ -26,30 +26,30 @@ if(isset($_POST['idlist']) && isset($_POST['pwdlist']) && isset($_POST['nicklist
 
 			if(strlen($idPieces[$i])==0)
 			{
-				echo "<h3>one empty line existed in user id field. all of the users is not inserted.</h3>";
+				echo "<h3>로그인 ID에 빈 줄이 있어 계정을 생성하지 않았습니다.</h3>";
 				$ok=false;
 			}
 			if(strlen($pwdPieces[$i])==0)
 			{
-				echo "<h3>one empty line existed in password field. all of the users is not inserted.</h3>";
+				echo "<h3>비밀번호에 빈 줄이 있어 계정을 생성하지 않았습니다.</h3>";
 				$ok=false;
 			}
 			if(strlen($nickPieces[$i])==0)
 			{
-				echo "<h3>one empty line existed in nickname field. all of the users is not inserted.</h3>";
+				echo "<h3>팀 이름에 빈 줄이 있어 계정을 생성하지 않았습니다.</h3>";
 				$ok=false;
 			}
 			if (!is_valid_user_name($idPieces[$i])){
-				echo "<h3>user id \"".$idPieces[$i]."\" is not valid. all of the users is not inserted.</h3>";
+				echo "<h3>로그인 ID \"".$idPieces[$i]."\"을(를) 사용할 수 없어 계정을 생성하지 않았습니다.</h3>";
 				$ok=false;				
 			}
 		}
 
 		if($ok)
 		{
-			echo "<table border=1>";
-			echo "<tr><td colspan=3>Copy these accounts to distribute</td></tr>";
-			echo "<tr><td>team_name<td>login_id</td><td>password</td></tr>";
+			echo "<table class='table admin-result-table'>";
+			echo "<tr><th colspan=3>배부할 팀 계정</th></tr>";
+			echo "<tr><th>팀 이름</th><th>로그인 ID</th><th>비밀번호</th></tr>";
 
 			$max_length=20;
 	
@@ -88,32 +88,31 @@ if(isset($_POST['idlist']) && isset($_POST['pwdlist']) && isset($_POST['nicklist
 		echo  "</table><br/>";
 		
 	}else{
-		echo "<h3>sorry,the sum of user id is not equal to the sum of Password or Nickname</h3>";
+		echo "<h3>로그인 ID, 비밀번호, 팀 이름의 줄 수가 서로 다릅니다.</h3>";
 	}
 	
 	
 }
 
 ?>
-<div class="container">
-<b>TeamGenerator2:</b>
-<p>the account will be replaced if Login ID exists.</p>
+<div class="admin-form-shell admin-compact-form">
+<header class="admin-form-title"><h3>대회 팀 생성 (직접 입력)</h3><p>로그인 ID가 이미 있으면 해당 계정 정보가 입력한 내용으로 바뀝니다.</p></header>
 	<form action='team_generate2.php' method=post>
 		<div class="row">
 			<div class="col-md-4">
-			Login ID:<textarea name="idlist" rows="12" cols="40" placeholder="Preset ID of the teams. One ID per line."></textarea>
+			<label class="admin-field-label">로그인 ID</label><textarea name="idlist" rows="12" cols="40" placeholder="팀 ID를 한 줄에 하나씩 입력하세요."></textarea>
 			</div>
 			<div class="col-md-4">
-			Password:<textarea name="pwdlist" rows="12" cols="40" placeholder="Preset password of the teams. One password per line."></textarea>
+			<label class="admin-field-label">비밀번호</label><textarea name="pwdlist" rows="12" cols="40" placeholder="비밀번호를 한 줄에 하나씩 입력하세요."></textarea>
 			</div>
 			<div class="col-md-4">
-			Nickname:<textarea name="nicklist" rows="12" cols="40" placeholder="Preset nicknames of the teams. One name per line."></textarea>
+			<label class="admin-field-label">팀 이름</label><textarea name="nicklist" rows="12" cols="40" placeholder="팀 이름을 한 줄에 하나씩 입력하세요."></textarea>
 			</div>
 		</div>
 		<div class="row">
 		<br/>
 		<?php require_once("../include/set_post_key.php");?>
-		<input type=submit value=Generate><br>
+		<input class="btn btn-primary" type=submit value="팀 계정 생성"><br>
 		</div>
 	</form>
 

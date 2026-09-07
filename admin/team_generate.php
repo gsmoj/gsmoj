@@ -14,9 +14,9 @@ if (!(isset($_SESSION[$OJ_NAME.'_'.'administrator']) || isset($_SESSION[$OJ_NAME
         $pieces = explode("\n", trim($_POST['ulist']));
 	
 	if ($teamnumber>0){
-		echo "<table border=1>";
-		echo "<tr><td colspan=3>Copy these accounts to distribute</td></tr>";
-		echo "<tr><td>team_name<td>login_id</td><td>password</td></tr>";
+		echo "<table class='table admin-result-table'>";
+		echo "<tr><th colspan=3>배부할 팀 계정</th></tr>";
+		echo "<tr><th>팀 이름</th><th>로그인 ID</th><th>비밀번호</th></tr>";
 		$max_length=20;
 		for($i=1;$i<=$teamnumber;$i++){
 			
@@ -61,16 +61,16 @@ if (!(isset($_SESSION[$OJ_NAME.'_'.'administrator']) || isset($_SESSION[$OJ_NAME
 	
 }
 ?>
-<div class="container">
-<b>TeamGenerator:</b>
+<div class="admin-form-shell admin-compact-form">
+<header class="admin-form-title"><h3>대회 팀 생성</h3><p>접두어와 인원 수로 팀 계정을 한 번에 만듭니다.</p></header>
 	
 	<form action='team_generate.php' method=post>
-	    Prefix:<input type='test' name='prefix' value='team' placeholder="Team"><br>
-		Generate<input class="input-mini" type=input name='teamnumber' value=5 size=3 >Teams.<br>
-                Users:<textarea name="ulist" rows="12" cols="40" placeholder="Preset nicknames of the teams. One name per line."></textarea>
+	    <label class="admin-field-label">계정 접두어</label><input type='text' name='prefix' value='team' placeholder="예: team"><br>
+		<label class="admin-field-label">생성할 팀 수</label><input class="input-mini" type=input name='teamnumber' value=5 size=3><br>
+				<label class="admin-field-label">팀 이름 목록</label><textarea name="ulist" rows="12" cols="40" placeholder="팀 이름을 한 줄에 하나씩 입력하세요."></textarea>
 		<?php require_once("../include/set_post_key.php");?>
-		<input type=submit value=Generate><br>
+		<input class="btn btn-primary" type=submit value="팀 계정 생성"><br>
 	</form>
-	<span style="color:red;font-weight:bold">以相同的前缀生成账号，将覆盖昵称和密码，请谨慎操作！</span>
+	<p class="text-danger"><strong>같은 접두어로 다시 생성하면 기존 계정의 팀 이름과 비밀번호가 바뀝니다.</strong></p>
 
 </div>

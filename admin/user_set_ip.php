@@ -5,11 +5,10 @@ if (isset($OJ_LANG)) {
 }
 ?>
 
-<title>User Set IP</title>
-<hr>
-<center><h3><?php echo $MSG_SET_LOGIN_IP?></h3></center>
+<title>대회 참여자 IP 변경</title>
 
-<div class='container'>
+<div class="admin-form-shell admin-compact-form">
+<header class="admin-form-title"><h3>대회 참여자 IP 변경</h3><p>사용자의 최근 로그인 IP를 직접 기록합니다.</p></header>
 
 <?php
 require_once("../include/set_get_key.php");
@@ -27,7 +26,7 @@ if(isset($_POST['do'])){
 
 	$sql = "insert into loginlog (user_id,password,ip,time) value(?,?,?,now())";
 	$result = pdo_query($sql,$user_id,"set ip by ".$_SESSION[$OJ_NAME."_user_id"],$ip);
-	echo "<center><h4 class='text-danger'>User ".htmlentities($_POST['user_id'], ENT_QUOTES, 'UTF-8')."'s Login IP Changed!</h4></center>";
+	echo "<div class='alert alert-success'>사용자 ".htmlentities($_POST['user_id'], ENT_QUOTES, 'UTF-8')."의 로그인 IP를 변경했습니다.</div>";
 }
 ?>
 
@@ -44,7 +43,7 @@ if(isset($_POST['do'])){
 	</div>
 
 	<div class="form-group">
-		<label class="col-sm-offset-3 col-sm-3 control-label"><?php echo "New IP"?></label>
+		<label class="col-sm-offset-3 col-sm-3 control-label">새 IP 주소</label>
 		<?php if(isset($_POST['ip'])) { ?>
 		<div class="col-sm-3"><input name="ip" class="form-control" value="<?php echo htmlentities($_POST['ip'], ENT_QUOTES, 'UTF-8')?>" type="text"  autocomplete="off" required ></div>
 		<?php } else { ?>
@@ -55,7 +54,7 @@ if(isset($_POST['do'])){
 	<div class="form-group">
 		<?php require_once("../include/set_post_key.php");?>
 		<div class="col-sm-offset-4 col-sm-2">
-			<button name="do" type="hidden" value="do" class="btn btn-default btn-block" ><?php echo $MSG_SAVE; ?></button>
+			<button name="do" type="hidden" value="do" class="btn btn-primary btn-block" ><?php echo $MSG_SAVE; ?></button>
 		</div>
 		<div class="col-sm-2">
 			<button name="submit" type="reset" class="btn btn-default btn-block"><?php echo $MSG_RESET?></button>
