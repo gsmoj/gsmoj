@@ -166,7 +166,7 @@ if ($login) {
     echo "</script>";
 } else {
     if (isset($OJ_LOG_ENABLED) && $OJ_LOG_ENABLED) {
-        $params = json_encode($_REQUEST, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        $params = json_encode(maskSensitiveParams($_REQUEST), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
         $logger->info($params);
     }
     

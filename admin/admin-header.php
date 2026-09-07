@@ -7,8 +7,8 @@ require_once("../include/db_info.inc.php");
 require_once ("../include/my_func.inc.php");
 if(file_exists("../lang/$OJ_LANG.php")) require_once("../lang/$OJ_LANG.php");
 if(isset($OJ_LOG_ENABLED) && $OJ_LOG_ENABLED){
-	// 관리자 요청 파라미터를 로그에 남겨 추후 작업 이력을 추적한다.
-	$params = json_encode($_REQUEST, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+	// 관리자 요청 파라미터를 로그에 남겨 추후 작업 이력을 추적한다. (비밀번호 등 민감정보는 마스킹)
+	$params = json_encode(maskSensitiveParams($_REQUEST), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
 	$logger->info($params);
 }
 ?>

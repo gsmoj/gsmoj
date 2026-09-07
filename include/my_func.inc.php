@@ -598,6 +598,20 @@ function isOldPW($password) {
     return true;
 }
 
+// 로그 기록용 요청 파라미터에서 비밀번호 등 민감정보를 마스킹하는 함수
+function maskSensitiveParams($params) {
+    $sensitiveKeys = array('password', 'passwd', 'opassword', 'npassword', 'cpassword', 'confirm_password', 'ulist');
+    if (!is_array($params)) return $params;
+    foreach ($params as $key => $value) {
+        if (in_array(strtolower($key), $sensitiveKeys)) {
+            $params[$key] = '******';
+        } else if (is_array($value)) {
+            $params[$key] = maskSensitiveParams($value);
+        }
+    }
+    return $params;
+}
+
 // ID 규칙 정규 표현식 검증 함수 (영문, 숫자, 하이픈, 언더바 조합 허용)
 function is_valid_user_name($user_name) {
     $len = strlen($user_name);
