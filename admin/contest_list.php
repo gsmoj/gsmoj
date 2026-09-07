@@ -52,7 +52,7 @@ if(isset($_GET['keyword']) && $_GET['keyword']!=""){
 }
 ?>
 
-<form action=contest_list.php class="form-search form-inline">
+<form action=contest_list.php class="form-search form-inline admin-list-search">
   <input type="text" name='keyword' class="form-control search-query" 
     value="<?php echo htmlentities($_GET['keyword']??"")?>"
     placeholder="<?php echo $MSG_CONTEST_NAME.', '.$MSG_EXPLANATION?>">

@@ -179,11 +179,14 @@ else{
 
   <div class="admin-form-shell">
     <header class="admin-form-title"><h3><?php echo htmlentities($page_heading, ENT_QUOTES, 'UTF-8')?></h3></header>
-    <form method=POST>
+    <form method=POST class="contest-form">
+    <section class="contest-form-card">
     <p align=left>
       <label class="admin-field-label">대회 이름</label>
       <input class="input input-xxlarge" style="width:100%;" type=text name=title value="<?php echo isset($title)?$title:""?>"><br><br>
     </p>
+    </section>
+    <section class="contest-form-card"><div class="contest-form-grid">
     <p align=left>
       <label class="admin-field-label">시작 시간</label>
       <input class=input-large type=date name='startdate' value='<?php echo date('Y').'-'. date('m').'-'.date('d')?>' size=4 >
@@ -196,21 +199,22 @@ else{
       시: <input class=input-mini type=text name=ehour size=2 value=<?php echo (date('H')+4)%24?>>&nbsp;
       분: <input class=input-mini type=text name=eminute value=00 size=2 >
     </p>
-    <br>
-    <p align=left>
+    </div></section>
+    <section class="contest-form-card"><p align=left>
       <label class="admin-field-label">문제 번호</label>
       <span class="admin-field-help">쉼표로 구분해 입력하세요.</span><br>
       <input id="plist" onchange="showTitles()" class=input-xxlarge placeholder="예: 1000, 1001, 1002" type=text style="width:100%" name=cproblem value="<?php echo isset($plist)?$plist:""?>">
       <div id="ptitles"></div>
     </p>
-    <br><label class="admin-field-label">접속 허용 IP 대역</label>
+    <label class="admin-field-label">접속 허용 IP 대역</label>
       <input class=input-xxlarge type=text style="width:100%" name=subnet value='' placeholder='0.0.0.0/0'>
-    <br>
+    </section>
+    <section class="contest-form-card">
     <p align=left>
       <label class="admin-field-label">대회 설명</label>
       <textarea class=kindeditor rows=13 name=description cols=80><?php echo isset($description)?$description:""?></textarea>
       <br>
-      <table width="100%">
+      <table class="contest-options-table" width="100%">
         <tr>
           <td rowspan=2>
             <p aligh=left>
@@ -291,11 +295,11 @@ else{
         </tr>
       </table>
 
-      <div align=center>
+      </section>
+      <div align=center class="contest-form-actions">
         <?php require_once("../include/set_post_key.php");?>
         <input type=submit value='<?php echo $MSG_SAVE?>' name=submit>
       </div>
-    </p>
   </form>
 </div>
 

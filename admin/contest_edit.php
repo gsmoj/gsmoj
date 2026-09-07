@@ -160,14 +160,14 @@ if(isset($_POST['startdate'])){
 
 <div class="admin-form-shell">
   <header class="admin-form-title"><h3><?php echo htmlentities($page_heading, ENT_QUOTES, 'UTF-8')?></h3></header>
-  <form method=POST>
+  <form method=POST class="contest-form">
     <?php require_once("../include/set_post_key.php");?>
     <input type=hidden name='cid' value=<?php echo $cid?>>
-    <p align=left>
+    <section class="contest-form-card"><p align=left>
       <label class="admin-field-label">대회 이름</label>
       <input class="input input-xxlarge" style="width:100%;" type=text name=title value="<?php echo $title?>"><br><br>
-    </p>
-    <p align=left>
+    </p></section>
+    <section class="contest-form-card"><div class="contest-form-grid"><p align=left>
       <label class="admin-field-label">시작 시간</label>
       <input class=input-large type=date name='startdate' value='<?php echo substr($starttime,0,10)?>' size=4 >
       시: <input class=input-mini type=text name=shour size=2 value='<?php echo substr($starttime,11,2)?>'>&nbsp;
@@ -178,23 +178,23 @@ if(isset($_POST['startdate'])){
       <input class=input-large type=date name='enddate' value='<?php echo substr($endtime,0,10)?>' size=4 >
       시: <input class=input-mini type=text name=ehour size=2 value='<?php echo substr($endtime,11,2)?>'>&nbsp;
       분: <input class=input-mini type=text name=eminute value='<?php echo substr($endtime,14,2)?>' size=2 >
-    </p>
-    <br>
-    <p align=left>
+    </p></div></section>
+    <section class="contest-form-card"><p align=left>
       <label class="admin-field-label">문제 번호</label>
       <span class="admin-field-help">쉼표로 구분해 입력하세요.</span><br>
       <input id="plist" onchange="showTitles()" class=input-xxlarge type=text style="width:100%" name=cproblem value='<?php echo $plist?>'>
       <div id="ptitles"></div>
     </p>
-    <br><label class="admin-field-label">접속 허용 IP 대역</label>
+    <label class="admin-field-label">접속 허용 IP 대역</label>
       <input class=input-xxlarge type=text style="width:100%" name=subnet value='<?php echo htmlentities($subnet)?>' placeholder='0.0.0.0/0'>
-    <p align=left>
+    </section>
+    <section class="contest-form-card"><p align=left>
       <label class="admin-field-label">대회 설명</label>
       <textarea class=kindeditor rows=13 name=description cols=80>
         <?php echo htmlentities($description,ENT_QUOTES,'UTF-8')?>
       </textarea>
       <br>
-      <table width="100%">
+      <table class="contest-options-table" width="100%">
         <tr>
           <td rowspan=2>
             <p aligh=left>
@@ -256,11 +256,11 @@ if(isset($_POST['startdate'])){
         </tr>
       </table>
 
-      <div align=center>
+      </section>
+      <div align=center class="contest-form-actions">
         <?php require_once("../include/set_post_key.php");?>
         <input class="btn btn-primary" type=submit value='<?php echo $MSG_SAVE?>' name=submit> <input class="btn btn-default" type=reset value="초기화" name=reset>
       </div>
-    </p>
   </form>
 </div>
 <script>
