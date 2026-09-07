@@ -97,7 +97,7 @@ if(isset($_POST['idlist']) && isset($_POST['pwdlist']) && isset($_POST['nicklist
 ?>
 <div class="admin-form-shell admin-compact-form">
 <header class="admin-form-title"><h3>대회 팀 생성 (직접 입력)</h3><p>로그인 ID가 이미 있으면 해당 계정 정보가 입력한 내용으로 바뀝니다.</p></header>
-	<form action='team_generate2.php' method=post>
+	<form action='team_generate2.php' method=post class="admin-team-form">
 		<div class="row">
 			<div class="col-md-4">
 			<label class="admin-field-label">로그인 ID</label><textarea name="idlist" rows="12" cols="40" placeholder="팀 ID를 한 줄에 하나씩 입력하세요."></textarea>
