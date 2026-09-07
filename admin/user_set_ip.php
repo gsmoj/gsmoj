@@ -30,7 +30,7 @@ if(isset($_POST['do'])){
 }
 ?>
 
-<form action=user_set_ip.php method=post class="form-horizontal admin-ip-form">
+<form action=user_set_ip.php method=post class="form-horizontal">
 	<div class="form-group">
 		<label class="col-sm-offset-3 col-sm-3 control-label"><?php echo $MSG_USER_ID?></label>
 		<?php if(isset($_GET['uid'])) { ?>

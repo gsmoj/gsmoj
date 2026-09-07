@@ -492,58 +492,6 @@ body.admin-form-page {
 .admin-upload-form { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin: 20px 0; }
 .admin-upload-form .admin-field-label { width: 100%; margin-bottom: 0; }
 .admin-compact-form textarea { display: block; width: 100%; max-width: 100%; margin-bottom: 14px; }
-.admin-form-shell form { display: grid; gap: 18px; }
-.contest-form-card {
-    padding: 20px;
-    border: 1px solid var(--admin-border);
-    border-radius: 12px;
-    background: #fff;
-    box-shadow: 0 2px 8px rgba(15, 23, 42, .04);
-}
-.contest-form-card > p { margin: 0; }
-.contest-form-card > p + p { margin-top: 16px; }
-.contest-form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 20px; }
-.contest-form-grid .admin-field-label { display: block; }
-.contest-form-grid input[type="date"] { width: calc(100% - 126px); min-width: 160px; }
-.contest-form-grid .input-mini { width: 48px; margin: 0 4px; text-align: center; }
-.contest-form-card input[type="text"], .contest-form-card input[type="date"], .contest-form-card select { min-height: 38px; }
-.contest-form-card select:not([multiple]) { width: 100%; padding-right: 30px; }
-.contest-form-card select[multiple] { width: 100%; min-height: 220px; padding: 8px; }
-.contest-form-card select[multiple] option { padding: 6px 8px; }
-.contest-options-table { width: 100%; border-collapse: separate; border-spacing: 16px 0; }
-.contest-options-table td { width: 33.333%; padding: 0; vertical-align: top; }
-.contest-options-table p { margin: 0; }
-.contest-options-table input[type="checkbox"] { margin: 0 8px 0 0; vertical-align: middle; }
-.contest-options-table input[type="checkbox"] + br { display: block; content: ""; height: 10px; }
-.contest-options-table textarea { min-height: 180px; }
-.contest-options-table #copy_from { width: 100%; margin: 8px 0; }
-.contest-options-table select[name="private"], .contest-options-table input[name="password"] { width: 100% !important; margin: 6px 0 12px; }
-.contest-form-actions { display: flex; justify-content: center; gap: 8px; margin: 0; }
-.admin-compact-form form { display: grid; gap: 16px; }
-.admin-compact-form form > br { display: none; }
-.admin-compact-form .row { margin: 0; }
-.admin-compact-form .row textarea { min-height: 250px; }
-.admin-upload-form { padding: 18px; border: 1px dashed #93c5fd; border-radius: 10px; background: #f8fbff; }
-.admin-upload-form input[type="file"] { max-width: 100%; padding: 7px; border: 1px solid #cbd5e1; border-radius: 7px; background: #fff; }
-.admin-team-form { padding: 20px; border: 1px solid var(--admin-border); border-radius: 12px; background: #fff; box-shadow: 0 2px 8px rgba(15, 23, 42, .04); }
-.admin-team-form > .admin-field-label { display: block; margin-top: 4px; }
-.admin-team-form input[type="text"], .admin-team-form input[type="number"], .admin-team-form textarea { width: 100%; }
-.admin-list-search { display: flex; align-items: center; max-width: 620px; margin: 0 0 20px; padding: 14px; gap: 10px; border: 1px solid var(--admin-border); border-radius: 10px; background: #f8fafc; }
-.admin-list-search input { flex: 1; margin: 0; }
-.admin-contest-table > tbody > tr:first-child > td { color: #475569; font-weight: 700; border-top: 0; border-bottom: 1px solid var(--admin-border); background: #f8fafc; }
-.admin-ip-form { max-width: 680px; margin: 0 auto; padding: 20px; border: 1px solid var(--admin-border); border-radius: 12px; background: #fff; }
-.admin-ip-form .form-group { margin: 0 0 16px; }
-.admin-ip-form .form-group:last-child { margin-bottom: 0; }
-@media (max-width: 760px) {
-    .contest-form-card { padding: 16px; }
-    .contest-form-grid { grid-template-columns: 1fr; }
-    .contest-form-grid input[type="date"] { width: calc(100% - 126px); }
-    .contest-options-table, .contest-options-table tbody, .contest-options-table tr, .contest-options-table td { display: block; width: 100%; }
-    .contest-options-table { border-spacing: 0; }
-    .contest-options-table td + td { margin-top: 18px; }
-    .admin-compact-form .row > [class*="col-"] { margin-bottom: 16px; }
-    .admin-list-search { align-items: stretch; flex-direction: column; }
-}
 @media (max-width: 760px) { .admin-page-heading { align-items: flex-start; flex-direction: column; } }
 
 @media (max-width: 760px) {

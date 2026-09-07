@@ -64,7 +64,7 @@ if (!(isset($_SESSION[$OJ_NAME.'_'.'administrator']) || isset($_SESSION[$OJ_NAME
 <div class="admin-form-shell admin-compact-form">
 <header class="admin-form-title"><h3>대회 팀 생성</h3><p>접두어와 인원 수로 팀 계정을 한 번에 만듭니다.</p></header>
 	
-	<form action='team_generate.php' method=post class="admin-team-form">
+	<form action='team_generate.php' method=post>
 	    <label class="admin-field-label">계정 접두어</label><input type='text' name='prefix' value='team' placeholder="예: team"><br>
 		<label class="admin-field-label">생성할 팀 수</label><input class="input-mini" type=input name='teamnumber' value=5 size=3><br>
 				<label class="admin-field-label">팀 이름 목록</label><textarea name="ulist" rows="12" cols="40" placeholder="팀 이름을 한 줄에 하나씩 입력하세요."></textarea>
