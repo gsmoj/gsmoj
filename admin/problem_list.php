@@ -18,8 +18,19 @@ if(isset($OJ_LANG)){
 ?>
 
 <title>Problem List</title>
+<style>
+  .problem-list-title { margin: 0 0 16px; text-align: center; }
+  .problem-list-toolbar { margin: 0 0 18px; text-align: center; }
+  .problem-list-toolbar .search-query { width: 320px; max-width: 100%; }
+  .problem-list-toolbar .pagination { margin: 12px 0 0; display: inline-flex; }
+  #pform .table th, #pform .table td { text-align: center; }
+  #pform .table td:nth-child(2) { text-align: left; }
+  .table-toolbar-row td { background: #f8fafc; }
+  .table-toolbar-row:hover td { background: #f8fafc !important; }
+  .table-toolbar-row .btn { margin: 2px; }
+</style>
 <hr>
-<center><h3><?php echo $MSG_PROBLEM."-".$MSG_LIST?></h3></center>
+<h3 class="problem-list-title"><?php echo $MSG_PROBLEM."-".$MSG_LIST?></h3>
 
 <div class='container'>
 
@@ -56,10 +67,10 @@ if(isset($_GET['keyword']) && $_GET['keyword']!=""){
 }
 ?>
 
-<center>
+<div class="problem-list-toolbar">
 <form action=problem_list.php class="form-search form-inline">
   <input type="text" name=keyword value="<?php if(isset($_GET['keyword']))echo htmlentities($_GET['keyword'],ENT_QUOTES,"utf-8")?>" class="form-control search-query" placeholder="<?php echo $MSG_PROBLEM_ID.', '.$MSG_TITLE.', '.$MSG_Description.', '.$MSG_SOURCE?>">
-  <button type="submit" class="form-control"><?php echo $MSG_SEARCH?></button>
+  <button type="submit" class="form-control btn btn-primary"><?php echo $MSG_SEARCH?></button>
 </form>
 
 <?php
@@ -81,7 +92,7 @@ if(!(isset($_GET['keyword']) && $_GET['keyword']!=""))
 }
 ?>
 
-</center>
+</div>
 
 <?php
 /*
@@ -97,37 +108,39 @@ echo "</select>";
 */
 ?>
 
-<center>
-<table width=100% border=1 style="text-align:center;">
-  <form id='pform' method=post action=contest_add.php >
+<form id='pform' method=post action=contest_add.php>
 <input type="hidden" name=keyword value="<?php if(isset($_GET['keyword']))echo htmlentities($_GET['keyword'],ENT_QUOTES,"utf-8")?>">
 <input type="hidden" name=hlist value="" >
+<table class="table" style="width:100%; text-align:center;">
+  <thead>
     <tr>
-      <td width=60px><?php echo $MSG_PROBLEM_ID?><input type=checkbox style='vertical-align:2px;' onchange='$("input[type=checkbox]").prop("checked", this.checked)'></td>
-      <td><?php echo $MSG_TITLE?></td>
-      <td><?php echo $MSG_AC?></td>	 
-      <td><?php echo $MSG_SAVED_DATE?></td>
-	   <td><?php echo $MSG_SOURCE ?></td><!--分类-->
+      <th style="width:60px"><?php echo $MSG_PROBLEM_ID?><input type=checkbox style='vertical-align:2px;' onchange='$("input[type=checkbox]").prop("checked", this.checked)'></th>
+      <th><?php echo $MSG_TITLE?></th>
+      <th><?php echo $MSG_AC?></th>
+      <th><?php echo $MSG_SAVED_DATE?></th>
+      <th><?php echo $MSG_SOURCE ?></th><!--分类-->
       <?php
       if(isset($_SESSION[$OJ_NAME.'_'.'administrator']) ||isset($_SESSION[$OJ_NAME.'_'.'problem_editor'])){
         if(isset($_SESSION[$OJ_NAME.'_'.'administrator']) ||isset($_SESSION[$OJ_NAME.'_'.'problem_editor']))
-          echo "<td>$MSG_PROBLEM_STATUS</td>  <td>$MSG_COIN</td>  <td>$MSG_DELETE</td>";
-          echo "<td>$MSG_EDIT</td><td>$MSG_TESTDATA</td>";
+          echo "<th>$MSG_PROBLEM_STATUS</th>  <th>$MSG_COIN</th>  <th>$MSG_DELETE</th>";
+          echo "<th>$MSG_EDIT</th><th>$MSG_TESTDATA</th>";
       }
       ?>
     </tr>
-        <tr>
+  </thead>
+  <tbody>
+    <tr class="table-toolbar-row">
         <td colspan=2 style="height:40px;"><?php echo "$MSG_CHECK_TO"?></td>
       <td colspan=7>
-      <input type=submit name='problem2contest' value='<?php echo $MSG_NEW_CONTEST?>'>
-      <input type=submit name='enable' value='<?php echo $MSG_AVAILABLE ?>' onclick='$("form").attr("action","problem_df_change.php")'>
-      <input type=submit name='disable' value='<?php echo $MSG_RESERVED ?>' onclick='$("form").attr("action","problem_df_change.php")'>
-      <input type=submit name='plist' value='<?php echo $MSG_NEW_PROBLEM_LIST?>' onclick='$("form").attr("action","news_add_page.php")'>
-      <?php if (isset($_SESSION[$OJ_NAME."_administrator"])) { ?><span class='btn btn-primary' onclick='$(".ai.label.label-primary").click();'>AI-category</span> <?php } ?>
+      <input class="btn btn-default btn-sm" type=submit name='problem2contest' value='<?php echo $MSG_NEW_CONTEST?>'>
+      <input class="btn btn-default btn-sm" type=submit name='enable' value='<?php echo $MSG_AVAILABLE ?>' onclick='$("form").attr("action","problem_df_change.php")'>
+      <input class="btn btn-default btn-sm" type=submit name='disable' value='<?php echo $MSG_RESERVED ?>' onclick='$("form").attr("action","problem_df_change.php")'>
+      <input class="btn btn-default btn-sm" type=submit name='plist' value='<?php echo $MSG_NEW_PROBLEM_LIST?>' onclick='$("form").attr("action","news_add_page.php")'>
+      <?php if (isset($_SESSION[$OJ_NAME."_administrator"])) { ?><span class='btn btn-primary btn-sm' onclick='$(".ai.label.label-primary").click();'>AI-category</span> <?php } ?>
       </td>
     </tr>
-    <?php    
-	
+    <?php
+
     foreach($result as $row){
 		$view = "";
         echo "<tr>";
@@ -184,19 +197,18 @@ echo "</select>";
     echo "</tr>";
   }
 ?>
-    <tr>
+    <tr class="table-toolbar-row">
       <td colspan=2 style="height:40px;"><?php echo "$MSG_CHECK_TO"?></td>
       <td colspan=7>
-      <input type=submit name='problem2contest' value='<?php echo $MSG_NEW_CONTEST?>'>
-      <input type=submit name='enable' value='<?php echo $MSG_AVAILABLE ?>' onclick='$("form").attr("action","problem_df_change.php")'>
-      <input type=submit name='disable' value='<?php echo $MSG_RESERVED ?>' onclick='$("form").attr("action","problem_df_change.php")'>
-      <input type=submit name='plist' value='<?php echo $MSG_NEW_PROBLEM_LIST?>' onclick='$("form").attr("action","news_add_page.php")'>
+      <input class="btn btn-default btn-sm" type=submit name='problem2contest' value='<?php echo $MSG_NEW_CONTEST?>'>
+      <input class="btn btn-default btn-sm" type=submit name='enable' value='<?php echo $MSG_AVAILABLE ?>' onclick='$("form").attr("action","problem_df_change.php")'>
+      <input class="btn btn-default btn-sm" type=submit name='disable' value='<?php echo $MSG_RESERVED ?>' onclick='$("form").attr("action","problem_df_change.php")'>
+      <input class="btn btn-default btn-sm" type=submit name='plist' value='<?php echo $MSG_NEW_PROBLEM_LIST?>' onclick='$("form").attr("action","news_add_page.php")'>
       </td>
     </tr>
-
-  </form>
+  </tbody>
 </table>
-</center>
+</form>
 
 <script src='../template/bs3/jquery.min.js' ></script>
 
