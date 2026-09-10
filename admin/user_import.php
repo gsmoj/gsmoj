@@ -79,7 +79,7 @@ function import_user($filename) {
                     echo "$user_id : $expiry_date : $ret <br>\n";
 
             }else{
-                echo "<h1>请用下载的模板填写，保存为UTF-8编码。</h1>";
+                echo "<h1>다운로드한 양식을 작성한 뒤 UTF-8 인코딩으로 저장하세요.</h1>";
                 break;
             }
         }
@@ -123,7 +123,7 @@ if (isset($_FILES["fps"])) {
 
 <br>
 <br>
-<h1>导入用户csv文件</h1>
+<h1>사용자 CSV 파일 가져오기</h1>
     <form class='form-inline' action='user_import.php' method=post enctype="multipart/form-data">
       <div class='form-group'>
         <input class='form-control' type=file name='fps' >
@@ -132,12 +132,12 @@ if (isset($_FILES["fps"])) {
       <br><br><br>
       <center>
       <div class='form-group'>
-        <button class='btn btn-default btn-sm' type=submit>Upload to HUSTOJ</button>
+        <button class='btn btn-default btn-sm' type=submit>HUSTOJ에 업로드</button>
       </div>
       </center>
       <?php require_once ("../include/set_post_key.php"); ?>
     </form>
-<h2><a href="users.csv">下载模板</a></h2>
-<h3>请用下载的模板填写，保存为UTF-8编码。</h3>
+<h2><a href="users.csv">양식 다운로드</a></h2>
+<h3>다운로드한 양식을 작성한 뒤 UTF-8 인코딩으로 저장하세요.</h3>
 <?php
 } ?>

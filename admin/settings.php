@@ -163,9 +163,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $save_msg = '<div class="alert alert-warning">' . implode('<br>', $errors) . '</div>';
     } elseif ($saved > 0) {
         file_put_contents($config_file, $content);
-        $save_msg = '<div class="alert alert-success">保存成功！' . $saved . ' 个配置项已更新。刷新页面后生效。</div>';
+        $save_msg = '<div class="alert alert-success">저장했습니다. ' . $saved . '개 설정을 업데이트했으며, 새로고침 후 적용됩니다.</div>';
     } else {
-        $save_msg = '<div class="alert alert-info">没有需要保存的更改。</div>';
+        $save_msg = '<div class="alert alert-info">저장할 변경 사항이 없습니다.</div>';
     }
 }
 ?>
@@ -173,7 +173,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <html>
 <head>
     <meta charset="utf-8">
-    <title>系统设置 - <?php echo isset($MSG_SYSTEM) ? $MSG_SYSTEM : 'System Settings'; ?></title>
+    <title>시스템 설정 - <?php echo isset($MSG_SYSTEM) ? $MSG_SYSTEM : 'System Settings'; ?></title>
     <link rel="stylesheet" href="../include/hoj.css">
     <script src="../template/bs3/jquery.min.js"></script>
     <style>
@@ -223,7 +223,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body>
 <div class="container">
     <div class="card">
-        <div class="card-header">⚙️ 系统设置</div>
+        <div class="card-header">⚙️ 시스템 설정</div>
         <div class="card-body">
             <?php echo $save_msg; ?>
             <div class="protected-note">

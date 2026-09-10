@@ -71,7 +71,7 @@ $delay=pdo_query($sql);
     </tr>
  <tr>
       <td><a class='btn btn-block btn-sm' href="langmask.html" target="main"><b>Langmask Calculator </b></a></td>
-      <td><p>计算语言掩码Langmask</p></td>
+      <td><p>언어 마스크(Langmask)를 계산합니다.</p></td>
     </tr>
 
   <?php if (isset($_SESSION[$OJ_NAME.'_'.'administrator'])){?>
@@ -196,11 +196,11 @@ $delay=pdo_query($sql);
       <td><p>FreeProblemSet</p></td>
     </tr>
     <tr>
-      <td><a class='btn btn-block btn-sm' href="http://tk.hustoj.com" target="_blank"><b>自助题库</b></a></td>
+      <td><a class='btn btn-block btn-sm' href="http://tk.hustoj.com" target="_blank"><b>문제 은행</b></a></td>
       <td><p></p></td>
     </tr>
     <tr>
-      <td><a class='btn btn-block btn-sm' href="http://shang.qq.com/wpa/qunwpa?idkey=d52c3b12ddaffb43420d308d39118fafe5313e271769277a5ac49a6fae63cf7a" target="_blank">手机QQ加官方群23361372</a></td>
+      <td><a class='btn btn-block btn-sm' href="http://shang.qq.com/wpa/qunwpa?idkey=d52c3b12ddaffb43420d308d39118fafe5313e271769277a5ac49a6fae63cf7a" target="_blank">공식 QQ 그룹 참여</a></td>
       <td><p></p></td>
     </tr>
   <?php }?>

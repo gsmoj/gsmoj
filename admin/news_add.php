@@ -30,5 +30,5 @@ pdo_query($sql,$user_id,$title,$content,$menu);
 $sessionDataKey = $OJ_NAME.'_'."_MENU_NEWS_CACHE";
 unset($_SESSION[$sessionDataKey]);
 
-echo "<script>alert('保存成功！');window.location.href=\"news_list.php\";</script>";
+echo "<script>alert('저장했습니다.');window.location.href=\"news_list.php\";</script>";
 ?>
