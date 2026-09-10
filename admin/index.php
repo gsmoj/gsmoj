@@ -3,15 +3,20 @@
 ?><html>
 <head>
 <title><?php echo $OJ_NAME.$MSG_ADMIN?></title>
+<link rel="stylesheet" href="admin.css" type="text/css">
 </head>
-<frameset cols="260,*" frameborder="0" border="0">
+<body class="admin-dashboard">
+<div class="admin-dashboard-layout">
+  <aside class="admin-dashboard-sidebar">
   <?php if($OJ_TEMPLATE=="sidebar"){ ?>
-          <frame name="menu" src="menu.php">                            
+          <iframe name="menu" src="menu.php" title="관리자 메뉴"></iframe>
   <?php }else{?>
-          <frame name="menu" src="menu2.php">
+          <iframe name="menu" src="menu2.php" title="관리자 메뉴"></iframe>
   <?php } ?>
-  <frame name="main" src="help.php">
-  <noframes>
-  </noframes>
-</frameset>
+  </aside>
+  <main class="admin-dashboard-main">
+    <iframe name="main" src="help.php" title="관리자 본문"></iframe>
+  </main>
+</div>
+</body>
 </html>
