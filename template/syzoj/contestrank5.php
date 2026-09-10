@@ -128,7 +128,7 @@
 		<div class="ui placeholder segment" style="margin-top: 0px; ">
 			<div class="ui icon header">
 				<i class="ui file icon" style="margin-bottom: 20px; "></i>
-				暂无选手提交
+				아직 참가자의 제출이 없습니다
 			</div>
 		</div>
 	<?php } ?>

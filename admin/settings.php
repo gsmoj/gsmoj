@@ -227,31 +227,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="card-body">
             <?php echo $save_msg; ?>
             <div class="protected-note">
-                ⚠️ 以下配置项受保护，无法通过此页面修改（请通过 SSH 编辑 <code>include/db_info.inc.php</code>）：<br>
+                ⚠️ 다음 설정은 보호되어 이 페이지에서 수정할 수 없습니다. SSH로 <code>include/db_info.inc.php</code>를 수정해 주세요.<br>
                 <code>$DB_HOST</code> <code>$DB_NAME</code> <code>$DB_USER</code> <code>$DB_PASS</code>
                 <code>$OJ_DATA</code> <code>$SMTP_PASS</code> <code>$OJ_ADMIN</code>
                 <code>$OJ_RANK_HIDDEN</code> <code>$OJ_LOGIN_MOD</code>
                 <code>$OJ_WEIBO_ASEC</code> <code>$OJ_RR_ASEC</code> <code>$OJ_QQ_ASEC</code>
                 <code>$OJ_BG</code> <code>$OJ_CDN_URL</code> <code>$OJ_AI_HTML</code>
-                <code>$OJ_FANCY_MP3</code> <code>$OJ_UDPSERVER</code> <code>$OJ_JUDGE_HUB_PATH</code> 等。
+                <code>$OJ_FANCY_MP3</code> <code>$OJ_UDPSERVER</code> <code>$OJ_JUDGE_HUB_PATH</code> 등
             </div>
             <div class="info-row">
-                <span>📄 配置文件：<strong><?php echo htmlentities($config_file, ENT_QUOTES, 'UTF-8'); ?></strong></span>
-                <span>🎨 模板：<strong><?php echo cfg('OJ_TEMPLATE'); ?></strong></span>
-                <span>📛 系统名：<strong><?php echo cfg('OJ_NAME'); ?></strong></span>
+                <span>📄 설정 파일: <strong><?php echo htmlentities($config_file, ENT_QUOTES, 'UTF-8'); ?></strong></span>
+                <span>🎨 템플릿: <strong><?php echo cfg('OJ_TEMPLATE'); ?></strong></span>
+                <span>📛 시스템 이름: <strong><?php echo cfg('OJ_NAME'); ?></strong></span>
             </div>
         </div>
     </div>
 
     <form method="post" id="settings-form">
         <ul class="tab-nav">
-            <li><a href="#" class="active" data-tab="tab-system">📋 系统</a></li>
-            <li><a href="#" data-tab="tab-ui">🎨 界面</a></li>
-            <li><a href="#" data-tab="tab-mail">✉️ 邮件</a></li>
-            <li><a href="#" data-tab="tab-security">🔒 安全</a></li>
-            <li><a href="#" data-tab="tab-features">🔧 功能</a></li>
-            <li><a href="#" data-tab="tab-contest">🏆 比赛</a></li>
-            <li><a href="#" data-tab="tab-other">⚡ 其他</a></li>
+            <li><a href="#" class="active" data-tab="tab-system">📋 시스템</a></li>
+            <li><a href="#" data-tab="tab-ui">🎨 화면</a></li>
+            <li><a href="#" data-tab="tab-mail">✉️ 메일</a></li>
+            <li><a href="#" data-tab="tab-security">🔒 보안</a></li>
+            <li><a href="#" data-tab="tab-features">🔧 기능</a></li>
+            <li><a href="#" data-tab="tab-contest">🏆 대회</a></li>
+            <li><a href="#" data-tab="tab-other">⚡ 기타</a></li>
         </ul>
 
         <?php
@@ -262,11 +262,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         echo '<div class="setting-group">';
 
         $systems = [
-            ['OJ_NAME', 'OJ_NAME', '左上角显示的系统名称'],
-            ['OJ_HOME', 'OJ_HOME', '主页目录路径'],
-            ['OJ_LANG', 'OJ_LANG', '默认界面语言', 'select', ['cn'=>'简体中文','en'=>'English','th'=>'ภาษาไทย','ko'=>'한국어','fa'=>'فارسی','ug'=>'ئۇيغۇرچە','ru'=>'Русский','he'=>'עברית','mn'=>'Монгол','bo'=>'བོད་སྐད']],
-            ['OJ_EXPIRY_DAYS', 'OJ_EXPIRY_DAYS', '手工账户默认过期天数'],
-            ['OJ_FRIENDLY_LEVEL', 'OJ_FRIENDLY_LEVEL', '系统友好级别（0-9，越高越傻瓜）', 'select', ['0','1','2','3','4','5','6','7','8','9']],
+            ['OJ_NAME', 'OJ_NAME', '왼쪽 상단에 표시할 시스템 이름'],
+            ['OJ_HOME', 'OJ_HOME', '홈 디렉터리 경로'],
+            ['OJ_LANG', 'OJ_LANG', '기본 화면 언어', 'select', ['cn'=>'중국어(간체)','en'=>'English','th'=>'ภาษาไทย','ko'=>'한국어','fa'=>'فارسی','ug'=>'ئۇيغۇرچە','ru'=>'Русский','he'=>'עברית','mn'=>'Монгол','bo'=>'བོད་སྐད']],
+            ['OJ_EXPIRY_DAYS', 'OJ_EXPIRY_DAYS', '수동 생성 계정의 기본 만료 일수'],
+            ['OJ_FRIENDLY_LEVEL', 'OJ_FRIENDLY_LEVEL', '사용자 친화 수준(0-9, 높을수록 안내를 많이 표시)'],
         ];
         foreach ($systems as $s) {
             $var = $s[0];
@@ -290,9 +290,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         $bool_systems = [
-            ['OJ_REGISTER', '是否允许新用户注册'],
-            ['OJ_REG_NEED_CONFIRM', '新注册是否需管理员审核'],
-            ['OJ_EMAIL_CONFIRM', '是否启用邮件激活账号'],
+            ['OJ_REGISTER', '새 사용자 등록 허용'],
+            ['OJ_REG_NEED_CONFIRM', '새 사용자 등록 시 관리자 승인 필요'],
+            ['OJ_EMAIL_CONFIRM', '메일로 계정 활성화 사용'],
         ];
         foreach ($bool_systems as $b) {
             echo '<div class="row">';
@@ -310,11 +310,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         echo '<div class="setting-group">';
 
         $ui_items = [
-            ['OJ_TEMPLATE', 'OJ_TEMPLATE', '使用的模板风格', 'select', ['syzoj'=>'syzoj（推荐）','bs3'=>'bs3','sidebar'=>'sidebar','mdui'=>'mdui','sweet'=>'sweet','bshark'=>'bshark']],
-            ['OJ_CSS', 'OJ_CSS', '配色方案 CSS 文件名'],
-            ['OJ_LANGMASK', 'OJ_LANGMASK', '语言掩码（十进制整数）'],
-            ['OJ_INDEX_NEWS_TITLE', 'OJ_INDEX_NEWS_TITLE', 'syzoj 首页显示的文章标题'],
-            ['OJ_BEIAN', 'OJ_BEIAN', '备案号（显示在页面底部）'],
+            ['OJ_TEMPLATE', 'OJ_TEMPLATE', '사용할 템플릿', 'select', ['syzoj'=>'syzoj(권장)','bs3'=>'bs3','sidebar'=>'sidebar','mdui'=>'mdui','sweet'=>'sweet','bshark'=>'bshark']],
+            ['OJ_CSS', 'OJ_CSS', '색상 구성 CSS 파일 이름'],
+            ['OJ_LANGMASK', 'OJ_LANGMASK', '언어 마스크(10진수)'],
+            ['OJ_INDEX_NEWS_TITLE', 'OJ_INDEX_NEWS_TITLE', 'syzoj 첫 화면에 표시할 글 제목'],
+            ['OJ_BEIAN', 'OJ_BEIAN', '페이지 하단에 표시할 등록 번호'],
         ];
         foreach ($ui_items as $s) {
             echo '<div class="row">';
@@ -334,11 +334,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         $bool_ui = [
-            ['OJ_ACE_EDITOR', '启用有高亮提示的代码输入框'],
-            ['OJ_AUTO_SHOW_OFF', '打开题目默认开启编辑器'],
-            ['OJ_MATHJAX', '激活 MathJax 数学公式渲染'],
-            ['OJ_MENU_NEWS', '顶部菜单显示新闻'],
-            ['OJ_MENU_DROPDOWN', '菜单使用下拉样式'],
+            ['OJ_ACE_EDITOR', '문법 강조 코드 편집기 사용'],
+            ['OJ_AUTO_SHOW_OFF', '문제 열 때 편집기 기본 표시'],
+            ['OJ_MATHJAX', 'MathJax 수식 렌더링 사용'],
+            ['OJ_MENU_NEWS', '상단 메뉴에 공지 표시'],
+            ['OJ_MENU_DROPDOWN', '메뉴에 드롭다운 스타일 사용'],
         ];
         foreach ($bool_ui as $b) {
             echo '<div class="row">';
@@ -356,11 +356,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         echo '<div class="setting-group">';
 
         $mail_items = [
-            ['SMTP_SERVER', 'SMTP_SERVER', 'SMTP 服务器地址'],
-            ['SMTP_PORT', 'SMTP_PORT', 'SMTP 端口（25/80/465/587）'],
-            ['SMTP_USER', 'SMTP_USER', 'SMTP 用户名（发件人邮箱）'],
-            ['OJ_KEEP_TIME', 'OJ_KEEP_TIME', 'Cookie 有效天数'],
-            ['OJ_LOGIN_FAIL_LIMIT', 'OJ_LOGIN_FAIL_LIMIT', '5分钟内最大登录错误次数'],
+            ['SMTP_SERVER', 'SMTP_SERVER', 'SMTP 서버 주소'],
+            ['SMTP_PORT', 'SMTP_PORT', 'SMTP 포트(25/80/465/587)'],
+            ['SMTP_USER', 'SMTP_USER', 'SMTP 사용자 이름(발신자 메일)'],
+            ['OJ_KEEP_TIME', 'OJ_KEEP_TIME', 'Cookie 유지 일수'],
+            ['OJ_LOGIN_FAIL_LIMIT', 'OJ_LOGIN_FAIL_LIMIT', '5분 내 최대 로그인 실패 횟수'],
         ];
         foreach ($mail_items as $s) {
             echo '<div class="row">';
@@ -375,21 +375,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $saas_now = in_array(cfg('OJ_SaaS_ENABLE'), ['true', '1', 'on']);
         if (!$saas_now) {
             echo '<div class="row">';
-            echo '<div class="label"><code>$SMTP_PASS</code><span class="label-desc">SMTP 认证密码（建议使用企业邮箱）</span></div>';
+            echo '<div class="label"><code>$SMTP_PASS</code><span class="label-desc">SMTP 인증 비밀번호(기관 메일 사용 권장)</span></div>';
             echo '<div class="control">';
             echo '<input type="password" name="cfg_SMTP_PASS" value="' . cfg('SMTP_PASS') . '" autocomplete="new-password">';
             echo '</div></div>';
         } else {
             echo '<div class="row">';
-            echo '<div class="label"><code>$SMTP_PASS</code><span class="label-desc">SaaS 模式已开启，此项受保护</span></div>';
-            echo '<div class="control"><span class="label-desc" style="color:#999">（受保护，无法通过此页面修改）</span></div>';
+            echo '<div class="label"><code>$SMTP_PASS</code><span class="label-desc">SaaS 모드가 켜져 있어 보호됩니다</span></div>';
+            echo '<div class="control"><span class="label-desc" style="color:#999">(보호됨: 이 페이지에서 수정할 수 없음)</span></div>';
             echo '</div>';
         }
 
         $bool_mail = [
-            ['OJ_MAIL', '是否启用站内邮件'],
-            ['OJ_VCODE', '注册/登录时显示验证码'],
-            ['OJ_LONG_LOGIN', '启用长时间登录信息保留'],
+            ['OJ_MAIL', '사이트 내 메일 사용'],
+            ['OJ_VCODE', '등록/로그인 시 보안 문자 표시'],
+            ['OJ_LONG_LOGIN', '로그인 정보 장기 유지 사용'],
         ];
         foreach ($bool_mail as $b) {
             echo '<div class="row">';
@@ -407,7 +407,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         echo '<div class="setting-group">';
 
         $sec_items = [
-            ['OJ_REG_SPEED', 'OJ_REG_SPEED', '每小时同IP最多注册个数（0=不限制）'],
+            ['OJ_REG_SPEED', 'OJ_REG_SPEED', 'IP당 시간별 최대 등록 수(0=제한 없음)'],
         ];
         foreach ($sec_items as $s) {
             echo '<div class="row">';
@@ -418,13 +418,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         $bool_sec = [
-            ['OJ_NEED_LOGIN', '访问需登录（全局）'],
-            ['OJ_LIMIT_TO_1_IP', '限制用户同时只能在同一IP登录'],
-            ['OJ_LOG_ENABLED', '启用访问日志'],
-            ['OJ_LOG_USER_ENABLED', '日志中记录用户ID'],
-            ['OJ_LOG_URL_ENABLED', '日志中记录URL'],
-            ['OJ_LOG_TRACE_ENABLED', '记录 TRACE 日志'],
-            ['OJ_NICK_IMMUTABLE', '昵称不可自行修改<br>（管理员可在用户列表双击修改）'],
+            ['OJ_NEED_LOGIN', '전체 페이지 로그인 필요'],
+            ['OJ_LIMIT_TO_1_IP', '사용자는 하나의 IP에서만 동시 로그인 허용'],
+            ['OJ_LOG_ENABLED', '접속 로그 사용'],
+            ['OJ_LOG_USER_ENABLED', '로그에 사용자 ID 기록'],
+            ['OJ_LOG_URL_ENABLED', '로그에 URL 기록'],
+            ['OJ_LOG_TRACE_ENABLED', 'TRACE 로그 기록'],
+            ['OJ_NICK_IMMUTABLE', '닉네임 직접 수정 제한<br>(관리자는 사용자 목록에서 더블 클릭하여 수정 가능)'],
         ];
         foreach ($bool_sec as $b) {
             echo '<div class="row">';
@@ -442,28 +442,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         echo '<div class="setting-group">';
 
         $bool_features = [
-            ['OJ_SIM', '显示相似度（需配合 judge.conf 开关）'],
-            ['OJ_DICT', '显示在线翻译'],
-            ['OJ_AUTO_SHARE', '通过的题目可查看他人代码'],
-            ['OJ_PRINTER', '启用打印服务'],
-            ['OJ_ONLINE', '记录在线情况'],
-            ['OJ_INDENT', '自动检测缩进规范'],
-            ['OJ_BLOCKLY', '启用 Blockly 可视化编程'],
-            ['OJ_TEST_RUN', '提交界面允许测试运行'],
-            ['OJ_DOWNLOAD', '允许下载测试数据'],
-            ['OJ_SHARE_CODE', '启用代码分享功能'],
-            ['OJ_DIV_FILTER', '过滤题面中的 div（修复显示异常）'],
-            ['OJ_ENCODE_SUBMIT', '启用 Base64 编码提交（规避 WAF 误拦）'],
-            ['OJ_FREE_PRACTICE', '自由练习不受比赛作业用题限制'],
-            ['OJ_PUBLIC_STATUS', '公开所有人的判题结果'],
-            ['OJ_FANCY_RESULT', 'AC 时显示动画效果'],
-            ['OJ_NO_CONTEST_WATCHER', '禁止无权限用户观战私有比赛'],
-            ['OJ_CONTEST_TOTAL_100', '比赛按 100 分计分'],
-            ['OJ_OLD_FASHIONED', '保留原始版本界面习惯'],
-            ['OJ_AINO', '开启 AI 防作弊提示'],
-            ['OJ_SHOW_DIFF', 'WA 时显示对比说明'],
-            ['OJ_SHOW_METAL', '榜单按比例显示奖牌'],
-            ['OJ_HIDE_RIGHT_ANSWER', '隐藏选择填空的正确答案'],
+            ['OJ_SIM', '유사도 표시(judge.conf 설정 필요)'],
+            ['OJ_DICT', '온라인 번역 표시'],
+            ['OJ_AUTO_SHARE', '정답 처리한 문제의 다른 사용자 코드 열람 허용'],
+            ['OJ_PRINTER', '인쇄 서비스 사용'],
+            ['OJ_ONLINE', '온라인 상태 기록'],
+            ['OJ_INDENT', '들여쓰기 규칙 자동 검사'],
+            ['OJ_BLOCKLY', 'Blockly 시각 프로그래밍 사용'],
+            ['OJ_TEST_RUN', '제출 화면에서 테스트 실행 허용'],
+            ['OJ_DOWNLOAD', '테스트 데이터 다운로드 허용'],
+            ['OJ_SHARE_CODE', '코드 공유 기능 사용'],
+            ['OJ_DIV_FILTER', '문제 설명의 div 필터링(표시 오류 해결)'],
+            ['OJ_ENCODE_SUBMIT', 'Base64 인코딩 제출 사용(WAF 오탐 방지)'],
+            ['OJ_FREE_PRACTICE', '자유 연습에서 대회/과제 문제 제한 해제'],
+            ['OJ_PUBLIC_STATUS', '모든 사용자의 채점 결과 공개'],
+            ['OJ_FANCY_RESULT', '정답 시 애니메이션 표시'],
+            ['OJ_NO_CONTEST_WATCHER', '권한 없는 사용자의 비공개 대회 관전 차단'],
+            ['OJ_CONTEST_TOTAL_100', '대회를 100점 만점으로 채점'],
+            ['OJ_OLD_FASHIONED', '기존 화면 사용 방식 유지'],
+            ['OJ_AINO', 'AI 부정행위 방지 안내 사용'],
+            ['OJ_SHOW_DIFF', '오답 시 비교 설명 표시'],
+            ['OJ_SHOW_METAL', '순위에 비례해 메달 표시'],
+            ['OJ_HIDE_RIGHT_ANSWER', '선택/빈칸 문제의 정답 숨김'],
         ];
         foreach ($bool_features as $b) {
             echo '<div class="row">';
@@ -481,14 +481,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         echo '<div class="setting-group">';
 
         $contest_items = [
-            ['OJ_RANK_LOCK_PERCENT', 'OJ_RANK_LOCK_PERCENT', '比赛封榜时间比例（0-1，如0.2=最后20%时间封榜）'],
-            ['OJ_RANK_LOCK_DELAY', 'OJ_RANK_LOCK_DELAY', '赛后封榜持续时间（秒）'],
-            ['OJ_SUBMIT_COOLDOWN_TIME', 'OJ_SUBMIT_COOLDOWN_TIME', '提交冷却时间（秒）'],
-            ['OJ_CONTEST_LIMIT_KEYWORD', 'OJ_CONTEST_LIMIT_KEYWORD', '比赛中个人限时关键词'],
-            ['OJ_NOIP_KEYWORD', 'OJ_NOIP_KEYWORD', 'NOIP 模式激活关键词（标题含此词即激活）'],
-            ['OJ_RECENT_CONTEST', 'OJ_RECENT_CONTEST', '名校联赛 JSON 地址（留空关闭）'],
-            ['OJ_MARK', 'OJ_MARK', '得分显示模式', 'select', ['mark'=>'mark（显示正确得分）','percent'=>'percent（显示错误比率）']],
-            ['OJ_MARKDOWN', 'OJ_MARKDOWN', 'Markdown 渲染引擎', 'select', ['marked.js'=>'marked.js','markdown-it'=>'markdown-it']],
+            ['OJ_RANK_LOCK_PERCENT', 'OJ_RANK_LOCK_PERCENT', '대회 순위 비공개 시간 비율(0-1, 예: 0.2=마지막 20%)'],
+            ['OJ_RANK_LOCK_DELAY', 'OJ_RANK_LOCK_DELAY', '대회 종료 후 순위 비공개 지속 시간(초)'],
+            ['OJ_SUBMIT_COOLDOWN_TIME', 'OJ_SUBMIT_COOLDOWN_TIME', '제출 대기 시간(초)'],
+            ['OJ_CONTEST_LIMIT_KEYWORD', 'OJ_CONTEST_LIMIT_KEYWORD', '대회 개인 제한 시간 키워드'],
+            ['OJ_NOIP_KEYWORD', 'OJ_NOIP_KEYWORD', 'NOIP 모드 활성화 키워드(제목에 포함 시 활성화)'],
+            ['OJ_RECENT_CONTEST', 'OJ_RECENT_CONTEST', '외부 대회 JSON 주소(비워 두면 사용 안 함)'],
+            ['OJ_MARK', 'OJ_MARK', '점수 표시 방식', 'select', ['mark'=>'mark(정답 점수 표시)','percent'=>'percent(오답 비율 표시)']],
+            ['OJ_MARKDOWN', 'OJ_MARKDOWN', 'Markdown 렌더링 엔진', 'select', ['marked.js'=>'marked.js','markdown-it'=>'markdown-it']],
         ];
         foreach ($contest_items as $s) {
             echo '<div class="row">';
@@ -509,14 +509,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         $bool_contest = [
-            ['OJ_CONTEST_RANK_FIX_HEADER', '比赛排名时固定名单滚动'],
-            ['OJ_OI_MODE', '开启 OI 比赛模式（禁用部分功能）'],
-            ['OJ_OI_1_SOLUTION_ONLY', 'OI 模式：仅保留最后一次提交'],
-            ['OJ_CE_PENALTY', '编译错误是否罚时'],
-            ['OJ_APPENDCODE', '代码提交时自动附加模板'],
-            ['OJ_OFFLINE_ZIP_CCF_DIRNAME', '导入离线比赛时按 CCF 规则校验目录名'],
-            ['OJ_NOIP_HINT', 'NOIP 比赛中显示题目提示'],
-            ['OJ_DL_1ST_WA_ONLY', '仅允许下载第一个 WA 的测试数据'],
+            ['OJ_CONTEST_RANK_FIX_HEADER', '대회 순위에서 명단 헤더 고정'],
+            ['OJ_OI_MODE', 'OI 대회 모드 사용(일부 기능 비활성화)'],
+            ['OJ_OI_1_SOLUTION_ONLY', 'OI 모드: 마지막 제출만 유지'],
+            ['OJ_CE_PENALTY', '컴파일 오류에 시간 벌점 적용'],
+            ['OJ_APPENDCODE', '코드 제출 시 템플릿 자동 추가'],
+            ['OJ_OFFLINE_ZIP_CCF_DIRNAME', '오프라인 대회 가져오기 시 CCF 규칙으로 디렉터리 이름 확인'],
+            ['OJ_NOIP_HINT', 'NOIP 대회에 문제 힌트 표시'],
+            ['OJ_DL_1ST_WA_ONLY', '첫 번째 오답의 테스트 데이터만 다운로드 허용'],
         ];
         foreach ($bool_contest as $b) {
             echo '<div class="row">';
@@ -534,7 +534,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         echo '<div class="setting-group">';
 
         $other_items = [
-            ['OJ_POISON_BOT_COUNT', 'OJ_POISON_BOT_COUNT', '机器人账号毒杀起始 AC 数'],
+            ['OJ_POISON_BOT_COUNT', 'OJ_POISON_BOT_COUNT', '봇 계정 차단을 시작할 정답 수'],
         ];
         foreach ($other_items as $s) {
             echo '<div class="row">';
@@ -545,7 +545,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         $bool_other = [
-            ['OJ_REMOTE_JUDGE', '启用 Remote Judge', 'beta'],
+            ['OJ_REMOTE_JUDGE', '원격 채점 사용', 'beta'],
         ];
         foreach ($bool_other as $b) {
             echo '<div class="row">';
@@ -560,7 +560,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ?>
 
         <div class="card tab-footer" style="border-radius:6px; margin-top:0;">
-            <button type="submit" class="btn-save">💾 保存设置</button>
+            <button type="submit" class="btn-save">💾 설정 저장</button>
         </div>
     </form>
 </div>

@@ -10,7 +10,7 @@
         <th>OJ</th>
         <th><?php echo $MSG_CONTEST_NAME ?></th>
         <th><?php echo $MSG_START_TIME ?></th>
-        <th>星期</th>
+        <th>요일</th>
         <th><?php echo $MSG_CONTEST_OPEN ?></th>
         </tr>
       </thead>
@@ -19,7 +19,7 @@
 
         </tbody>
     </table>
-    <div>数据来源：<a href="https://algcontest.rainng.com/contests.json" target="_blank">https://algcontest.rainng.com/contests.json</a>&nbsp;&nbsp;&nbsp;&nbsp;作者：<a href="https://www.rainng.com/"  target="_blank" >Azure99</a></div>
+    <div>데이터 출처: <a href="https://algcontest.rainng.com/contests.json" target="_blank">https://algcontest.rainng.com/contests.json</a>&nbsp;&nbsp;&nbsp;&nbsp;제작자: <a href="https://www.rainng.com/"  target="_blank" >Azure99</a></div>
     </div>
         <script>
                 var contestList = $("#contest-list");
