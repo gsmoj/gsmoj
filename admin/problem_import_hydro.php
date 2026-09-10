@@ -17,20 +17,20 @@ require_once ("../include/problem.php");
 if (!function_exists('yaml_parse')) {
   echo <<<HTML
 <div class="alert alert-danger" style="margin:20px;">
-  <h4>缺少 php-yaml 扩展</h4>
-  <p>当前 PHP 环境未安装 <code>php-yaml</code> 扩展，HydroOJ 格式导入功能无法使用。</p>
-  <p><strong>宝塔面板安装方法：</strong></p>
+  <h4><code>php-yaml</code> 확장이 필요합니다</h4>
+  <p>현재 PHP 환경에 <code>php-yaml</code> 확장이 설치되어 있지 않아 HydroOJ 형식 가져오기를 사용할 수 없습니다.</p>
+  <p><strong>관리 패널에서 설치하는 방법:</strong></p>
   <ol>
-    <li>登录宝塔面板 → <code>软件商店</code> → 找到对应的 PHP 版本 → 点击 <code>设置</code></li>
-    <li>进入 <code>安装扩展</code> 标签页</li>
-    <li>找到 <code>yaml</code> 扩展，点击右侧 <code>安装</code></li>
-    <li>安装完成后点击 <code>重启 PHP</code></li>
+    <li>관리 패널에서 사용 중인 PHP 버전의 설정 화면을 엽니다.</li>
+    <li>확장 설치 탭으로 이동합니다.</li>
+    <li><code>yaml</code> 확장을 찾아 설치합니다.</li>
+    <li>설치가 끝나면 PHP를 다시 시작합니다.</li>
   </ol>
-  <p><strong>命令行安装（SSH）：</strong></p>
+  <p><strong>명령줄 설치(SSH):</strong></p>
   <pre>pecl install yaml
 echo "extension=yaml.so" > /etc/php/$(php -r 'echo PHP_VERSION;')/cli/conf.d/25-yaml.ini
-# 如使用宝塔，还需在宝塔面板中启用该扩展</pre>
-  <p>安装并启用扩展后，请重新导入题目。</p>
+# 관리 패널을 사용한다면 해당 화면에서 확장을 활성화하세요</pre>
+  <p>확장을 설치하고 활성화한 뒤 문제를 다시 가져오세요.</p>
 </div>
 HTML;
   exit(1);
@@ -56,8 +56,8 @@ function replaceLT($string) {
 ?>
 
 <hr>
-&nbsp;&nbsp;- Import Problem ... <br>
-&nbsp;&nbsp;- 如果导入失败，请参考 <a href="https://github.com/zhblue/hustoj/blob/master/wiki/FAQ.md#%E5%90%8E%E5%8F%B0%E5%AF%BC%E5%85%A5%E9%97%AE%E9%A2%98%E5%A4%B1%E8%B4%A5" target="_blank">FAQ</a>。
+&nbsp;&nbsp;- 문제를 가져옵니다. <br>
+&nbsp;&nbsp;- 가져오기에 실패하면 <a href="https://github.com/zhblue/hustoj/blob/master/wiki/FAQ.md#%E5%90%8E%E5%8F%B0%E5%AF%BC%E5%85%A5%E9%97%AE%E9%A2%98%E5%A4%B1%E8%B4%A5" target="_blank">FAQ</a>를 확인하세요.
 <br><br>
 
 <?php
@@ -181,7 +181,7 @@ if ($_FILES["fps"]["error"] > 0) {
             if (basename($file_name) == "problem.yaml") {
                 $hydrop = yaml_parse($file_content);
                 if ($hydrop === false) {
-                    echo "<br><span style='color:red'>[YAML解析失败] 文件: " . htmlentities($file_name) . " 格式错误，请检查 YAML 语法。</span><br>";
+                    echo "<br><span style='color:red'>[YAML 파싱 실패] 파일: " . htmlentities($file_name) . " 형식이 올바르지 않습니다. YAML 문법을 확인하세요.</span><br>";
                     continue;
                 }
                 $title = $hydrop['title'];
@@ -234,7 +234,7 @@ if ($_FILES["fps"]["error"] > 0) {
             } elseif (basename($file_name) == "config.yaml") {
                 $hydrop = yaml_parse($file_content);
                 if ($hydrop === false) {
-                    echo "<br><span style='color:red'>[YAML解析失败] 文件: " . htmlentities($file_name) . " 格式错误，请检查 YAML 语法。</span><br>";
+                    echo "<br><span style='color:red'>[YAML 파싱 실패] 파일: " . htmlentities($file_name) . " 형식이 올바르지 않습니다. YAML 문법을 확인하세요.</span><br>";
                     continue;
                 }
 

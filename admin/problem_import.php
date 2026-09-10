@@ -41,34 +41,34 @@
 <body leftmargin="30">
 
   <div id="upload-p-window">
-      <h4 id="p-title" style="margin-top:0">文件上传中...</h4>
+      <h4 id="p-title" style="margin-top:0">파일을 업로드하고 있습니다...</h4>
       <div class="progress">
           <div id="p-bar" class="progress-bar-success" role="progressbar" style="width: 0%;">0%</div>
       </div>
-      <div id="p-status" style="font-size:12px; color:#666; text-align:center;">正在准备数据...</div>
+      <div id="p-status" style="font-size:12px; color:#666; text-align:center;">데이터를 준비하고 있습니다...</div>
   </div>
 
   <div class="container">
     <?php 
     $show_form = true;
     if (!writable($OJ_DATA)) {
-      echo "<div class='alert alert-danger'>权限异常，请执行：<br><b>chmod 775 -R $OJ_DATA && chgrp -R ".get_current_user()." $OJ_DATA</b></div>";
+      echo "<div class='alert alert-danger'>권한 설정에 문제가 있습니다. 다음 명령을 실행하세요:<br><b>chmod 775 -R $OJ_DATA && chgrp -R ".get_current_user()." $OJ_DATA</b></div>";
       $show_form = false;
     }
     if (!file_exists("../upload")) mkdir("../upload");
     if (!writable("../upload")) {
-      echo "<div class='alert alert-danger'>../upload 目录不可写，请执行 <b>chmod 770 ../upload</b></div>";
+      echo "<div class='alert alert-danger'>`../upload` 디렉터리에 쓸 수 없습니다. 다음 명령을 실행하세요: <b>chmod 770 ../upload</b></div>";
       $show_form = false;
     }
 
     if ($show_form) { ?>
     
-    - Import Problem <b>FPS(.xml)/ZIP(.xml inside)</b> <br><br>
+    - 문제 가져오기 <b>FPS(.xml)/ZIP(.xml 포함)</b> <br><br>
     <form class='form-inline aj-up' action='problem_import_xml.php' method=post enctype="multipart/form-data">
       <div class='form-group'>
         <input class='form-control' type=file name=fps required>
-        editor:<input class='form-control' type=text name='user_id' value='<?php echo htmlentities($_SESSION[$OJ_NAME.'_user_id'])?>' >
-        <button class='btn btn-success btn-sm' type=submit>Upload to HUSTOJ</button>
+        편집자:<input class='form-control' type=text name='user_id' value='<?php echo htmlentities($_SESSION[$OJ_NAME.'_user_id'])?>' >
+        <button class='btn btn-success btn-sm' type=submit>HUSTOJ에 업로드</button>
       </div>
       <?php require("../include/set_post_key.php");?>
     </form> <hr>
@@ -77,7 +77,7 @@
     <form class='form-inline aj-up' action='problem_import_qduoj.php' method=post enctype="multipart/form-data">
       <div class='form-group'>
         <input class='form-control' type=file name=fps required>
-        <button class='btn btn-info btn-sm' type=submit>Upload to HUSTOJ</button>
+        <button class='btn btn-info btn-sm' type=submit>HUSTOJ에 업로드</button>
       </div>
       <?php require("../include/set_post_key.php");?>
     </form> <hr>
@@ -86,7 +86,7 @@
     <form class='form-inline aj-up' action='problem_import_syzoj.php' method=post enctype="multipart/form-data">
       <div class='form-group'>
         <input class='form-control' type=file name=fps required>
-        <button class='btn btn-warning btn-sm' type=submit>Upload to HUSTOJ</button>
+        <button class='btn btn-warning btn-sm' type=submit>HUSTOJ에 업로드</button>
       </div>
       <?php require("../include/set_post_key.php");?>
     </form> <hr>
@@ -95,7 +95,7 @@
     <form class='form-inline aj-up' action='problem_import_hydro.php' method=post enctype="multipart/form-data">
       <div class='form-group'>
         <input class='form-control' type=file name=fps required>
-        <button class='btn btn-danger btn-sm' type=submit>Upload to HUSTOJ</button>
+        <button class='btn btn-danger btn-sm' type=submit>HUSTOJ에 업로드</button>
       </div>
       <?php require("../include/set_post_key.php");?>
     </form> <hr>
@@ -104,7 +104,7 @@
     <form class='form-inline aj-up' action='problem_import_hoj.php' method=post enctype="multipart/form-data">
       <div class='form-group'>
         <input class='form-control' type=file name=fps required>
-        <button class='btn btn-info btn-sm' type=submit>Upload to HUSTOJ</button>
+        <button class='btn btn-info btn-sm' type=submit>HUSTOJ에 업로드</button>
       </div>
       <?php require("../include/set_post_key.php");?>
     </form> <hr>
@@ -113,7 +113,7 @@
     <form class='form-inline aj-up' action='problem_import_tyvj.php' method=post enctype="multipart/form-data">
       <div class='form-group'>
         <input class='form-control' type=file name=fps required>
-        <button class='btn btn-primary btn-sm' type=submit>Upload to HUSTOJ</button>
+        <button class='btn btn-primary btn-sm' type=submit>HUSTOJ에 업로드</button>
       </div>
       <?php require("../include/set_post_key.php");?>
     </form> <hr>
@@ -122,7 +122,7 @@
     <form class='form-inline aj-up' action='problem_import_md.php' method=post enctype="multipart/form-data">
       <div class='form-group'>
         <input class='form-control' type=file name=fps required>
-        <button class='btn btn-warning btn-sm' type=submit>Upload to HUSTOJ</button>
+        <button class='btn btn-warning btn-sm' type=submit>HUSTOJ에 업로드</button>
       </div>
       <?php require("../include/set_post_key.php");?>
     </form>
@@ -131,12 +131,12 @@
 
     <br><br>
     <?php if ($OJ_LANG == "cn") { ?>
-    免费题目<a href="https://github.com/zhblue/freeproblemset/tree/master/fps-examples" target="_blank">下载</a><br>
-    更多题目请到 <a href="http://tk.hustoj.com/problemset.php?search=free" target="_blank">TK 题库免费专区</a>。
+    무료 문제는 <a href="https://github.com/zhblue/freeproblemset/tree/master/fps-examples" target="_blank">다운로드</a>할 수 있습니다.<br>
+    더 많은 문제는 <a href="http://tk.hustoj.com/problemset.php?search=free" target="_blank">TK 문제 은행 무료 영역</a>에서 확인하세요.
     <?php } ?>
     <br><br>
-    - Import FPS data, please make sure you file is smaller than [<?php echo $maxfile?>]<br>
-    - To find the php configuration file, use <span style='color:blue'> find /etc -name php.ini </span>
+    - FPS 데이터를 가져오려면 파일 크기가 [<?php echo $maxfile?>]보다 작아야 합니다.<br>
+    - PHP 설정 파일은 <span style='color:blue'> find /etc -name php.ini </span> 명령으로 찾을 수 있습니다.
   </div>
 
 <script>
@@ -158,7 +158,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     let percent = Math.round((ev.loaded / ev.total) * 100);
                     bar.style.width = percent + '%';
                     bar.innerText = percent + '%';
-                    stat.innerText = percent < 100 ? '正在传输文件...' : '传输完成，系统正在解压并导入数据库，请稍后...';
+                    stat.innerText = percent < 100 ? '파일을 전송하고 있습니다...' : '전송이 완료되었습니다. 압축을 풀고 데이터베이스에 가져오는 중이니 잠시만 기다려 주세요...';
                 }
             };
 
@@ -167,7 +167,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     // 导入完成，直接显示结果
                     document.body.innerHTML = xhr.responseText;
                 } else {
-                    alert('导入出错，状态码：' + xhr.status);
+                    alert('가져오기 중 오류가 발생했습니다. 상태 코드: ' + xhr.status);
                     win.style.display = 'none';
                 }
             };
