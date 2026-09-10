@@ -561,27 +561,65 @@ body.admin-form-page {
     .admin-form-title { margin: 0 -16px 18px; padding: 14px 16px 12px; }
 }
 
-/* frameset 왼쪽 메뉴 */
-body[style*="text-align:center"] { padding: 14px 12px; background: #111827 !important; color: #e5e7eb; }
-html:has(body[style*="text-align:center"]), body[style*="text-align:center"] { overflow-x: hidden; scrollbar-width: none; }
-body[style*="text-align:center"]::-webkit-scrollbar { width: 0; height: 0; display: none; }
-body[style*="text-align:center"] *, body[style*="text-align:center"] *::before, body[style*="text-align:center"] *::after { box-sizing: border-box; }
-body[style*="text-align:center"] hr { margin: 12px 0; border-color: #334155; }
-body[style*="text-align:center"] > .btn { width: 100%; margin-bottom: 6px; color: #e5e7eb; border: 1px solid #374151; background: #1f2937; }
-body[style*="text-align:center"] > .btn:hover { background: #374151; }
-body[style*="text-align:center"] > .admin-brand { padding: 11px 12px; color:#fff; border-color:#2563eb; background:#2563eb; font-size:17px; letter-spacing:.04em; }
-body[style*="text-align:center"] > .admin-brand:hover { background:#1d4ed8; }
-body[style*="text-align:center"] .btn-group-vertical { width: 100%; }
-body[style*="text-align:center"] .btn-group { width: 100%; margin-bottom: 7px; }
-body[style*="text-align:center"] .dropdown-toggle { width: 100%; padding: 10px 12px; text-align: left; color: #e5e7eb; border-color: #374151; background: #1f2937; }
-body[style*="text-align:center"] .dropdown-toggle .caret { float: right; margin-top: 8px; }
-body[style*="text-align:center"] .dropdown-menu { position: static; float: none; width: 100%; margin: 3px 0 8px; padding: 4px; border: 0; border-radius: 7px; background: #0f172a; box-shadow: none; }
-body[style*="text-align:center"] .dropdown-menu > li > a { padding: 8px 10px; color: #cbd5e1; border-radius: 5px; white-space: normal; }
-body[style*="text-align:center"] .dropdown-menu > li > a:hover { color: #fff; background: #334155; }
+/* frameset 왼쪽 메뉴 (admin/menu2.php)
+   색은 사용자 화면 헤더(template/syzoj/header.php)의 값을 그대로 따른다. */
+.admin-menu-frame {
+    padding: 14px 12px;
+    color: #e5e7eb;
+    background: linear-gradient(180deg, #1f2937, #111827) !important;
+    background-attachment: fixed;
+}
+html:has(.admin-menu-frame), .admin-menu-frame { overflow-x: hidden; scrollbar-width: none; }
+.admin-menu-frame::-webkit-scrollbar { width: 0; height: 0; display: none; }
+.admin-menu-frame *, .admin-menu-frame *::before, .admin-menu-frame *::after { box-sizing: border-box; }
+.admin-menu-frame hr { margin: 12px 0; border-color: #334155; }
+.admin-menu-frame > .btn { width: 100%; margin-bottom: 6px; color: #e5e7eb; border: 1px solid #374151; background: #1f2937; }
+.admin-menu-frame > .btn:hover { background: #374151; }
+.admin-menu-frame > .admin-brand { padding: 11px 12px; color:#fff; border-color:#2563eb; background:#2563eb; font-size:17px; letter-spacing:.04em; }
+.admin-menu-frame > .admin-brand:hover { background:#1d4ed8; }
+
+/* 메뉴 그룹은 Bootstrap collapse로 동작하므로 여러 그룹을 동시에 펼칠 수 있다. */
+.admin-menu-frame .admin-menu-groups { width: 100%; }
+.admin-menu-frame .admin-menu-group { width: 100%; margin-bottom: 7px; }
+.admin-menu-frame .admin-menu-toggle {
+    width: 100%;
+    padding: 10px 12px;
+    text-align: left;
+    color: #e5e7eb;
+    border-color: #374151;
+    background: #1f2937;
+}
+.admin-menu-frame .admin-menu-toggle:hover,
+.admin-menu-frame .admin-menu-toggle:focus { color: #fff; border-color: #4b5563; background: #374151; }
+/* Bootstrap이 펼침 상태에서 collapsed 클래스를 떼므로 그 값으로 caret 방향을 맞춘다. */
+.admin-menu-frame .admin-menu-toggle .caret { float: right; margin-top: 8px; transition: transform .15s ease-in-out; }
+.admin-menu-frame .admin-menu-toggle:not(.collapsed) .caret { transform: rotate(180deg); }
+.admin-menu-frame .admin-menu-list {
+    width: 100%;
+    margin: 3px 0 8px;
+    padding: 4px;
+    list-style: none;
+    border-radius: 7px;
+    background: #0f172a;
+}
+.admin-menu-frame .admin-menu-list > li { text-align: left; }
+.admin-menu-frame .admin-menu-list a {
+    display: block;
+    padding: 8px 10px;
+    color: #cbd5e1;
+    border-radius: 5px;
+    white-space: normal;
+    text-decoration: none;
+}
+.admin-menu-frame .admin-menu-list a:hover { color: #fff; background: #334155; }
+/* 지금 main 프레임에 열려 있는 항목. 헤더의 3px #2563eb active 표시와 맞춘다. */
+.admin-menu-frame .admin-menu-list a.active { color: #fff; background: #1e293b; box-shadow: inset 3px 0 0 #2563eb; }
+/* 되돌리기 어려운 기능은 색으로 구분한다. */
+.admin-menu-frame .admin-menu-list a.admin-menu-danger { color: #fca5a5; }
+.admin-menu-frame .admin-menu-list a.admin-menu-danger:hover { color: #fff; background: #7f1d1d; }
 
 @media (max-width: 760px) {
     body { padding: 12px; }
     .padding, .bk, .col, .news-content { min-width: 0; padding: 16px; }
     .table { display: block; overflow-x: auto; }
 }
-

@@ -544,3 +544,9 @@ $MSG_HINT="도움";
   $MSG_PAID="${MSG_COIN} 지불 완료";
   $MSG_SPENT="사용";
 $MSG_NUM="#";
+	//admin/menu2.php
+	$MSG_ADVANCED_TOOLS="고급 도구";
+	$MSG_EXTERNAL_LINKS="외부 링크";
+	$MSG_SOLUTION_STATISTICS="채점 통계 리포트";
+	$MSG_PROBLEM_COPY="문제 복사";
+	$MSG_PROBLEM_REORDER="문제 번호 재정렬";
