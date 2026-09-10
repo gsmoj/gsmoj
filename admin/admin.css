@@ -370,6 +370,7 @@ button a:hover{
 }
 
 html, body { min-height: 100%; }
+*, *::before, *::after { box-sizing: border-box; }
 body {
     margin: 0;
     padding: 20px;
@@ -389,7 +390,9 @@ a:hover { color: var(--admin-primary-dark); }
 
 .table {
     width: 100%;
+    max-width: 100%;
     margin-bottom: 20px;
+    border-collapse: collapse;
     overflow: hidden;
     border: 1px solid var(--admin-border);
     border-radius: 10px;
@@ -404,6 +407,45 @@ a:hover { color: var(--admin-primary-dark); }
 }
 .table > tbody > tr > td { padding: 12px 14px; border-top: 1px solid #edf1f6; vertical-align: middle; }
 .table > tbody > tr:hover { background: #f8fbff; }
+
+/* 관리자 진입 화면은 메뉴와 본문을 독립 스크롤 영역으로 유지한다. */
+html:has(.admin-dashboard),
+body.admin-dashboard {
+    width: 100%;
+    min-width: 0;
+    height: 100%;
+    overflow: hidden;
+}
+body.admin-dashboard { padding: 0; }
+.admin-dashboard-layout {
+    display: flex;
+    width: 100%;
+    min-width: 0;
+    height: 100vh;
+    overflow: hidden;
+    background: var(--admin-bg);
+}
+.admin-dashboard-sidebar {
+    flex: 0 0 260px;
+    width: 260px;
+    min-width: 0;
+    border-right: 1px solid #0f172a;
+    background: #111827;
+}
+.admin-dashboard-main {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    background: var(--admin-bg);
+}
+.admin-dashboard-sidebar iframe,
+.admin-dashboard-main iframe {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    height: 100%;
+    border: 0;
+}
 
 .btn { border-radius: 7px; font-weight: 600; box-shadow: none; }
 .btn-primary, .btn-info { border-color: var(--admin-primary); background: var(--admin-primary); }
@@ -421,6 +463,7 @@ input[type="text"], input[type="password"], input[type="email"], input[type="num
     outline: none;
     transition: border-color .15s ease, box-shadow .15s ease;
 }
+form > p { margin-top: 0; margin-bottom: 18px; }
 input[type="text"], input[type="password"], input[type="email"], input[type="number"], input[type="search"], input[type="date"], input[type="time"], input[type="url"], input[type="file"], select, button, .btn {
     min-height: 38px;
     padding: 8px 12px;
@@ -667,6 +710,9 @@ html:has(.admin-menu-frame), .admin-menu-frame { overflow-x: hidden; scrollbar-w
 .admin-menu-frame .admin-menu-list a.admin-menu-danger:hover { color: #fff; background: #7f1d1d; }
 
 @media (max-width: 760px) {
+    .admin-dashboard-layout { display: block; height: 100%; overflow: visible; }
+    .admin-dashboard-sidebar { width: 100%; height: 260px; border-right: 0; border-bottom: 1px solid #0f172a; }
+    .admin-dashboard-main { width: 100%; height: calc(100vh - 260px); }
     body { padding: 12px; }
     .padding, .bk, .col, .news-content { min-width: 0; padding: 16px; }
     .table { display: block; overflow-x: auto; }
