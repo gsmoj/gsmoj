@@ -19,7 +19,7 @@
         </select>
 		
         <span class='ui button primary' onclick="$('body').html($('#statistics').parent().html()).css('overflow','scroll');">FullScreen</span>
-        <span id="swapButton" type=button class='ui button red' > 矩阵转置/行列转换 </span>
+        <span id="swapButton" type=button class='ui button red' > 행과 열 전환 </span>
         <a class='ui button green'  href="?group_name=<?php echo htmlentities($group_name)?>&down"><?php echo $MSG_DOWNLOAD ?></a>
 	&nbsp;  &nbsp;  &nbsp;  &nbsp; <a href="javascript:history.go(-1);" >Back</a>
 
@@ -84,7 +84,7 @@ if(!empty($plista)){
 		
 
 </center>
-<button id="swapButton">矩阵转置/行列转换</button>	
+<button id="swapButton">행과 열 전환</button>
 
 <script>
 $(document).ready(function() {

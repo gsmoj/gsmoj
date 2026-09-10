@@ -105,12 +105,12 @@ function pull_result(id){
 			window.setTimeout('pull_result('+id+')',2000);
 		}else{
 			fill_data(data);
-		    $('#ai_bt').val('再来一次');
+		    $('#ai_bt').val('다시 시도');
 		    $('#ai_bt').prop('disabled', false);
 		}
 	},
 	error: function() {
-	    $('#ai_bt').val('获取数据失败');
+	    $('#ai_bt').val('데이터를 가져오지 못했습니다');
 	    $('#ai_bt').prop('disabled', false);
 	}
     });
@@ -137,7 +137,7 @@ function pull_result(id){
        <?php
                 if (!$isAC && isset($OJ_AI_API_URL)&&!empty($OJ_AI_API_URL)){ ?>
                 let expmsg=document.getElementById("errexp").innerHTML;
-                expmsg+="AI 答疑 ...<img src='image/loader.gif'>";
+                expmsg+="AI 설명을 준비하고 있습니다...<img src='image/loader.gif'>";
                 $("#errexp").html(expmsg);
                     $.ajax({
                         url: '<?php echo $OJ_AI_API_URL ?>?sid=<?php echo $id?>',
@@ -150,7 +150,7 @@ function pull_result(id){
                                 }
                         },
                         error: function() {
-                            console.log('获取数据失败');
+			    console.log('데이터를 가져오지 못했습니다');
                         }
                     });
        <?php } ?>

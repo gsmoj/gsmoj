@@ -34,7 +34,7 @@ $rank=1;
 if($OJ_MEMCACHE)
 {
     if (isset($_SESSION[$OJ_NAME.'_'.'administrator'])) {
-        echo ' | <a href="contestrank3.php?cid='.$cid.'">滚榜</a>';
+        echo ' | <a href="contestrank3.php?cid='.$cid.'">순위 공개</a>';
     }
     echo '<a href="contestrank2.php?cid='.$cid.'">Replay</a>';
 }
