@@ -46,7 +46,8 @@ $cur_path = "template/$OJ_TEMPLATE/"
                     <div class="cont_form_login"> <a href="#" onClick="ocultar_login_sign_up()" ><i class="material-icons">&#xE5C4;</i></a>
                         <h2><?php echo $MSG_LOGIN?></h2>
                         <input type="text" placeholder="<?php echo $MSG_USER_ID?>" name="user_id"/>
-                        <input type="password" placeholder="<?php echo $MSG_PASSWORD?>" name="password" />
+                        <input type="password" placeholder="<?php echo $MSG_PASSWORD?>" id="password_visible" />
+                        <input type="hidden" name="password" id="password_hash" />
                         <?php  if ($OJ_VCODE){ ?>
                             <input type="text" placeholder="<?php echo $MSG_VCODE?>" name="vcode"/>
                             <img id="vcode-img" src="vcode.php?v=0.1" alt="click to change" onclick="this.src='vcode.php?'+Math.random()"/>
@@ -89,8 +90,9 @@ $cur_path = "template/$OJ_TEMPLATE/"
 <script src="<?php echo $OJ_CDN_URL?>include/md5-min.js"></script>
 <script>
     function jsMd5(){
-        if($("input[name=password]").val()=="") return false;
-        $("input[name=password]").val(hex_md5($("input[name=password]").val()));
+        var pwd = $("#password_visible").val();
+        if(pwd=="") return false;
+        $("#password_hash").val(hex_md5(pwd));
         return true;
     }
 </script>

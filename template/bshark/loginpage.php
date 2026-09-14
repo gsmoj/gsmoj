@@ -94,8 +94,8 @@
                 </div>
                 <div class="input-o">
                     <i class="iconfont icon-key"></i>
-                    <input placeholder="<?php echo $MSG_PASSWORD; ?>" autocomplete="new-password" type="password"
-                        name="password">
+                    <input id="password_visible" placeholder="<?php echo $MSG_PASSWORD; ?>" autocomplete="new-password" type="password">
+                    <input type="hidden" name="password" id="password_hash">
                 </div>
                 <?php if ($OJ_VCODE) { ?>
                     <div class="input-o" style="position: relative;">
@@ -128,8 +128,9 @@
             <script src="<?php echo $OJ_CDN_URL ?>/include/md5-min.js"></script>
             <script>
                 function jsMd5() {
-                    if ($("input[name=password]").val() == "") return false;
-                    $("input[name=password]").val(hex_md5($("input[name=password]").val()));
+                    var pwd = $("#password_visible").val();
+                    if (pwd == "") return false;
+                    $("#password_hash").val(hex_md5(pwd));
                     return true;
                 }
             </script>
