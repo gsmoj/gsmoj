@@ -36,7 +36,8 @@
                         <div class="mdui-textfield mdui-textfield-floating-label"
                             style="width: calc(100% - 50px); display: inline-block; margin-left: 45px;">
                             <label class="mdui-textfield-label">密码</label>
-                            <input class="mdui-textfield-input" name="password" type="password" autocomplete="off" required />
+                            <input class="mdui-textfield-input" id="password_visible" type="password" autocomplete="off" required />
+                            <input type="hidden" name="password" id="password_hash" />
                             <div class="mdui-textfield-error">请输入密码</div>
                         </div>
                     </div>
@@ -69,8 +70,9 @@
         <script src="<?php echo $OJ_CDN_URL?>include/md5-min.js"></script>
         <script>
         function jsMd5() {
-            if ($("input[name=password]").val() == "") return false;
-            $("input[name=password]").val(hex_md5($("input[name=password]").val()));
+            var pwd = $("#password_visible").val();
+            if (pwd == "") return false;
+            $("#password_hash").val(hex_md5(pwd));
             return true;
         }
         </script>
