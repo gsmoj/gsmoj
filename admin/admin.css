@@ -592,6 +592,124 @@ body.admin-form-page {
 .admin-ip-form { max-width: 680px; margin: 0 auto; padding: 20px; border: 1px solid var(--admin-border); border-radius: 12px; background: #fff; }
 .admin-ip-form .form-group { margin: 0 0 16px; }
 .admin-ip-form .form-group:last-child { margin-bottom: 0; }
+
+/* 관리자 하위 화면의 오래된 폼과 표 크기를 공통 비율로 맞춘다. */
+body:not(.admin-menu-frame) input,
+body:not(.admin-menu-frame) select,
+body:not(.admin-menu-frame) textarea,
+body:not(.admin-menu-frame) button,
+body:not(.admin-menu-frame) .btn {
+    font: inherit;
+    font-size: 15px;
+}
+body:not(.admin-menu-frame) input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),
+body:not(.admin-menu-frame) select:not([multiple]),
+body:not(.admin-menu-frame) button,
+body:not(.admin-menu-frame) .btn {
+    min-height: 42px;
+    line-height: 1.4;
+}
+body:not(.admin-menu-frame) input[type="submit"],
+body:not(.admin-menu-frame) input[type="reset"],
+body:not(.admin-menu-frame) input[type="button"],
+body:not(.admin-menu-frame) button {
+    width: auto;
+    min-width: 88px;
+    padding: 9px 16px;
+    border: 1px solid #cbd5e1;
+    border-radius: 7px;
+    background-color: #f8fafc;
+    font-weight: 600;
+    cursor: pointer;
+}
+body:not(.admin-menu-frame) input[type="submit"]:hover,
+body:not(.admin-menu-frame) input[type="reset"]:hover,
+body:not(.admin-menu-frame) input[type="button"]:hover,
+body:not(.admin-menu-frame) button:hover { border-color: #94a3b8; background-color: #f1f5f9; }
+body:not(.admin-menu-frame) .btn-primary,
+body:not(.admin-menu-frame) .btn-info,
+body:not(.admin-menu-frame) input[type="submit"] {
+    color: #fff;
+    border-color: var(--admin-primary);
+    background-color: var(--admin-primary);
+}
+body:not(.admin-menu-frame) .btn-success { color: #fff; border-color: #16a34a; background-color: #16a34a; }
+body:not(.admin-menu-frame) .btn-warning { color: #422006; border-color: #f59e0b; background-color: #fbbf24; }
+body:not(.admin-menu-frame) .btn-danger { color: #fff; border-color: #dc2626; background-color: #dc2626; }
+body:not(.admin-menu-frame) input[type="file"] { height: auto; min-height: 42px; padding: 7px 10px; }
+
+body:not(.admin-menu-frame) .form-inline,
+body:not(.admin-menu-frame) .form-search {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    width: min(100%, 760px);
+    margin: 0 auto 20px;
+    gap: 10px;
+}
+body:not(.admin-menu-frame) .form-inline > input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),
+body:not(.admin-menu-frame) .form-inline > select,
+body:not(.admin-menu-frame) .form-search > input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),
+body:not(.admin-menu-frame) .form-search > select { flex: 1 1 260px; width: auto; margin: 0; }
+body:not(.admin-menu-frame) .form-inline > button,
+body:not(.admin-menu-frame) .form-inline > .btn,
+body:not(.admin-menu-frame) .form-search > button,
+body:not(.admin-menu-frame) .form-search > .btn { flex: 0 0 auto; width: auto; margin: 0; }
+
+body:not(.admin-menu-frame) .form-horizontal { width: min(100%, 820px); margin-right: auto; margin-left: auto; }
+body:not(.admin-menu-frame) .form-horizontal .form-group { display: flex; align-items: center; flex-wrap: wrap; margin: 0 0 16px; gap: 10px; }
+body:not(.admin-menu-frame) .form-horizontal .control-label { margin: 0; padding-top: 0; line-height: 1.4; }
+body:not(.admin-menu-frame) .form-horizontal [class*="col-"] { box-sizing: border-box; }
+
+.admin-form-shell form > p { display: grid; grid-template-columns: minmax(120px, 180px) minmax(0, 1fr) auto auto; align-items: center; gap: 10px 16px; margin: 0; }
+.admin-form-shell form > p > .control-label { width: auto; min-width: 0; padding: 0; text-align: left; box-shadow: none; }
+.admin-form-shell form > p > input[type="submit"],
+.admin-form-shell form > p > input[type="reset"],
+.admin-form-shell form > p > input[type="button"] { grid-column: auto; }
+.admin-form-shell form > p > textarea,
+.admin-form-shell form > p > .ke-container,
+.admin-form-shell form > p > center { grid-column: 1 / -1; }
+.admin-form-shell form > p > center { width: 100%; }
+
+.rejudge, .give-source, .database, .copy-problem, .changeid, .changepass, .msg {
+    box-sizing: border-box;
+    width: min(100%, 760px);
+    height: auto;
+    min-height: 0;
+    padding: 24px;
+}
+.rejudge form, .give-source form, .database form, .changeid form, .changepass form {
+    display: grid;
+    grid-template-columns: minmax(120px, 180px) minmax(0, 1fr);
+    align-items: center;
+    gap: 12px 16px;
+    width: 100%;
+    margin: 0;
+}
+.rejudge form input:not([type="hidden"]), .rejudge form select,
+.give-source form input:not([type="hidden"]), .give-source form select,
+.database form input:not([type="hidden"]), .database form select,
+.changeid form input:not([type="hidden"]), .changeid form select,
+.changepass form input:not([type="hidden"]), .changepass form select { width: 100%; margin: 0; }
+
+body:not(.admin-menu-frame) table[border="1"] {
+    width: 100%;
+    border: 1px solid var(--admin-border);
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: 10px;
+    background: var(--admin-surface);
+}
+body:not(.admin-menu-frame) table[border="1"] th,
+body:not(.admin-menu-frame) table[border="1"] td { padding: 11px 12px; border-width: 0 0 1px 1px; border-color: var(--admin-border); vertical-align: middle; }
+body:not(.admin-menu-frame) table[border="1"] th:first-child,
+body:not(.admin-menu-frame) table[border="1"] td:first-child { border-left: 0; }
+body:not(.admin-menu-frame) table[border="1"] tr:last-child > td { border-bottom: 0; }
+body:not(.admin-menu-frame) table[border="1"] tr:first-child > td,
+body:not(.admin-menu-frame) table[border="1"] thead th { color: #475569; background: #f8fafc; font-weight: 700; }
+body:not(.admin-menu-frame) center:has(> table),
+body:not(.admin-menu-frame) div[style*="overflow"] { max-width: 100%; overflow-x: auto !important; }
+
 @media (max-width: 760px) {
     .contest-form-card { padding: 16px; }
     .contest-form-grid { grid-template-columns: 1fr; }
@@ -601,6 +719,18 @@ body.admin-form-page {
     .contest-options-table td + td { margin-top: 18px; }
     .admin-compact-form .row > [class*="col-"] { margin-bottom: 16px; }
     .admin-list-search { align-items: stretch; flex-direction: column; }
+    .admin-form-shell form > p,
+    .rejudge form, .give-source form, .database form, .changeid form, .changepass form { grid-template-columns: 1fr; }
+    body:not(.admin-menu-frame) .form-inline,
+    body:not(.admin-menu-frame) .form-search { align-items: stretch; flex-direction: column; }
+    body:not(.admin-menu-frame) .form-inline > input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),
+    body:not(.admin-menu-frame) .form-inline > select,
+    body:not(.admin-menu-frame) .form-search > input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),
+    body:not(.admin-menu-frame) .form-search > select { flex-basis: auto; width: 100%; }
+    body:not(.admin-menu-frame) .form-inline > button,
+    body:not(.admin-menu-frame) .form-inline > .btn,
+    body:not(.admin-menu-frame) .form-search > button,
+    body:not(.admin-menu-frame) .form-search > .btn { width: 100%; }
 }
 @media (max-width: 760px) { .admin-page-heading { align-items: flex-start; flex-direction: column; } }
 
