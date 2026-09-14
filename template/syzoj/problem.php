@@ -345,6 +345,13 @@ a#submit, a[onclick='transform()'] { display:none !important; }
 </style>
 <style>
 body.problem-split-active { overflow:hidden !important; background:#eef2f7 !important; }
+body.problem-split-active,
+body.problem-split-active .problem-split-shell,
+body.problem-split-active .problem-split-shell *,
+body.problem-split-active .problem-split-shell::before,
+body.problem-split-active .problem-split-shell::after,
+body.problem-split-active .problem-split-shell *::before,
+body.problem-split-active .problem-split-shell *::after { transition:none !important; }
 .problem-split-shell {
   position:fixed;
   z-index:20;
