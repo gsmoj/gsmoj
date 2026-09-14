@@ -637,11 +637,12 @@ html:has(.admin-menu-frame), .admin-menu-frame { overflow-x: hidden; scrollbar-w
     border-color: #374151;
     background: #1f2937;
 }
-.admin-menu-frame .admin-menu-toggle:hover { color: #fff; border-color: #4b5563; background: #374151; }
-/* 클릭 후 남는 focus 상태에 브라우저 기본 포커스 링과 Bootstrap의 눌림 그림자가 붙지 않게 한다. */
+/* 클릭 후 남는 focus 상태에 브라우저 기본 포커스 링과 Bootstrap의 눌림 그림자가 붙지 않게 한다.
+   menu2.php가 bootstrap-theme.min.css를 이 파일보다 늦게 불러오므로 배경색도 여기서 다시 지정한다. */
 .admin-menu-frame .admin-menu-toggle:focus,
-.admin-menu-frame .admin-menu-toggle:active,
-.admin-menu-frame .admin-menu-toggle:active:focus { outline: none; box-shadow: none; }
+.admin-menu-frame .admin-menu-toggle:active { color: #e5e7eb; border-color: #374151; background: #1f2937; outline: none; box-shadow: none; }
+/* focus·active와 우선순위가 같으므로 뒤에 두어 마우스를 올린 상태가 이기게 한다. */
+.admin-menu-frame .admin-menu-toggle:hover { color: #fff; border-color: #4b5563; background: #374151; }
 /* Bootstrap이 펼침 상태에서 collapsed 클래스를 떼므로 그 값으로 caret 방향을 맞춘다. */
 .admin-menu-frame .admin-menu-toggle .caret { float: right; margin-top: 8px; transition: transform .15s ease-in-out; }
 .admin-menu-frame .admin-menu-toggle:not(.collapsed) .caret { transform: rotate(180deg); }
