@@ -666,6 +666,81 @@ body:not(.admin-menu-frame) .form-horizontal .form-group { display: flex; align-
 body:not(.admin-menu-frame) .form-horizontal .control-label { margin: 0; padding-top: 0; line-height: 1.4; }
 body:not(.admin-menu-frame) .form-horizontal [class*="col-"] { box-sizing: border-box; }
 
+/* 권한 등록 화면: Bootstrap offset과 공통 입력 너비의 충돌을 제거한다. */
+.admin-form-shell .form-horizontal {
+    display: grid;
+    width: min(100%, 760px);
+    margin: 0 auto 24px;
+    padding: 24px;
+    gap: 18px;
+}
+.admin-form-shell .form-horizontal > center { margin-bottom: 4px; }
+.admin-form-shell .form-horizontal .form-group {
+    display: grid;
+    grid-template-columns: minmax(150px, 220px) minmax(240px, 1fr);
+    align-items: center;
+    width: 100%;
+    margin: 0;
+    gap: 10px 16px;
+}
+.admin-form-shell .form-horizontal .form-group > [class*="col-sm-"] {
+    float: none;
+    width: auto;
+    min-width: 0;
+    margin-left: 0;
+    padding: 0;
+}
+.admin-form-shell .form-horizontal .form-group > .control-label { grid-column: 1; text-align: right; }
+.admin-form-shell .form-horizontal .form-group > :not(.control-label):not(input[type="hidden"]) { grid-column: 2; }
+.admin-form-shell .form-horizontal select[name="rightstr"] {
+    width: 100%;
+    min-width: 260px;
+    padding-right: 36px;
+    line-height: normal;
+    white-space: nowrap;
+}
+.admin-form-shell .form-horizontal #value_input { width: 100%; }
+.admin-form-shell .form-horizontal .form-group:last-child {
+    grid-template-columns: repeat(2, minmax(120px, 180px));
+    justify-content: center;
+}
+.admin-form-shell .form-horizontal .form-group:last-child > div { grid-column: auto; }
+
+/* 사용자 CSV 업로드 화면: 레거시 br/center가 폼 배치를 흩뜨리지 않게 한다. */
+form[action="user_import.php"] {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center !important;
+    width: min(100%, 760px) !important;
+    margin: 28px auto !important;
+    padding: 24px;
+    gap: 16px;
+}
+form[action="user_import.php"] > br { display: none; }
+form[action="user_import.php"] > center { display: contents; }
+form[action="user_import.php"] .form-group { display: block; width: 100%; margin: 0; padding: 0; }
+form[action="user_import.php"] input[type="file"] { width: 100%; margin: 0; }
+form[action="user_import.php"] button { width: 100%; margin: 0; white-space: nowrap; }
+body:not(.admin-menu-frame) > h1,
+body:not(.admin-menu-frame) > h2,
+body:not(.admin-menu-frame) > h3 { max-width: 760px; margin-right: auto; margin-left: auto; text-align: center; }
+
+/* 문제 등록 화면: 각 입력 묶음과 작업 버튼 사이의 간격을 고정한다. */
+#main > form { box-sizing: border-box; width: 100%; max-width: 100%; }
+#main > form > p,
+#main > form > .full > p { margin: 0 0 24px; }
+#main > form > .full { display: block; }
+#main > form h3,
+#main > form h4 { margin: 0 0 10px; }
+#main > form input[type="number"] { width: 120px; margin: 0 8px; }
+#main > form input[type="submit"],
+#main > form input[type="reset"],
+#main > form input[type="button"] { margin: 12px 8px 0 0; }
+#main > form select { margin-top: 8px; }
+#main > form textarea:not(.kindeditor) { display: block; margin-top: 10px; }
+#main > form .ke-container { margin-top: 10px; }
+#main > form .ui.toggle.checkbox { margin: 0 16px 16px 0; }
+
 body:not(.admin-menu-frame) .container,
 body:not(.admin-menu-frame) .padding,
 body:not(.admin-menu-frame) .bk,
@@ -815,6 +890,18 @@ body:not(.admin-menu-frame) form.aj-up .btn { flex: 0 0 auto; margin: 0; }
     body:not(.admin-menu-frame) .form-inline > .btn,
     body:not(.admin-menu-frame) .form-search > button,
     body:not(.admin-menu-frame) .form-search > .btn { width: 100%; }
+    .admin-form-shell .form-horizontal { padding: 16px; }
+    .admin-form-shell .form-horizontal .form-group,
+    .admin-form-shell .form-horizontal .form-group:last-child { grid-template-columns: 1fr; }
+    .admin-form-shell .form-horizontal .form-group > .control-label,
+    .admin-form-shell .form-horizontal .form-group > :not(.control-label):not(input[type="hidden"]),
+    .admin-form-shell .form-horizontal .form-group:last-child > div { grid-column: 1; text-align: left; }
+    .admin-form-shell .form-horizontal select[name="rightstr"] { min-width: 0; }
+    form[action="user_import.php"] { grid-template-columns: 1fr; padding: 16px; }
+    #main > form input[type="number"] { width: 100%; margin: 8px 0; }
+    #main > form input[type="submit"],
+    #main > form input[type="reset"],
+    #main > form input[type="button"] { width: 100%; margin: 8px 0 0; }
 }
 @media (max-width: 760px) { .admin-page-heading { align-items: flex-start; flex-direction: column; } }
 
@@ -850,6 +937,9 @@ html:has(.admin-menu-frame), .admin-menu-frame { overflow-x: hidden; scrollbar-w
     color: #e5e7eb;
     border-color: #374151;
     background: #1f2937;
+    text-shadow: none;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
 }
 /* 클릭 후 남는 focus 상태에 브라우저 기본 포커스 링과 Bootstrap의 눌림 그림자가 붙지 않게 한다.
    menu2.php가 bootstrap-theme.min.css를 이 파일보다 늦게 불러오므로 배경색도 여기서 다시 지정한다. */
@@ -876,6 +966,9 @@ html:has(.admin-menu-frame), .admin-menu-frame { overflow-x: hidden; scrollbar-w
     border-radius: 5px;
     white-space: normal;
     text-decoration: none;
+    text-shadow: none;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
 }
 .admin-menu-frame .admin-menu-list a:hover { color: #fff; background: #334155; }
 /* 지금 main 프레임에 열려 있는 항목. 헤더의 3px #2563eb active 표시와 맞춘다. */
