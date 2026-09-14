@@ -41,13 +41,12 @@ $cur_path = "template/$OJ_TEMPLATE/"
             </div>
             <div class="cont_forms" >
                 <div class="cont_img_back_"> <img src="<?php echo $cur_path?>img/page1_bg.jpg" alt="" /> </div>
-                <form action="login.php" method="post" onSubmit="return jsMd5();">
+                <form id="login-form" action="login.php" method="post" onSubmit="return jsMd5();">
 
                     <div class="cont_form_login"> <a href="#" onClick="ocultar_login_sign_up()" ><i class="material-icons">&#xE5C4;</i></a>
                         <h2><?php echo $MSG_LOGIN?></h2>
                         <input type="text" placeholder="<?php echo $MSG_USER_ID?>" name="user_id"/>
-                        <input type="password" placeholder="<?php echo $MSG_PASSWORD?>" id="password_visible" />
-                        <input type="hidden" name="password" id="password_hash" />
+                        <input type="password" placeholder="<?php echo $MSG_PASSWORD?>" name="password" autocomplete="current-password" />
                         <?php  if ($OJ_VCODE){ ?>
                             <input type="text" placeholder="<?php echo $MSG_VCODE?>" name="vcode"/>
                             <img id="vcode-img" src="vcode.php?v=0.1" alt="click to change" onclick="this.src='vcode.php?'+Math.random()"/>
@@ -90,11 +89,16 @@ $cur_path = "template/$OJ_TEMPLATE/"
 <script src="<?php echo $OJ_CDN_URL?>include/md5-min.js"></script>
 <script>
     function jsMd5(){
-        var pwd = $("#password_visible").val();
-        if(pwd=="") return false;
-        $("#password_hash").val(hex_md5(pwd));
+        var $pwd = $("#login-form input[name=password]");
+        if($pwd.val()=="") return false;
+        $pwd.val(hex_md5($pwd.val()));
         return true;
     }
+    window.addEventListener("pageshow", function(event){
+        if (event.persisted) {
+            $("#login-form input[name=password]").val("");
+        }
+    });
 </script>
 <?php if ($OJ_VCODE) { ?>
     <script>

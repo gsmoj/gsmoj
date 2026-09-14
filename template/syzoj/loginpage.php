@@ -21,8 +21,7 @@
           <div class="field">
             <div class="ui left icon input">
               <i class="lock icon"></i>
-              <input placeholder="<?php echo $MSG_PASSWORD ?>" autocomplete="off" type="password" id="password_visible">
-              <input type="hidden" name="password" id="password_hash">
+              <input name="password" placeholder="<?php echo $MSG_PASSWORD ?>" autocomplete="current-password" type="password" id="password">
             </div>
           </div>
           <?php if($OJ_VCODE){?>
@@ -55,11 +54,15 @@
 <script src="<?php echo $OJ_CDN_URL?>include/md5-min.js"></script>
 <script>
   function jsMd5(){
-    var pwd = $("#password_visible").val();
-    if(pwd=="") return false;
-    $("#password_hash").val(hex_md5(pwd));
+    if($("input[name=password]").val()=="") return false;
+    $("input[name=password]").val(hex_md5($("input[name=password]").val()));
     return true;
   }
+  window.addEventListener("pageshow", function(event){
+    if (event.persisted) {
+      $("input[name=password]").val("");
+    }
+  });
 </script>
 <?php if ($OJ_VCODE) { ?>
     <script>
