@@ -24,6 +24,7 @@
     .problem-page-title h3 { margin: 0; }
     #main .ke-container { box-sizing: border-box; width: 100% !important; }
     #preview { box-sizing: border-box; background: #fff; border-left: 1px solid #d8dee8; bottom: 0; position: fixed; right: 0; top: 0; width: 50%; z-index: 1000; }
+    #preview { visibility: hidden; }
     #previewFrame { border: 0; display: block; height: 100%; width: 100%; }
     @media (max-width: 1000px) {
       body.preview-active { overflow: auto; }
@@ -164,6 +165,7 @@
 	preview.find("span.ui.label").eq(5).hide();
 	preview.find("#show_tag_div").parent().hide();
 	sync();
+	$("#preview").css("visibility", "visible");
 //	preview.find("h1:first").parent().parent().hide();
   }
   function sync(){
