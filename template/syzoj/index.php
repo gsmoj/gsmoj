@@ -2,13 +2,104 @@
 <?php include("template/$OJ_TEMPLATE/header.php");?>
 <head>
 <link rel="stylesheet" href="<?php echo "template/$OJ_TEMPLATE";?>/css/slide.css">
+<style>
+    .home-hero {
+        position: relative;
+        overflow: hidden;
+        margin: 10px 0 24px;
+        padding: 34px 38px;
+        border-radius: 14px;
+        color: #fff;
+        background: linear-gradient(135deg, #1f2937 0%, #111827 70%, #1d4ed8 140%);
+        box-shadow: 0 10px 24px rgba(15, 23, 42, .16);
+    }
+    .home-hero::after {
+        position: absolute;
+        right: -70px;
+        bottom: -100px;
+        width: 260px;
+        height: 260px;
+        border: 32px solid rgba(96, 165, 250, .14);
+        border-radius: 50%;
+        content: "";
+    }
+    .home-hero h1 {
+        position: relative;
+        z-index: 1;
+        margin: 0 0 8px;
+        font-size: 30px;
+        letter-spacing: -.5px;
+    }
+    .home-hero p {
+        position: relative;
+        z-index: 1;
+        max-width: 620px;
+        margin: 0 0 22px;
+        color: #cbd5e1;
+        font-size: 15px;
+    }
+    .home-hero-actions {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    .home-hero-actions .button {
+        margin: 0;
+        border-radius: 7px;
+    }
+    .home-hero-actions .button.primary {
+        background: #2563eb;
+    }
+    .home-content-grid {
+        margin-top: 0 !important;
+    }
+    .home-content-grid .ui.top.attached.block.header {
+        margin-top: 0 !important;
+        border: 1px solid #aeb8c4 !important;
+        border-bottom: 0 !important;
+        border-left: 1px solid #aeb8c4 !important;
+        border-radius: 10px 10px 0 0 !important;
+        background: #fff !important;
+        color: #1f2937 !important;
+        box-shadow: 0 4px 12px rgba(15, 23, 42, .06);
+    }
+    .home-content-grid .ui.bottom.attached.segment {
+        margin-bottom: 22px !important;
+        border: 1px solid #aeb8c4 !important;
+        border-radius: 0 0 10px 10px !important;
+        background: #fff !important;
+        box-shadow: 0 6px 16px rgba(15, 23, 42, .07);
+    }
+    .home-content-grid .ui.bottom.attached.segment table tr {
+        border-bottom: 0 !important;
+    }
+    .home-content-grid .ui.bottom.attached.segment table tr:last-child {
+        border-bottom: 0 !important;
+    }
+    @media (max-width: 767px) {
+        .home-hero { padding: 28px 24px; }
+        .home-hero h1 { font-size: 25px; }
+    }
+</style>
 </head>
 <?php
 // syzoj 메인 페이지는 왼쪽 11칸, 오른쪽 5칸의 Semantic UI 그리드로 구성된다.
 // 왼쪽은 공지/랭킹/메인 콘텐츠, 오른쪽은 검색/최근 문제/최근 대회를 담당한다.
 ?>
 <div class="padding">
-    <div class="ui three column grid">
+    <section class="home-hero">
+        <h1><?php echo htmlspecialchars($OJ_NAME, ENT_QUOTES, 'UTF-8'); ?></h1>
+        <p><?php echo $MSG_HOME; ?>에서 문제를 풀고, 코드를 제출하고, 실력을 쌓아보세요.</p>
+        <div class="home-hero-actions">
+            <a class="ui primary button" href="problemset.php"><i class="code icon"></i><?php echo $MSG_PROBLEM; ?> 풀기</a>
+            <a class="ui basic button" href="contest.php"><i class="calendar icon"></i><?php echo $MSG_CONTEST; ?> 보기</a>
+            <a class="ui basic button" href="ranklist.php"><i class="trophy icon"></i><?php echo $MSG_RANKLIST; ?></a>
+        </div>
+    </section>
+
+    <div class="ui three column grid home-content-grid">
         <div class="eleven wide column">
             
             <?php // 최근 공지 10개를 메인 영역 최상단에 노출한다. ?>
