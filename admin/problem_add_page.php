@@ -44,7 +44,11 @@
     .problem-form-options { margin-bottom: 16px; }
     .problem-form-actions { margin-top: 4px; }
     .problem-form-actions input { margin-right: 0 !important; }
-    #preview { box-sizing: border-box; background: #f8fafc; border-left: 1px solid #d8dee8; bottom: 0; overflow-y: auto; position: fixed; right: 0; top: 0; width: 50%; z-index: 1000; }
+    #preview { box-sizing: border-box; background: #f8fafc; border-left: 1px solid #d8dee8; bottom: 0; overflow-y: scroll; overscroll-behavior: contain; position: fixed; right: 0; scrollbar-color: #94a3b8 #e2e8f0; scrollbar-gutter: stable; top: 0; width: 50%; z-index: 1000; }
+    #preview::-webkit-scrollbar { width: 12px; }
+    #preview::-webkit-scrollbar-track { background: #e2e8f0; }
+    #preview::-webkit-scrollbar-thumb { background: #94a3b8; border: 3px solid #e2e8f0; border-radius: 999px; }
+    #preview::-webkit-scrollbar-thumb:hover { background: #64748b; }
     .problem-preview-document { box-sizing: border-box; min-height: 100%; padding: 28px 24px; color: #1f2937; }
     .problem-preview-heading { margin-bottom: 24px; text-align: center; }
     .problem-preview-heading h1 { margin: 0 0 14px; font-size: 28px; overflow-wrap: anywhere; }
@@ -79,7 +83,7 @@
       <div class="problem-form-top">
         <div class="problem-form-options">
           <div class="ui toggle checkbox">
-            <input type="checkbox" id="preview-toggle">
+            <input type="checkbox" id="preview-toggle" checked>
             <label for="preview-toggle">문제 미리보기</label>
           </div>
           <div class="ui toggle checkbox">
@@ -275,8 +279,8 @@
   }
  
    $(document).ready(function(){
-            // 등록 폼을 먼저 표시하고 미리보기는 사용자가 요청할 때 불러온다.
-            $('#preview-toggle').change(function() {
+            let previewToggle=$('#preview-toggle');
+            previewToggle.change(function() {
                 if(this.checked) {
                     transform();
                 } else {
@@ -287,6 +291,7 @@
 		$(".full").toggle(this.checked);
                 sync();
             });
+            if(previewToggle.prop('checked')) transform();
         });
 function untransform() {
     let main = $("#main");
