@@ -56,6 +56,11 @@
     .problem-preview-label { padding: 7px 11px; border-radius: 5px; background: #e5e7eb; color: #374151; font-size: 13px; font-weight: 700; }
     .problem-preview-section { margin: 0 0 18px; }
     .problem-preview-section h4 { margin: 0; padding: 11px 14px; border: 1px solid #dbe2ea; border-radius: 8px 8px 0 0; background: #f1f5f9; font-size: 15px; }
+    .problem-preview-section-heading { align-items: center; display: flex; justify-content: space-between; gap: 12px; }
+    #preview .problem-preview-copy { flex: 0 0 auto; height: 30px; min-height: 30px; min-width: 58px; padding: 0 10px; color: #334155; border: 1px solid #cbd5e1; border-radius: 6px; background: #fff; font-size: 12px; font-weight: 700; line-height: 28px; }
+    #preview .problem-preview-copy:hover:not(:disabled) { color: #1d4ed8; border-color: #93c5fd; background: #eff6ff; }
+    #preview .problem-preview-copy:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; }
+    #preview .problem-preview-copy:disabled { color: #94a3b8; cursor: not-allowed; opacity: .65; }
     .problem-preview-content { min-height: 48px; padding: 15px 16px; border: 1px solid #dbe2ea; border-top: 0; border-radius: 0 0 8px 8px; background: #fff; line-height: 1.7; overflow-wrap: anywhere; }
     .problem-preview-content pre { margin: 0; white-space: pre-wrap; word-break: break-word; }
     .problem-preview-placeholder { color: #94a3b8 !important; font-weight: 500 !important; }
@@ -201,7 +206,10 @@
         <div id="output" class="problem-preview-content"></div>
       </section>
       <section class="problem-preview-section">
-        <h4><?php echo htmlentities($MSG_Sample_Input, ENT_QUOTES, 'UTF-8')?></h4>
+        <h4 class="problem-preview-section-heading">
+          <span><?php echo htmlentities($MSG_Sample_Input, ENT_QUOTES, 'UTF-8')?></span>
+          <button type="button" id="copy-sample-input" class="problem-preview-copy" aria-label="<?php echo htmlentities($MSG_Sample_Input." ".$MSG_COPY, ENT_QUOTES, 'UTF-8')?>" disabled><?php echo htmlentities($MSG_COPY, ENT_QUOTES, 'UTF-8')?></button>
+        </h4>
         <div class="problem-preview-content"><pre><code id="sinput"></code></pre></div>
       </section>
       <section class="problem-preview-section">
@@ -227,6 +235,7 @@
         let preview = $("<div>", { id: "preview" });
         preview.append(template.content.cloneNode(true));
         main.parent().append(preview);
+	preview.on("click", "#copy-sample-input", copySampleInput);
 	$("input, textarea").on("input.problemPreview change.problemPreview", sync);
         sync();
   }
@@ -255,6 +264,7 @@
 	preview.find("#sinput")
       .text(sinput || <?php echo json_encode($problem_form_placeholders['sample_input'], JSON_UNESCAPED_UNICODE)?>)
       .toggleClass("problem-preview-placeholder", !sinput.trim());
+	preview.find("#copy-sample-input").prop("disabled", !sinput.trim());
 	let soutput=$("textarea[name='sample_output']").val();
 	preview.find("#soutput")
       .text(soutput || <?php echo json_encode($problem_form_placeholders['sample_output'], JSON_UNESCAPED_UNICODE)?>)
@@ -276,6 +286,47 @@
     else
       wrapper.html(marked.parse(source, { breaks: true, gfm: true }));
     target.empty().append(wrapper);
+  }
+
+  function copySampleInput(){
+    let button=$(this);
+    let sampleInput=$("textarea[name='sample_input']").val();
+    if (!sampleInput.trim()) return;
+    writePreviewClipboard(sampleInput).then(function(){
+      showCopyResult(button, <?php echo json_encode($MSG_COPY." ".$MSG_SUCCESS."!", JSON_UNESCAPED_UNICODE)?>);
+    }).catch(function(){
+      showCopyResult(button, <?php echo json_encode($MSG_COPY." ".$MSG_FAIL."!", JSON_UNESCAPED_UNICODE)?>);
+    });
+  }
+
+  function writePreviewClipboard(content){
+    if (navigator.clipboard && window.isSecureContext) {
+      return navigator.clipboard.writeText(content);
+    }
+    return new Promise(function(resolve, reject){
+      let temporary=$("<textarea>")
+        .attr("aria-hidden", "true")
+        .css({ left: "-9999px", opacity: 0, position: "fixed", top: 0 })
+        .val(content)
+        .appendTo("body");
+      temporary[0].focus();
+      temporary[0].select();
+      try {
+        if (document.execCommand("copy")) resolve();
+        else reject();
+      } catch (error) {
+        reject(error);
+      } finally {
+        temporary.remove();
+      }
+    });
+  }
+
+  function showCopyResult(button, message){
+    button.text(message);
+    window.setTimeout(function(){
+      if ($.contains(document, button[0])) button.text(<?php echo json_encode($MSG_COPY, JSON_UNESCAPED_UNICODE)?>);
+    }, 1500);
   }
  
    $(document).ready(function(){
