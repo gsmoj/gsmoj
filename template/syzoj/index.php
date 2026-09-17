@@ -8,6 +8,8 @@
         overflow: hidden;
         margin: 10px 0 24px;
         padding: 34px 38px;
+        width: 100%;
+        box-sizing: border-box;
         border: 1px solid #aeb8c4;
         border-radius: 14px;
         color: #fff;
@@ -65,13 +67,16 @@
         box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .7);
     }
     .home-content-grid {
+        display: grid !important;
+        grid-template-columns: minmax(0, 11fr) minmax(0, 5fr);
+        column-gap: 1rem;
+        width: 100%;
         margin: 0 !important;
     }
-    .home-content-grid > .column:first-child {
-        padding-left: 0;
-    }
-    .home-content-grid > .column:last-child {
-        padding-right: 0;
+    .home-content-grid > .column {
+        float: none !important;
+        width: auto !important;
+        padding: 0 !important;
     }
     .home-content-grid .ui.top.attached.block.header {
         margin-top: 0 !important;
@@ -117,7 +122,7 @@
         .home-hero::after { right: 20px; font-size: 42px; letter-spacing: 4px; }
         .home-hero-actions { flex-direction: column; align-items: stretch; }
         .home-hero-actions .button { width: 100%; }
-        .home-content-grid.ui.grid { display: block; margin: 0 !important; }
+        .home-content-grid.ui.grid { display: block !important; margin: 0 !important; }
         .home-content-grid.ui.grid > .column { width: 100% !important; padding: 0 0 1rem; }
         .home-content-grid .ui.bottom.attached.segment { overflow-x: auto; }
         .home-content-grid table { min-width: 460px; }

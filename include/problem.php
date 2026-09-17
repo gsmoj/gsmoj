@@ -21,6 +21,9 @@ function addproblem($title, $time_limit, $memory_limit, $description, $input, $o
   }
 
   $basedir = "$OJ_DATA/$pid";
+  if (!is_dir($basedir)) {
+    mkdir($basedir, 0711, true);
+  }
 
   return $pid;
 }
