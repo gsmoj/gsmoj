@@ -147,7 +147,7 @@ if (!(isset($_SESSION[$OJ_NAME.'_'.'administrator'])
     }
     $current_dir="$OJ_DATA/$pid/";
     if(! (isset($_SESSION[$OJ_NAME.'_'.'administrator']) || isset($_SESSION[$OJ_NAME.'_'."p".$pid])) ){
-        echo "No Privilege.<br>你不是管理员，也不是这个题的原创作者，因此不能管理这个题的数据。";
+        echo "권한이 없습니다.<br>관리자이거나 이 문제의 출제자여야 데이터를 관리할 수 있습니다.";
         exit(0)    ;
     }
 
@@ -196,7 +196,7 @@ if (!(isset($_SESSION[$OJ_NAME.'_'.'administrator'])
 		echo "<script>window.setTimeout('resolveIDs()',5000);</script>";
            	trigger_judge($insert_id);     // moved to my_func.inc.php
             }else{
-                echo "未找到Main.c或Main.cc,自动生成空文件Gen.py和Main.cc。";
+                echo "Main.c 또는 Main.cc를 찾을 수 없어 빈 Gen.py, Main.cc 파일을 자동 생성합니다.";
                 touch("Gen.py");
                 touch("Main.cc");
             }
@@ -279,6 +279,7 @@ class config {
         if (is_array($data)&&count($data)==count($this->data)) $this->data = $data;
         else $this->save();
 	if($OJ_LANG == "cn" ) $this->data['lang']="cn";
+	else if($OJ_LANG == "ko" ) $this->data['lang']="ko";
     }
     function save(){
         $objdata = "<?php".chr(13).chr(10)."//".serialize($this->data).chr(13).chr(10);
@@ -415,6 +416,118 @@ function et($tag){
     $en['Ans2out'] = '*.ans -> *.out';
     $en['IOFilename'] = 'Specify IOFilename';
     $en['SolutionFilename'] = 'Specify Solution filename';
+    // korean
+    $ko['Version'] = '버전';
+    $ko['DocRoot'] = '문서 루트';
+    $ko['FLRoot'] = '파일 관리자 루트';
+    $ko['Name'] = '이름';
+    $ko['And'] = '그리고';
+    $ko['Enter'] = '진입';
+    $ko['Send'] = '전송';
+    $ko['Refresh'] = '새로고침';
+    $ko['SaveConfig'] = '설정 저장';
+    $ko['SavePass'] = '비밀번호 저장';
+    $ko['SaveFile'] = '파일 저장';
+    $ko['Save'] = '저장';
+    $ko['Leave'] = '나가기';
+    $ko['Edit'] = '수정';
+    $ko['View'] = '보기';
+    $ko['Config'] = '설정';
+    $ko['Ren'] = '이름 변경';
+    $ko['Rem'] = '삭제';
+    $ko['Compress'] = '압축';
+    $ko['Decompress'] = '압축 해제';
+    $ko['ResolveIDs'] = 'ID 해석';
+    $ko['Move'] = '이동';
+    $ko['Copy'] = '복사';
+    $ko['ServerInfo'] = '서버 정보';
+    $ko['CreateDir'] = '디렉토리 생성';
+    $ko['CreateArq'] = '파일 생성';
+    $ko['ExecCmd'] = '명령 실행';
+    $ko['Upload'] = '업로드';
+    $ko['UploadEnd'] = '업로드 완료';
+    $ko['Perm'] = '권한';
+    $ko['Perms'] = '권한';
+    $ko['Owner'] = '소유자';
+    $ko['Group'] = '그룹';
+    $ko['Other'] = '기타';
+    $ko['Size'] = '크기';
+    $ko['Date'] = '날짜';
+    $ko['Type'] = '종류';
+    $ko['Free'] = '여유 공간';
+    $ko['Shell'] = '셸';
+    $ko['Read'] = '읽기';
+    $ko['Write'] = '쓰기';
+    $ko['Exec'] = '실행';
+    $ko['Apply'] = '적용';
+    $ko['StickyBit'] = 'Sticky Bit';
+    $ko['Pass'] = '비밀번호';
+    $ko['Lang'] = '언어';
+    $ko['File'] = '파일';
+    $ko['File_s'] = '개 파일';
+    $ko['Dir_s'] = '개 디렉토리';
+    $ko['To'] = '로';
+    $ko['Destination'] = '대상';
+    $ko['Configurations'] = '설정';
+    $ko['JSError'] = '자바스크립트 오류';
+    $ko['NoSel'] = '선택된 항목이 없습니다';
+    $ko['SelDir'] = '왼쪽 트리에서 대상 디렉토리를 선택하세요';
+    $ko['TypeDir'] = '디렉토리 이름을 입력하세요';
+    $ko['TypeArq'] = '파일 이름을 입력하세요';
+    $ko['TypeCmd'] = '명령을 입력하세요';
+    $ko['TypeArqComp'] = '파일 이름을 입력하세요.\\n확장자에 따라 압축 형식이 결정됩니다.\\n예:\\nname.zip\\nname.tar\\nname.bzip\\nname.gzip';
+    $ko['RemSel'] = '선택한 항목 삭제';
+    $ko['NoDestDir'] = '대상 디렉토리가 선택되지 않았습니다';
+    $ko['DestEqOrig'] = '원본과 대상 디렉토리가 동일합니다';
+    $ko['InvalidDest'] = '대상 디렉토리가 유효하지 않습니다';
+    $ko['NoNewPerm'] = '새 권한이 설정되지 않았습니다';
+    $ko['CopyTo'] = '복사 위치';
+    $ko['MoveTo'] = '이동 위치';
+    $ko['AlterPermTo'] = '권한 변경 대상';
+    $ko['ConfExec'] = '실행 확인';
+    $ko['ConfRem'] = '삭제 확인';
+    $ko['EmptyDir'] = '빈 디렉토리';
+    $ko['IOError'] = '입출력 오류';
+    $ko['FileMan'] = 'PHP 파일 관리자';
+    $ko['TypePass'] = '비밀번호를 입력하세요';
+    $ko['InvPass'] = '잘못된 비밀번호';
+    $ko['ReadDenied'] = '읽기 권한이 거부되었습니다';
+    $ko['FileNotFound'] = '파일을 찾을 수 없습니다';
+    $ko['AutoClose'] = '완료 시 자동 닫기';
+    $ko['OutDocRoot'] = 'DOCUMENT_ROOT를 벗어난 파일';
+    $ko['NoCmd'] = '오류: 명령이 입력되지 않았습니다';
+    $ko['ConfTrySave'] = '쓰기 권한이 없는 파일입니다.\\n그래도 저장하시겠습니까';
+    $ko['ConfSaved'] = '설정이 저장되었습니다';
+    $ko['PassSaved'] = '비밀번호가 저장되었습니다';
+    $ko['NoPhpinfo'] = 'phpinfo 함수가 비활성화되어 있습니다';
+    $ko['NoReturn'] = '반환값 없음';
+    $ko['FileSent'] = '파일이 전송되었습니다';
+    $ko['SpaceLimReached'] = '용량 제한에 도달했습니다';
+    $ko['InvExt'] = '허용되지 않는 확장자입니다';
+    $ko['FileNoOverw'] = '파일을 덮어쓸 수 없습니다';
+    $ko['FileOverw'] = '파일이 덮어써졌습니다';
+    $ko['FileIgnored'] = '파일이 무시되었습니다';
+    $ko['ChkVer'] = '새 버전 확인';
+    $ko['ChkVerAvailable'] = '새 버전이 있습니다. 클릭하여 다운로드하세요!!';
+    $ko['ChkVerNotAvailable'] = '새 버전이 없습니다. :(';
+    $ko['ChkVerError'] = '연결 오류입니다.';
+    $ko['Website'] = '웹사이트';
+    $ko['SendingForm'] = '파일 전송 중입니다. 잠시만 기다려주세요';
+    $ko['NoFileSel'] = '선택된 파일이 없습니다';
+    $ko['SelAll'] = '전체';
+    $ko['SelNone'] = '없음';
+    $ko['SelInverse'] = '반전 선택';
+    $ko['Selected_s'] = '개 선택됨';
+    $ko['Total'] = '전체';
+    $ko['Partition'] = '파티션';
+    $ko['RenderTime'] = '페이지 렌더링 시간';
+    $ko['Seconds'] = '초';
+    $ko['ErrorReport'] = '오류 보고';
+    $ko['Random-data'] = '랜덤 데이터 생성기';
+    $ko['GenerateOut'] = '테스트 데이터/인터랙터 생성';
+    $ko['Ans2out'] = '파일명 자동 정리(.ans -> .out)';
+    $ko['IOFilename'] = '입출력 파일명 지정';
+    $ko['SolutionFilename'] = '정답 코드 파일명 지정';
     // chinese
 	$cn['Version'] = '版本';
     $cn['DocRoot'] = '根目录';
@@ -3071,7 +3184,7 @@ function getSubtaskName($filename) {
     // 只有点号数量 >= 2 时才处理
     if ($dotCount >= 2) {
         $dotPosition = mb_strpos($filename, '.');
-        return "&nbsp;&nbsp;&nbsp;子任务:".mb_substr($filename, 0, $dotPosition);
+        return "&nbsp;&nbsp;&nbsp;서브태스크:".mb_substr($filename, 0, $dotPosition);
     }
     // 否则返回空字符串
     return '';
@@ -3082,26 +3195,26 @@ function tips($filename) {
 
     // 特定文件名匹配（不区分大小写）
     if ($lower === 'main.c') {
-        return '标准C程序';
+        return '표준 C 프로그램';
     } elseif ($lower === 'main.cc') {
-        return '标准C++程序';
+        return '표준 C++ 프로그램';
     } elseif ($lower === 'gen.py') {
-        return '输入数据生成器Python脚本';
+        return '입력 데이터 생성용 Python 스크립트';
     } elseif ($lower === 'solution.name') {
-        return '强制上传文件方式提交答案，内含规定文件名';
+        return '지정된 파일명으로 강제 업로드 방식 정답 제출';
     } elseif ($lower === 'input.name') {
-        return '强制文件方式输入，内含规定文件名';
+        return '지정된 파일명으로 강제 파일 입력';
     } elseif ($lower === 'output.name') {
-        return '强制文件方式输出，内含规定文件名';
+        return '지정된 파일명으로 강제 파일 출력';
     } elseif ($lower === 'judge.conf') {
-        return '定制化判题参数，参考hustoj.com';
+        return '커스텀 채점 파라미터 (hustoj.com 참고)';
     }
 
     // 匹配 .in / .out 结尾且包含 [数字] 的情况
     if (preg_match('/\.(in|out)$/i', $filename, $ext_matches)) {
         if (preg_match('/\[([0-9]+)\]/', $filename, $score_matches)) {
             $score = intval($score_matches[1]);
-            return ($ext_matches[1]=="in"?"&nbsp;&nbsp;&nbsp;":"")."分值{$score} ".getSubtaskName($filename);
+            return ($ext_matches[1]=="in"?"&nbsp;&nbsp;&nbsp;":"")."배점 {$score} ".getSubtaskName($filename);
         }else{
 			return ($ext_matches[1]=="in"?"&nbsp;&nbsp;&nbsp;":"").getSubtaskName($filename);
 		}
@@ -3109,9 +3222,9 @@ function tips($filename) {
 
     // 匹配 template.*、prepend.*、append.*
     $patterns = [
-        '/^template\.([a-z0-9_]+)$/i' => '答案模版',
-        '/^prepend\.([a-z0-9_]+)$/i'  => '前继附加源码',
-        '/^append\.([a-z0-9_]+)$/i'   => '后继附加源码'
+        '/^template\.([a-z0-9_]+)$/i' => '정답 템플릿',
+        '/^prepend\.([a-z0-9_]+)$/i'  => '앞에 붙는 추가 소스코드',
+        '/^append\.([a-z0-9_]+)$/i'   => '뒤에 붙는 추가 소스코드'
     ];
 
     foreach ($patterns as $pattern => $suffix) {
@@ -3136,7 +3249,7 @@ function tips($filename) {
                 'kt' => 'Kotlin'
             ];
             $langName = $langMap[strtolower($lang)] ?? $lang;
-            return "{$langName}语言{$suffix}";
+            return "{$langName} {$suffix}";
         }
     }
 
@@ -3233,17 +3346,17 @@ function dir_list_form() {
             document.location.href='".addslashes($path_info["basename"])."?frame=3&pid='+arg;
         }
         function ans2out() {
-	    if(confirm('可能覆盖已有.out文件，请三思而行！\\n Are you sure about overwrite all .out files ?')){
+	    if(confirm('기존 .out 파일을 덮어쓸 수 있습니다. 신중하게 진행하세요!\\n 모든 .out 파일을 덮어쓰시겠습니까?')){
             	document.location.href='".addslashes($path_info["basename"])."?frame=3&ans2out=1&current_dir=".addslashes($current_dir)."';
             }
         }
         function confirm_ai() {
-	    if(confirm('当前目录为空，是否生成占位文件以使用AI生成数据？\\n Generate Empty Files for AI  ?')){
+	    if(confirm('현재 디렉토리가 비어 있습니다. AI로 데이터를 생성하기 위한 자리표시 파일을 만들까요?\\n AI용 빈 파일을 생성하시겠습니까?')){
             	document.location.href='".addslashes($path_info["basename"])."?frame=3&generate=1&current_dir=".addslashes($current_dir)."';
             }
         }
         function generate() {
-	    if(confirm('如果目录不为空,将覆盖所有.out文件，请三思而行！\\n Are you sure about overwrite all .out files ?')){
+	    if(confirm('디렉토리가 비어 있지 않으면 모든 .out 파일을 덮어씁니다. 신중하게 진행하세요!\\n 모든 .out 파일을 덮어쓰시겠습니까?')){
             	document.location.href='".addslashes($path_info["basename"])."?frame=3&generate=1&current_dir=".addslashes($current_dir)."';
             }
         }
@@ -3559,7 +3672,7 @@ function dir_list_form() {
             } else if (arg == 2){
                 document.form_action.cmd_arg.value = prompt('".et('TypeArq').".');
             } else if (arg == 21){
-                document.form_action.cmd_arg.value = prompt('".et('IOFilename').",不含扩展名,比如 tree');
+                document.form_action.cmd_arg.value = prompt('".et('IOFilename').", 확장자 제외, 예: tree');
             } else if (arg == 22){
                 document.form_action.cmd_arg.value = prompt('".et('SolutionFilename').".');
             } else if (arg == 71){
@@ -3650,10 +3763,10 @@ function dir_list_form() {
             <td bgcolor=\"#DDDDDD\" colspan=50><nobr>
             <input type=button onclick=\"test_prompt(2)\" value=\"".et('CreateArq')."\">
 	    <input type=button onclick=\"upload()\" value=\"".et('Upload')."\">";
-	if(!$OJ_SaaS_ENABLE)$out.="<input class='btn-success' type=button onclick=\"generate()\" value=\"".et('GenerateOut')."\" title='自己不会写可以找AI帮忙'>";
-	$out.="<input type=button class='btn-warning' onclick=\"ans2out()\" value=\"".et('Ans2out')."\" title='自动给数字补0排序 + ans改out' >";
-	$out.="<input type=button class='btn-primary' onclick=\"test_prompt(21)\" value=\"".et('IOFilename')."\" title='CCF的比赛每个题目有个英文名'>";
-	$out.="<input type=button class='btn-danger' onclick=\"test_prompt(22)\" value=\"".et('SolutionFilename')."\" title='CCF比赛要求的类似tree.cpp这种'>";
+	if(!$OJ_SaaS_ENABLE)$out.="<input class='btn-success' type=button onclick=\"generate()\" value=\"".et('GenerateOut')."\" title='직접 작성하기 어렵다면 AI의 도움을 받아보세요'>";
+	$out.="<input type=button class='btn-warning' onclick=\"ans2out()\" value=\"".et('Ans2out')."\" title='숫자를 0으로 자동 정렬하고 .ans를 .out으로 변경' >";
+	$out.="<input type=button class='btn-primary' onclick=\"test_prompt(21)\" value=\"".et('IOFilename')."\" title='CCF 대회는 문제마다 영문 이름이 있습니다'>";
+	$out.="<input type=button class='btn-danger' onclick=\"test_prompt(22)\" value=\"".et('SolutionFilename')."\" title='CCF 대회에서 요구하는 tree.cpp와 같은 형식'>";
 	if(isset($_GET['pid'])){
                 $pid=intval($_GET['pid']);
                 $_SESSION[$OJ_NAME."_PID"]=$pid;
@@ -3684,17 +3797,17 @@ function dir_list_form() {
                     <input type=\"button\" style=\"width:100\" onclick=\"test_prompt(71)\" value=\"".et('Compress')."\">";
             if ($islinux) $out .= "
                     <input type=\"button\" style=\"width:100\" onclick=\"resolveIDs()\" value=\"".et('ResolveIDs')."\">";
-            $out .= "<span title='一般推荐用英文命名，相同文件名的.in .out文件为一组。
-不支持.ans的扩展名，请在上传前用Windows的命令行统一修改ren *.ans *.out。
-支持在文件名中使用方括号[]来标注分数。如 test01[20].in / test01[20].out将视为分数是20分,未标注的文件按10分计分，
-系统最终根据所有文件的总分和运行得分，记录提交的通过率pass_rate放入solution表，用于前台显示。
-对于所有文件都没有标注的题目，按每组文件相同权重对待。
-评测的时候根据所有.in文件的字典序来评测, 因此test10先于test2评测, 后于test02评测。
-subtask的命名规则，可以在分数之前，再增加一个英文句号. 系统认为这个句号之前的内容为subtask的名字，相同subtask名字的测试数据为一组，互相绑定。
-例如: subtask1.1[10].in/out 和 subtask1.2[20].in/out 为一组subtask,必须同时通过才能得分共30分。
-subtask不限定必须是数字，如 TaskA.a[20].in/out 和 TaskA.b[20].in/out也可以是一组，共计40分。
-subtask的题目中也可以有不跟其他数据绑定的，认为是自己一组，如big[30].in/out可以跟前面两个例子同时放在一个题目中，共计100分。' >
-               命名规则: .in/.out 对应，[]标记分数，.标记subtask ， 如 TaskA.a[20].in/out 和 TaskA.b[20].in/out 是一组subtask，共计40分。</span>
+            $out .= "<span title='일반적으로 영문 이름을 권장하며, 같은 파일명의 .in/.out 파일이 한 쌍을 이룹니다.
+.ans 확장자는 지원하지 않으므로, 업로드 전 Windows 명령줄에서 ren *.ans *.out 명령으로 일괄 변경하세요.
+파일명에 대괄호[]를 사용해 배점을 표시할 수 있습니다. 예: test01[20].in / test01[20].out은 20점으로 처리되며, 표시가 없는 파일은 10점으로 계산됩니다.
+시스템은 최종적으로 모든 파일의 총점과 실행 결과를 기준으로 제출의 통과율(pass_rate)을 계산해 solution 테이블에 기록하며, 이는 화면에 표시됩니다.
+모든 파일에 배점 표시가 없는 문제는 각 파일 그룹을 동일한 비중으로 처리합니다.
+채점 시에는 모든 .in 파일의 사전순으로 평가하므로, test10이 test2보다 먼저, test02보다는 나중에 채점됩니다.
+subtask 명명 규칙은 배점 앞에 마침표(.)를 하나 더 붙이면 됩니다. 시스템은 이 마침표 앞부분을 subtask 이름으로 인식하며, 같은 subtask 이름을 가진 테스트 데이터는 한 그룹으로 묶여 서로 연동됩니다.
+예: subtask1.1[10].in/out 과 subtask1.2[20].in/out 은 한 subtask 그룹으로, 둘 다 통과해야 합계 30점을 받습니다.
+subtask 이름이 반드시 숫자일 필요는 없으며, TaskA.a[20].in/out 과 TaskA.b[20].in/out 도 한 그룹이 되어 합계 40점이 될 수 있습니다.
+subtask 문제 중에는 다른 데이터와 묶이지 않는 것도 있을 수 있으며, 이 경우 자기 자신만으로 한 그룹이 됩니다. 예를 들어 big[30].in/out은 위 두 예시와 함께 한 문제 안에 있으면서 별도로 계산되어 합계 100점이 될 수 있습니다.' >
+               명명 규칙: .in/.out 은 한 쌍, []는 배점 표시, .은 subtask 표시 — 예: TaskA.a[20].in/out 과 TaskA.b[20].in/out 은 한 subtask 그룹으로 합계 40점입니다.</span>
                 </nobr></td>
                 </tr>
 				<tr>
@@ -3739,7 +3852,7 @@ subtask的题目中也可以有不跟其他数据绑定的，认为是自己一�
                         $file_out[$file_count][] = "<td><nobr>".$dir_entry["u"]."</nobr></td>";
                         $file_out[$file_count][] = "<td><nobr>".$dir_entry["g"]."</nobr></td>";
                     }
-                    $file_out[$file_count][] = "<td><nobr>".($dir_entry["sizet"]=='0 bytes'?"<span class='label label-danger'>空文件</span>":$dir_entry["sizet"])."</nobr></td>";
+                    $file_out[$file_count][] = "<td><nobr>".($dir_entry["sizet"]=='0 bytes'?"<span class='label label-danger'>빈 파일</span>":$dir_entry["sizet"])."</nobr></td>";
                     $file_out[$file_count][] = "<td><nobr>".$dir_entry["datet"]."</nobr></td>";
                     $file_out[$file_count][] = "<td>".$dir_entry["extt"]."</td>";
                     // Opções de arquivo
@@ -3860,7 +3973,7 @@ subtask的题目中也可以有不跟其他数据绑定的，认为是自己一�
                     $sql="select title from problem where problem_id=?";
                     $title=pdo_query($sql,$pid);
                     if(is_array($title) && !empty($title[0][0])) {
-                            echo "题目存在，目录丢失，建立空目录";
+                            echo "문제는 존재하지만 디렉토리가 없어 빈 디렉토리를 생성합니다";
                             mkdir($current_dir,0711);
                     }
         }
@@ -3882,15 +3995,15 @@ function upload_form(){
         <tr><th colspan=2>".et('Upload')."</th></tr>
         <tr><td align=right><b>".et('Destination').":<td><b><nobr>".basename($current_dir)."</nobr>";
         for ($x=0;$x<$num_uploads;$x++){
-            echo "<tr><td align=right><b>".et('File').":<td><nobr><input type=\"file\" multiple name=\"files[]\"   title='一次可以选择多个文件上传'   ></nobr>";
+            echo "<tr><td align=right><b>".et('File').":<td><nobr><input type=\"file\" multiple name=\"files[]\"   title='한 번에 여러 파일을 선택하여 업로드할 수 있습니다'   ></nobr>";
             $test_js .= "(document.upload_form.files.value.length>0)||";
         }
         echo "
         <input type=button value=\"".et('Send')."\" onclick=\"test_upload_form()\"></nobr>
         <tr><td> <td><input type=checkbox name=fechar value=\"1\" checked> <a href=\"JavaScript:troca();\">".et('AutoClose')."</a>
-        <tr><td colspan=2>一次可以选择多个文件上传<br> zip file can be decompressed on the server later. 
-			  just don't add dirs,please<br>
-			  可以上传zip文件，之后点击decompress解压缩，但是请不要在zip文件中包含子目录。
+        <tr><td colspan=2>한 번에 여러 파일을 선택하여 업로드할 수 있습니다<br> zip 파일은 서버에서 나중에 압축 해제할 수 있습니다.
+			  디렉토리는 포함하지 마세요<br>
+			  zip 파일을 업로드한 뒤 decompress를 눌러 압축을 해제할 수 있습니다. 단, zip 파일 안에 하위 디렉토리를 포함하지 마세요.
 	</td></tr>
         </form>
         </table>
@@ -4296,7 +4409,7 @@ function edit_file_form(){
     <tr><td colspan=2><textarea id='file_data' name='file_data' style='width:1000px;height:500px;'>".html_encode($file_data)."</textarea></td></tr>
     <tr><td>";
 	if(str_ends_with($filename,".in") || $filename=="Gen.py" || str_starts_with($filename,"Main.")  ) 
-		echo "<input id='ai_bt' class='btn btn-primary' type=button value='AI一下' onclick='ai_gen(\"".$filename."\")' > *AI生成的代码请人工确认后再执行,如果无法按预期执行请重新生成* ";
+		echo "<input id='ai_bt' class='btn btn-primary' type=button value='AI 생성' onclick='ai_gen(\"".$filename."\")' > *AI가 생성한 코드는 실행 전 반드시 직접 확인하세요. 의도한 대로 동작하지 않으면 다시 생성해 보세요* ";
      echo "<input type=button value=\"".et('Refresh')."\" class='btn btn-danger' onclick=\"document.edit_form_refresh.submit()\"></td><td align=right><input type=button value=\"".et('SaveFile')."\" onclick=\"go_save()\" class='btn btn-success'></td></tr>
     </form>
     <form name=\"edit_form_refresh\" action=\"".$path_info["basename"]."\" method=\"post\">
@@ -4356,19 +4469,19 @@ function pull_result(id){
 			window.setTimeout('pull_result('+id+')',2000);
 		}else{
 			fill_data(data);
-		    $('#ai_bt').val('再来一次');
+		    $('#ai_bt').val('다시 시도');
 		    $('#ai_bt').prop('disabled', false);
 		}
 	},
 	error: function() {
-	    $('#ai_bt').val('获取数据失败');
+	    $('#ai_bt').val('데이터를 가져오지 못했습니다');
 	    $('#ai_bt').prop('disabled', false);
 	}
     });
 }
 	function ai_gen(filename){
 		    let oldval=$('#ai_bt').val();
-		    $('#ai_bt').val('AI思考中...请稍候...');
+		    $('#ai_bt').val('AI가 생각 중입니다... 잠시만 기다려주세요...');
 		    $('#ai_bt').prop('disabled', true);;
 		    $.ajax({
 			url: '../$OJ_AI_API_URL', 
@@ -4379,7 +4492,7 @@ function pull_result(id){
 					window.setTimeout('pull_result('+data+')',2000);
 			},
 			error: function() {
-			    $('#ai_bt').val('获取数据失败');
+			    $('#ai_bt').val('데이터를 가져오지 못했습니다');
 			}
 		    });
 	}
