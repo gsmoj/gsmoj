@@ -101,12 +101,12 @@
 ?>
 
 <!DOCTYPE html>
-<html lang="ko" style="position:fixed; width: 100%; overflow: hidden; ">
+<html lang="ko">
 
 <head>
     <meta charset="utf-8">
     <meta content="IE=edge" http-equiv="X-UA-Compatible">
-    <meta name="viewport" content="width=device-width, initial-scale=0.5">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?php echo $show_title ?></title>
     <?php include(dirname(__FILE__)."/css.php");?>
     <style>
