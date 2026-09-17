@@ -31,8 +31,8 @@ if (!(isset($_SESSION[$OJ_NAME.'_'.'administrator'])||isset($_SESSION[$OJ_NAME.'
 	echo "<a href='../loginpage.php'>".(isset($MSG_Login)?$MSG_Login:"Please Login First!")."</a>";
 	exit(1);
 }
-if(file_exists("../template/$OJ_TEMPLATE/css.php")) require_once("../template/$OJ_TEMPLATE/css.php");
+if ((!isset($ADMIN_SKIP_TEMPLATE_STYLES) || !$ADMIN_SKIP_TEMPLATE_STYLES) && file_exists("../template/$OJ_TEMPLATE/css.php")) require_once("../template/$OJ_TEMPLATE/css.php");
 ?>
 <!-- 세션 만료를 늦추기 위해 숨겨진 iframe에서 session.php를 주기적으로 유지한다. -->
-<iframe src="../session.php" height=0px width=0px ></iframe>
+<iframe src="../session.php" title="" aria-hidden="true" hidden></iframe>
 
