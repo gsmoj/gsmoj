@@ -48,6 +48,17 @@ function upload(file,editor1){
 
 var kindeditorSeted=false;
 if(!kindeditorSeted){
+	function refreshKindEditorPlaceholder(editor) {
+		if(!editor || !editor.edit || !editor.edit.doc) return;
+		var placeholder = editor.srcElement.attr('data-placeholder');
+		if(!placeholder) return;
+		var editorBody = editor.edit.doc.body;
+		editorBody.setAttribute('data-placeholder', placeholder);
+		if(editor.isEmpty())
+			editorBody.classList.add('ke-placeholder');
+		else
+			editorBody.classList.remove('ke-placeholder');
+	}
 
 
         $(document).ready(function (){
@@ -62,13 +73,14 @@ if(!kindeditorSeted){
 							    newlineTag: 'br',     // 让kindeditor 不要搞出一堆<p> 增加代码空行。
                                 filterMode:false,
 				                pasteType:1,    // 1 纯文本粘贴 2 HTML粘贴
-                                cssData: 'body { font-family:"Consolas";font-size: 18px;line-height:150% }  ',
+				cssData: 'body { font-family:"Consolas";font-size: 18px;line-height:150%;position:relative } body.ke-placeholder:before { color:#94a3b8;content:attr(data-placeholder);pointer-events:none;position:absolute }',
 <?php if(isset($OJ_MARKDOWN)&&$OJ_MARKDOWN)
                                 echo "designMode:false,";
 ?>
 
                                 afterCreate : function() {
                                         var self = this;
+					refreshKindEditorPlaceholder(self);
                                         K.ctrl(document, 13, function() {
                                                 self.sync();
                                         });
@@ -103,16 +115,23 @@ if(!kindeditorSeted){
 							    }
 							}
 						});
+						$(editerDoc.body).on('input keyup paste drop', function() {
+							window.setTimeout(function() {
+								refreshKindEditorPlaceholder(self);
+							}, 0);
+						});
                                 }
                                 ,
 				afterBlur: function() {
 					var self = this;
 					self.sync();
+					refreshKindEditorPlaceholder(self);
 				}
 				,
                                 afterChange: function() {
                                         var self = this;
                                         self.sync();
+					refreshKindEditorPlaceholder(self);
                                         if( typeof sync === "function")         sync();
                                 }
                         });
