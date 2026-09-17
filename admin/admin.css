@@ -922,9 +922,24 @@ html:has(.admin-menu-frame), .admin-menu-frame { overflow-x: hidden; scrollbar-w
 .admin-menu-frame::-webkit-scrollbar { width: 0; height: 0; display: none; }
 .admin-menu-frame *, .admin-menu-frame *::before, .admin-menu-frame *::after { box-sizing: border-box; }
 .admin-menu-frame hr { margin: 12px 0; border-color: #334155; }
-.admin-menu-frame > .btn { width: 100%; margin-bottom: 6px; color: #e5e7eb; border: 1px solid #374151; background: #1f2937; }
+.admin-menu-frame > .btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 40px;
+    margin-bottom: 6px;
+    padding: 9px 12px;
+    color: #e5e7eb;
+    line-height: 1.25;
+    text-align: center;
+    white-space: normal;
+    border: 1px solid #374151;
+    background: #1f2937;
+}
+.admin-menu-frame > .btn > b { display: block; width: 100%; line-height: inherit; text-align: center; }
 .admin-menu-frame > .btn:hover { background: #374151; }
-.admin-menu-frame > .admin-brand { padding: 11px 12px; color:#fff; border-color:#2563eb; background:#2563eb; font-size:17px; letter-spacing:.04em; }
+.admin-menu-frame > .admin-brand { min-height: 44px; padding: 10px 12px; color:#fff; border-color:#2563eb; background:#2563eb; font-size:17px; letter-spacing:.04em; }
 .admin-menu-frame > .admin-brand:hover { background:#1d4ed8; }
 
 /* 메뉴 그룹은 Bootstrap collapse로 동작하므로 여러 그룹을 동시에 펼칠 수 있다. */
@@ -957,6 +972,15 @@ html:has(.admin-menu-frame), .admin-menu-frame { overflow-x: hidden; scrollbar-w
     list-style: none;
     border-radius: 7px;
     background: #0f172a;
+}
+/* menu2.php는 Bootstrap 3 collapse 스크립트를 사용하므로 전환 중 상태도 이 화면에서 직접 정의한다. */
+.admin-menu-frame .admin-menu-list.collapse { display: none; }
+.admin-menu-frame .admin-menu-list.collapse.in { display: block; }
+.admin-menu-frame .admin-menu-list.collapsing {
+    position: relative;
+    height: 0;
+    overflow: hidden;
+    transition: height .18s ease;
 }
 .admin-menu-frame .admin-menu-list > li { text-align: left; }
 .admin-menu-frame .admin-menu-list a {
