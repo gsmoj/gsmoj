@@ -62,7 +62,7 @@ if (!$use_cookie) {
     $view_errors = "";
     require_once("./include/login-" . $OJ_LOGIN_MOD . ".php");
     $user_id = $_POST['user_id'];
-    $password = $_POST['password'];
+    $password = $_POST['password_hash'];
     $fiveMinutesAgo = date('Y-m-d H:i:s', strtotime("-5 minutes"));
     
     // IP 변수가 안전하게 매핑되어 정상 작동합니다.
