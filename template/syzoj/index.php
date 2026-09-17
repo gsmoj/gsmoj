@@ -8,20 +8,23 @@
         overflow: hidden;
         margin: 10px 0 24px;
         padding: 34px 38px;
+        border: 1px solid #aeb8c4;
         border-radius: 14px;
         color: #fff;
         background: linear-gradient(135deg, #1f2937 0%, #111827 70%, #1d4ed8 140%);
-        box-shadow: 0 10px 24px rgba(15, 23, 42, .16);
+        box-shadow: 0 10px 24px rgba(15, 23, 42, .16), 0 0 0 3px rgba(174, 184, 196, .16);
     }
     .home-hero::after {
         position: absolute;
-        right: -70px;
-        bottom: -100px;
-        width: 260px;
-        height: 260px;
-        border: 32px solid rgba(96, 165, 250, .14);
-        border-radius: 50%;
-        content: "";
+        right: 38px;
+        top: 50%;
+        color: rgba(255, 255, 255, .12);
+        content: "GSM";
+        font-size: 74px;
+        font-weight: 800;
+        letter-spacing: 8px;
+        line-height: 1;
+        transform: translateY(-50%);
     }
     .home-hero h1 {
         position: relative;
@@ -72,14 +75,14 @@
         border-radius: 10px 10px 0 0 !important;
         background: #fff !important;
         color: #1f2937 !important;
-        box-shadow: 0 4px 12px rgba(15, 23, 42, .06);
+        box-shadow: 0 4px 12px rgba(15, 23, 42, .06), 0 0 0 3px rgba(174, 184, 196, .12);
     }
     .home-content-grid .ui.bottom.attached.segment {
         margin-bottom: 22px !important;
         border: 1px solid #aeb8c4 !important;
         border-radius: 0 0 10px 10px !important;
         background: #fff !important;
-        box-shadow: 0 6px 16px rgba(15, 23, 42, .07);
+        box-shadow: 0 6px 16px rgba(15, 23, 42, .07), 0 0 0 3px rgba(174, 184, 196, .12);
     }
     .home-content-grid .ui.bottom.attached.segment table tr {
         border-bottom: 0 !important;
@@ -91,6 +94,7 @@
         .home-hero { margin: 8px 0 18px; padding: 28px 24px; }
         .home-hero h1 { font-size: 25px; }
         .home-hero p { font-size: 14px; }
+        .home-hero::after { right: 20px; font-size: 42px; letter-spacing: 4px; }
         .home-hero-actions { flex-direction: column; align-items: stretch; }
         .home-hero-actions .button { width: 100%; }
         .home-content-grid.ui.grid { display: block; margin-left: 0; margin-right: 0; }
@@ -119,7 +123,12 @@
         <div class="eleven wide column">
             
             <?php // 최근 공지 10개를 메인 영역 최상단에 노출한다. ?>
-            <h4 class="ui top attached block header" style='margin-top: 10px;'><i class="ui info icon"></i><?php echo $MSG_NEWS;?></h4>
+            <?php
+            $sql_news = "select * FROM `news` WHERE `defunct`!='Y' AND `title`!='faqs.cn' ORDER BY `time` DESC LIMIT 5";
+            $result_news = mysql_query_cache( $sql_news );
+            $latest_news_id = (!empty($result_news) && isset($result_news[0]['news_id'])) ? intval($result_news[0]['news_id']) : 0;
+            ?>
+            <h4 class="ui top attached block header" style='margin-top: 10px;'><i class="ui info icon"></i><a href="<?php echo $latest_news_id ? 'viewnews.php?id='.$latest_news_id : '#'; ?>"><?php echo $MSG_NEWS;?></a></h4>
             <div class="ui bottom attached segment">
                 <table class="ui very basic table">
                     <thead>
@@ -130,8 +139,6 @@
                     </thead>
                     <tbody>
                         <?php
-                        $sql_news = "select * FROM `news` WHERE `defunct`!='Y' AND `title`!='faqs.cn' ORDER BY `importance` desc,`time` DESC LIMIT 10";
-                        $result_news = mysql_query_cache( $sql_news );
                         if ( $result_news ) {
                             foreach ( $result_news as $row ) {
                                 echo "<tr>"."<td>"
