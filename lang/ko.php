@@ -141,6 +141,17 @@
 	$MSG_Description="문제 설명";
 	$MSG_Input="입력 설명";
 	$MSG_Output="출력 설명";
+	$MSG_PROBLEM_TITLE_PLACEHOLDER="예: 두 수의 합";
+	$MSG_PROBLEM_DESCRIPTION_PLACEHOLDER="예: 두 정수 A와 B가 주어집니다. 두 수의 합을 구하세요.";
+	$MSG_PROBLEM_INPUT_PLACEHOLDER="예: 첫째 줄에 두 정수 A와 B가 공백으로 구분되어 주어집니다.";
+	$MSG_PROBLEM_OUTPUT_PLACEHOLDER="예: 첫째 줄에 A와 B의 합을 출력합니다.";
+	$MSG_PROBLEM_SAMPLE_INPUT_PLACEHOLDER="예:\n1 2";
+	$MSG_PROBLEM_SAMPLE_OUTPUT_PLACEHOLDER="예:\n3";
+	$MSG_PROBLEM_HINT_PLACEHOLDER="예: 문제 풀이에 필요한 추가 설명을 입력하세요.";
+	$MSG_PROBLEM_SOURCE_PLACEHOLDER="예: 교내 알고리즘 수업";
+	$MSG_PROBLEM_PREVIEW_LOADING="문제 미리보기를 불러오는 중입니다.";
+	$MSG_PROBLEM_PREVIEW_DELAYED="미리보기 로딩이 지연되고 있습니다. 등록 폼은 계속 사용할 수 있습니다.";
+	$MSG_PROBLEM_PREVIEW_FAILED="문제 미리보기를 불러오지 못했습니다. 미리보기를 껐다가 다시 켜 주세요.";
 	$MSG_Sample_Input="입력 예시";
 	$MSG_Sample_Output="출력 예시";
 	$MSG_Sample_Zip="샘플 압축";
