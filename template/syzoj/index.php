@@ -56,16 +56,22 @@
         background: #2563eb;
     }
     .home-hero-actions .ui.basic.button {
-        color: #fff;
+        color: #fff !important;
         box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .45);
     }
     .home-hero-actions .ui.basic.button:hover {
-        color: #fff;
+        color: #fff !important;
         background: rgba(255, 255, 255, .12);
         box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .7);
     }
     .home-content-grid {
-        margin-top: 0 !important;
+        margin: 0 !important;
+    }
+    .home-content-grid > .column:first-child {
+        padding-left: 0;
+    }
+    .home-content-grid > .column:last-child {
+        padding-right: 0;
     }
     .home-content-grid .ui.top.attached.block.header {
         margin-top: 0 !important;
@@ -76,6 +82,20 @@
         background: #fff !important;
         color: #1f2937 !important;
         box-shadow: 0 4px 12px rgba(15, 23, 42, .06), 0 0 0 3px rgba(174, 184, 196, .12);
+    }
+    .home-content-grid .ui.top.attached.block.header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        white-space: nowrap;
+    }
+    .home-content-grid .ui.top.attached.block.header > .icon {
+        margin: 0;
+    }
+    .home-content-grid .ui.top.attached.block.header > a {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
     .home-content-grid .ui.bottom.attached.segment {
         margin-bottom: 22px !important;
@@ -97,7 +117,7 @@
         .home-hero::after { right: 20px; font-size: 42px; letter-spacing: 4px; }
         .home-hero-actions { flex-direction: column; align-items: stretch; }
         .home-hero-actions .button { width: 100%; }
-        .home-content-grid.ui.grid { display: block; margin-left: 0; margin-right: 0; }
+        .home-content-grid.ui.grid { display: block; margin: 0 !important; }
         .home-content-grid.ui.grid > .column { width: 100% !important; padding: 0 0 1rem; }
         .home-content-grid .ui.bottom.attached.segment { overflow-x: auto; }
         .home-content-grid table { min-width: 460px; }
