@@ -28,6 +28,9 @@ if(isset($OJ_LANG)){
   .table-toolbar-row td { background: #f8fafc; }
   .table-toolbar-row:hover td { background: #f8fafc !important; }
   .table-toolbar-row .btn { margin: 2px; }
+  #pform .table { min-width: 960px; }
+  #pform .table th { white-space: nowrap; }
+  #pform { display: block; max-width: none; margin: 0; }
 </style>
 <hr>
 <h3 class="problem-list-title"><?php echo $MSG_PROBLEM."-".$MSG_LIST?></h3>
@@ -111,6 +114,7 @@ echo "</select>";
 <form id='pform' method=post action=contest_add.php>
 <input type="hidden" name=keyword value="<?php if(isset($_GET['keyword']))echo htmlentities($_GET['keyword'],ENT_QUOTES,"utf-8")?>">
 <input type="hidden" name=hlist value="" >
+<div class="admin-table-wrap">
 <table class="table" style="width:100%; text-align:center;">
   <thead>
     <tr>
@@ -208,6 +212,7 @@ echo "</select>";
     </tr>
   </tbody>
 </table>
+</div>
 </form>
 
 <script src='../template/bs3/jquery.min.js' ></script>
