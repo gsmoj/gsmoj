@@ -21,9 +21,6 @@
     return str_replace(array("\r", "\n"), array("", "&#10;"), htmlentities($value, ENT_QUOTES, "UTF-8"));
   }
 
-  $problem_preview_loading = isset($MSG_PROBLEM_PREVIEW_LOADING) ? $MSG_PROBLEM_PREVIEW_LOADING : "문제 미리보기를 불러오는 중입니다.";
-  $problem_preview_delayed = isset($MSG_PROBLEM_PREVIEW_DELAYED) ? $MSG_PROBLEM_PREVIEW_DELAYED : "미리보기 로딩이 지연되고 있습니다. 등록 폼은 계속 사용할 수 있습니다.";
-  $problem_preview_failed = isset($MSG_PROBLEM_PREVIEW_FAILED) ? $MSG_PROBLEM_PREVIEW_FAILED : "문제 미리보기를 불러오지 못했습니다. 미리보기를 껐다가 다시 켜 주세요.";
 ?>
 	  
 <html>
@@ -47,13 +44,17 @@
     .problem-form-options { margin-bottom: 16px; }
     .problem-form-actions { margin-top: 4px; }
     .problem-form-actions input { margin-right: 0 !important; }
-    #preview { box-sizing: border-box; background: #fff; border-left: 1px solid #d8dee8; bottom: 0; position: fixed; right: 0; top: 0; width: 50%; z-index: 1000; }
-    #previewFrame { border: 0; display: block; height: 100%; visibility: hidden; width: 100%; }
-    #preview.is-ready #previewFrame { visibility: visible; }
-    .preview-status { color: #64748b; left: 50%; margin: 0; position: absolute; text-align: center; top: 50%; transform: translate(-50%, -50%); width: calc(100% - 48px); }
-    #preview.is-ready .preview-status { display: none; }
-    #preview.is-delayed .preview-status { color: #92400e; }
-    #preview.is-failed .preview-status { color: #b91c1c; }
+    #preview { box-sizing: border-box; background: #f8fafc; border-left: 1px solid #d8dee8; bottom: 0; overflow-y: auto; position: fixed; right: 0; top: 0; width: 50%; z-index: 1000; }
+    .problem-preview-document { box-sizing: border-box; min-height: 100%; padding: 28px 24px; color: #1f2937; }
+    .problem-preview-heading { margin-bottom: 24px; text-align: center; }
+    .problem-preview-heading h1 { margin: 0 0 14px; font-size: 28px; overflow-wrap: anywhere; }
+    .problem-preview-limits { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; }
+    .problem-preview-label { padding: 7px 11px; border-radius: 5px; background: #e5e7eb; color: #374151; font-size: 13px; font-weight: 700; }
+    .problem-preview-section { margin: 0 0 18px; }
+    .problem-preview-section h4 { margin: 0; padding: 11px 14px; border: 1px solid #dbe2ea; border-radius: 8px 8px 0 0; background: #f1f5f9; font-size: 15px; }
+    .problem-preview-content { min-height: 48px; padding: 15px 16px; border: 1px solid #dbe2ea; border-top: 0; border-radius: 0 0 8px 8px; background: #fff; line-height: 1.7; overflow-wrap: anywhere; }
+    .problem-preview-content pre { margin: 0; white-space: pre-wrap; word-break: break-word; }
+    .problem-preview-placeholder { color: #94a3b8 !important; font-weight: 500 !important; }
     @media (max-width: 1000px) {
       body.preview-active { overflow: auto; }
       #main.preview-open { position: static; width: 100%; }
@@ -174,99 +175,99 @@
      
     </form>
   </div>
+  <template id="problem-preview-template">
+    <div class="problem-preview-document">
+      <header class="problem-preview-heading">
+        <h1 id="preview-title" class="problem-preview-placeholder"><?php echo problem_placeholder_attr($problem_form_placeholders['title'])?></h1>
+        <div class="problem-preview-limits">
+          <span id="preview-time" class="problem-preview-label"></span>
+          <span id="preview-memory" class="problem-preview-label"></span>
+        </div>
+      </header>
+      <section class="problem-preview-section">
+        <h4><?php echo htmlentities($MSG_Description, ENT_QUOTES, 'UTF-8')?></h4>
+        <div id="description" class="problem-preview-content"></div>
+      </section>
+      <section class="problem-preview-section">
+        <h4><?php echo htmlentities($MSG_Input, ENT_QUOTES, 'UTF-8')?></h4>
+        <div id="input" class="problem-preview-content"></div>
+      </section>
+      <section class="problem-preview-section">
+        <h4><?php echo htmlentities($MSG_Output, ENT_QUOTES, 'UTF-8')?></h4>
+        <div id="output" class="problem-preview-content"></div>
+      </section>
+      <section class="problem-preview-section">
+        <h4><?php echo htmlentities($MSG_Sample_Input, ENT_QUOTES, 'UTF-8')?></h4>
+        <div class="problem-preview-content"><pre><code id="sinput"></code></pre></div>
+      </section>
+      <section class="problem-preview-section">
+        <h4><?php echo htmlentities($MSG_Sample_Output, ENT_QUOTES, 'UTF-8')?></h4>
+        <div class="problem-preview-content"><pre><code id="soutput"></code></pre></div>
+      </section>
+      <section class="problem-preview-section">
+        <h4><?php echo htmlentities($MSG_HINT, ENT_QUOTES, 'UTF-8')?></h4>
+        <div id="hint" class="problem-preview-content"></div>
+      </section>
+    </div>
+  </template>
 <?php include_once("kindeditor.php"); ?>
 <script src="../template/bs3/marked.min.js"></script>
 <script>
-  let previewLoadTimer = null;
-
   function transform(){
-        let submitURL="../problem.php?id=1000";
         let main=$("#main");
         if ($("#preview").length) return;
+        let template=document.getElementById("problem-preview-template");
+        if (!template) return;
         $("body").addClass("preview-active");
         main.removeClass("container").addClass("preview-open");
         let preview = $("<div>", { id: "preview" });
-        let status = $("<p>", { class: "preview-status" }).text(<?php echo json_encode($problem_preview_loading, JSON_UNESCAPED_UNICODE)?>);
-        let frame = $("<iframe>", {
-          id: "previewFrame",
-          src: submitURL+"&spa",
-          title: "문제 미리보기"
-        });
-        frame.one("load", initializePreview);
-        frame.one("error", failPreview);
-        preview.append(status, frame);
+        preview.append(template.content.cloneNode(true));
         main.parent().append(preview);
-        previewLoadTimer = window.setTimeout(function() {
-          let preview = $("#preview");
-          if (preview.length && !preview.hasClass("is-ready")) {
-            preview.addClass("is-delayed");
-            preview.find(".preview-status").text(<?php echo json_encode($problem_preview_delayed, JSON_UNESCAPED_UNICODE)?>);
-          }
-        }, 5000);
 	$("input, textarea").on("input.problemPreview change.problemPreview", sync);
-  }
-
-  function initializePreview(){
-    try {
-	  let preview=$("#previewFrame").contents();
-	  preview.find(".ui.buttons").hide();
-	  preview.find("span.ui.label").eq(2).hide();
-	  preview.find("span.ui.label").eq(3).hide();
-	  preview.find("span.ui.label").eq(4).hide();
-	  preview.find("span.ui.label").eq(5).hide();
-	  preview.find("#show_tag_div").parent().hide();
-      window.clearTimeout(previewLoadTimer);
-      $("#preview").removeClass("is-delayed is-failed").addClass("is-ready");
-	  sync();
-    } catch (error) {
-      failPreview();
-    }
-  }
-
-  function failPreview(){
-    window.clearTimeout(previewLoadTimer);
-    $("#preview")
-      .removeClass("is-delayed is-ready")
-      .addClass("is-failed")
-      .find(".preview-status")
-      .text(<?php echo json_encode($problem_preview_failed, JSON_UNESCAPED_UNICODE)?>);
+        sync();
   }
 
   function sync(){
-	let previewFrame=$("#previewFrame")[0];
-    if (!previewFrame || !$("#preview").hasClass("is-ready")) return;
-	let preFrame=$(previewFrame).contents();
-	let title=$("input[name=title]").val();
-	preFrame.find("h1:first").html(title);
+    let preview=$("#preview");
+    if (!preview.length) return;
+	let title=$("input[name=title]").val().trim();
+	preview.find("#preview-title")
+      .text(title || <?php echo json_encode($problem_form_placeholders['title'], JSON_UNESCAPED_UNICODE)?>)
+      .toggleClass("problem-preview-placeholder", !title);
 	let time=$("input[name=time_limit]").val();
-	preFrame.find("span.ui.label").eq(0).html("<?php echo $MSG_Time_Limit ?>："+time);
+	preview.find("#preview-time").text(<?php echo json_encode($MSG_Time_Limit, JSON_UNESCAPED_UNICODE)?>+": "+time+" sec");
 	let memory=$("input[name=memory_limit]").val();
-	preFrame.find("span.ui.label").eq(1).html("<?php echo $MSG_Memory_Limit ?>："+memory);
+	preview.find("#preview-memory").text(<?php echo json_encode($MSG_Memory_Limit, JSON_UNESCAPED_UNICODE)?>+": "+memory+" MiB");
 	
 	let description=$("textarea[name='description']").val();
-	renderMarkdownPreview(preFrame.find("#description"), description, true);
+	renderMarkdownPreview(preview.find("#description"), description, true, <?php echo json_encode($problem_form_placeholders['description'], JSON_UNESCAPED_UNICODE)?>);
   
 	let input=$("textarea[name='input']").val();
-	renderMarkdownPreview(preFrame.find("#input"), input, false);
+	renderMarkdownPreview(preview.find("#input"), input, false, <?php echo json_encode($problem_form_placeholders['input'], JSON_UNESCAPED_UNICODE)?>);
 	let output=$("textarea[name='output']").val();
-	renderMarkdownPreview(preFrame.find("#output"), output, false);
+	renderMarkdownPreview(preview.find("#output"), output, false, <?php echo json_encode($problem_form_placeholders['output'], JSON_UNESCAPED_UNICODE)?>);
 
 	let sinput=$("textarea[name='sample_input']").val();
-	preFrame.find("#sinput").html(sinput);
+	preview.find("#sinput")
+      .text(sinput || <?php echo json_encode($problem_form_placeholders['sample_input'], JSON_UNESCAPED_UNICODE)?>)
+      .toggleClass("problem-preview-placeholder", !sinput.trim());
 	let soutput=$("textarea[name='sample_output']").val();
-	preFrame.find("#soutput").html(soutput);
+	preview.find("#soutput")
+      .text(soutput || <?php echo json_encode($problem_form_placeholders['sample_output'], JSON_UNESCAPED_UNICODE)?>)
+      .toggleClass("problem-preview-placeholder", !soutput.trim());
 	let hint=$("textarea[name='hint']").val();
-	renderMarkdownPreview(preFrame.find("#hint"), hint, false);
-	if(previewFrame.contentWindow.MathJax != undefined ) previewFrame.contentWindow.MathJax.typeset();
+	renderMarkdownPreview(preview.find("#hint"), hint, false, <?php echo json_encode($problem_form_placeholders['hint'], JSON_UNESCAPED_UNICODE)?>);
   }
 
-  function renderMarkdownPreview(target, content, autoSelect) {
+  function renderMarkdownPreview(target, content, autoSelect, placeholder) {
     let source = content || "";
     let existing = $("<div>").html(source).find(".md").first();
     if (existing.length) source = existing.html();
-    if (!source.trim()) source = "\u00a0";
+    let isPlaceholder = !source.trim();
+    if (isPlaceholder) source = placeholder || "\u00a0";
     let wrapper = $("<span>").addClass(autoSelect ? "md auto_select" : "md");
-    if (typeof marked === "undefined")
+    wrapper.toggleClass("problem-preview-placeholder", isPlaceholder);
+    if (isPlaceholder || typeof marked === "undefined")
       wrapper.text(source);
     else
       wrapper.html(marked.parse(source, { breaks: true, gfm: true }));
@@ -288,7 +289,6 @@
             });
         });
 function untransform() {
-    window.clearTimeout(previewLoadTimer);
     let main = $("#main");
     $("body").removeClass("preview-active");
     main.removeClass("preview-open");
