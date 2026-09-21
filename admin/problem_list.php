@@ -23,13 +23,12 @@ if(isset($OJ_LANG)){
   .problem-list-toolbar { margin: 0 0 18px; text-align: center; }
   .problem-list-toolbar .search-query { width: 320px; max-width: 100%; }
   .problem-list-toolbar .pagination { margin: 12px 0 0; display: inline-flex; }
-  #pform .table th, #pform .table td { text-align: center; }
-  #pform .table td:nth-child(2) { text-align: left; }
+  #pform .table th, #pform .table td { vertical-align: middle; text-align: center; white-space: nowrap; }
+  #pform .table th:nth-child(2), #pform .table td:nth-child(2) { min-width: 280px; text-align: left; }
   .table-toolbar-row td { background: #f8fafc; }
   .table-toolbar-row:hover td { background: #f8fafc !important; }
-  .table-toolbar-row .btn { margin: 2px; }
-  #pform .table { min-width: 960px; }
-  #pform .table th { white-space: nowrap; }
+  .table-toolbar-row .btn { display: inline-block; margin: 2px; white-space: nowrap; }
+  #pform .table { min-width: 1200px; }
   #pform { display: block; max-width: none; margin: 0; }
 </style>
 <hr>
