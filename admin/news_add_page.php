@@ -49,7 +49,7 @@ if(isset($_POST['pid'])){
 	  <input class="input input-large" style="width:100%;" size=71 value='<?php echo isset($title)?$title."-Copy":""?>' type=text name='title' id='title' > 
 	  <input type=submit class='btn btn-success' value='<?php echo $MSG_SAVE?>' name=submit> 
 	<!--  <input class='btn btn-primary' id='ai_bt' type=button value='AI一下' onclick='ai_gen()' >  -->
-	  <input class='btn btn-danger'  type=reset value='<?php echo $MSG_RESET?>' onclick='setTimeout("ai_gen()",500);' >
+	  <input class='btn btn-danger'  type=reset value='<?php echo $MSG_RESET?>' >
     </p>
     <p align=left>
       <label class="col control-label"><?php echo $MSG_NEWS_MENU?>
