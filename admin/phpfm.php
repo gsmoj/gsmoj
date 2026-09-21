@@ -3775,7 +3775,7 @@ function dir_list_form() {
         }
         $title=pdo_query('select title from problem where problem_id=?',$pid)[0][0];
         $out.="<b></b>
-            <a class='btn btn-info' href='https://muzea-demo.github.io/random-data/' target='_blank' title='외부 사이트로 이동합니다. 해당 사이트는 중국어로만 제공됩니다.' onclick=\"return confirm('외부 랜덤 데이터 생성기 사이트로 이동합니다.\\n해당 사이트는 한국어를 지원하지 않고 중국어로만 되어 있습니다.\\n계속하시겠습니까?')\">".et('Random-data')."</a>
+            <a class='btn btn-info' href='random_data.php' target='_blank'>".et('Random-data')."</a>
             <b><a class='btn' href='../problem.php?id=$pid' target='_self'><font color=blue>$title </font></a></b>
             </nobr>";
         $uplink = "";
