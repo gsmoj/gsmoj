@@ -3774,8 +3774,7 @@ function dir_list_form() {
                 $pid=$_SESSION[$OJ_NAME."_PID"];
         }
         $title=pdo_query('select title from problem where problem_id=?',$pid)[0][0];
-        $out.="<b></b>
-            <a class='btn btn-info' href='random_data.php' target='_blank'>".et('Random-data')."</a>
+        $out.="
             <b><a class='btn' href='../problem.php?id=$pid' target='_self'><font color=blue>$title </font></a></b>
             </nobr>";
         $uplink = "";
