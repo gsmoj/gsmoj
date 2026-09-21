@@ -1,5 +1,9 @@
 <?php
         require_once("../include/db_info.inc.php");
+        if (!isset($_SESSION[$OJ_NAME.'_'.'user_id'])) {
+                header("Location: ../loginpage.php");
+                exit();
+        }
 ?><html>
 <head>
 <title><?php echo $OJ_NAME.$MSG_ADMIN?></title>
