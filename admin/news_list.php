@@ -109,11 +109,11 @@ if(!(isset($_GET['keyword']) && $_GET['keyword']!=""))
 function admin_mod(){
 	var tb_name="news";
 	var fd_name="importance";
-	let fd_array = ["importance", "menu"];
+	// ajax.php는 news의 importance 필드만 인라인 수정을 허용한다. 메뉴 표시는 수정 화면에서 바꾼다.
+	let fd_array = ["importance"];
 
-// 使用 for...of 循环
 	for (let fd_name of fd_array) {
-		$("td[fd=importance]").each(function(){
+		$("td[fd="+fd_name+"]").each(function(){
 			let sp=$(this);
 			let fd=$(this).attr("fd");
 			let data_id=$(this).parent().attr(tb_name+'_id');
