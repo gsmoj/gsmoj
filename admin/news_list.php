@@ -11,11 +11,13 @@ if(isset($OJ_LANG)){
 }
 ?>
 
-<title>News List</title>
-<hr>
-<center><h3><?php echo $MSG_NEWS."-".$MSG_LIST?></h3></center>
+<title><?php echo $MSG_NEWS." ".$MSG_LIST?></title>
 
-<div class='padding'>
+<div class='padding admin-content-page'>
+<div class="admin-page-heading">
+  <div><h3><?php echo $MSG_NEWS." ".$MSG_LIST?></h3><p><?php echo $MSG_HELP_NEWS_LIST?></p></div>
+  <a href="news_add_page.php" class="btn btn-primary"><?php echo $MSG_NEWS." ".$MSG_ADD?></a>
+</div>
 
 <?php
 $sql = "SELECT COUNT('news_id') AS ids FROM `news`";
@@ -50,40 +52,44 @@ if(isset($_GET['keyword']) && $_GET['keyword']!=""){
 }
 ?>
 
-<center>
-<form action=news_list.php class="form-search form-inline">
-  <input type="text" name=keyword class="form-control search-query" placeholder="<?php echo $MSG_TITLE.', '.$MSG_CONTENTS?>">
-  <button type="submit" class="form-control"><?php echo $MSG_SEARCH?></button>
+<form action=news_list.php class="form-search form-inline admin-list-search">
+  <input type="text" name='keyword' class="form-control search-query"
+    value="<?php echo htmlentities($_GET['keyword']??"", ENT_QUOTES, 'UTF-8')?>"
+    placeholder="<?php echo $MSG_TITLE.', '.$MSG_CONTENTS?>">
+  <button type="submit" class="btn btn-primary"><?php echo $MSG_SEARCH?></button>
 </form>
-</center>
 
-<center>
-  <table width=100% border=1 style="text-align:center;">
-    <tr style='height:40px;'>
-      <td>ID</td>
-      <td>TITLE</td>
-      <td>UPDATE</td>
-      <td>NOW</td>
-      <td>COPY</td>
-      <td>IMPORTANCE</td>
-      <td>MENU</td>
+  <div class="admin-table-wrap">
+  <table class="table admin-news-table">
+    <thead>
+    <tr>
+      <th>번호</th>
+      <th class="admin-news-title"><?php echo $MSG_TITLE?></th>
+      <th>수정일</th>
+      <th>게시 상태</th>
+      <th>중요도</th>
+      <th>메뉴 표시</th>
+      <th><?php echo $MSG_COPY?></th>
     </tr>
+    </thead>
+    <tbody>
     <?php
     foreach($result as $row){
-      echo "<tr style='height:40px;' news_id='".$row['news_id']."'>";
+      echo "<tr news_id='".$row['news_id']."'>";
         echo "<td>".$row['news_id']."</td>";
-        echo "<td><a href='news_edit.php?id=".$row['news_id']."'>".htmlentities($row['title']==""?"Empty":$row['title'])."</a>"."</td>";
-        echo "<td>".$row['time']."</td>";
-        echo "<td><a href=news_df_change.php?id=".$row['news_id']."&getkey=".htmlentities($_SESSION[$OJ_NAME.'_'.'getkey'], ENT_QUOTES, 'UTF-8').">".($row['defunct']=="N"?"<span class=green>On</span>":"<span class=red>Off</span>")."</a>"."</td>";
-        echo "<td><a href=news_add_page.php?cid=".$row['news_id'].">Copy</a></td>";
-        echo "<td fd='importance'>" . ($row['importance']). "</td>";
-        echo "<td fd='menu'>" . ($row['menu'] == 1 ? "YES" : "NO") . "</td>";
+        echo "<td class='admin-news-title'><a href='news_edit.php?id=".$row['news_id']."'>".htmlentities($row['title']==""?"(제목 없음)":$row['title'])."</a>"."</td>";
+        echo "<td class='admin-news-time'>".$row['time']."</td>";
+        echo "<td><a href=news_df_change.php?id=".$row['news_id']."&getkey=".htmlentities($_SESSION[$OJ_NAME.'_'.'getkey'], ENT_QUOTES, 'UTF-8')." title='눌러서 게시 상태 전환'>".($row['defunct']=="N"?"<span class='admin-badge admin-badge--on'>게시 중</span>":"<span class='admin-badge admin-badge--off'>숨김</span>")."</a>"."</td>";
+        echo "<td fd='importance' class='admin-inline-edit' title='더블클릭하여 수정'>" . ($row['importance']). "</td>";
+        echo "<td fd='menu'>" . ($row['menu'] == 1 ? "<span class='admin-badge admin-badge--info'>표시</span>" : "<span class='admin-badge admin-badge--off'>미표시</span>") . "</td>";
+        echo "<td><a class='btn btn-default btn-sm' href=news_add_page.php?cid=".$row['news_id'].">".$MSG_COPY."</a></td>";
       echo "</tr>";
     }
     ?>
+    </tbody>
   </table>
-</center>
-- <?php echo $MSG_HELP_ADD_FAQS?>
+  </div>
+<p class="admin-field-help admin-news-help"><?php echo $MSG_HELP_ADD_FAQS?></p>
 
 <?php
 if(!(isset($_GET['keyword']) && $_GET['keyword']!=""))

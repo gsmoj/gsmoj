@@ -43,29 +43,25 @@ if(isset($_POST['pid'])){
 <script>document.body.classList.add('admin-form-page');</script>
 <div class="admin-form-shell">
   <header class="admin-form-title"><h3><?php echo htmlentities($page_heading, ENT_QUOTES, 'UTF-8')?></h3></header>
-  <form method=POST action=news_add.php>
-    <p align=left>
-      <label class="col control-label"><?php echo $MSG_TITLE?></label>
-	  <input class="input input-large" style="width:100%;" size=71 value='<?php echo isset($title)?$title."-Copy":""?>' type=text name='title' id='title' > 
-	  <input type=submit class='btn btn-success' value='<?php echo $MSG_SAVE?>' name=submit> 
-	<!--  <input class='btn btn-primary' id='ai_bt' type=button value='AI一下' onclick='ai_gen()' >  -->
-	  <input class='btn btn-danger'  type=reset value='<?php echo $MSG_RESET?>' >
-    </p>
-    <p align=left>
-      <label class="col control-label"><?php echo $MSG_NEWS_MENU?>
-        <input style="display: inline-block;" type="checkbox" name=showInMenu />
+  <form method=POST action=news_add.php class="admin-news-form">
+    <div class="admin-news-field">
+      <label class="admin-field-label" for="title"><?php echo $MSG_TITLE?></label>
+      <input type=text name='title' id='title' value='<?php echo isset($title)?htmlentities($title." (복사본)", ENT_QUOTES, 'UTF-8'):""?>'>
+    </div>
+    <div class="admin-news-field">
+      <label class="admin-news-check">
+        <input type="checkbox" name=showInMenu />
+        <?php echo $MSG_NEWS_MENU?>
       </label>
-    </p>
-    <p align=left>
-      <textarea class=kindeditor name=content rows=41 >
-        <?php echo isset($content)?$content:""?>
-      </textarea>
-    </p>
-    <p>
-      <center>
-      <input type=submit value='<?php echo $MSG_SAVE?>' name=submit>
-      </center>
-    </p>
+    </div>
+    <div class="admin-news-field">
+      <textarea class=kindeditor name=content rows=41 ><?php echo isset($content)?$content:""?></textarea>
+    </div>
+    <!--  <input class='btn btn-primary' id='ai_bt' type=button value='AI一下' onclick='ai_gen()' >  -->
+    <div class="admin-form-actions">
+      <input type=reset class='btn btn-default' value='<?php echo $MSG_RESET?>'>
+      <input type=submit class='btn btn-primary' value='<?php echo $MSG_SAVE?>' name=submit>
+    </div>
     <?php require_once("../include/set_post_key.php");?>
   </form>
 </div>
