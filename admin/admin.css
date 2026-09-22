@@ -1011,3 +1011,60 @@ html:has(.admin-menu-frame), .admin-menu-frame { overflow-x: hidden; scrollbar-w
     .padding, .bk, .col, .news-content { min-width: 0; padding: 16px; }
     .table { display: block; overflow-x: auto; }
 }
+
+/* 공지 관리: news_list.php, news_add_page.php, news_edit.php */
+.admin-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.5;
+    white-space: nowrap;
+}
+.admin-badge--on { color: #15803d; background: #dcfce7; }
+.admin-badge--off { color: #64748b; background: #f1f5f9; }
+.admin-badge--info { color: #1d4ed8; background: #dbeafe; }
+.admin-badge--warn { color: #b45309; background: #fef3c7; }
+a:hover > .admin-badge { box-shadow: 0 0 0 2px rgba(37, 99, 235, .25); }
+
+.admin-news-table { min-width: 760px; margin-bottom: 0; text-align: center; }
+.admin-news-table th, .admin-news-table td { white-space: nowrap; }
+.admin-news-table .admin-news-title { width: 100%; text-align: left; white-space: normal; }
+.admin-news-table .admin-news-title a { font-weight: 600; }
+.admin-news-table .admin-news-time { color: var(--admin-muted); font-size: 13px; }
+.admin-inline-edit { cursor: pointer; }
+.admin-inline-edit:not(:has(form)) { text-decoration: underline dotted #94a3b8; text-underline-offset: 4px; }
+.admin-inline-edit:hover { background: #eff6ff; }
+.admin-inline-edit input[type="text"] { width: 72px; text-align: center; }
+.admin-news-help { margin: 14px 0 0; }
+
+.admin-news-form { display: grid; gap: 18px; }
+.admin-news-field { min-width: 0; }
+.admin-news-field .admin-field-label { display: block; }
+.admin-news-check {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    color: var(--admin-text);
+    font-weight: 600;
+    cursor: pointer;
+}
+.admin-news-check input[type="checkbox"] { width: 16px; height: 16px; margin: 0; }
+
+.admin-form-actions {
+    position: sticky;
+    z-index: 20;
+    bottom: 0;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin: 0 -24px;
+    padding: 14px 24px;
+    border-top: 1px solid var(--admin-border);
+    background: #fff;
+}
+.admin-form-actions .btn { min-width: 96px; }
+.admin-form-actions .btn-default { color: #334155; border-color: #cbd5e1; background: #fff; }
+.admin-form-actions .btn-default:hover { color: var(--admin-text); background: #f1f5f9; }
