@@ -19,14 +19,14 @@
   }
 
   $maxfile = min(ini_get("upload_max_filesize"), ini_get("post_max_size"));
-  echo "<center><h3>".$MSG_PROBLEM."-".$MSG_IMPORT."</h3></center>";
+  $page_heading = $MSG_PROBLEM." - ".$MSG_IMPORT;
 ?>
 
 <!DOCTYPE html>
 <html>
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <title>Problem Import</title>
+  <title><?php echo htmlentities($page_heading, ENT_QUOTES, 'UTF-8')?></title>
   <style>
     /* 进度条浮窗样式 */
     #upload-p-window {
@@ -38,7 +38,8 @@
     .progress-bar-success { background-color: #5cb85c; color: #fff; text-align: center; transition: width .6s ease; }
   </style>
 </head>
-<body leftmargin="30">
+<body>
+  <script>document.body.classList.add('admin-form-page');</script>
 
   <div id="upload-p-window">
       <h4 id="p-title" style="margin-top:0">파일을 업로드하고 있습니다...</h4>
@@ -48,7 +49,11 @@
       <div id="p-status" style="font-size:12px; color:#666; text-align:center;">데이터를 준비하고 있습니다...</div>
   </div>
 
-  <div class="container">
+  <div class="admin-form-shell">
+    <header class="admin-form-title">
+      <h3><?php echo htmlentities($page_heading, ENT_QUOTES, 'UTF-8')?></h3>
+      <p>다른 온라인 저지에서 내보낸 문제 파일을 형식에 맞게 업로드합니다.</p>
+    </header>
     <?php 
     $show_form = true;
     if (!writable($OJ_DATA)) {
@@ -63,80 +68,96 @@
 
     if ($show_form) { ?>
     
-    - 문제 가져오기 <b>FPS(.xml)/ZIP(.xml 포함)</b> <br><br>
+    <section class="admin-import-card">
+    <h4>FPS (.xml / .xml을 담은 .zip)</h4>
     <form class='form-inline aj-up' action='problem_import_xml.php' method=post enctype="multipart/form-data">
       <div class='form-group'>
         <input class='form-control' type=file name=fps required>
-        편집자:<input class='form-control' type=text name='user_id' value='<?php echo htmlentities($_SESSION[$OJ_NAME.'_user_id'])?>' >
-        <button class='btn btn-success btn-sm' type=submit>HUSTOJ에 업로드</button>
-      </div>
-      <?php require("../include/set_post_key.php");?>
-    </form> <hr>
-
-    - QDUOJ - json - zip<br>
-    <form class='form-inline aj-up' action='problem_import_qduoj.php' method=post enctype="multipart/form-data">
-      <div class='form-group'>
-        <input class='form-control' type=file name=fps required>
-        <button class='btn btn-info btn-sm' type=submit>HUSTOJ에 업로드</button>
-      </div>
-      <?php require("../include/set_post_key.php");?>
-    </form> <hr>
-
-    - SYZOJ - zip<br><br>
-    <form class='form-inline aj-up' action='problem_import_syzoj.php' method=post enctype="multipart/form-data">
-      <div class='form-group'>
-        <input class='form-control' type=file name=fps required>
-        <button class='btn btn-warning btn-sm' type=submit>HUSTOJ에 업로드</button>
-      </div>
-      <?php require("../include/set_post_key.php");?>
-    </form> <hr>
-
-    - HydroOJ - zip<br><br>
-    <form class='form-inline aj-up' action='problem_import_hydro.php' method=post enctype="multipart/form-data">
-      <div class='form-group'>
-        <input class='form-control' type=file name=fps required>
-        <button class='btn btn-danger btn-sm' type=submit>HUSTOJ에 업로드</button>
-      </div>
-      <?php require("../include/set_post_key.php");?>
-    </form> <hr>
-
-    - HOJ - zip<br><br>
-    <form class='form-inline aj-up' action='problem_import_hoj.php' method=post enctype="multipart/form-data">
-      <div class='form-group'>
-        <input class='form-control' type=file name=fps required>
-        <button class='btn btn-info btn-sm' type=submit>HUSTOJ에 업로드</button>
-      </div>
-      <?php require("../include/set_post_key.php");?>
-    </form> <hr>
-
-    - TYVJ - zip<br><br>
-    <form class='form-inline aj-up' action='problem_import_tyvj.php' method=post enctype="multipart/form-data">
-      <div class='form-group'>
-        <input class='form-control' type=file name=fps required>
-        <button class='btn btn-primary btn-sm' type=submit>HUSTOJ에 업로드</button>
-      </div>
-      <?php require("../include/set_post_key.php");?>
-    </form> <hr>
-
-    - Markdown - zip<br>
-    <form class='form-inline aj-up' action='problem_import_md.php' method=post enctype="multipart/form-data">
-      <div class='form-group'>
-        <input class='form-control' type=file name=fps required>
-        <button class='btn btn-warning btn-sm' type=submit>HUSTOJ에 업로드</button>
+        <label class='admin-field-label' for='import-user-id' style='margin:0'>편집자</label><input class='form-control' id='import-user-id' type=text name='user_id' value='<?php echo htmlentities($_SESSION[$OJ_NAME.'_user_id'])?>' >
+        <button class='btn btn-primary' type=submit>업로드</button>
       </div>
       <?php require("../include/set_post_key.php");?>
     </form>
+    </section>
+
+    <section class="admin-import-card">
+    <h4>QDUOJ (json .zip)</h4>
+    <form class='form-inline aj-up' action='problem_import_qduoj.php' method=post enctype="multipart/form-data">
+      <div class='form-group'>
+        <input class='form-control' type=file name=fps required>
+        <button class='btn btn-primary' type=submit>업로드</button>
+      </div>
+      <?php require("../include/set_post_key.php");?>
+    </form>
+    </section>
+
+    <section class="admin-import-card">
+    <h4>SYZOJ (.zip)</h4>
+    <form class='form-inline aj-up' action='problem_import_syzoj.php' method=post enctype="multipart/form-data">
+      <div class='form-group'>
+        <input class='form-control' type=file name=fps required>
+        <button class='btn btn-primary' type=submit>업로드</button>
+      </div>
+      <?php require("../include/set_post_key.php");?>
+    </form>
+    </section>
+
+    <section class="admin-import-card">
+    <h4>HydroOJ (.zip)</h4>
+    <form class='form-inline aj-up' action='problem_import_hydro.php' method=post enctype="multipart/form-data">
+      <div class='form-group'>
+        <input class='form-control' type=file name=fps required>
+        <button class='btn btn-primary' type=submit>업로드</button>
+      </div>
+      <?php require("../include/set_post_key.php");?>
+    </form>
+    </section>
+
+    <section class="admin-import-card">
+    <h4>HOJ (.zip)</h4>
+    <form class='form-inline aj-up' action='problem_import_hoj.php' method=post enctype="multipart/form-data">
+      <div class='form-group'>
+        <input class='form-control' type=file name=fps required>
+        <button class='btn btn-primary' type=submit>업로드</button>
+      </div>
+      <?php require("../include/set_post_key.php");?>
+    </form>
+    </section>
+
+    <section class="admin-import-card">
+    <h4>TYVJ (.zip)</h4>
+    <form class='form-inline aj-up' action='problem_import_tyvj.php' method=post enctype="multipart/form-data">
+      <div class='form-group'>
+        <input class='form-control' type=file name=fps required>
+        <button class='btn btn-primary' type=submit>업로드</button>
+      </div>
+      <?php require("../include/set_post_key.php");?>
+    </form>
+    </section>
+
+    <section class="admin-import-card">
+    <h4>Markdown (.zip)</h4>
+    <form class='form-inline aj-up' action='problem_import_md.php' method=post enctype="multipart/form-data">
+      <div class='form-group'>
+        <input class='form-control' type=file name=fps required>
+        <button class='btn btn-primary' type=submit>업로드</button>
+      </div>
+      <?php require("../include/set_post_key.php");?>
+    </form>
+    </section>
 
     <?php } ?>
 
-    <br><br>
     <?php if ($OJ_LANG == "cn") { ?>
+    <p class="admin-field-help">
     무료 문제는 <a href="https://github.com/zhblue/freeproblemset/tree/master/fps-examples" target="_blank">다운로드</a>할 수 있습니다.<br>
     더 많은 문제는 <a href="http://tk.hustoj.com/problemset.php?search=free" target="_blank">TK 문제 은행 무료 영역</a>에서 확인하세요.
+    </p>
     <?php } ?>
-    <br><br>
-    - FPS 데이터를 가져오려면 파일 크기가 [<?php echo $maxfile?>]보다 작아야 합니다.<br>
-    - PHP 설정 파일은 <span style='color:blue'> find /etc -name php.ini </span> 명령으로 찾을 수 있습니다.
+    <ul class="admin-field-help admin-help-list">
+      <li>FPS 데이터를 가져오려면 파일 크기가 [<?php echo $maxfile?>]보다 작아야 합니다.</li>
+      <li>PHP 설정 파일은 <code>find /etc -name php.ini</code> 명령으로 찾을 수 있습니다.</li>
+    </ul>
   </div>
 
 <script>

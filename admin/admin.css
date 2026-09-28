@@ -1044,6 +1044,19 @@ a:hover > .admin-badge { box-shadow: 0 0 0 2px rgba(37, 99, 235, .25); }
 .admin-result-log + form, .admin-result-log + .admin-form-actions { margin-top: 18px; }
 .admin-form-section-title { margin: 0; color: var(--admin-text); font-weight: 700; }
 
+.admin-help-list { margin: 0; padding-left: 20px; line-height: 1.7; }
+.admin-export-form { max-width: 760px; }
+.admin-export-field .admin-field-label { display: block; }
+.admin-export-field .admin-field-help { margin: 6px 0 0; }
+.admin-export-range { display: flex; align-items: center; gap: 8px; }
+.admin-export-range input { flex: 1 1 0; min-width: 0; }
+.admin-import-card { max-width: 860px; margin: 0 0 16px; padding: 16px 18px 4px; border: 1px solid var(--admin-border); border-radius: 12px; background: #fff; }
+.admin-import-card h4 { margin: 0; color: var(--admin-text); font-size: 15px; font-weight: 700; }
+.admin-import-card form.aj-up { width: 100%; margin: 8px 0 12px; padding: 0; }
+.admin-import-card form.aj-up .form-group { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; width: 100%; margin: 0; }
+.admin-import-card form.aj-up input[type="file"] { flex: 1 1 280px; }
+.admin-import-card form.aj-up input[type="text"] { flex: 0 1 180px; }
+
 .admin-news-form { display: grid; gap: 18px; }
 .admin-news-field { min-width: 0; }
 .admin-news-field .admin-field-label { display: block; }

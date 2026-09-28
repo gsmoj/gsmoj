@@ -17,12 +17,11 @@ if(isset($OJ_LANG)){
 }
 ?>
 
-<title>Problem List</title>
+<title><?php echo $MSG_PROBLEM." ".$MSG_LIST?></title>
 <style>
-  .problem-list-title { margin: 0 0 16px; text-align: center; }
-  .problem-list-toolbar { margin: 0 0 18px; text-align: center; }
-  .problem-list-toolbar .search-query { width: 320px; max-width: 100%; }
-  .problem-list-toolbar .pagination { margin: 12px 0 0; display: inline-flex; }
+  .problem-list-toolbar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin: 0 0 18px; }
+  .problem-list-toolbar .admin-list-search { flex: 1 1 420px; margin: 0; }
+  .problem-list-toolbar .pagination { margin: 0; display: inline-flex; }
   #pform .table th, #pform .table td { vertical-align: middle; text-align: center; white-space: nowrap; }
   #pform .table th:nth-child(2), #pform .table td:nth-child(2) { min-width: 280px; text-align: left; }
   .table-toolbar-row td { background: #f8fafc; }
@@ -31,10 +30,13 @@ if(isset($OJ_LANG)){
   #pform .table { min-width: 1200px; }
   #pform { display: block; max-width: none; margin: 0; }
 </style>
-<hr>
-<h3 class="problem-list-title"><?php echo $MSG_PROBLEM."-".$MSG_LIST?></h3>
-
-<div class='container'>
+<div class='padding admin-content-page'>
+<div class="admin-page-heading">
+  <div><h3><?php echo $MSG_PROBLEM." - ".$MSG_LIST?></h3><p><?php echo $MSG_HELP_PROBLEM_LIST?></p></div>
+  <?php if (isset($_SESSION[$OJ_NAME.'_'.'administrator']) || isset($_SESSION[$OJ_NAME.'_'.'contest_creator']) || isset($_SESSION[$OJ_NAME.'_'.'problem_editor'])) { ?>
+  <a href="problem_add_page.php" class="btn btn-primary"><?php echo $MSG_PROBLEM." ".$MSG_ADD?></a>
+  <?php } ?>
+</div>
 
 <?php
 $sql = "SELECT COUNT('problem_id') AS ids FROM `problem`";
@@ -70,9 +72,9 @@ if(isset($_GET['keyword']) && $_GET['keyword']!=""){
 ?>
 
 <div class="problem-list-toolbar">
-<form action=problem_list.php class="form-search form-inline">
+<form action=problem_list.php class="form-search form-inline admin-list-search">
   <input type="text" name=keyword value="<?php if(isset($_GET['keyword']))echo htmlentities($_GET['keyword'],ENT_QUOTES,"utf-8")?>" class="form-control search-query" placeholder="<?php echo $MSG_PROBLEM_ID.', '.$MSG_TITLE.', '.$MSG_Description.', '.$MSG_SOURCE?>">
-  <button type="submit" class="form-control btn btn-primary"><?php echo $MSG_SEARCH?></button>
+  <button type="submit" class="btn btn-primary"><?php echo $MSG_SEARCH?></button>
 </form>
 
 <?php
@@ -181,8 +183,8 @@ echo "</select>";
 		
         if(isset($_SESSION[$OJ_NAME.'_'.'administrator'])||isset($_SESSION[$OJ_NAME.'_'.'problem_editor'])){
           if(isset($_SESSION[$OJ_NAME.'_'.'administrator']) || isset($_SESSION[$OJ_NAME.'_'.'problem_editor'])){
-            echo "<td><a href=problem_df_change.php?id=".$row['problem_id']."&getkey=".htmlentities($_SESSION[$OJ_NAME.'_'.'getkey'], ENT_QUOTES, 'UTF-8').">".($row['defunct']=="N"?"<span titlc='click to reserve it' class=green>$MSG_AVAILABLE</span>":"<span class=red title='click to be available'>$MSG_RESERVED</span>")."</a></td>";
-          echo "<td><span fd='coin' problem_id='" . $row['problem_id'] . "'>" . intval($row['coin']) . "</span></td>";
+            echo "<td><a href=problem_df_change.php?id=".$row['problem_id']."&getkey=".htmlentities($_SESSION[$OJ_NAME.'_'.'getkey'], ENT_QUOTES, 'UTF-8').">".($row['defunct']=="N"?"<span title='눌러서 비공개로 전환' class='admin-badge admin-badge--on'>$MSG_AVAILABLE</span>":"<span class='admin-badge admin-badge--off' title='눌러서 공개로 전환'>$MSG_RESERVED</span>")."</a></td>";
+          echo "<td><span class='admin-inline-edit' title='더블클릭하여 수정' fd='coin' problem_id='" . $row['problem_id'] . "'>" . intval($row['coin']) . "</span></td>";
 		    if(isset($_SESSION[$OJ_NAME.'_'.'administrator']) || isset($_SESSION[$OJ_NAME.'_'."p".$row['problem_id']]) ){
 			    ?>
 			           <td>  <a href=# onclick='javascript:if(confirm(<?php echo json_encode($MSG_DELETE."[".htmlentities($row['title'],ENT_QUOTES,"UTF-8")."]?")?>)) 
@@ -193,8 +195,8 @@ echo "</select>";
 		    }
           }
       if(isset($_SESSION[$OJ_NAME.'_'.'administrator']) || isset($_SESSION[$OJ_NAME.'_'."p".$row['problem_id']]) ){
-        echo "<td><a href=problem_edit.php?id=".$row['problem_id']."&getkey=".htmlentities($_SESSION[$OJ_NAME.'_'.'getkey'], ENT_QUOTES, 'UTF-8').">$MSG_EDIT</a>";
-        echo "<td><a href='javascript:phpfm(".$row['problem_id'].");'>$MSG_TEST_DATA</a>";
+        echo "<td><a href=problem_edit.php?id=".$row['problem_id']."&getkey=".htmlentities($_SESSION[$OJ_NAME.'_'.'getkey'], ENT_QUOTES, 'UTF-8').">$MSG_EDIT</a></td>";
+        echo "<td><a href='javascript:phpfm(".$row['problem_id'].");'>$MSG_TEST_DATA</a></td>";
       }
     }
     echo "</tr>";
