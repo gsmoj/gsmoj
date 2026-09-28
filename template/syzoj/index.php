@@ -71,11 +71,14 @@
         grid-template-columns: minmax(0, 11fr) minmax(0, 5fr);
         column-gap: 1rem;
         width: 100%;
+        min-width: 0;
         margin: 0 !important;
     }
     .home-content-grid > .column {
+        display: block;
         float: none !important;
         width: auto !important;
+        min-width: 0;
         padding: 0 !important;
     }
     .home-content-grid .ui.top.attached.block.header {
@@ -104,6 +107,7 @@
     }
     .home-content-grid .ui.bottom.attached.segment {
         margin-bottom: 22px !important;
+        min-width: 0;
         border: 1px solid #aeb8c4 !important;
         border-radius: 0 0 10px 10px !important;
         background: #fff !important;
@@ -115,6 +119,20 @@
     .home-content-grid .ui.bottom.attached.segment table tr:last-child {
         border-bottom: 0 !important;
     }
+    .home-content-grid table {
+        width: 100%;
+        max-width: 100%;
+        table-layout: fixed;
+    }
+    .home-content-grid th,
+    .home-content-grid td {
+        min-width: 0;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+    }
+    #submission {
+        max-width: 100%;
+    }
     @media (max-width: 767px) {
         .home-hero { margin: 8px 0 18px; padding: 28px 24px; }
         .home-hero h1 { font-size: 25px; }
@@ -122,10 +140,25 @@
         .home-hero::after { right: 20px; font-size: 42px; letter-spacing: 4px; }
         .home-hero-actions { flex-direction: column; align-items: stretch; }
         .home-hero-actions .button { width: 100%; }
-        .home-content-grid.ui.grid { display: block !important; margin: 0 !important; }
-        .home-content-grid.ui.grid > .column { width: 100% !important; padding: 0 0 1rem; }
-        .home-content-grid .ui.bottom.attached.segment { overflow-x: auto; }
-        .home-content-grid table { min-width: 460px; }
+        .home-content-grid.ui.grid {
+            display: grid !important;
+            grid-template-columns: minmax(0, 1fr);
+            row-gap: 0;
+            margin: 0 !important;
+        }
+        .home-content-grid.ui.grid > .column {
+            display: block;
+            width: 100% !important;
+            min-width: 0;
+            padding: 0 0 1rem !important;
+        }
+        .home-content-grid .ui.bottom.attached.segment {
+            overflow-x: hidden;
+        }
+        .home-content-grid th,
+        .home-content-grid td {
+            white-space: normal;
+        }
     }
 </style>
 </head>

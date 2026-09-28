@@ -115,6 +115,140 @@
             .desktop-only { display:none !important; }
         }
 
+        #mobile-menu-toggle {
+            display: none;
+        }
+
+        body#MainBg-C {
+            min-height: calc(100vh - 49px);
+            overflow-x: hidden;
+        }
+
+        #page-header.ui.menu {
+            left: 0;
+            right: 0;
+            width: 100%;
+            margin: 0 !important;
+            overflow: visible;
+        }
+
+        #menu {
+            box-sizing: border-box;
+            min-width: 0;
+        }
+
+        #menu > .header.item {
+            min-width: 0;
+        }
+
+        #menu > .header.item span {
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        @media (max-width: 991px) {
+            #page-header.ui.menu {
+                min-height: 49px;
+                height: 49px !important;
+            }
+
+            #menu {
+                display: flex;
+                align-items: center;
+                width: 100% !important;
+                max-width: none !important;
+                min-height: 49px;
+                margin: 0 !important;
+                padding: 0 .5rem;
+            }
+
+            #menu > .header.item {
+                flex: 1 1 auto;
+                width: auto;
+                padding: .65em .5em;
+            }
+
+            #mobile-menu-toggle {
+                display: inline-flex;
+                flex: 0 0 40px;
+                align-items: center;
+                justify-content: center;
+                width: 40px;
+                height: 40px;
+                margin: 4px 0 4px .25rem;
+                padding: 0;
+                border: 1px solid rgba(255,255,255,.28);
+                border-radius: 6px;
+                color: #fff;
+                background: rgba(255,255,255,.08);
+            }
+
+            #mobile-menu-toggle .icon {
+                margin: 0 !important;
+            }
+
+            #menu > .item:not(.header),
+            #menu > .right.menu {
+                display: none !important;
+            }
+
+            #menu.mobile-menu-open {
+                display: block;
+                max-height: calc(100vh - 49px);
+                overflow-x: hidden;
+                overflow-y: auto;
+                padding-bottom: .5rem;
+                background: #111827;
+                box-shadow: 0 8px 20px rgba(15,23,42,.24);
+            }
+
+            #menu.mobile-menu-open > .header.item {
+                display: inline-flex;
+                width: calc(100% - 52px);
+            }
+
+            #menu.mobile-menu-open > #mobile-menu-toggle {
+                position: absolute;
+                top: 4px;
+                right: .5rem;
+            }
+
+            #menu.mobile-menu-open > .item:not(.header) {
+                display: flex !important;
+                width: 100%;
+                min-height: 44px;
+                padding: .75em 1em;
+            }
+
+            #menu.mobile-menu-open .desktop-only {
+                display: inline !important;
+            }
+
+            #menu.mobile-menu-open > .right.menu {
+                display: flex !important;
+                flex-direction: column;
+                align-items: stretch;
+                width: 100%;
+                margin: 0 !important;
+                padding: 0;
+                border: 0;
+                background: transparent;
+                box-shadow: none;
+            }
+
+            #menu.mobile-menu-open > .right.menu > a,
+            #menu.mobile-menu-open > .right.menu > .item,
+            #menu.mobile-menu-open > .right.menu > a > .item {
+                display: flex;
+                align-items: center;
+                width: 100%;
+                min-height: 44px;
+                padding: .75em 1em;
+            }
+        }
+
         /* 🎨 GSMOJ 다크 네비게이션 테마 덮어쓰기 */
         #page-header.ui.menu {
             background: linear-gradient(135deg, #1f2937, #111827) !important;
@@ -212,11 +346,14 @@
         if(!isset($_GET['spa'])){
 ?>
    
-<body id="MainBg-C" style="position: relative; margin-top: 49px; height: calc(100% - 49px); overflow-y: overlay;">
+<body id="MainBg-C" style="position: relative; margin-top: 49px; min-height: calc(100vh - 49px); overflow-x: hidden; overflow-y: auto;">
     <div id="page-header" class="ui fixed borderless menu" style="position: fixed; height: 49px; z-index:99999">
         <div id="menu" class="ui stackable mobile ui container computer" style="margin-left:auto;margin-right:auto;">
             <a class="header item"  href="/"><span
                     style="font-family: 'Exo 2'; font-size: 1.5em; font-weight: 600; "><?php echo $domain==$DOMAIN?$OJ_NAME:ucwords($OJ_NAME)."'s OJ"?></span></a>
+            <button type="button" id="mobile-menu-toggle" aria-controls="menu" aria-expanded="false" aria-label="<?php echo htmlentities($MSG_MENU, ENT_QUOTES, 'UTF-8');?>">
+                <i class="bars icon" aria-hidden="true"></i>
+            </button>
             
           <?php
             // 홈 버튼 하이라이트 검사
@@ -354,6 +491,27 @@ if(isset($_SESSION[$OJ_NAME.'_'.'balloon'])){
                 <?php } ?>
             </div>
         </div>
+        <script>
+        (function () {
+            var menu = document.getElementById('menu');
+            var toggle = document.getElementById('mobile-menu-toggle');
+            if (!menu || !toggle) return;
+
+            toggle.addEventListener('click', function () {
+                var isOpen = menu.classList.toggle('mobile-menu-open');
+                toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+                toggle.querySelector('.icon').className = isOpen ? 'close icon' : 'bars icon';
+            });
+
+            window.addEventListener('resize', function () {
+                if (window.innerWidth > 991 && menu.classList.contains('mobile-menu-open')) {
+                    menu.classList.remove('mobile-menu-open');
+                    toggle.setAttribute('aria-expanded', 'false');
+                    toggle.querySelector('.icon').className = 'bars icon';
+                }
+            });
+        })();
+        </script>
     </div>
     <div style="margin-top: 49px; ">
         <div id="main" class="ui main container">
