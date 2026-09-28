@@ -1039,6 +1039,12 @@ a:hover > .admin-badge { box-shadow: 0 0 0 2px rgba(37, 99, 235, .25); }
 .admin-inline-edit input[type="text"] { width: 72px; text-align: center; }
 .admin-news-help { margin: 14px 0 0; }
 
+.admin-suspect-section { margin-bottom: 28px; }
+.admin-suspect-section > .admin-field-help { margin: 0 0 10px; }
+.admin-suspect-table { min-width: 760px; margin-bottom: 0; text-align: center; }
+.admin-suspect-table th, .admin-suspect-table td { white-space: nowrap; }
+.admin-suspect-table .admin-suspect-links { font-size: 13px; }
+
 .admin-news-form { display: grid; gap: 18px; }
 .admin-news-field { min-width: 0; }
 .admin-news-field .admin-field-label { display: block; }
