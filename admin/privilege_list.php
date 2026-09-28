@@ -11,11 +11,13 @@ if(isset($OJ_LANG)){
 }
 ?>
 
-<title>Privilege List</title>
-<hr>
-<center><h3><?php echo $MSG_USER."-".$MSG_PRIVILEGE."-".$MSG_LIST?></h3></center>
+<title><?php echo $MSG_PRIVILEGE." ".$MSG_LIST?></title>
 
-<div class='padding'>
+<div class='padding admin-content-page'>
+<div class="admin-page-heading">
+  <div><h3><?php echo $MSG_USER." - ".$MSG_PRIVILEGE." - ".$MSG_LIST?></h3><p><?php echo $MSG_HELP_PRIVILEGE_LIST?></p></div>
+  <a href="privilege_add.php" class="btn btn-primary"><?php echo $MSG_PRIVILEGE." ".$MSG_ADD?></a>
+</div>
 
 <?php
 $sql = "SELECT COUNT(*) AS ids FROM privilege WHERE rightstr IN ('administrator','source_browser','contest_creator','user_adder','http_judge','problem_editor','tag_adder','problem_importer','problem_verifiter','password_setter','printer','balloon','vip','problem_start','problem_end','service_port') ORDER BY user_id, rightstr";
@@ -50,36 +52,40 @@ if(isset($_GET['keyword']) && $_GET['keyword']!=""){
 }
 ?>
 
-<center>
-<form action=privilege_list.php class="form-search form-inline">
-  <input type="text" name=keyword class="form-control search-query" placeholder="<?php echo $MSG_USER_ID.', '.$MSG_PRIVILEGE?>">
-  <button type="submit" class="form-control"><?php echo $MSG_SEARCH?></button>
+<form action=privilege_list.php class="form-search form-inline admin-list-search">
+  <input type="text" name=keyword class="form-control search-query"
+    value="<?php echo htmlentities($_GET['keyword']??"", ENT_QUOTES, 'UTF-8')?>"
+    placeholder="<?php echo $MSG_USER_ID.', '.$MSG_PRIVILEGE?>">
+  <button type="submit" class="btn btn-primary"><?php echo $MSG_SEARCH?></button>
 </form>
-</center>
 
-<center>
-  <table width=100% border=1 style="text-align:center;">
+  <div class="admin-table-wrap">
+  <table class="table admin-privilege-table">
+    <thead>
     <tr>
-      <td>ID</td>
-      <td>PRIVILEGE</td>
-      <td>REMOVE</td>
+      <th><?php echo $MSG_USER_ID?></th>
+      <th><?php echo $MSG_PRIVILEGE?></th>
+      <th><?php echo $MSG_DELETE?></th>
     </tr>
+    </thead>
+    <tbody>
     <?php
     foreach($result as $row){
       echo "<tr>";
         echo "<td>".$row['user_id']."</td>";
-        echo "<td>".$row['rightstr'];
+        echo "<td><span class='admin-badge admin-badge--info'>".$row['rightstr'];
 	if($row['valuestr']!="true") echo ":".$row['valuestr'];
-	echo "</td>";
+	echo "</span></td>";
 	if($row['rightstr']!="administrator"  ||$row['user_id']!=$_SESSION[$OJ_NAME."_user_id"])
-        	echo "<td><a href='privilege_delete.php?uid=".htmlentities($row['user_id'],ENT_QUOTES,"UTF-8")."&rightstr={$row['rightstr']}&getkey=".$_SESSION[$OJ_NAME.'_'.'getkey']."'>Delete</a></td>";
+        	echo "<td><a href='privilege_delete.php?uid=".htmlentities($row['user_id'],ENT_QUOTES,"UTF-8")."&rightstr={$row['rightstr']}&getkey=".$_SESSION[$OJ_NAME.'_'.'getkey']."' class='btn btn-default btn-xs'>".$MSG_DELETE."</a></td>";
 	else
-		echo "<td>Can't suicide</td>";
+		echo "<td class='admin-field-help'>본인 관리자 권한은 삭제할 수 없음</td>";
 	echo "</tr>";
     }
     ?>
+    </tbody>
   </table>
-</center>
+  </div>
 
 <?php
 if(!(isset($_GET['keyword']) && $_GET['keyword']!=""))

@@ -17,7 +17,7 @@ function problem_editor_content($content) {
   <html>
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <title>Edit Problem</title>
+  <title><?php echo htmlentities($MSG_PROBLEM." - 수정", ENT_QUOTES, "UTF-8")?></title>
   <style>
     html, body { margin: 0; min-height: 100%; width: 100%; }
     body { background: #fff !important; opacity: 1 !important; }
@@ -27,12 +27,23 @@ function problem_editor_content($content) {
     .problem-page-title { background: #fff; border-bottom: 1px solid #e5e7eb; margin: 0 -24px 20px; padding: 16px 24px 14px; position: sticky; top: 0; z-index: 20; }
     .problem-page-title h3 { margin: 0; }
     #main .ke-container { box-sizing: border-box; width: 100% !important; }
+    .problem-form-top, .problem-form-section { margin: 0 0 24px; }
+    .problem-form-options, .problem-form-actions { align-items: center; display: flex; flex-wrap: wrap; gap: 8px; }
+    .problem-form-options { margin-bottom: 16px; }
+    .problem-form-actions { margin-top: 4px; }
+    .problem-form-actions input { margin-right: 0 !important; }
+    .problem-form-id { color: #64748b; font-size: 14px; font-weight: 600; }
+    .problem-form-remote { display: flex; flex-wrap: wrap; gap: 8px; }
+    .problem-form-remote input { flex: 1 1 220px; }
     #preview { box-sizing: border-box; background: #fff; border-left: 1px solid #d8dee8; bottom: 0; position: fixed; right: 0; top: 0; width: 50%; z-index: 1000; }
     #previewFrame { border: 0; display: block; height: 100%; width: 100%; }
     @media (max-width: 1000px) {
       body.preview-active { overflow: auto; }
       #main.preview-open { position: static; width: 100%; }
       #preview { border-left: 0; border-top: 1px solid #d8dee8; height: 720px; position: static; width: 100%; }
+    }
+    @media (max-width: 760px) {
+      .problem-form-actions { align-items: stretch; flex-direction: column; }
     }
   </style>
 </head>
@@ -50,7 +61,7 @@ include_once("kindeditor.php") ;
       ;//require_once("../include/check_get_key.php");
         $pid=intval($_GET['id']);
         if(! (isset($_SESSION[$OJ_NAME.'_'.'administrator']) || isset($_SESSION[$OJ_NAME.'_'."p".$pid])) ){
-                echo "No Privilege.";
+                echo "<div class='alert alert-danger' role='alert'>권한이 없습니다.</div>";
                 exit(0);
         }
     ?>
@@ -63,82 +74,78 @@ include_once("kindeditor.php") ;
       ?>
 
       <input type=hidden name=problem_id value='<?php echo $row['problem_id']?>'>
-  <div class="ui toggle checkbox">
-        <input type="checkbox" id="preview-toggle" checked>
-        <label for="preview-toggle">문제 미리보기</label>
-  </div>
-        &nbsp;&nbsp;
-  <div class="ui toggle checkbox">
-        <input type="checkbox" id="full-toggle" checked>
-        <label for="full-toggle">전체 항목 표시</label>
-  </div>
-
-      <p align=left>
-        <center>
-          <h3>
-          <?php echo $row['problem_id']?>: <input class="input input-xxlarge" style='width:90%' type=text name=title value='<?php echo htmlentities($row['title'],ENT_QUOTES,"UTF-8")?>'>
-          </h3>
-        </center>
-      </p>
-        <p align=left>
+      <div class="problem-form-top">
+        <div class="problem-form-options">
+          <div class="ui toggle checkbox">
+            <input type="checkbox" id="preview-toggle" checked>
+            <label for="preview-toggle">문제 미리보기</label>
+          </div>
+          <div class="ui toggle checkbox">
+            <input type="checkbox" id="full-toggle" checked>
+            <label for="full-toggle">전체 항목 표시</label>
+          </div>
+        </div>
+        <h3><label for="title"><?php echo $MSG_TITLE?></label> <span class="problem-form-id">#<?php echo $row['problem_id']?></span></h3>
+        <input class="input input-large" style="width:100%;" type=text name=title id='title' value='<?php echo htmlentities($row['title'],ENT_QUOTES,"UTF-8")?>'>
+      </div>
+        <section class="problem-form-section">
           <?php echo $MSG_Time_Limit; ?>
           <input class="input input-mini" type=number min="0.001" max="300" step="0.001" name=time_limit size=20 value="<?php echo $row['time_limit']?>"> sec
           <?php echo $MSG_Memory_Limit; ?>
           <input class="input input-mini" type=number min="1" max="1024" step="1" name=memory_limit size=20 value="<?php echo $row['memory_limit']?>"> MiB
           <?php echo $MSG_COIN; ?>
           <input class="input input-mini" type=number min="0" max="9999" step="1" name=coin size=20 value="<?php echo intval($row['coin'] ?? 1)?>">
-        </p>
-      <p align=left>
-        <?php echo "<h4>".$MSG_Description."</h4>"?>
-        <textarea class="kindeditor" rows=33 name=description cols=80><?php echo htmlentities(problem_editor_content($row['description']),ENT_QUOTES,"UTF-8")?></textarea><br>
-      </p>
-<span class="full" >
-      <p align=left>
-        <?php echo "<h4>".$MSG_Input."</h4>"?>
-        <textarea class="kindeditor" rows=13 name=input cols=80><?php echo htmlentities(problem_editor_content($row['input']),ENT_QUOTES,"UTF-8")?></textarea><br>
-      </p>
+        </section>
+        <section class="problem-form-section">
+          <?php echo "<h4>".$MSG_Description."</h4>"?>
+          <textarea class="kindeditor" rows=33 name=description cols=80><?php echo htmlentities(problem_editor_content($row['description']),ENT_QUOTES,"UTF-8")?></textarea>
+        </section>
+	<div class="full">
+        <section class="problem-form-section">
+          <?php echo "<h4>".$MSG_Input."</h4>"?>
+          <textarea class="kindeditor" rows=13 name=input cols=80><?php echo htmlentities(problem_editor_content($row['input']),ENT_QUOTES,"UTF-8")?></textarea>
+        </section>
+        <section class="problem-form-section">
+          <?php echo "<h4>".$MSG_Output."</h4>"?>
+          <textarea  class="kindeditor" rows=13 name=output cols=80><?php echo htmlentities(problem_editor_content($row['output']),ENT_QUOTES,"UTF-8")?></textarea>
+        </section>
+        <section class="problem-form-section">
+          <?php echo "<h4>".$MSG_Sample_Input."</h4>"?>
+          <textarea  class="input input-large" style="width:100%;" rows=13 name=sample_input><?php echo htmlentities($row['sample_input'],ENT_QUOTES,"UTF-8")?></textarea>
+        </section>
+        <section class="problem-form-section">
+          <?php echo "<h4>".$MSG_Sample_Output."</h4>"?>
+          <textarea  class="input input-large" style="width:100%;" rows=13 name=sample_output><?php echo htmlentities($row['sample_output'],ENT_QUOTES,"UTF-8")?></textarea>
+        </section>
+        <section class="problem-form-section">
+          <?php echo "<h4>".$MSG_HINT."</h4>"?>
+          <textarea class="kindeditor" rows=13 name=hint cols=80><?php echo htmlentities(problem_editor_content($row['hint']),ENT_QUOTES,"UTF-8")?></textarea>
+        </section>
+	</div>
+        <section class="problem-form-section">
+          <?php echo "<h4>".$MSG_SPJ."</h4>"?>
+          <?php echo "(".$MSG_HELP_SPJ.")"?><br>
+          <input type=radio name=spj value='0' <?php echo $row['spj']=="0"?"checked":""?> title='Normal Judger'><?php echo $MSG_NJ?><br>
+          <input type=radio name=spj value='1' <?php echo $row['spj']=="1"?"checked":""?> title='Special Judger'><?php echo $MSG_SPJ?><br>
+          <input type=radio name=spj value='2' <?php echo $row['spj']=="2"?"checked":""?> title='Raw Text Judger' ><?php echo $MSG_RTJ?><br>
+          <input type=radio name=spj value='3' <?php echo $row['spj']=="3"?"checked":""?> title='Interactive Judger' ><?php echo $MSG_INTERACT?><br>
+        </section>
+        <section class="problem-form-section">
+          <?php echo "<h4>".$MSG_SOURCE."</h4>"?>
+          <textarea name=source style="width:100%;" rows=1><?php echo htmlentities($row['source'],ENT_QUOTES,"UTF-8")?></textarea>
+        </section>
+        <section class="problem-form-section">
+          <?php echo "<h4>".$MSG_REMOTE_OJ."</h4>"?>
+          <div class="problem-form-remote">
+            <input class="form-control" name=remote_oj value='<?php echo htmlentities((string)$row['remote_oj'],ENT_QUOTES,"UTF-8")?>' placeholder='<?php echo $MSG_HELP_LOCAL_EMPTY ?>' >
+            <input class="form-control" name=remote_id value='<?php echo htmlentities((string)$row['remote_id'],ENT_QUOTES,"UTF-8")?>' placeholder='<?php echo $MSG_HELP_LOCAL_EMPTY ?>' >
+          </div>
+        </section>
 
-      <p align=left>
-        <?php echo "<h4>".$MSG_Output."</h4>"?>
-        <textarea  class="kindeditor" rows=13 name=output cols=80><?php echo htmlentities(problem_editor_content($row['output']),ENT_QUOTES,"UTF-8")?></textarea><br>
-      </p>
-
-      <p align=left>
-        <?php echo "<h4>".$MSG_Sample_Input."</h4>"?>
-        <textarea  class="input input-large" style="width:100%;" rows=13 name=sample_input><?php echo htmlentities($row['sample_input'],ENT_QUOTES,"UTF-8")?></textarea><br><br>
-      </p>
-
-      <p align=left>
-        <?php echo "<h4>".$MSG_Sample_Output."</h4>"?>
-        <textarea  class="input input-large" style="width:100%;" rows=13 name=sample_output><?php echo htmlentities($row['sample_output'],ENT_QUOTES,"UTF-8")?></textarea><br><br>
-      </p>
-
-      <p align=left>
-        <?php echo "<h4>".$MSG_HINT."</h4>"?>
-        <textarea class="kindeditor" rows=13 name=hint cols=80><?php echo htmlentities(problem_editor_content($row['hint']),ENT_QUOTES,"UTF-8")?></textarea><br>
-      </p>
-</span>
-      <p>
-        <?php echo "<h4>".$MSG_SPJ."</h4>"?>
-        <?php echo "(".$MSG_HELP_SPJ.")"?><br>
-        <input type=radio name=spj value='0' <?php echo $row['spj']=="0"?"checked":""?> title='Normal Judger'><?php echo $MSG_NJ?><br>
-        <input type=radio name=spj value='1' <?php echo $row['spj']=="1"?"checked":""?> title='Special Judger'><?php echo $MSG_SPJ?><br>
-        <input type=radio name=spj value='2' <?php echo $row['spj']=="2"?"checked":""?> title='Raw Text Judger' ><?php echo $MSG_RTJ?><br>
-		<input type=radio name=spj value='3' <?php echo $row['spj']=="3"?"checked":""?> title='Interactive Judger' ><?php echo $MSG_INTERACT?><br>
-      </p>
-
-      <p align=left>
-        <?php echo "<h4>".$MSG_SOURCE."</h4>"?>
-        <textarea name=source style="width:100%;" rows=1><?php echo htmlentities($row['source'],ENT_QUOTES,"UTF-8")?></textarea><br>
-
-        <?php echo "<h4>".$MSG_REMOTE_OJ."</h4>"?>
-        <input name=remote_oj value='<?php echo htmlentities((string)$row['remote_oj'],ENT_QUOTES,"UTF-8")?>' placeholder='<?php echo $MSG_HELP_LOCAL_EMPTY ?>' >
-        <input name=remote_id value='<?php echo htmlentities((string)$row['remote_id'],ENT_QUOTES,"UTF-8")?>' placeholder='<?php echo $MSG_HELP_LOCAL_EMPTY ?>' ><br>
-      </p>
-
-      <div align=center>
+      <div class="problem-form-actions">
         <?php require_once("../include/set_post_key.php");?>
         <input class="btn btn-success" type=submit value='<?php echo $MSG_SAVE?>' name=submit>
+        <input class='btn btn-danger' type=reset value='<?php echo $MSG_RESET?>'>
       </div>
     </form>
 
@@ -245,7 +252,7 @@ function untransform() {
       require_once("../include/check_post_key.php");
       $id = intval($_POST['problem_id']);
       if(! (isset($_SESSION[$OJ_NAME.'_'.'administrator']) || isset($_SESSION[$OJ_NAME.'_'."p".$id])) ){
-                echo "No Privilege.";
+                echo "<div class='alert alert-danger' role='alert'>권한이 없습니다.</div>";
                 exit(0)    ;
       }
       if (!(isset($_SESSION[$OJ_NAME.'_'."p$id"]) || isset($_SESSION[$OJ_NAME.'_'.'administrator']) || isset($_SESSION[$OJ_NAME.'_'.'problem_editor']) )) exit();
@@ -310,7 +317,7 @@ function untransform() {
       $hint = ($hint);
       $basedir = $OJ_DATA."/$id";
 
-      echo "Problem Updated!<br>";
+      echo "<div class='alert alert-success' role='status'>";
 
       if ($sample_input && file_exists($basedir."/sample.in")) {
         //mkdir($basedir);
@@ -336,8 +343,9 @@ function untransform() {
       $coin = intval($_POST['coin'] ?? 1);
       @pdo_query($sql,$title,$time_limit,$memory_limit,$description,$input,$output,$sample_input,$sample_output,$hint,$source,$spj,$remote_oj,$remote_id,$coin,$id);
   
-      echo "Edit OK!<br>";
-      echo "<a href='../problem.php?id=$id'>See The Problem!</a>";
+      echo "문제를 수정했습니다. ";
+      echo "<a href='../problem.php?id=$id'>문제 보기</a>";
+      echo "</div>";
     }
     ?>
 </body>

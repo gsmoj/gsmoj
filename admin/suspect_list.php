@@ -11,11 +11,13 @@ if (isset($OJ_LANG)) {
 }
 ?>
 
-<title>Suspect List</title>
-<hr>
-<center><h3><?php echo $MSG_IP_VERIFICATION?></h3></center>
+<title><?php echo $MSG_IP_VERIFICATION?></title>
 
-<div class='container'>
+<div class='padding admin-content-page'>
+<div class="admin-page-heading">
+	<div><h3><?php echo $MSG_IP_VERIFICATION?></h3><p><?php echo $MSG_CONTEST." #".intval($_GET['cid'])?></p></div>
+	<a href="contest_list.php" class="btn btn-default"><?php echo $MSG_CONTEST." ".$MSG_LIST?></a>
+</div>
 
 	<?php
 	require_once("../include/set_get_key.php");
@@ -27,38 +29,39 @@ if (isset($OJ_LANG)) {
 	$result = pdo_query($sql,$contest_id,$contest_id);
 	?>
 
-	<div>
-		<center>
-			<?php echo $MSG_CONTEST_SUSPECT1?>
-			<table width=90% border=1 style="text-align:center;">
+	<section class="admin-suspect-section">
+		<p class="admin-field-help"><?php echo $MSG_CONTEST_SUSPECT1?></p>
+		<div class="admin-table-wrap">
+		<table class="table admin-suspect-table">
+			<thead>
 				<tr>
-					<td>IP address</td>
-					<td colspan=2>Used ID</td>
-          <td>Time</td>
-					<td>IP address count</td>
+					<th>IP 주소</th>
+					<th colspan=2><?php echo $MSG_USER_ID?></th>
+					<th><?php echo $MSG_TIME?></th>
+					<th>사용 ID 수</th>
 				</tr>
+			</thead>
+			<tbody>
 
 				<?php
 				foreach ($result as $row) {
 					echo "<tr>";
 						echo "<td>".$row['ip']."</td>";
 						echo "<td>".$row['user_id']."</td>";
-						echo "<td>";
-							echo "<a href='../userinfo.php?user=".$row['user_id']."'><sub>".$MSG_USERINFO."</sub></a> <sub>/</sub> ";
-							echo "<a href='../status.php?cid=$contest_id&user_id=".$row['user_id']."'><sub>".$MSG_CONTEST." ".$MSG_SUBMIT."</sub></a>";
+						echo "<td class='admin-suspect-links'>";
+							echo "<a href='../userinfo.php?user=".$row['user_id']."'>".$MSG_USERINFO."</a> / ";
+							echo "<a href='../status.php?cid=$contest_id&user_id=".$row['user_id']."'>".$MSG_CONTEST." ".$MSG_SUBMIT."</a>";
 						echo "</td>";
-            echo "<td>".$row['in_date'];
+            echo "<td>".$row['in_date']."</td>";
 						echo "<td>".$row['c']."</td>";
 					echo "</tr>";
 				}
 				?>
+			</tbody>
+		</table>
+		</div>
+	</section>
 
-			</table>
-		</center>
-	</div>
-
-	<br><br>
-	
 	<?php
 	$start = pdo_query("select start_time from contest where contest_id=?",$contest_id)[0][0];
 	$end = pdo_query("select end_time from contest where contest_id=?",$contest_id)[0][0];
@@ -66,35 +69,38 @@ if (isset($OJ_LANG)) {
 	$result = pdo_query($sql,$start,$end,$contest_id,$start,$end);
 	?>
 
-	<div>
-		<center>
-			<?php echo $MSG_CONTEST_SUSPECT2?>
-			<table width=90% border=1 style="text-align:center;">
+	<section class="admin-suspect-section">
+		<p class="admin-field-help"><?php echo $MSG_CONTEST_SUSPECT2?></p>
+		<div class="admin-table-wrap">
+		<table class="table admin-suspect-table">
+			<thead>
 				<tr>
-					<td colspan=2>User ID</td>
-					<td>Used IP address</td>
-					<td>Time</td>
-					<td>IP address count</td>
+					<th colspan=2><?php echo $MSG_USER_ID?></th>
+					<th>IP 주소</th>
+					<th><?php echo $MSG_TIME?></th>
+					<th>사용 IP 수</th>
 				</tr>
+			</thead>
+			<tbody>
 
 				<?php
 				foreach ($result as $row) {
 					echo "<tr>";
 						echo "<td>".$row['user_id']."</td>";
-						echo "<td>";
-							echo "<a href='../userinfo.php?user=".$row['user_id']."'><sub>".$MSG_USERINFO."</sub></a> <sub>/</sub> ";
-							echo "<a href='../status.php?cid=$contest_id&user_id=".$row['user_id']."'><sub>".$MSG_CONTEST." ".$MSG_SUBMIT."</sub></a>";
+						echo "<td class='admin-suspect-links'>";
+							echo "<a href='../userinfo.php?user=".$row['user_id']."'>".$MSG_USERINFO."</a> / ";
+							echo "<a href='../status.php?cid=$contest_id&user_id=".$row['user_id']."'>".$MSG_CONTEST." ".$MSG_SUBMIT."</a>";
 						echo "</td>";
-						echo "<td>".$row['ip'];
-						echo "<td>".$row['time'];
-						echo "<td>".$row['c'];
+						echo "<td>".$row['ip']."</td>";
+						echo "<td>".$row['time']."</td>";
+						echo "<td>".$row['c']."</td>";
 						echo "</tr>";
 				}
 				?>
-
-			</table>
-		</center>
-	</div>
+			</tbody>
+		</table>
+		</div>
+	</section>
 
 </div>
 

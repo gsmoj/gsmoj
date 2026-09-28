@@ -10,20 +10,31 @@ if (!(isset($_SESSION[$OJ_NAME.'_'.'administrator']))){
 	$end=intval($_POST['end']);
 	$sql="update `solution` set `user_id`=? where `user_id`=? and problem_id>=? and problem_id<=? and result=4";
 	//echo $sql;
-	echo pdo_query($sql,$to,$from,$start,$end)." source file given!";
+	echo "<div class='alert alert-success' role='status'>".pdo_query($sql,$to,$from,$start,$end)."개 정답 코드의 소유자를 변경했습니다.</div>";
 	
 }
 ?>
-<div class="container">
-<form action='source_give.php' method=post>
-	<b>Give source:</b><br />
-	From:<input type=text size=10 name="from" value="zhblue"><br />
-	To:<input type=text size=10 name="to" value="standard"><br />
-	start pid:<input type=text size=10 name="start"><br />
-	end pid:<input type=text size=10 name="end"><br />
+<title><?php echo $MSG_GIVESOURCE?></title>
+<script>document.body.classList.add('admin-form-page');</script>
+<div class="admin-form-shell">
+<header class="admin-form-title">
+	<h3><?php echo htmlentities($MSG_SYSTEM." - ".$MSG_GIVESOURCE, ENT_QUOTES, 'UTF-8')?></h3>
+	<p><?php echo $MSG_HELP_GIVESOURCE?>. 지정한 문제 범위의 정답 코드만 옮겨집니다.</p>
+</header>
+<form action='source_give.php' method=post class="admin-grid-form">
+	<label class="admin-field-label" for="give-from">보내는 사용자ID</label>
+	<input class="form-control" id="give-from" type=text size=10 name="from" value="zhblue">
+	<label class="admin-field-label" for="give-to">받는 사용자ID</label>
+	<input class="form-control" id="give-to" type=text size=10 name="to" value="standard">
+	<label class="admin-field-label" for="give-start">시작 <?php echo $MSG_PROBLEM_ID?></label>
+	<input class="form-control" id="give-start" type=text size=10 name="start">
+	<label class="admin-field-label" for="give-end">끝 <?php echo $MSG_PROBLEM_ID?></label>
+	<input class="form-control" id="give-end" type=text size=10 name="end">
 	<input type='hidden' name='do' value='do'>
 	
 	<?php require_once("../include/set_post_key.php");?>
-	<input type=submit value='GiveMySourceToHim'>
+	<div class="admin-form-actions">
+		<input type=submit class="btn btn-primary" value='<?php echo $MSG_GIVESOURCE?>'>
+	</div>
 </form>
 </div>

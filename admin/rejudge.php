@@ -80,24 +80,34 @@ if (!(isset($_SESSION[$OJ_NAME.'_'.'administrator']))){
         }
 }
 ?>
-<div class="container">
-<b>Rejudge</b>
-        <ol>
-        <li><?php echo $MSG_PROBLEM?>
-        <form action='rejudge.php' method=post>
-                <input type=input name='rjpid' placeholder="1001">      <input type='hidden' name='do' value='do'>
-                <input type=submit value=submit>
+<title><?php echo $MSG_REJUDGE?></title>
+<script>document.body.classList.add('admin-form-page');</script>
+<div class="admin-form-shell">
+<header class="admin-form-title">
+        <h3><?php echo htmlentities($MSG_SYSTEM." - ".$MSG_REJUDGE, ENT_QUOTES, 'UTF-8')?></h3>
+        <p><?php echo $MSG_HELP_REJUDGE?>. 실행하면 해당 제출이 모두 다시 채점 대기열에 들어갑니다.</p>
+</header>
+        <section class="admin-tool-card">
+        <h4>1) <?php echo $MSG_PROBLEM?> <?php echo $MSG_REJUDGE?></h4>
+        <form action='rejudge.php' method=post class="admin-tool-form">
+                <input type=text class="form-control" name='rjpid' placeholder="<?php echo $MSG_PROBLEM_ID?> (예: 1001)" aria-label="<?php echo $MSG_PROBLEM_ID?>">      <input type='hidden' name='do' value='do'>
+                <input type=submit class="btn btn-primary" value='<?php echo $MSG_REJUDGE?>'>
                 <?php require_once("../include/set_post_key.php");?>
         </form>
-        <li><?php echo $MSG_SUBMIT?>
-        <form action='rejudge.php' method=post>
-                <input type=input name='rjsid' placeholder="1002">      <input type='hidden' name='do' value='do'>
+        </section>
+        <section class="admin-tool-card">
+        <h4>2) <?php echo $MSG_SUBMIT?> <?php echo $MSG_REJUDGE?></h4>
+        <form action='rejudge.php' method=post class="admin-tool-form">
+                <input type=text class="form-control" name='rjsid' placeholder="<?php echo $MSG_RUNID?> (예: 1002)" aria-label="<?php echo $MSG_RUNID?>">      <input type='hidden' name='do' value='do'>
                 <input type=hidden name="postkey" value="<?php echo htmlentities($_SESSION[$OJ_NAME.'_'.'postkey'], ENT_QUOTES, 'UTF-8')?>">
-                <input type=submit value=submit>
+                <input type=submit class="btn btn-primary" value='<?php echo $MSG_REJUDGE?>'>
         </form>
-        <li><?php echo "$MSG_Manual"?>
-        <form action='rejudge.php' method=post>
-		<select name='result'>      
+        </section>
+        <section class="admin-tool-card">
+        <h4>3) <?php echo "$MSG_Manual"?></h4>
+        <p class="admin-field-help">선택한 결과의 제출을 모두 다른 결과로 바꿉니다.</p>
+        <form action='rejudge.php' method=post class="admin-tool-form">
+		<select name='result' class="form-control" aria-label="변경 전 결과">      
 			<?php
 				for($i=0;$i<4;$i++){
 					echo "<option value='$i' ".($i==3?"selected":"").">".$jresult[$i]."</option>\n";
@@ -108,8 +118,8 @@ if (!(isset($_SESSION[$OJ_NAME.'_'.'administrator']))){
 	
 			?>
 		</select>
-		<input type='hidden' name='do' value='do'> - &gt;
-		<select name='to'>      
+		<input type='hidden' name='do' value='do'> <span aria-hidden="true">&rarr;</span>
+		<select name='to' class="form-control" aria-label="변경 후 결과">      
 			<?php
 				$i=1;
 				echo "<option value='$i'>".$jresult[$i]."</option>\n";
@@ -120,17 +130,20 @@ if (!(isset($_SESSION[$OJ_NAME.'_'.'administrator']))){
 			?>
 		</select>
                 <input type=hidden name="postkey" value="<?php echo htmlentities($_SESSION[$OJ_NAME.'_'.'postkey'], ENT_QUOTES, 'UTF-8')?>">
-                <input type=submit value=submit>
+                <input type=submit class="btn btn-primary" value='결과 변경'>
         </form>
-        <li><?php echo $MSG_CONTEST?>
-        <form action='rejudge.php' method=post>
-                <input type=input name='rjcid' placeholder="1003" value='1003' > <input type='hidden' name='do' value='do'>
+        </section>
+        <section class="admin-tool-card">
+        <h4>4) <?php echo $MSG_CONTEST?> <?php echo $MSG_REJUDGE?></h4>
+        <p class="admin-field-help">대회 전체 또는 대회의 특정 문제만 다시 채점합니다.</p>
+        <form action='rejudge.php' method=post class="admin-tool-form">
+                <input type=text class="form-control" name='rjcid' placeholder="1003" value='1003' aria-label="<?php echo $MSG_CONTEST_ID?>"> <input type='hidden' name='do' value='do'>
                 <input type=hidden name="postkey" value="<?php echo htmlentities($_SESSION[$OJ_NAME.'_'.'postkey'], ENT_QUOTES, 'UTF-8')?>">
-                <input type=submit value=submit>
+                <input type=submit class="btn btn-primary" value='<?php echo $MSG_CONTEST?> 전체 <?php echo $MSG_REJUDGE?>'>
         </form>
-        <form action='rejudge.php' method=post>
-                <input type=input name='rjcid' placeholder="1004">
-                <select name=pid >
+        <form action='rejudge.php' method=post class="admin-tool-form">
+                <input type=text class="form-control" name='rjcid' placeholder="<?php echo $MSG_CONTEST_ID?> (예: 1004)" aria-label="<?php echo $MSG_CONTEST_ID?>">
+                <select name=pid class="form-control" aria-label="<?php echo $MSG_PROBLEM?>">
 <?php
                 foreach($PID as $i=>$id){
                         echo "<option value='$i'>$id</option>";
@@ -140,6 +153,7 @@ if (!(isset($_SESSION[$OJ_NAME.'_'.'administrator']))){
                 </select>
                 <input type='hidden' name='do' value='do'>
                 <input type=hidden name="postkey" value="<?php echo htmlentities($_SESSION[$OJ_NAME.'_'.'postkey'], ENT_QUOTES, 'UTF-8')?>">
-                <input type=submit value=submit>
+                <input type=submit class="btn btn-primary" value='선택 문제 <?php echo $MSG_REJUDGE?>'>
         </form>
+        </section>
 </div>

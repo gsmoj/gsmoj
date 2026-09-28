@@ -9,11 +9,11 @@ if(isset($OJ_LANG)){
 }
 ?>
 
-<title>Set Password</title>
-<hr>
-<center><h3><?php echo $MSG_USER."-".$MSG_SETPASSWORD?></h3></center>
+<title><?php echo $MSG_SETPASSWORD?></title>
+<script>document.body.classList.add('admin-form-page');</script>
 
-<div class='padding'>
+<div class="admin-form-shell">
+<header class="admin-form-title"><h3><?php echo htmlentities($MSG_USER." - ".$MSG_SETPASSWORD, ENT_QUOTES, 'UTF-8')?></h3></header>
 
 <?php
 if(isset($_POST['do']) && (!empty($_POST['user_id'])) && (!empty($_POST['passwd']))){	
@@ -26,12 +26,12 @@ if(isset($_POST['do']) && (!empty($_POST['user_id'])) && (!empty($_POST['passwd'
 	$sql = "update `users` set `password`=? where `user_id`=?  and user_id not in( select user_id from privilege where rightstr='administrator')";
 	
 	if(pdo_query($sql,$passwd,$user_id) == 1){
-		echo "<center><h4 class='text-danger'>User ".htmlentities($_POST['user_id'], ENT_QUOTES, 'UTF-8')."'s Password Changed!</h4></center>";
+		echo "<div class='alert alert-success' role='status'>".htmlentities($_POST['user_id'], ENT_QUOTES, 'UTF-8')." 사용자의 비밀번호를 변경했습니다.</div>";
 		?>
 	 		<script>window.setTimeout("history.go(-2);",2000);</script>
      		<?php
 	}else{
-  	        echo "<center><h4 class='text-danger'>There is No such User ".htmlentities($_POST['user_id'], ENT_QUOTES, 'UTF-8')."! or User ".htmlentities($_POST['user_id'], ENT_QUOTES, 'UTF-8')." is administrator!</h4></center>";
+  	        echo "<div class='alert alert-danger' role='alert'>".htmlentities($_POST['user_id'], ENT_QUOTES, 'UTF-8')." 사용자가 없거나 관리자 계정이라 비밀번호를 변경할 수 없습니다.</div>";
 	}
     
 }
@@ -57,10 +57,10 @@ if(isset($_POST['do']) && (!empty($_POST['user_id'])) && (!empty($_POST['passwd'
 	<div class="form-group">
 		<?php require_once("../include/set_post_key.php");?>
 		<div class="col-sm-offset-4 col-sm-2">
-			<button name="do" type="hidden" value="do" class="btn btn-default btn-block" ><?php echo $MSG_SAVE?></button>
+			<button name="do" type="submit" value="do" class="btn btn-primary btn-block" ><?php echo $MSG_SAVE?></button>
 		</div>
 		<div class="col-sm-2">
-			<button name="submit" type="button" onclick='$("input[name=passwd]").attr("type","text");' class="btn btn-default btn-block">Show</button>
+			<button name="submit" type="button" onclick='$("input[name=passwd]").attr("type","text");' class="btn btn-default btn-block"><?php echo $MSG_PASSWORD." ".$MSG_SHOW?></button>
 		</div>
 	</div>
 </form>

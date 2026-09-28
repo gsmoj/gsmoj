@@ -5,7 +5,7 @@ if (!(isset($_SESSION[$OJ_NAME.'_'.'administrator']))) {
 }
 ?>
 
-<title>Privilege Add</title>
+<title><?php echo $MSG_PRIVILEGE." ".$MSG_ADD?></title>
 <script>document.body.classList.add('admin-form-page');</script>
 
 <div class="admin-form-shell">
@@ -39,14 +39,14 @@ if (isset($_POST['do'])) {
         }else{
        	 	email($OJ_ADMIN,"Privilege Add Warning!",$msg);
 	}
-        echo "<center><h4 class='text-danger'>User ".htmlentities($_POST['user_id'], ENT_QUOTES, 'UTF-8')."'s Privilege Added!</h4></center>";
+        echo "<div class='alert alert-success' role='status'>".htmlentities($_POST['user_id'], ENT_QUOTES, 'UTF-8')." 사용자에게 권한을 추가했습니다.</div>";
 }
 ?>
 
 <div>
 <form method="post" class="form-horizontal">
 	<?php require_once("../include/set_post_key.php");?>
-	<center><label class="text-info"><?php echo $MSG_HELP_ADD_PRIVILEGE?></label></center>
+	<p class="admin-form-section-title"><?php echo $MSG_HELP_ADD_PRIVILEGE?></p>
 	<div class="form-group">
 		<label class="col-sm-offset-3 col-sm-3 control-label"><?php echo $MSG_USER_ID?></label>
 		<?php if(isset($_GET['uid'])) { ?>
@@ -60,7 +60,7 @@ if (isset($_POST['do'])) {
 
 	<div class="form-group">
 		<label class="col-sm-offset-3 col-sm-3 control-label"><?php echo $MSG_PRIVILEGE_TYPE?></label>
-		<select class="col-sm-3" name="rightstr" onchange="show_value_input(this.value)" >
+		<select class="col-sm-3 form-control" name="rightstr" onchange="show_value_input(this.value)" >
 		<?php
 			$rightarray = array("administrator","problem_editor","problem_importer","tag_adder","problem_verifiter","source_browser","contest_creator","user_adder","http_judge","password_setter","printer","balloon","vip",'problem_start','problem_end','service_port');
 			while ($val=current($rightarray)) {
@@ -93,7 +93,7 @@ if (isset($_POST['do'])) {
 	<div class="form-group">
 		<div class="col-sm-offset-4 col-sm-2">
 			<input type='hidden' name='do' value='do'>
-			<button type="submit" name="do" value="do" class="btn btn-default btn-block" ><?php echo $MSG_SAVE?></button>
+			<button type="submit" name="do" value="do" class="btn btn-primary btn-block" ><?php echo $MSG_SAVE?></button>
 		</div>
 		<div class="col-sm-2">
 			<button type="reset" class="btn btn-default btn-block"><?php echo $MSG_RESET?></button>
@@ -102,12 +102,10 @@ if (isset($_POST['do'])) {
 </form>
 </div>
 
-<br>
-
 <div>
 <form method="post" class="form-horizontal">
 	<?php require_once("../include/set_post_key.php");?>
-	<center><label class="text-info"><?php echo $MSG_HELP_ADD_CONTEST_USER?></label></center>
+	<p class="admin-form-section-title"><?php echo $MSG_HELP_ADD_CONTEST_USER?></p>
 	<div class="form-group">
 		<label class="col-sm-offset-3 col-sm-3 control-label"><?php echo $MSG_USER_ID?></label>
 		<?php if(isset($_GET['uid'])) { ?>
@@ -127,7 +125,7 @@ if (isset($_POST['do'])) {
 	<div class="form-group">
 		<div class="col-sm-offset-4 col-sm-2">
 			<input type='hidden' name='do' value='do'>
-			<button type="submit" name="contest" value="do" class="btn btn-default btn-block" ><?php echo $MSG_SAVE?></button>
+			<button type="submit" name="contest" value="do" class="btn btn-primary btn-block" ><?php echo $MSG_SAVE?></button>
 			<input type=hidden name="postkey" value="<?php echo htmlentities($_SESSION[$OJ_NAME.'_'.'postkey'], ENT_QUOTES, 'UTF-8')?>">
 		</div>
 		<div class="col-sm-2">
@@ -137,12 +135,10 @@ if (isset($_POST['do'])) {
 </form>
 </div>
 
-<br>
-
 <div>
 <form method="post" class="form-horizontal">
 	<?php require_once("../include/set_post_key.php");?>
-	<center><label class="text-info"><?php echo $MSG_HELP_ADD_SOLUTION_VIEW?></label></center>
+	<p class="admin-form-section-title"><?php echo $MSG_HELP_ADD_SOLUTION_VIEW?></p>
 	<div class="form-group">
 		<label class="col-sm-offset-3 col-sm-3 control-label"><?php echo $MSG_USER_ID?></label>
 		<?php if(isset($_GET['uid'])) { ?>
@@ -162,7 +158,7 @@ if (isset($_POST['do'])) {
 	<div class="form-group">
 		<div class="col-sm-offset-4 col-sm-2">
 			<input type='hidden' name='do' value='do'>
-			<button type="submit" name="psv" value="do" class="btn btn-default btn-block" ><?php echo $MSG_SAVE?></button>
+			<button type="submit" name="psv" value="do" class="btn btn-primary btn-block" ><?php echo $MSG_SAVE?></button>
 			<input type=hidden name="postkey" value="<?php echo htmlentities($_SESSION[$OJ_NAME.'_'.'postkey'], ENT_QUOTES, 'UTF-8')?>">
 			</div>
 		<div class="col-sm-2">

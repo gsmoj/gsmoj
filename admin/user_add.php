@@ -9,7 +9,7 @@ if(isset($OJ_LANG)){
 }
 ?>
 
-<title>Add User</title>
+<title><?php echo $MSG_USER." ".$MSG_ADD?></title>
 <script>document.body.classList.add('admin-form-page');</script>
 
 <div class="admin-form-shell">
@@ -26,6 +26,7 @@ if(isset($_POST['do'])){
 
   $ulist = "";
   if(count($pieces)>0 && strlen($pieces[0])>0){
+    echo "<div class='admin-result-log'>";
     for($i=0; $i<count($pieces); $i++){
       $id_pw = explode(" ", trim($pieces[$i]));
       if(count($id_pw) != 2){
@@ -56,38 +57,24 @@ if(isset($_POST['do'])){
         }
       }
     }
-    echo "<br>Remained lines have error!<hr>";
+    echo "<br>Remained lines have error!";
+    echo "</div>";
   }
 }
 ?>
 
-<form action=user_add.php method=post class="form-horizontal">
+<form action=user_add.php method=post>
   <div>
-    <label class="col-sm"><?php echo $MSG_USER_ID?> <?php echo $MSG_PASSWORD?></label>
-  </div>
-  <div>
-    <?php echo "( Add new user & password with newline &#92;n )"?>
-    <br>
-    <table width="100%">
-      <tr>
-        <td height="*">
-          <p align=left>
-            <textarea name='ulist' rows='10' style='width:100%;' placeholder='userid1 password1<?php echo "\n"?>userid2 password2<?php echo "\n"?>userid3 password3<?php echo "\n"?>
+    <label class="admin-field-label" for="ulist"><?php echo $MSG_USER_ID?> <?php echo $MSG_PASSWORD?></label>
+    <p class="admin-field-help">한 줄에 한 명씩 "아이디 비밀번호" 형식으로 입력합니다.</p>
+    <textarea id='ulist' name='ulist' rows='10' class='form-control' placeholder='userid1 password1<?php echo "\n"?>userid2 password2<?php echo "\n"?>userid3 password3<?php echo "\n"?>
             <?php echo $MSG_PRIVATE_USERS_ADD?><?php echo "\n"?>'><?php if(isset($ulist)){ echo $ulist;}?></textarea>
-          </p>
-        </td>
-      </tr>
-    </table>
   </div>
 
-  <div class="form-group">
-    <?php require_once("../include/set_post_key.php");?>
-    <div class="col-sm-offset-4 col-sm-2">
-      <button name="do" type="hidden" value="do" class="btn btn-default btn-block" ><?php echo $MSG_SAVE?></button>
-    </div>
-    <div class="col-sm-2">
-      <button name="submit" type="reset" class="btn btn-default btn-block"><?php echo $MSG_RESET?></button>
-    </div>
+  <?php require_once("../include/set_post_key.php");?>
+  <div class="admin-form-actions">
+    <button name="do" type="submit" value="do" class="btn btn-primary" ><?php echo $MSG_SAVE?></button>
+    <button name="submit" type="reset" class="btn btn-default"><?php echo $MSG_RESET?></button>
   </div>
 
 </form>

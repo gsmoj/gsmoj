@@ -6,8 +6,13 @@ if (!isset($_SESSION[$OJ_NAME.'_administrator'])){
 }
 ?>
 
-<div class="padding">
-<br><br><br><br>
+<title><?php echo $MSG_BACKUP_DATABASE?></title>
+<script>document.body.classList.add('admin-form-page');</script>
+<div class="admin-form-shell">
+<header class="admin-form-title">
+    <h3><?php echo htmlentities($MSG_SYSTEM." - ".$MSG_BACKUP_DATABASE, ENT_QUOTES, 'UTF-8')?></h3>
+    <p><?php echo $MSG_HELP_BACKUP_DATABASE?></p>
+</header>
 
 <?php
 if(isset($_POST['do'])){
@@ -37,7 +42,7 @@ $config = [
 
 $bak = new DatabaseTool($config);
 if (!$bak->backup()) {
-    echo "데이터베이스 백업 실패: ".$bak->getError();
+    echo "<div class='alert alert-danger' role='alert'>데이터베이스 백업 실패: ".htmlentities($bak->getError(), ENT_QUOTES, 'UTF-8')."</div>";
     exit;
 }
 
@@ -88,29 +93,34 @@ if ($zip->open($ztar, ZipArchive::CREATE | ZipArchive::OVERWRITE) === TRUE) {
     }
 
     if (!$zip->close()) {
-        echo "ZIP 파일 생성 실패. 대상 디렉터리 권한을 확인하세요: $ztar";
+        echo "<div class='alert alert-danger' role='alert'>ZIP 파일 생성 실패. 대상 디렉터리 권한을 확인하세요: ".htmlentities($ztar, ENT_QUOTES, 'UTF-8')."</div>";
         exit;
     }
 } else {
-    echo "ZIP 파일을 만들 수 없습니다: $ztar";
+    echo "<div class='alert alert-danger' role='alert'>ZIP 파일을 만들 수 없습니다: ".htmlentities($ztar, ENT_QUOTES, 'UTF-8')."</div>";
     exit;
 }
 
 ?>
+<div class="alert alert-success" role="status">백업을 완료했습니다: <?php echo htmlentities(basename($ztar), ENT_QUOTES, 'UTF-8')?></div>
 
 <?php
 }else{
 ?>
-<br><br>
+<p class="admin-field-help">백업에는 시간이 걸릴 수 있습니다. 완료될 때까지 페이지를 닫지 마세요.</p>
 <form method="post" action="backup.php">
-    <input type="submit" name="do" value="<?php echo $MSG_BACKUP_DATABASE ?>">
+    <div class="admin-form-actions">
+        <input type="submit" class="btn btn-primary" name="do" value="<?php echo $MSG_BACKUP_DATABASE ?>">
+    </div>
 </form>
 
 <?php
 }
 ?>
 
-<button onclick="phpfm(0)">백업 파일 보기</button>
+<div class="admin-form-actions">
+    <button type="button" class="btn btn-default" onclick="phpfm(0)">백업 파일 보기</button>
+</div>
 <script src='../template/bs3/jquery.min.js'></script>
 <script>
 // 백업 저장 위치(data/0)를 내장 파일 관리자 화면으로 연다.
