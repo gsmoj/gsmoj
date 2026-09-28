@@ -27,7 +27,7 @@ function writable($path){
 			$sql="UPDATE `problem` SET `problem_id`=? WHERE `problem_id`=?";
 			if(pdo_query($sql,$to,$from)==0){
 				 rename("$OJ_DATA/$to","$OJ_DATA/$from");
-				 echo "<div class='alert alert-danger' style='max-width:520px;margin:16px auto;'>변경 실패...</div>";
+				 echo "<div class='alert alert-danger admin-flash' role='alert'>변경 실패...</div>";
 				 exit(1);
 			}
 			$sql="UPDATE `solution` SET `problem_id`=? WHERE `problem_id`=?";
@@ -45,10 +45,10 @@ function writable($path){
 				pdo_query($sql);
 			}
 			
-			echo "<div class='alert alert-success' style='max-width:520px;margin:16px auto;'>변경 완료!</div>";
+			echo "<div class='alert alert-success admin-flash' role='status'>변경 완료!</div>";
 		}else{
 
-				echo "<div class='alert alert-danger' style='max-width:520px;margin:16px auto;'>변경 실패...</div>";
+				echo "<div class='alert alert-danger admin-flash' role='alert'>변경 실패...</div>";
 		}
 
 	}
@@ -59,16 +59,22 @@ function writable($path){
 		   $show_form=false;
 	   }
 ?>
-<title>Change Problem ID</title>
+<title>문제 번호 변경</title>
 <style>
-  .changeid-card { max-width: 520px; margin: 0 auto; }
+  .changeid-card { max-width: 620px; padding: 18px; border: 1px solid var(--admin-border); border-radius: 12px; background: #fff; }
   .changeid-card .alert { margin-bottom: 16px; }
-  .changeid-form { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-  .changeid-form input[type=input] { width: 100px; text-align: center; }
+  .admin-form-shell .changeid-form { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .changeid-form input[type=text] { width: 120px; text-align: center; }
+  .changeid-warning { margin: 0 0 14px; color: #b91c1c; font-weight: 600; }
+  .admin-flash { max-width: 620px; margin: 16px 24px; }
 </style>
-<hr>
-<h3 style="text-align:center;">문제 번호 변경</h3>
-<div class="padding changeid-card">
+<script>document.body.classList.add('admin-form-page');</script>
+<div class="admin-form-shell">
+<header class="admin-form-title">
+  <h3>문제 번호 변경</h3>
+  <p>문제 번호를 바꾸면 채점 기록, 대회 문제, 토론 글의 문제 번호도 함께 바뀝니다.</p>
+</header>
+<div class="changeid-card">
 <?php if(!$show_form){ ?>
   <div class="alert alert-danger">
     <?php echo "$OJ_DATA"?> 를 php.ini의 open_basedir 설정에 추가하거나,<br>
@@ -77,16 +83,18 @@ function writable($path){
     현재는 이 기능을 사용할 수 없습니다.
   </div>
 <?php }else{ ?>
-  <p style="color:#b91c1c;font-weight:600;">주의: 문제 번호를 바꾸면 되돌리기 어렵습니다. 신중히 진행하세요.</p>
+  <p class="changeid-warning">주의: 문제 번호를 바꾸면 되돌리기 어렵습니다. 신중히 진행하세요.</p>
   <form action='problem_changeid.php' method=post class="changeid-form">
-    <span>Move</span>
-    <input class="input input-mini" type=input name='from' placeholder="from">
-    <span>&rarr;</span>
-    <input class="input input-mini" type=input name='to' placeholder="to">
+    <label class="admin-field-label" for="changeid-from" style="margin:0">현재 번호</label>
+    <input class="form-control" id="changeid-from" type=text name='from' placeholder="1001">
+    <span aria-hidden="true">&rarr;</span>
+    <label class="admin-field-label" for="changeid-to" style="margin:0">새 번호</label>
+    <input class="form-control" id="changeid-to" type=text name='to' placeholder="2001">
     <input type='hidden' name='do' value='do'>
-    <input class="btn btn-primary btn-sm" type=submit value=submit>
+    <input class="btn btn-danger" type=submit value='번호 변경'>
     <?php require_once("../include/set_post_key.php");?>
   </form>
 <?php }
 ?>
+</div>
 </div>

@@ -3,18 +3,21 @@ if (!(isset($_SESSION[$OJ_NAME.'_'.'administrator']))){
 	exit(1);
 }
 ?>
-<title>Copy Problem</title>
+<title>원격 문제 가져오기</title>
 <style>
-  .copy-problem-list { list-style: none; margin: 0; padding: 0; }
+  .copy-problem-list { max-width: 900px; list-style: none; margin: 0; padding: 4px 18px; border: 1px solid var(--admin-border); border-radius: 12px; background: #fff; }
   .copy-problem-list li { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 0; border-bottom: 1px solid var(--admin-border); }
   .copy-problem-list li:last-child { border-bottom: 0; }
   .copy-problem-list .site-label { flex: 0 0 220px; font-weight: 600; color: #334155; }
-  .copy-problem-list form { display: flex; flex: 1 1 320px; gap: 8px; margin: 0; }
+  .admin-form-shell .copy-problem-list form { display: flex; flex: 1 1 320px; gap: 8px; width: auto; margin: 0; }
   .copy-problem-list input[type=text] { flex: 1; }
 </style>
-<hr>
-<h3 style="text-align:center;">원격 문제 가져오기</h3>
-<div class="padding" style="max-width:900px;">
+<script>document.body.classList.add('admin-form-page');</script>
+<div class="admin-form-shell">
+<header class="admin-form-title">
+  <h3>원격 문제 가져오기</h3>
+  <p>다른 온라인 저지의 문제 주소를 입력하면 문제 등록 화면으로 내용을 불러옵니다.</p>
+</header>
 <ul class="copy-problem-list">
 <li>
   <span class="site-label">uoj.ac</span>
