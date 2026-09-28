@@ -187,15 +187,16 @@ class IpLocation
                 $location["area"] = $this->getarea();
                 break;
         }
-        if ($location["country"] == " CZ88.NET") {
-            // CZ88.NET表示没有有效信息
-            $location["country"] = "未知";
-        }
+        $isUnknown = ($location["country"] == " CZ88.NET");
         if ($location["area"] == " CZ88.NET") {
             $location["area"] = "";
         }
         $location["country"] = iconv("GB2312", "UTF-8", $location["country"]);
         $location["area"] = iconv("GB2312", "UTF-8", $location["area"]);
+        if ($isUnknown) {
+            // CZ88.NET는 유효한 위치 정보가 없음을 의미
+            $location["country"] = "알 수 없음";
+        }
         return $location["country"].$location["area"];
     }
     /**
