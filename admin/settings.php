@@ -177,53 +177,67 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="../include/hoj.css">
     <script src="../template/bs3/jquery.min.js"></script>
     <style>
-        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f0f2f5; }
-        .container { max-width: 1000px; margin: 20px auto; padding: 0 20px; }
-        .card { background: #fff; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        .card-header { background: #2c5aa0; color: #fff; padding: 12px 20px; font-size: 15px; font-weight: bold; border-radius: 6px 6px 0 0; }
-        .card-body { padding: 20px; }
-        .alert { padding: 12px 15px; border-radius: 4px; margin-bottom: 15px; font-size: 14px; }
-        .alert-success { background: #166534; color: #dcfce7; border: 1px solid #166534; }
-        .alert-warning { background: #854d0e; color: #fef9c3; border: 1px solid #854d0e; }
-        .alert-info { background: #1e3a5f; color: #e0f2fe; border: 1px solid #1e3a5f; }
-        .alert-danger { background: #991b1b; color: #fee2e2; border: 1px solid #991b1b; }
-        .protected-note { background: #f8f9fa; border-left: 4px solid #ffc107; padding: 10px 15px; font-size: 13px; color: #666; margin-bottom: 20px; border-radius: 0 4px 4px 0; }
-        .protected-note code { background: #fff3cd; padding: 1px 5px; border-radius: 3px; color: #856404; font-size: 12px; }
-        .info-row { display: flex; gap: 30px; margin-bottom: 20px; padding: 12px 15px; background: #f0f6ff; border-radius: 4px; font-size: 13px; }
-        .info-row span { color: #555; }
-        .info-row strong { color: #2c5aa0; }
-        .tab-nav { margin: 0 0 -2px 0; padding: 0; list-style: none; overflow: hidden; background: #fff; border-bottom: 2px solid #e0e0e0; border-radius: 6px 6px 0 0; }
-        .tab-nav li { display: inline-block; }
-        .tab-nav li a { display: block; padding: 10px 18px; color: #666; text-decoration: none; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: color 0.2s; }
-        .tab-nav li a:hover { color: #2c5aa0; }
-        .tab-nav li a.active { color: #2c5aa0; border-bottom-color: #2c5aa0; font-weight: bold; }
-        .tab-content { display: none; padding: 20px; background: #fff; border-radius: 0 0 6px 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+        /* 관리자 공통 톤(admin/admin.css의 --admin-* 값)에 맞춘 설정 화면 전용 스타일 */
+        :root { --admin-primary: #2563eb; --admin-primary-dark: #1d4ed8; --admin-border: #dfe5ee; --admin-text: #1f2937; --admin-muted: #64748b; }
+        body { margin: 0; padding: 0; color: var(--admin-text); background: #fff; font-family: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", Arial, sans-serif; }
+        .container { box-sizing: border-box; max-width: none; margin: 0; padding: 0 24px 32px; }
+        .settings-title { position: sticky; z-index: 30; top: 0; margin: 0 -24px 24px; padding: 16px 24px 14px; border-bottom: 1px solid var(--admin-border); background: #fff; }
+        .settings-title h3 { margin: 0; font-size: 20px; }
+        .settings-title p { margin: 5px 0 0; color: var(--admin-muted); font-size: 14px; }
+        .card { margin-bottom: 20px; }
+        .card-body { padding: 0; }
+        .alert { padding: 12px 15px; border-radius: 8px; margin-bottom: 15px; font-size: 14px; }
+        .alert-success { color: #15803d; background: #dcfce7; border: 1px solid #bbf7d0; }
+        .alert-warning { color: #b45309; background: #fef3c7; border: 1px solid #fde68a; }
+        .alert-info { color: #1d4ed8; background: #dbeafe; border: 1px solid #bfdbfe; }
+        .alert-danger { color: #b91c1c; background: #fee2e2; border: 1px solid #fecaca; }
+        .protected-note { margin-bottom: 16px; padding: 12px 16px; color: #92400e; font-size: 13px; line-height: 1.8; border: 1px solid #fde68a; border-radius: 10px; background: #fffbeb; }
+        .protected-note code { padding: 1px 6px; color: #92400e; font-size: 12px; border-radius: 4px; background: #fef3c7; }
+        .info-row { display: flex; flex-wrap: wrap; gap: 8px 30px; padding: 12px 16px; font-size: 13px; border: 1px solid var(--admin-border); border-radius: 10px; background: #f8fafc; }
+        .info-row span { color: var(--admin-muted); }
+        .info-row strong { color: var(--admin-text); }
+        .tab-nav { display: flex; flex-wrap: wrap; margin: 0; padding: 0; list-style: none; border-bottom: 1px solid var(--admin-border); }
+        .tab-nav li { display: block; }
+        .tab-nav li a { display: block; margin-bottom: -1px; padding: 10px 16px; color: var(--admin-muted); font-size: 14px; text-decoration: none; border-bottom: 2px solid transparent; transition: color .2s; }
+        .tab-nav li a:hover { color: var(--admin-primary); }
+        .tab-nav li a.active { color: var(--admin-primary); font-weight: 700; border-bottom-color: var(--admin-primary); }
+        .tab-content { display: none; padding: 8px 0 0; }
         .tab-content.active { display: block; }
-        .setting-group { margin-bottom: 25px; }
-        .setting-group-title { font-size: 13px; font-weight: bold; color: #333; border-bottom: 2px solid #2c5aa0; padding-bottom: 4px; margin-bottom: 12px; }
-        .row { display: flex; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid #f0f0f0; background: #f8fbff; }
+        .setting-group { margin-bottom: 20px; }
+        .setting-group-title { margin: 16px 0 8px; padding-bottom: 6px; color: var(--admin-text); font-size: 14px; font-weight: 700; border-bottom: 1px solid var(--admin-border); }
+        .row { display: flex; align-items: flex-start; gap: 16px; padding: 12px 8px; border-bottom: 1px solid #eef2f7; }
         .row:last-child { border-bottom: none; }
-        .row:hover { background: #f0f6ff; }
-        .label { width: 220px; flex-shrink: 0; padding-top: 3px; background: #e8f0ff; }
-        .label code { font-size: 12px; color: #2c5aa0; background: #e8f0ff; padding: 1px 5px; border-radius: 3px; }
-        .label-desc { font-size: 12px; color: #555; display: block; margin-top: 2px; }
-        .control { flex: 1; }
+        .row:hover { background: #f8fafc; }
+        .label { flex-shrink: 0; width: 240px; padding-top: 3px; }
+        .label code { padding: 1px 6px; color: var(--admin-primary-dark); font-size: 12px; border-radius: 4px; background: #eff6ff; }
+        .label-desc { display: block; margin-top: 4px; color: var(--admin-muted); font-size: 12px; }
+        .control { flex: 1; min-width: 0; }
         input[type="text"], input[type="number"], select {
-            width: 100%; max-width: 380px; padding: 6px 10px;
-            border: 1px solid #ddd; border-radius: 4px; font-size: 13px;
+            box-sizing: border-box; width: 100%; max-width: 380px; min-height: 36px; padding: 6px 10px;
+            border: 1px solid #cbd5e1; border-radius: 7px; font-size: 13px;
         }
-        input[type="checkbox"] { width: 16px; height: 16px; margin-top: 4px; }
-        .bool-hint { font-size: 11px; color: #888; margin-left: 6px; vertical-align: middle; }
-        .btn-save { background: #2c5aa0; color: #fff; border: none; padding: 10px 35px; border-radius: 4px; font-size: 14px; cursor: pointer; margin-top: 15px; }
-        .btn-save:hover { background: #1e4087; }
-        .tab-footer { margin-top: 15px; padding-top: 15px; border-top: 1px solid #eee; }
-        .beta-tag { background: #ffc107; color: #333; font-size: 10px; padding: 1px 5px; border-radius: 3px; margin-left: 4px; }
+        input[type="text"]:focus, input[type="number"]:focus, select:focus { border-color: var(--admin-primary); outline: 2px solid rgba(37, 99, 235, .2); }
+        input[type="checkbox"] { width: 16px; height: 16px; margin-top: 4px; accent-color: var(--admin-primary); }
+        .bool-hint { margin-left: 6px; color: var(--admin-muted); font-size: 11px; vertical-align: middle; }
+        .tab-footer { position: sticky; bottom: 0; display: flex; justify-content: center; margin-top: 16px; padding: 14px 0; border-top: 1px solid var(--admin-border); background: #fff; }
+        .btn-save { min-width: 140px; padding: 9px 28px; color: #fff; font-size: 14px; font-weight: 700; border: none; border-radius: 7px; background: var(--admin-primary); cursor: pointer; }
+        .btn-save:hover { background: var(--admin-primary-dark); }
+        .beta-tag { margin-left: 4px; padding: 1px 6px; color: #b45309; font-size: 10px; font-weight: 700; border-radius: 999px; background: #fef3c7; }
+        @media (max-width: 760px) {
+            .container { padding: 0 16px 24px; }
+            .settings-title { margin: 0 -16px 18px; padding: 14px 16px 12px; }
+            .row { flex-direction: column; gap: 8px; }
+            .label { width: auto; }
+        }
     </style>
 </head>
 <body>
 <div class="container">
+    <header class="settings-title">
+        <h3>시스템 설정</h3>
+        <p>체크박스·텍스트·숫자 설정을 수정합니다. 민감한 항목은 보호되어 이 화면에서 바꿀 수 없습니다.</p>
+    </header>
     <div class="card">
-        <div class="card-header">⚙️ 시스템 설정</div>
         <div class="card-body">
             <?php echo $save_msg; ?>
             <div class="protected-note">
@@ -559,8 +573,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         echo '</div></div>';
         ?>
 
-        <div class="card tab-footer" style="border-radius:6px; margin-top:0;">
-            <button type="submit" class="btn-save">💾 설정 저장</button>
+        <div class="tab-footer">
+            <button type="submit" class="btn-save">설정 저장</button>
         </div>
     </form>
 </div>

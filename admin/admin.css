@@ -1057,6 +1057,22 @@ a:hover > .admin-badge { box-shadow: 0 0 0 2px rgba(37, 99, 235, .25); }
 .admin-import-card form.aj-up input[type="file"] { flex: 1 1 280px; }
 .admin-import-card form.aj-up input[type="text"] { flex: 0 1 180px; }
 
+.admin-tool-card { max-width: 860px; margin: 0 0 16px; padding: 16px 18px; border: 1px solid var(--admin-border); border-radius: 12px; background: #fff; }
+.admin-tool-card h4 { margin: 0 0 10px; color: var(--admin-text); font-size: 15px; font-weight: 700; }
+.admin-tool-card > .admin-field-help { margin: -4px 0 10px; }
+.admin-form-shell .admin-tool-form { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
+.admin-tool-form + .admin-tool-form { margin-top: 10px; }
+.admin-tool-form .form-control { flex: 1 1 180px; width: auto; max-width: 320px; }
+.admin-tool-form select.form-control { flex: 0 1 200px; }
+.admin-tool-form .btn { flex: 0 0 auto; }
+.admin-form-shell .admin-grid-form { grid-template-columns: minmax(140px, 200px) minmax(0, 360px); align-items: center; gap: 12px 16px; max-width: 760px; }
+.admin-grid-form .admin-field-label { margin: 0; }
+.admin-grid-form .admin-form-actions { grid-column: 1 / -1; }
+@media (max-width: 760px) {
+    .admin-form-shell .admin-grid-form { grid-template-columns: 1fr; }
+    .admin-tool-form .form-control, .admin-tool-form select.form-control { flex-basis: 100%; max-width: none; }
+}
+
 .admin-news-form { display: grid; gap: 18px; }
 .admin-news-field { min-width: 0; }
 .admin-news-field .admin-field-label { display: block; }

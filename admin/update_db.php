@@ -273,9 +273,19 @@ $csql[63]="ALTER TABLE $DB_NAME.`problem` ADD COLUMN `coin` INT UNSIGNED NOT NUL
 
 // 删除6个月以前的非正确源码，优化数据库空间。
 // delete from source_code  where solution_id in (select solution_id from solution where result>4 and  in_date<date_sub(now(),interval 6 month) ); //
+?>
+<title><?php echo $MSG_UPDATE_DATABASE?></title>
+<script>document.body.classList.add('admin-form-page');</script>
+<div class="admin-form-shell">
+<header class="admin-form-title">
+	<h3><?php echo htmlentities($MSG_SYSTEM." - ".$MSG_UPDATE_DATABASE, ENT_QUOTES, 'UTF-8')?></h3>
+	<p><?php echo $MSG_HELP_UPDATE_DATABASE?></p>
+</header>
+<?php
 if(isset($_POST['do'])){  
 	require_once("../include/check_post_key.php");
-	echo "Executing...<br>";
+	echo "<div class='admin-result-log'>";
+	echo "실행 중...<br>";
 	set_time_limit(60);
 	for($i=0;isset($tsql[$i]);$i++){
 		if($tsql[$i]){
@@ -287,20 +297,22 @@ if(isset($_POST['do'])){
 			echo "=".pdo_query($csql[$i])."<hr>";
 		}
 	}
+	echo "</div>";
 }
 ?>
-<div class="container">
-<b>Update DataBase</b>
-	Create New Tables ,drop useless columes.
-	<b>Necessary for using plagiarism detection.</b>
+	<ul class="admin-field-help admin-help-list">
+		<li>새 테이블을 만들고 필요 없는 열을 정리합니다.</li>
+		<li>표절 검사 기능을 쓰려면 반드시 실행해야 합니다.</li>
+	</ul>
 	<form action='update_db.php' method=post>
 		<?php require_once("../include/set_post_key.php");?>
 		<input type='hidden' name='do' value='do'>
-		<input type=submit value=Update>
+		<div class="admin-form-actions">
+			<input type=submit class="btn btn-danger" value='<?php echo $MSG_UPDATE_DATABASE?>'>
+		</div>
 	</form>
 	
 <?php if (file_exists("update_pw.php")) {	?>
-   <a href="update_pw.php">Upgrade all users password storage form to get more security.</a>
-   * only do once !
+   <p class="admin-field-help"><a href="update_pw.php">모든 사용자의 비밀번호 저장 방식을 더 안전한 형식으로 변환합니다.</a> (한 번만 실행하세요!)</p>
 <?php }?>
 </div>
