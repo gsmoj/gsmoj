@@ -8,10 +8,22 @@ if(isset($OJ_LANG)){
   require_once("../lang/$OJ_LANG.php");
 }
 ?>
-<title>User List</title>
-<hr>
-<center><h3><?php echo $MSG_USER."-".$MSG_LIST?></h3></center>
-<div class='' style="overflow:auto">
+<title><?php echo $MSG_USER." ".$MSG_LIST?></title>
+
+<div class='padding admin-content-page'>
+<div class="admin-page-heading">
+  <div><h3><?php echo $MSG_USER." - ".$MSG_LIST?></h3><p><?php echo isset($_GET['trash'])?$MSG_VIEW_DISABLED_USER:$MSG_HELP_USER_LIST?></p></div>
+  <div class="admin-heading-actions">
+    <?php if(isset($_GET['trash'])){ ?>
+    <a href="user_list.php" class="btn btn-default"><?php echo $MSG_USER." - ".$MSG_LIST?></a>
+    <?php }else{ ?>
+    <a href="user_list.php?trash" class="btn btn-default" title="<?php echo $MSG_VIEW_DISABLED_USER?>">비활성 사용자</a>
+    <?php } ?>
+    <?php if(isset($_SESSION[$OJ_NAME.'_'.'administrator'])||isset($_SESSION[$OJ_NAME.'_'.'user_adder'])){ ?>
+    <a href="user_add.php" class="btn btn-primary"><?php echo $MSG_USER." ".$MSG_ADD?></a>
+    <?php } ?>
+  </div>
+</div>
 <?php
 $sql = "select COUNT('user_id') AS ids FROM `users`";
 $result = pdo_query($sql);
@@ -47,16 +59,13 @@ if(isset($_GET['keyword']) && $_GET['keyword']!=""){
 }
 ?>
 
-<center>
-<form action=user_list.php class="form-search form-inline">
+<form action=user_list.php class="form-search form-inline admin-list-search">
   <input type="text" name="keyword"  value="<?php echo htmlentities($gkeyword,ENT_QUOTES) ?>"  class="form-control search-query" placeholder="<?php echo $MSG_USER_ID.', '.$MSG_NICK.', '.$MSG_SCHOOL?>">
-  <button type="submit" class="form-control"><?php echo $MSG_SEARCH?></button>
-  <a href="user_list.php?trash" title="<?php echo $MSG_VIEW_DISABLED_USER?>" ><i class='icon large trash color grey' ></i></a>
+  <button type="submit" class="btn btn-primary"><?php echo $MSG_SEARCH?></button>
 </form>
-</center>
 
-<center>
-  <table width=100% border=1 style="text-align:center;" class="ui striped aligned table">
+  <div class="admin-table-wrap">
+  <table class="table admin-user-table">
 <thead>
     <tr>
     <th><?php echo $MSG_USER_ID?></th>
@@ -78,51 +87,52 @@ if(isset($_GET['keyword']) && $_GET['keyword']!=""){
       <th><?php echo $MSG_PRIVILEGE."-".$MSG_ADD ?></th>
       </tr>
 </thead>
-
+<tbody>
     <?php
     foreach($result as $row){
       echo "<tr>";
         echo "<td><a href='../userinfo.php?user=".htmlentities(urlencode($row['user_id']))."'>".$row['user_id']."</a></td>";
         if($row['nick']=="") $row['nick']="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
-        echo "<td><span fd='nick' user_id='".$row['user_id']."'>".$row['nick']."</span></td>";
-        echo "<td><a href='user_list.php?keyword=".htmlentities(urlencode($row['ip']))."' >".$row['ip']."</td>";
+        echo "<td><span class='admin-inline-edit' title='더블클릭하여 수정' fd='nick' user_id='".$row['user_id']."'>".$row['nick']."</span></td>";
+        echo "<td><a href='user_list.php?keyword=".htmlentities(urlencode($row['ip']))."' >".$row['ip']."</a></td>";
         if($OJ_SaaS_ENABLE && $domain == $DOMAIN){
                 echo "<td><a href='http://".$row['user_id'].".$DOMAIN' target=_blank >".$row['email']."&nbsp;</a></td>";
         }else{
                 echo "<td>".$row['email']." </td>";
         }
         if($row['school']=="") $row['school']="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
-        echo "<td><span fd='school' user_id='".$row['user_id']."'>".$row['school']."</span></td>";
+        echo "<td><span class='admin-inline-edit' title='더블클릭하여 수정' fd='school' user_id='".$row['user_id']."'>".$row['school']."</span></td>";
         if($row['group_name']=="") $row['group_name']="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
-        echo "<td><span fd='group_name' user_id='".$row['user_id']."'>".$row['group_name']."</span></td>";
+        echo "<td><span class='admin-inline-edit' title='더블클릭하여 수정' fd='group_name' user_id='".$row['user_id']."'>".$row['group_name']."</span></td>";
         echo "<td>".$row['accesstime']."</td>";
         echo "<td>".$row['reg_time']."</td>";
-        $color="red";
+        $color="expired";
         $edate= new DateTime($row['expiry_date']);
         $tomorrow= new DateTime(add_days(7));   // 7 日临期预警蓝色
         $today= new DateTime(add_days(0));
-        if($edate>$tomorrow) $color="green";
-        else if($edate>=$today) $color="blue";
-        echo "<td><span fd='expiry_date' user_id='".$row['user_id']."' class='".$color."' >".$row['expiry_date']."</span></td>";
+        if($edate>$tomorrow) $color="ok";
+        else if($edate>=$today) $color="soon";
+        echo "<td><span fd='expiry_date' user_id='".$row['user_id']."' class='admin-inline-edit admin-expiry admin-expiry--".$color."' title='더블클릭하여 수정' >".$row['expiry_date']."</span></td>";
 
         echo "<td>".intval($row['coin_earned'])."</td>";
-        echo "<td><span fd='coin_bonus' user_id='".$row['user_id']."'>".intval($row['coin_bonus'])."</span></td>";
-        echo "<td><span fd='coin_spent' user_id='".$row['user_id']."'>".intval($row['coin_spent'])."</span></td>";
+        echo "<td><span class='admin-inline-edit' title='더블클릭하여 수정' fd='coin_bonus' user_id='".$row['user_id']."'>".intval($row['coin_bonus'])."</span></td>";
+        echo "<td><span class='admin-inline-edit' title='더블클릭하여 수정' fd='coin_spent' user_id='".$row['user_id']."'>".intval($row['coin_spent'])."</span></td>";
         echo "<td>".intval($row['coin_earned']+$row['coin_bonus']-$row['coin_spent'])."</td>";
-        echo "<td>".($row['defunct']=="N"?"<span class=green >$MSG_NORMAL</span>":"<span class=red>$MSG_DELETED</span>")."</td>";
+        echo "<td>".($row['defunct']=="N"?"<span class='admin-badge admin-badge--on'>$MSG_NORMAL</span>":"<span class='admin-badge admin-badge--off'>$MSG_DELETED</span>")."</td>";
       if(isset($_SESSION[$OJ_NAME.'_'.'administrator']) && $row['user_id']!=$_SESSION[$OJ_NAME."_user_id"]){
         echo "<td><a href=user_df_change.php?cid=".$row['user_id']."&getkey=".htmlentities($_SESSION[$OJ_NAME.'_'.'getkey'], ENT_QUOTES, 'UTF-8').">".
-           ($row['defunct']=="N"?"<span class='label label-danger' title='$MSG_CLICK_TO_DELETE'>$MSG_CLICK_TO_DELETE</span>":"<span class='label label-success' title='$MSG_CLICK_TO_RECOVER'>$MSG_CLICK_TO_RECOVER</span>")
+           ($row['defunct']=="N"?"<span class='admin-badge admin-badge--warn' title='$MSG_CLICK_TO_DELETE'>$MSG_CLICK_TO_DELETE</span>":"<span class='admin-badge admin-badge--info' title='$MSG_CLICK_TO_RECOVER'>$MSG_CLICK_TO_RECOVER</span>")
             ."</a></td>";
       }else{
       	   echo "<td>&nbsp;</td>";
       }
-        echo "<td><a class='label label-warning' href=changepass.php?uid=".$row['user_id']."&getkey=".htmlentities($_SESSION[$OJ_NAME.'_'.'getkey'], ENT_QUOTES, 'UTF-8').">".$MSG_RESET."</a></td>";
-        echo "<td><a class='label label-success' href=privilege_add.php?uid=".$row['user_id']."&getkey=".htmlentities($_SESSION[$OJ_NAME.'_'.'getkey'], ENT_QUOTES, 'UTF-8').">".$MSG_ADD."</a></td>";
+        echo "<td><a class='btn btn-default btn-xs' href=changepass.php?uid=".$row['user_id']."&getkey=".htmlentities($_SESSION[$OJ_NAME.'_'.'getkey'], ENT_QUOTES, 'UTF-8').">".$MSG_RESET."</a></td>";
+        echo "<td><a class='btn btn-default btn-xs' href=privilege_add.php?uid=".$row['user_id']."&getkey=".htmlentities($_SESSION[$OJ_NAME.'_'.'getkey'], ENT_QUOTES, 'UTF-8').">".$MSG_ADD."</a></td>";
       echo "</tr>";
     } ?>
+</tbody>
   </table>
-</center>
+  </div>
 
 <?php
 if(!(isset($_GET['keyword']) && $_GET['keyword']!=""))

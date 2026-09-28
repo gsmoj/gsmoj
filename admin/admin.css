@@ -706,21 +706,6 @@ body:not(.admin-menu-frame) .form-horizontal [class*="col-"] { box-sizing: borde
 }
 .admin-form-shell .form-horizontal .form-group:last-child > div { grid-column: auto; }
 
-/* 사용자 CSV 업로드 화면: 레거시 br/center가 폼 배치를 흩뜨리지 않게 한다. */
-form[action="user_import.php"] {
-    display: grid !important;
-    grid-template-columns: minmax(0, 1fr) auto;
-    align-items: center !important;
-    width: min(100%, 760px) !important;
-    margin: 28px auto !important;
-    padding: 24px;
-    gap: 16px;
-}
-form[action="user_import.php"] > br { display: none; }
-form[action="user_import.php"] > center { display: contents; }
-form[action="user_import.php"] .form-group { display: block; width: 100%; margin: 0; padding: 0; }
-form[action="user_import.php"] input[type="file"] { width: 100%; margin: 0; }
-form[action="user_import.php"] button { width: 100%; margin: 0; white-space: nowrap; }
 body:not(.admin-menu-frame) > h1,
 body:not(.admin-menu-frame) > h2,
 body:not(.admin-menu-frame) > h3 { max-width: 760px; margin-right: auto; margin-left: auto; text-align: center; }
@@ -897,7 +882,6 @@ body:not(.admin-menu-frame) form.aj-up .btn { flex: 0 0 auto; margin: 0; }
     .admin-form-shell .form-horizontal .form-group > :not(.control-label):not(input[type="hidden"]),
     .admin-form-shell .form-horizontal .form-group:last-child > div { grid-column: 1; text-align: left; }
     .admin-form-shell .form-horizontal select[name="rightstr"] { min-width: 0; }
-    form[action="user_import.php"] { grid-template-columns: 1fr; padding: 16px; }
     #main > form input[type="number"] { width: 100%; margin: 8px 0; }
     #main > form input[type="submit"],
     #main > form input[type="reset"],
@@ -1044,6 +1028,21 @@ a:hover > .admin-badge { box-shadow: 0 0 0 2px rgba(37, 99, 235, .25); }
 .admin-suspect-table { min-width: 760px; margin-bottom: 0; text-align: center; }
 .admin-suspect-table th, .admin-suspect-table td { white-space: nowrap; }
 .admin-suspect-table .admin-suspect-links { font-size: 13px; }
+
+.admin-heading-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.admin-user-table, .admin-privilege-table { margin-bottom: 0; text-align: center; }
+.admin-user-table { min-width: 1400px; }
+.admin-privilege-table { min-width: 560px; }
+.admin-user-table th, .admin-user-table td,
+.admin-privilege-table th, .admin-privilege-table td { white-space: nowrap; vertical-align: middle !important; }
+.admin-user-table .admin-inline-edit input { width: auto; min-width: 120px; }
+.admin-user-table .admin-inline-edit input[type="number"] { min-width: 80px; }
+.admin-expiry--ok { color: #15803d; }
+.admin-expiry--soon { color: #1d4ed8; font-weight: 700; }
+.admin-expiry--expired { color: #b91c1c; }
+.admin-result-log { padding: 14px 16px; border: 1px solid var(--admin-border); border-radius: 10px; background: #f8fafc; font-size: 13px; line-height: 1.7; overflow-wrap: anywhere; }
+.admin-result-log + form, .admin-result-log + .admin-form-actions { margin-top: 18px; }
+.admin-form-section-title { margin: 0; color: var(--admin-text); font-weight: 700; }
 
 .admin-news-form { display: grid; gap: 18px; }
 .admin-news-field { min-width: 0; }
