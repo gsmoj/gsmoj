@@ -68,7 +68,7 @@
     }
     .home-content-grid {
         display: grid !important;
-        grid-template-columns: minmax(0, 11fr) minmax(0, 5fr);
+        grid-template-columns: minmax(0, 1fr) minmax(260px, 360px);
         column-gap: 1rem;
         width: 100%;
         min-width: 0;
@@ -155,6 +155,9 @@
         .home-content-grid .ui.bottom.attached.segment {
             overflow-x: hidden;
         }
+        .home-content-grid .ui.top.attached.block.header {
+            white-space: normal;
+        }
         .home-content-grid th,
         .home-content-grid td {
             white-space: normal;
@@ -177,7 +180,7 @@
         </div>
     </section>
 
-    <div class="ui three column grid home-content-grid">
+    <div class="ui grid home-content-grid">
         <div class="eleven wide column">
             
             <?php // 최근 공지 10개를 메인 영역 최상단에 노출한다. ?>
