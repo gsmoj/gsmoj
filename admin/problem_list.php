@@ -123,7 +123,7 @@ echo "</select>";
       <th><?php echo $MSG_TITLE?></th>
       <th><?php echo $MSG_AC?></th>
       <th><?php echo $MSG_SAVED_DATE?></th>
-      <th><?php echo $MSG_SOURCE ?></th><!--分类-->
+      <th><?php echo $MSG_SOURCE ?></th><!--분류-->
       <?php
       if(isset($_SESSION[$OJ_NAME.'_'.'administrator']) ||isset($_SESSION[$OJ_NAME.'_'.'problem_editor'])){
         if(isset($_SESSION[$OJ_NAME.'_'.'administrator']) ||isset($_SESSION[$OJ_NAME.'_'.'problem_editor']))
@@ -155,7 +155,7 @@ echo "</select>";
         echo "</td>";
         echo "<td>".$row['accepted']."</td>";
         echo "<td>".$row['in_date']."</td>";
-		echo "<td onDblClick='modify_source(".$row['problem_id'].")' style='cursor: pointer;' >";//分类
+		echo "<td onDblClick='modify_source(".$row['problem_id'].")' style='cursor: pointer;' >";//분류
 		
 		$category = array();
 	    $cate = explode(" ",$row['source']);
@@ -316,16 +316,16 @@ $(document).ready(function(){
 
 });
 function removeAIEnd(str) {
-  // 先去掉前后空格
+  // 먼저 앞뒤 공백 제거
   str = str.trim();
 
-  // 检查是否以"AI+"结尾
+  // "AI+"로 끝나는지 확인
   if (str.endsWith("AI+")) {
-    // 删除结尾的"AI+"
+    // 끝의 "AI+" 제거
     str = str.slice(0, -3);
   }
 
-  // 再次去掉前后空格（因为删除后可能留下空格）
+  // 제거 후 남을 수 있는 공백을 다시 제거
   return str.trim();
 }
 function modify_source(pid){
@@ -344,7 +344,7 @@ function modify_source(pid){
 				$("#source_"+pid).html("<span class='label label-info'>"+ns+"</span>");		
 			},
 			error: function() {
-				console.log("分类添加失败");
+				console.log("분류 추가 실패");
 			}
 		    });
 	});
@@ -367,10 +367,10 @@ function modify_source(pid){
 				}
 			},
 			error: function() {
-				console.log("分类添加失败");
+				console.log("분류 추가 실패");
 			}
 		    });
-		
+
 	}
 	var sleep=10;
 	function pull_result(pid,id){
@@ -388,13 +388,13 @@ function modify_source(pid){
 			}
 		},
 		error: function() {
-		    	    console.log('获取数据失败');
+		    	    console.log('데이터 조회 실패');
 		}
 	    });
 	}
 	function ai_gen(btn,pid){
 		    let oldval=$(btn).text();
-		    $(btn).text('AI思考中...请稍候...');
+		    $(btn).text('AI 생각 중...잠시만 기다려 주세요...');
 		    $.ajax({
 		    	url: '../<?php echo $OJ_AI_API_URL?>', 
 			type: 'GET',
@@ -404,7 +404,7 @@ function modify_source(pid){
 					window.setTimeout('pull_result('+pid+','+data+')',1000*Math.sqrt(sleep++));
 			},
 			error: function() {
-		    	    $(btn).text('获取数据失败');
+		    	    $(btn).text('데이터 조회 실패');
 			}
 		    });
 	}
