@@ -177,6 +177,18 @@ if (file_exists($solution_file)) {
     $filename = pathinfo($content, PATHINFO_FILENAME);
 
 }
+// 문제 상세 화면의 '내 제출' 카드용 최근 제출 5건 (로그인 사용자 한정)
+$my_submissions = array();
+if (isset($_SESSION[$OJ_NAME . '_' . 'user_id']) && isset($row['problem_id'])) {
+    if ($pr_flag) {
+        $sql = "SELECT solution_id,language,result,time,memory,in_date FROM `solution` WHERE `problem_id`=? AND `user_id`=? AND (`contest_id`=0 OR `contest_id` IS NULL) ORDER BY solution_id DESC LIMIT 5";
+        $my_submissions = pdo_query($sql, $id, $_SESSION[$OJ_NAME . '_' . 'user_id']);
+    } else {
+        $sql = "SELECT solution_id,language,result,time,memory,in_date FROM `solution` WHERE `contest_id`=? AND `num`=? AND `user_id`=? ORDER BY solution_id DESC LIMIT 5";
+        $my_submissions = pdo_query($sql, $cid, $pid, $_SESSION[$OJ_NAME . '_' . 'user_id']);
+    }
+    if (empty($my_submissions)) $my_submissions = array();
+}
 //if($row['spj']<=1) $row['description']=aaiw($row['description']);
 /////////////////////////Template
 require("template/" . $OJ_TEMPLATE . "/problem.php");
