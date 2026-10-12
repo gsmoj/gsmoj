@@ -35,15 +35,29 @@ $view_title = "Problem Set";
  * 根据GET参数或用户会话记录用户的当前页面位置
  * 管理员和普通用户有不同的页面记忆逻辑
  */
+// 목록 필터(풀이 상태·분류·정렬) 입력값. 허용된 값만 사용한다.
+$view_filter = isset($_GET['filter']) ? $_GET['filter'] : "";
+if (!isset($_SESSION[$OJ_NAME . '_' . 'user_id']) || !in_array($view_filter, array("unsolved", "solved", "tried"), true))
+    $view_filter = "";
+$view_category = (isset($_GET['category']) && is_string($_GET['category'])) ? trim($_GET['category']) : "";
+$sort_sqls = array(
+    "id" => " order by problem_id ",
+    "rate" => " order by (accepted/GREATEST(submit,1)) desc, problem_id ",
+    "accepted" => " order by accepted desc, problem_id ",
+    "submit" => " order by submit desc, problem_id "
+);
+$view_sort = (isset($_GET['sort']) && is_string($_GET['sort']) && isset($sort_sqls[$_GET['sort']])) ? $_GET['sort'] : "id";
+$has_filter = isset($_GET['search']) || $view_filter != "" || $view_category != "";
+
 $page = "1";
 if (isset($_GET['page'])) {
     $page = intval($_GET['page']);
-    if (isset($_SESSION[$OJ_NAME . '_' . 'user_id']) && !isset($_GET['search'])) {
+    if (isset($_SESSION[$OJ_NAME . '_' . 'user_id']) && !$has_filter) {
         $sql = "update users set volume=? where user_id=?";
         pdo_query($sql, $page, $_SESSION[$OJ_NAME . '_' . 'user_id']);
     }
 } else {
-    if (isset($_SESSION[$OJ_NAME . '_' . 'user_id']) && !isset($_GET['search'])) {
+    if (isset($_SESSION[$OJ_NAME . '_' . 'user_id']) && !$has_filter) {
         $sql = "select volume from users where user_id=?";
         $result = pdo_query($sql, $_SESSION[$OJ_NAME . '_' . 'user_id']);
         $row = $result[0];
@@ -68,10 +82,17 @@ $page_cnt = 50;  //50 problems per page
 $postfix = "";
 $filter_sql = "";
 $limit_sql = "";
-$order_by = " order by problem_id ";
+$order_by = $sort_sqls[$view_sort];
+$filter_params = array();
 if (isset($_GET['search']) && trim($_GET['search']) != "") {
     $search = "%" . ($_GET['search']) . "%";
-    $filter_sql = " ( title like ? or source like ?)";
+    $filter_sql = " ( title like ? or source like ?";
+    $filter_params = array($search, $search);
+    if (ctype_digit(trim($_GET['search']))) {  // 숫자만 입력하면 문제 번호로도 찾는다.
+        $filter_sql .= " or problem_id = ?";
+        $filter_params[] = intval(trim($_GET['search']));
+    }
+    $filter_sql .= ")";
     $limit_sql = " LIMIT " . ($page - 1) * $page_cnt . "," . $page_cnt;
     $postfix = "&search=" . urlencode($_GET['search']);
 } else if (isset($_GET['list']) && trim($_GET['list'] != "")) {
@@ -111,6 +132,30 @@ if (isset($_SESSION[$OJ_NAME . '_' . 'user_id'])) {
 }
 
 /**
+ * 풀이 상태·분류 필터
+ *
+ * 문제 번호는 위 채점 결과에서 얻은 정수만 사용하고, 분류는 파라미터 바인딩으로 전달한다.
+ */
+if ($view_filter != "") {
+    $acc_ids = implode(",", array_map('intval', array_keys($acc_arr)));
+    $tried_ids = implode(",", array_map('intval', array_keys(array_diff_key($sub_arr, $acc_arr))));
+    if ($view_filter == "solved")
+        $filter_sql .= $acc_ids == "" ? " and 1=0 " : " and problem_id in ($acc_ids) ";
+    else if ($view_filter == "tried")
+        $filter_sql .= $tried_ids == "" ? " and 1=0 " : " and problem_id in ($tried_ids) ";
+    else if ($acc_ids != "")
+        $filter_sql .= " and problem_id not in ($acc_ids) ";
+    $postfix .= "&filter=" . $view_filter;
+}
+if ($view_category != "") {
+    $filter_sql .= " and source like ? ";
+    $filter_params[] = "%" . $view_category . "%";
+    $postfix .= "&category=" . urlencode($view_category);
+}
+if ($view_sort != "id")
+    $postfix .= "&sort=" . $view_sort;
+
+/**
  * 问题页面导航权限控制
  *
  * 根据用户权限（管理员、普通用户、自由练习模式）设置不同的问题过滤条件
@@ -143,10 +188,10 @@ pdo_query("SET sort_buffer_size = 1024*1024");   // Out of sort memory, consider
 $sql = "select `problem_id`,`title`,`source`,`submit`,`accepted`,defunct,coin FROM problem A WHERE $filter_sql $order_by $limit_sql ";
 $count_sql = "select count(1) from problem where  $filter_sql ";
 //echo htmlentities( $sql);
-if (isset($_GET['search']) && trim($_GET['search']) != "") {
-    $total = pdo_query($count_sql, $search, $search);
+if (!empty($filter_params) || $view_filter != "") {
+    $total = pdo_query($count_sql, $filter_params);
     $cnt = $total[0][0] / $page_cnt;
-    $result = pdo_query($sql, $search, $search);
+    $result = pdo_query($sql, $filter_params);
 } else {
     $total = mysql_query_cache($count_sql);
     $cnt = $total[0][0] / $page_cnt;
@@ -155,6 +200,26 @@ if (isset($_GET['search']) && trim($_GET['search']) != "") {
 //echo "$cnt $count_sql";
 
 $view_total_page = ceil($cnt * 1.0);
+$view_total_count = intval($total[0][0]);
+
+// 분류 선택 목록: category.php와 같은 방식으로 공개 문제의 출처/분류를 모은다.
+$view_categories = array();
+if (!isset($_GET['ajax'])) {
+    $category_rows = mysql_query_cache("select distinct source FROM `problem` where defunct='N' order by source LIMIT 5000");
+    if ($category_rows) {
+        foreach ($category_rows as $row) {
+            foreach (explode(" ", $row['source']) as $cat) {
+                $cat = trim($cat);
+                if (mb_ereg("^http", $cat))
+                    $cat = trim(get_domain($cat));
+                if ($cat != "" && $cat != "&nbsp")
+                    $view_categories[$cat] = true;
+            }
+        }
+    }
+    $view_categories = array_keys($view_categories);
+    sort($view_categories);
+}
 
 /**
  * 问题列表数据处理
