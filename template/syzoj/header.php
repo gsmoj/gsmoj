@@ -110,226 +110,309 @@
     <title><?php echo $show_title ?></title>
     <?php include(dirname(__FILE__)."/css.php");?>
     <style>
-        @media (max-width: 991px) {
-            .mobile-only { display:block !important; }
-            .desktop-only { display:none !important; }
-        }
-
-        #mobile-menu-toggle {
-            display: none;
-        }
-
         body#MainBg-C {
-            min-height: calc(100vh - 49px);
+            min-height: calc(100vh - 72px);
             overflow-x: hidden;
         }
 
-        #page-header.ui.menu {
+        /* GSMOJ 상단 헤더 */
+        .gs-header {
+            position: fixed;
+            top: 0;
             left: 0;
             right: 0;
-            width: 100%;
-            margin: 0 !important;
-            overflow: visible;
+            z-index: 99999;
+            height: 72px;
+            border-bottom: 1px solid #eef0f2;
+            background: #fff;
         }
-
-        #menu {
-            box-sizing: border-box;
+        .gs-header *, .gs-header *::before, .gs-header *::after { box-sizing: border-box; }
+        .gs-header a { text-decoration: none; }
+        #menu.gs-header-inner {
+            display: flex;
+            align-items: center;
+            height: 72px;
+        }
+        .gs-logo {
+            display: inline-flex;
+            flex: 0 0 auto;
+            align-items: center;
+            gap: 10px;
             min-width: 0;
+            color: #111827;
         }
-
-        #menu > .header.item {
-            min-width: 0;
+        .gs-logo:hover { color: #111827; }
+        .gs-logo-mark {
+            display: inline-flex;
+            flex: 0 0 30px;
+            align-items: center;
+            justify-content: center;
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            background: #2563eb;
+            color: #fff;
         }
-
-        #menu > .header.item span {
-            max-width: 100%;
+        .gs-logo-mark svg { width: 18px; height: 18px; }
+        .gs-logo-text {
             overflow: hidden;
+            font-size: 20px;
+            font-weight: 600;
+            letter-spacing: -.01em;
             text-overflow: ellipsis;
             white-space: nowrap;
         }
+        .gs-collapse {
+            display: flex;
+            flex: 1 1 auto;
+            align-items: center;
+            min-width: 0;
+        }
+        .gs-nav {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            min-width: 0;
+            margin-left: 34px;
+        }
+        .gs-nav a, .gs-nav .gs-nav-group > span {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 15px;
+            border-radius: 8px;
+            color: #4b5563;
+            font-size: 16px;
+            font-weight: 500;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: color .15s ease, background-color .15s ease;
+        }
+        .gs-nav a:hover, .gs-nav .gs-nav-group:hover > span { color: #111827; }
+        .gs-nav a.active, .gs-nav .gs-nav-group > span.active { color: #111827; font-weight: 600; }
+        .gs-nav i.icon { display: none; }
+        .gs-nav-group, .gs-user { position: relative; }
+        .gs-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            z-index: 10;
+            display: none;
+            min-width: 200px;
+            padding: 6px;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            background: #fff;
+            box-shadow: 0 12px 28px rgba(15, 23, 42, .12);
+        }
+        .gs-nav-group > .gs-dropdown { left: 0; right: auto; }
+        .gs-nav-group:hover > .gs-dropdown,
+        .gs-nav-group:focus-within > .gs-dropdown,
+        .gs-user:hover > .gs-dropdown,
+        .gs-user:focus-within > .gs-dropdown { display: block; }
+        .gs-dropdown a, .gs-nav .gs-dropdown a {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+            padding: 9px 12px;
+            border-radius: 8px;
+            color: #374151;
+            font-size: 14px;
+            font-weight: 500;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+        .gs-dropdown a:hover { background: #f3f4f6; color: #111827; }
+        .gs-dropdown a i.icon { display: inline-block; margin: 0; color: #9ca3af; }
+        .gs-dropdown #red { color: #ef4444; }
+        .gs-user-meta {
+            margin-bottom: 6px;
+            padding: 8px 12px 10px;
+            border-bottom: 1px solid #f1f3f5;
+            color: #6b7280;
+            font-size: 13px;
+            line-height: 1.5;
+            white-space: nowrap;
+        }
+        .gs-user-meta strong { display: block; color: #111827; font-size: 14px; }
+        .gs-actions {
+            display: flex;
+            flex: 0 0 auto;
+            align-items: center;
+            gap: 12px;
+            margin-left: auto;
+        }
+        .gs-search { position: relative; width: 240px; margin: 0 28px 0 0; }
+        .gs-search > svg {
+            position: absolute;
+            top: 50%;
+            left: 14px;
+            width: 18px;
+            height: 18px;
+            color: #9ca3af;
+            transform: translateY(-50%);
+            pointer-events: none;
+        }
+        .gs-search input[type="search"] {
+            width: 100%;
+            height: 40px;
+            min-height: 40px;
+            padding: 0 64px 0 40px !important;
+            border: 1px solid transparent;
+            border-radius: 10px;
+            outline: 0;
+            background: #f3f4f6;
+            color: #111827;
+            font-size: 14px;
+            font-weight: 400;
+        }
+        .gs-search input[type="search"]::placeholder { color: #9ca3af; }
+        .gs-search input[type="search"]:focus { border-color: #2563eb; background: #fff; box-shadow: 0 0 0 3px rgba(37, 99, 235, .12); }
+        .gs-search kbd {
+            position: absolute;
+            top: 50%;
+            right: 8px;
+            padding: 1px 6px;
+            border: 1px solid #d1d5db;
+            border-radius: 5px;
+            background: #fff;
+            color: #9ca3af;
+            font-family: inherit;
+            font-size: 11px;
+            line-height: 1.5;
+            transform: translateY(-50%);
+            pointer-events: none;
+        }
+        .gs-search-panel { top: calc(100% + 6px); left: 0; right: 0; min-width: 0; }
+        .gs-search-panel.open { display: block; }
+        .gs-search-panel a { display: block; overflow: hidden; text-overflow: ellipsis; }
+        .gs-search-panel a.selected { background: #f3f4f6; }
+        .gs-search-panel b { color: #2563eb; font-weight: 600; }
+        .gs-bell {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            color: #374151;
+        }
+        .gs-bell:hover { background: #f3f4f6; color: #111827; }
+        .gs-bell svg { width: 22px; height: 22px; }
+        .gs-bell-dot { position: absolute; top: 6px; right: 7px; width: 8px; height: 8px; border-radius: 50%; background: #ef4444; box-shadow: 0 0 0 2px #fff; }
+        .gs-user-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            min-height: 0;
+            max-width: 180px;
+            padding: 4px 0;
+            border: 0;
+            background: transparent;
+            color: #111827;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .gs-avatar {
+            display: inline-flex;
+            flex: 0 0 32px;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #e8f0fe;
+            color: #2563eb;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .gs-user-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .gs-auth { display: flex; align-items: center; gap: 8px; }
+        .gs-auth a {
+            display: inline-flex;
+            align-items: center;
+            height: 38px;
+            padding: 0 16px;
+            border-radius: 10px;
+            color: #374151;
+            font-size: 14px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .gs-auth a:hover { background: #f3f4f6; color: #111827; }
+        .gs-auth a.primary { background: #2563eb; color: #fff; }
+        .gs-auth a.primary:hover { background: #1d4ed8; color: #fff; }
+        #mobile-menu-toggle {
+            display: none;
+            flex: 0 0 40px;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            min-height: 0;
+            margin-left: auto;
+            padding: 0;
+            border: 0;
+            border-radius: 10px;
+            background: transparent;
+            color: #111827;
+            cursor: pointer;
+        }
+        #mobile-menu-toggle:hover { background: #f3f4f6; }
+        #mobile-menu-toggle svg { width: 22px; height: 22px; }
+
+        @media (max-width: 1199px) {
+            .gs-nav { margin-left: 20px; }
+            .gs-nav a, .gs-nav .gs-nav-group > span { padding: 8px 10px; font-size: 15px; }
+            .gs-search { width: 180px; margin-right: 8px; }
+            .gs-search input[type="search"] { padding-right: 12px !important; }
+            .gs-search kbd { display: none; }
+            .gs-user-button { max-width: 130px; }
+        }
 
         @media (max-width: 991px) {
-            #page-header.ui.menu {
-                min-height: 49px;
-                height: 49px !important;
-            }
-
-            #menu {
-                display: flex;
-                align-items: center;
-                width: 100% !important;
-                max-width: none !important;
-                min-height: 49px;
-                margin: 0 !important;
-                padding: 0 .5rem;
-            }
-
-            #menu > .header.item {
-                flex: 1 1 auto;
-                width: auto;
-                padding: .65em .5em;
-            }
-
-            #mobile-menu-toggle {
-                display: inline-flex;
-                flex: 0 0 40px;
-                align-items: center;
-                justify-content: center;
-                width: 40px;
-                height: 40px;
-                margin: 4px 0 4px .25rem;
-                padding: 0;
-                border: 1px solid rgba(255,255,255,.28);
-                border-radius: 6px;
-                color: #fff;
-                background: rgba(255,255,255,.08);
-            }
-
-            #mobile-menu-toggle .icon {
-                margin: 0 !important;
-            }
-
-            #menu > .item:not(.header),
-            #menu > .right.menu {
-                display: none !important;
-            }
-
-            #menu.mobile-menu-open {
-                display: block;
-                max-height: calc(100vh - 49px);
-                overflow-x: hidden;
-                overflow-y: auto;
-                padding-bottom: .5rem;
-                background: #111827;
-                box-shadow: 0 8px 20px rgba(15,23,42,.24);
-            }
-
-            #menu.mobile-menu-open > .header.item {
-                display: inline-flex;
-                width: calc(100% - 52px);
-            }
-
-            #menu.mobile-menu-open > #mobile-menu-toggle {
+            .mobile-only { display: block !important; }
+            .desktop-only { display: none !important; }
+            #mobile-menu-toggle { display: inline-flex; }
+            .gs-collapse {
                 position: absolute;
-                top: 4px;
-                right: .5rem;
-            }
-
-            #menu.mobile-menu-open > .item:not(.header) {
-                display: flex !important;
-                width: 100%;
-                min-height: 44px;
-                padding: .75em 1em;
-            }
-
-            #menu.mobile-menu-open .desktop-only {
-                display: inline !important;
-            }
-
-            #menu.mobile-menu-open > .right.menu {
-                display: flex !important;
+                top: 100%;
+                left: 0;
+                right: 0;
+                display: none;
                 flex-direction: column;
                 align-items: stretch;
-                width: 100%;
-                margin: 0 !important;
+                gap: 12px;
+                max-height: calc(100vh - 72px);
+                padding: 12px 1em 16px;
+                overflow-y: auto;
+                border-bottom: 1px solid #eef0f2;
+                background: #fff;
+                box-shadow: 0 12px 20px rgba(15, 23, 42, .08);
+            }
+            .gs-collapse.open { display: flex; }
+            .gs-nav { flex-direction: column; align-items: stretch; gap: 0; margin-left: 0; }
+            .gs-nav a, .gs-nav .gs-nav-group > span { padding: 11px 12px; font-size: 15px; }
+            .gs-nav a.active { background: #f3f4f6; }
+            .gs-actions { flex-direction: column; align-items: stretch; gap: 10px; margin-left: 0; }
+            .gs-search { order: -1; width: 100%; margin: 0; }
+            .gs-bell { width: auto; justify-content: flex-start; gap: 8px; padding: 0 12px; }
+            .gs-bell::after { content: attr(aria-label); font-size: 15px; font-weight: 500; }
+            .gs-bell-dot { left: 26px; right: auto; }
+            .gs-user-button { max-width: none; padding: 4px 12px; cursor: default; }
+            .gs-nav-group > .gs-dropdown, .gs-user > .gs-dropdown {
+                position: static;
+                display: block;
                 padding: 0;
                 border: 0;
-                background: transparent;
                 box-shadow: none;
             }
-
-            #menu.mobile-menu-open > .right.menu > a,
-            #menu.mobile-menu-open > .right.menu > .item,
-            #menu.mobile-menu-open > .right.menu > a > .item {
-                display: flex;
-                align-items: center;
-                width: 100%;
-                min-height: 44px;
-                padding: .75em 1em;
-            }
-        }
-
-        /* 🎨 GSMOJ 다크 네비게이션 테마 덮어쓰기 */
-        #page-header.ui.menu {
-            background: linear-gradient(135deg, #1f2937, #111827) !important;
-            border: none !important;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
-        }
-        
-        #page-header.ui.menu .item,
-        #page-header.ui.menu .item > i.icon {
-            color: #9ca3af !important;
-            transition: all 0.2s ease-in-out;
-        }
-
-        #page-header.ui.menu .item:hover,
-        #page-header.ui.menu .item.active,
-        #page-header.ui.menu .item:hover > i.icon,
-        #page-header.ui.menu .item.active > i.icon {
-            color: #ffffff !important;
-            background-color: transparent !important; 
-        }
-
-        #page-header.ui.menu .item,
-        #page-header.ui.menu .item:hover,
-        #page-header.ui.menu .item:focus,
-        #page-header.ui.menu .item:active,
-        #page-header.ui.menu .item.active,
-        #page-header.ui.menu .ui.dropdown .menu .item,
-        #page-header.ui.menu .ui.dropdown .menu .item:hover,
-        #page-header.ui.menu .ui.dropdown .menu .item:focus,
-        #page-header.ui.menu .ui.dropdown .menu .item:active {
-            outline: none !important;
-            box-shadow: none !important;
-            -webkit-box-shadow: none !important;
-            text-decoration: none !important;
-        }
-
-        #page-header.ui.menu .item::before,
-        #page-header.ui.menu .item::after,
-        #page-header.ui.menu .ui.dropdown .menu .item::before,
-        #page-header.ui.menu .ui.dropdown .menu .item::after {
-            background: transparent !important;
-            box-shadow: none !important;
-            -webkit-box-shadow: none !important;
-        }
-        
-        #page-header.ui.menu .item.active {
-            border-bottom: 3px solid #2563eb !important;
-        }
-
-        #page-header.ui.menu .header.item span {
-            color: #ffffff !important;
-            letter-spacing: 1px;
-        }
-
-        #page-header.ui.menu .ui.button {
-            color: #ffffff !important;
-            background: rgba(255,255,255,0.1) !important;
-        }
-        
-        #page-header.ui.menu .ui.primary.button {
-            background-color: #2563eb !important;
-            border: none !important;
-        }
-        #page-header.ui.menu .ui.primary.button:hover {
-            background-color: #1d4ed8 !important;
-        }
-
-        /* 💡 드롭다운 내부 메뉴 아이템 스타일 복구 */
-        #page-header.ui.menu .ui.dropdown .menu .item,
-        #page-header.ui.menu .ui.dropdown .menu .item > i.icon {
-            color: #4b5563 !important; 
-            transition: all 0.2s ease-in-out;
-        }
-
-        #page-header.ui.menu .ui.dropdown .menu .item:hover {
-            color: #111827 !important;
-            background-color: #f3f4f6 !important; 
-        }
-
-        #page-header.ui.menu .ui.dropdown .menu .item:hover > i.icon {
-            color: #2563eb !important; 
+            .gs-user-meta { display: none; }
+            .gs-dropdown a, .gs-nav .gs-dropdown a { padding: 11px 12px; font-size: 15px; }
+            .gs-auth a { flex: 1 1 0; justify-content: center; background: #f3f4f6; }
         }
     </style>
 
@@ -346,51 +429,59 @@
         if(!isset($_GET['spa'])){
 ?>
    
-<body id="MainBg-C" style="position: relative; margin-top: 49px; min-height: calc(100vh - 49px); overflow-x: hidden; overflow-y: auto;">
-    <div id="page-header" class="ui fixed borderless menu" style="position: fixed; height: 49px; z-index:99999">
-        <div id="menu" class="ui stackable mobile ui container computer" style="margin-left:auto;margin-right:auto;">
-            <a class="header item"  href="/"><span
-                    style="font-family: 'Exo 2'; font-size: 1.5em; font-weight: 600; "><?php echo $domain==$DOMAIN?$OJ_NAME:ucwords($OJ_NAME)."'s OJ"?></span></a>
-            <button type="button" id="mobile-menu-toggle" aria-controls="menu" aria-expanded="false" aria-label="<?php echo htmlentities($MSG_MENU, ENT_QUOTES, 'UTF-8');?>">
-                <i class="bars icon" aria-hidden="true"></i>
+<body id="MainBg-C" style="position: relative; margin-top: 72px; min-height: calc(100vh - 72px); overflow-x: hidden; overflow-y: auto;">
+<?php
+        $gs_logged_in = isset($_SESSION[$OJ_NAME.'_'.'user_id']);
+        $gs_site_name = $domain==$DOMAIN?$OJ_NAME:ucwords($OJ_NAME)."'s OJ";
+
+        // 쪽지 기능이 꺼져 있거나 시험·현장 대회 모드이면 알림(쪽지)을 표시하지 않는다.
+        $gs_mail_html = false;
+        $gs_mail_count = 0;
+        if($gs_logged_in && !((isset($OJ_EXAM_CONTEST_ID)&&$OJ_EXAM_CONTEST_ID>0)||
+               (isset($OJ_ON_SITE_CONTEST_ID)&&$OJ_ON_SITE_CONTEST_ID>0)||
+               (isset($OJ_MAIL)&&!$OJ_MAIL))){
+            $gs_mail_html = checkmail();
+            if($gs_mail_html) $gs_mail_count = intval(preg_replace('/\D/', '', strip_tags($gs_mail_html)));
+        }
+?>
+    <header id="page-header" class="gs-header">
+        <div id="menu" class="ui container gs-header-inner">
+            <a class="gs-logo" href="/">
+                <span class="gs-logo-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m9 7-5 5 5 5"/><path d="m15 7 5 5-5 5"/></svg></span>
+                <span class="gs-logo-text"><?php echo $gs_site_name?></span>
+            </a>
+            <button type="button" id="mobile-menu-toggle" aria-controls="gs-collapse" aria-expanded="false" aria-label="<?php echo htmlentities($MSG_MENU, ENT_QUOTES, 'UTF-8');?>">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
             </button>
-            
+
+            <div class="gs-collapse" id="gs-collapse">
+            <nav class="gs-nav" aria-label="<?php echo htmlentities($MSG_MENU, ENT_QUOTES, 'UTF-8');?>">
           <?php
-            // 홈 버튼 하이라이트 검사
-            $is_home = ($url == "index.php");
-            
             if(isset($OJ_AI_HTML)&&$OJ_AI_HTML && !isset($OJ_ON_SITE_CONTEST_ID) ) echo $OJ_AI_HTML;
-            else echo '<a class="desktop-only item '.($is_home ? "active" : "").'" href="/"><i class="home icon"></i><span class="desktop-only">'.$MSG_HOME.'</span></a>';
-            
-            if(file_exists("moodle")){ 
-              echo '<a class="item '.($url=="moodle" ? "active" : "").'" href="moodle"><i class="group icon"></i><span class="desktop-only">Moodle</span></a>';
+
+            if(file_exists("moodle")){
+              echo '<a class="item '.($url=="moodle" ? "active" : "").'" href="moodle">Moodle</a>';
             }
-            if(file_exists("hello")){ 
+            if(file_exists("hello")){
               echo '<a class="item" onclick=\'window.open("/hello/index.html", "_blank",
-        "width=600,height=850,left=" + (window.screen.width-600)  + ",top=0,toolbar=no,menubar=no,location=no,status=no,resizable=yes");\'><i class="book icon"></i><span class="desktop-only">Hello알고리즘</span></a>';
+        "width=600,height=850,left=" + (window.screen.width-600)  + ",top=0,toolbar=no,menubar=no,location=no,status=no,resizable=yes");\'>Hello알고리즘</a>';
             }
 
-                
              if( !isset($OJ_ON_SITE_CONTEST_ID) && (!isset($_GET['cid'])||$cid==0) ){
           ?>
-            <a class="item <?php if ($url=="problemset.php" || $url=="problem.php") echo "active";?>"
-                href="<?php echo $path_fix?>problemset.php"><i class="list icon"></i><span class="desktop-only"><?php echo $MSG_PROBLEMS?></span></a>
-            <a class="item <?php if ($url=="category.php") echo "active";?>"
-                href="<?php echo $path_fix?>category.php"><i class="globe icon"></i><span class="desktop-only"><?php echo $MSG_SOURCE?></span></a>
-            <a class="item <?php if ($url=="contest.php") echo "active";?>" href="<?php echo $path_fix?>contest.php<?php if(isset($_SESSION[$OJ_NAME."_user_id"])) echo "?my" ?>" ><i
-                    class="trophy icon"></i><span class="desktop-only"> <?php echo $MSG_CONTEST?></span></a>
-            <a class="item <?php if ($url=="status.php" || $url=="showsource.php") echo "active";?>" href="<?php echo $path_fix?>status.php"><i
-                    class="tasks icon"></i><span class="desktop-only"><?php echo $MSG_STATUS?></span></a>
-            <a class="item <?php if ($url=="ranklist.php") echo "active";?> "
-                href="<?php echo $path_fix?>ranklist.php"><i class="signal icon"></i><span class="desktop-only"><?php echo $MSG_RANKLIST?></span></a>
+            <a class="item <?php if ($url=="problemset.php" || $url=="problem.php" || $url=="category.php") echo "active";?>"
+                href="<?php echo $path_fix?>problemset.php"><?php echo $MSG_PROBLEMS?></a>
+            <a class="item <?php if ($url=="contest.php") echo "active";?>" href="<?php echo $path_fix?>contest.php<?php if(isset($_SESSION[$OJ_NAME."_user_id"])) echo "?my" ?>"><?php echo $MSG_CONTEST?></a>
+            <a class="item <?php if ($url=="status.php" || $url=="showsource.php") echo "active";?>" href="<?php echo $path_fix?>status.php"><?php echo $MSG_STATUS?></a>
+            <a class="item <?php if ($url=="ranklist.php") echo "active";?>"
+                href="<?php echo $path_fix?>ranklist.php"><?php echo $MSG_RANKLIST?></a>
+            <a class="item <?php if ($url=="index.php") echo "active";?>" href="/">공지</a>
             <?php if(isset($OJ_RECENT_CONTEST)&&$OJ_RECENT_CONTEST){    ?>
-            <a class="item <?php if ($url=="recent-contest.php") echo "active";?> "
-                href="<?php echo $path_fix?>recent-contest.php"><i class="bullhorn icon"></i> <span class="desktop-only"><?php echo $MSG_RECENT_CONTEST?></span></a>
-<?php } ?>
-            <a class="item <?php if ($url=="faqs.php") echo "active";?>" href="<?php echo $path_fix?>faqs.php"><i
-                    class="help circle icon"></i><span class="desktop-only"> <?php echo $MSG_FAQ?></span></a>
+            <a class="item <?php if ($url=="recent-contest.php") echo "active";?>"
+                href="<?php echo $path_fix?>recent-contest.php"><?php echo $MSG_RECENT_CONTEST?></a>
+            <?php } ?>
             <?php if (isset($OJ_BBS)&& $OJ_BBS){ ?>
-                  <a class='item <?php if ($url=="discuss.php") echo "active";?>' href="discuss.php"><i class="clipboard icon"></i> <span class="desktop-only"><?php echo $MSG_BBS?></span></a>
+                  <a class='item <?php if ($url=="discuss.php") echo "active";?>' href="discuss.php"><?php echo $MSG_BBS?></a>
               <?php }
 
             }
@@ -398,26 +489,26 @@
             <?php if( isset($_GET['cid']) && intval($_GET['cid'])>0 ){
                      $cid=intval($_GET['cid']);
                      if(!isset($OJ_ON_SITE_CONTEST_ID)){   ?>
-                            <a id="" class="item" href="<?php echo $path_fix?>contest.php" ><i class="arrow left icon"></i><span class="desktop-only"><?php echo $MSG_CONTEST.$MSG_LIST?></span></a>
+                            <a class="item" href="<?php echo $path_fix?>contest.php"><?php echo $MSG_CONTEST.$MSG_LIST?></a>
             <?php    }      ?>
-            <a id="" class="item active" href="<?php echo $path_fix?>contest.php?cid=<?php echo $cid?>" ><i class="list icon"></i><span class="desktop-only"><?php echo $MSG_PROBLEMS.$MSG_LIST?></span></a>
-            <a id="" class="item active" href="<?php echo $path_fix?>status.php?cid=<?php echo $cid?>" ><i class="tasks icon"></i><span class="desktop-only"><?php echo $MSG_STATUS.$MSG_LIST?></span></a>
-            <a id="" class="item active" href="<?php echo $path_fix?>contestrank.php?cid=<?php echo $cid?>" ><i class="numbered list icon"></i><span class="desktop-only"><?php echo $MSG_RANKLIST?></span></a>
-            <a id="" class="item active" href="<?php echo $path_fix?>contestrank-oi.php?cid=<?php echo $cid?>" ><i class="child icon"></i><span class="desktop-only">OI-<?php echo $MSG_RANKLIST?></span></a>
+            <a class="item active" href="<?php echo $path_fix?>contest.php?cid=<?php echo $cid?>"><?php echo $MSG_PROBLEMS.$MSG_LIST?></a>
+            <a class="item active" href="<?php echo $path_fix?>status.php?cid=<?php echo $cid?>"><?php echo $MSG_STATUS.$MSG_LIST?></a>
+            <a class="item active" href="<?php echo $path_fix?>contestrank.php?cid=<?php echo $cid?>"><?php echo $MSG_RANKLIST?></a>
+            <a class="item active" href="<?php echo $path_fix?>contestrank-oi.php?cid=<?php echo $cid?>">OI-<?php echo $MSG_RANKLIST?></a>
             <?php if (isset($OJ_BBS)&& $OJ_BBS){ ?>
-                  <a class='item active' href="discuss.php?cid=<?php echo $cid?>"><i class="clipboard icon"></i> <span class="desktop-only"><?php echo $MSG_BBS?></span></a>
+                  <a class='item active' href="discuss.php?cid=<?php echo $cid?>"><?php echo $MSG_BBS?></a>
              <?php } ?>
 
                     <?php if(isset($_SESSION[$OJ_NAME.'_'.'administrator'])||isset($_SESSION[$OJ_NAME.'_'.'contest_creator'])||isset($_SESSION[$OJ_NAME.'_'.'problem_editor'])){ ?>
-                            <a id="" class="item active" href="<?php echo $path_fix?>conteststatistics.php?cid=<?php echo $cid?>" ><i class="eye icon"></i><span class="desktop-only"><?php echo $MSG_STATISTICS?></span></a>
+                            <a class="item active" href="<?php echo $path_fix?>conteststatistics.php?cid=<?php echo $cid?>"><?php echo $MSG_STATISTICS?></a>
                     <?php }  ?>
             <?php }  ?>
             <?php
                 if($OJ_MENU_DROPDOWN){
             ?>
-            <div class="ui simple dropdown item <?php if ($url=="viewnews.php") echo "active";?>">
-                        <i class="book icon"></i><span class='desktop-only'>학습자료</span><i class="dropdown icon"></i>
-                        <div class="menu">
+            <div class="gs-nav-group">
+                        <span tabindex="0" class="<?php if ($url=="viewnews.php") echo "active";?>">학습자료</span>
+                        <div class="gs-dropdown">
             <?php  } ?>
             <?php echo $sql_news_menu_result_html; ?>
             <?php
@@ -426,21 +517,42 @@
                         </div>
             </div>
             <?php } ?>
+            </nav>
 
-            <div class="right menu">
-                <?php if(isset($_SESSION[$OJ_NAME.'_'.'user_id'])) {
-                   
+            <div class="gs-actions">
+                <form class="gs-search" id="gs-search" action="<?php echo $path_fix?>problemset.php" method="get" role="search">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+                    <input type="search" name="search" id="gs-search-input" placeholder="문제, 사용자 검색" aria-label="문제, 사용자 검색" autocomplete="off">
+                    <kbd>Ctrl K</kbd>
+                    <div class="gs-dropdown gs-search-panel" id="gs-search-panel">
+                        <a data-base="<?php echo $path_fix?>problemset.php?search=">문제에서 <b></b> 검색</a>
+                        <a data-base="<?php echo $path_fix?>ranklist.php?prefix=">사용자에서 <b></b> 검색</a>
+                    </div>
+                </form>
+                <?php if($gs_logged_in) {
+                        $gs_user_id = $_SESSION[$OJ_NAME.'_'.'user_id'];
+                        $gs_user_name = !empty($_SESSION[$OJ_NAME.'_nick']) ? $_SESSION[$OJ_NAME.'_nick'] : $gs_user_id;
                 ?>
-                <a href="<?php echo $path_fix?>/userinfo.php?user=<?php echo htmlentities($_SESSION[$OJ_NAME.'_'.'user_id'])?>"
-                    style="color: inherit; ">
-                    <div class="ui simple dropdown item <?php if ($url=="userinfo.php" || $url=="modifypage.php" || $url=="portal.php") echo "active";?>">
-                        <?php echo htmlentities($_SESSION[$OJ_NAME.'_'.'user_id']); 
-                              if(!empty($_SESSION[$OJ_NAME.'_nick'])) echo "(".htmlentities($_SESSION[$OJ_NAME.'_nick']).")";
-                              if(!empty($_SESSION[$OJ_NAME.'_group_name'])) echo "[".htmlentities($_SESSION[$OJ_NAME.'_group_name'])."]";
-                              if($coin>0) echo "💰️$coin";        
-                        ?>
-                        <i class="dropdown icon"></i>
-                        <div class="menu">
+                <?php if($gs_mail_html){ ?>
+                <a class="gs-bell" href="<?php echo $path_fix?>mail.php" aria-label="<?php echo htmlentities($MSG_MAIL, ENT_QUOTES, 'UTF-8');?>" title="<?php echo htmlentities($MSG_MAIL, ENT_QUOTES, 'UTF-8');?>">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9a6 6 0 0 1 12 0c0 5 2 6.5 2 6.5H4S6 14 6 9"/><path d="M10 19.5a2.2 2.2 0 0 0 4 0"/></svg>
+                    <?php if($gs_mail_count>0){ ?><span class="gs-bell-dot"></span><?php } ?>
+                </a>
+                <?php } ?>
+                <div class="gs-user">
+                    <button type="button" class="gs-user-button" aria-haspopup="true">
+                        <span class="gs-avatar" aria-hidden="true"><?php echo htmlentities(mb_substr($gs_user_name, 0, 1, 'UTF-8'), ENT_QUOTES, 'UTF-8')?></span>
+                        <span class="gs-user-name"><?php echo htmlentities($gs_user_name, ENT_QUOTES, 'UTF-8')?></span>
+                    </button>
+                    <div class="gs-dropdown">
+                        <div class="gs-user-meta">
+                            <strong><?php echo htmlentities($gs_user_id, ENT_QUOTES, 'UTF-8')?></strong>
+                            <?php
+                              if(!empty($_SESSION[$OJ_NAME.'_group_name'])) echo htmlentities($_SESSION[$OJ_NAME.'_group_name'], ENT_QUOTES, 'UTF-8')." ";
+                              if($coin>0) echo "💰️$coin";
+                            ?>
+                        </div>
+                                <a class="item" href="<?php echo $path_fix?>userinfo.php?user=<?php echo htmlentities(urlencode($gs_user_id), ENT_QUOTES, 'UTF-8')?>"><i class="user icon"></i><?php echo $MSG_USERINFO;?></a>
                                 <a class="item" href="modifypage.php"><i class="edit icon"></i><?php echo $MSG_REG_INFO;?></a>
                                 <a class="item" href="portal.php"><i class="tasks icon"></i><?php echo $MSG_TODO;?></a>
                                 <?php if ($OJ_SaaS_ENABLE){ ?>
@@ -453,13 +565,7 @@
 if(isset($_SESSION[$OJ_NAME.'_'.'balloon'])){
   echo "<a class=item href='balloon.php'><i class='golf ball icon'></i>$MSG_BALLOON</a>";
 }
-                              if((isset($OJ_EXAM_CONTEST_ID)&&$OJ_EXAM_CONTEST_ID>0)||
-                                     (isset($OJ_ON_SITE_CONTEST_ID)&&$OJ_ON_SITE_CONTEST_ID>0)||
-                                     (isset($OJ_MAIL)&&!$OJ_MAIL)){
-                              }else{
-                                    $mail=checkmail();
-                                    if($mail) echo "<a class='item mail' href=".$path_fix."mail.php><i class='mail icon'></i>$MSG_MAIL$mail</a>";
-                              }
+                              if($gs_mail_html) echo "<a class='item mail' href=".$path_fix."mail.php><i class='mail icon'></i>$MSG_MAIL$gs_mail_html</a>";
                             ?>
         <?php
         if(isset($OJ_PRINTER) && $OJ_PRINTER)
@@ -472,47 +578,85 @@ if(isset($_SESSION[$OJ_NAME.'_'.'balloon'])){
         }
         ?>
                             <a class="item" href="logout.php"><i class="power icon"></i><?php echo $MSG_LOGOUT;?></a>
-                        </div>
                     </div>
-                </a>
+                </div>
                 <?php } else { ?>
-
-
-                <div class="item">
-                    <a class="ui button" style="margin-right: 0.5em; " href="loginpage.php">
-                        <?php echo $MSG_LOGIN?>
-                    </a>
+                <div class="gs-auth">
+                    <a href="loginpage.php"><?php echo $MSG_LOGIN?></a>
                     <?php if(isset($OJ_REGISTER)&&$OJ_REGISTER ){ ?>
-                    <a class="ui primary button" href="registerpage.php">
-                        <?php echo $MSG_REGISTER?>
-                    </a>
+                    <a class="primary" href="registerpage.php"><?php echo $MSG_REGISTER?></a>
                     <?php } ?>
                 </div>
                 <?php } ?>
             </div>
+            </div>
         </div>
         <script>
         (function () {
-            var menu = document.getElementById('menu');
+            var panel = document.getElementById('gs-collapse');
             var toggle = document.getElementById('mobile-menu-toggle');
-            if (!menu || !toggle) return;
+            if (panel && toggle) {
+                toggle.addEventListener('click', function () {
+                    var isOpen = panel.classList.toggle('open');
+                    toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+                });
 
-            toggle.addEventListener('click', function () {
-                var isOpen = menu.classList.toggle('mobile-menu-open');
-                toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-                toggle.querySelector('.icon').className = isOpen ? 'close icon' : 'bars icon';
+                window.addEventListener('resize', function () {
+                    if (window.innerWidth > 991 && panel.classList.contains('open')) {
+                        panel.classList.remove('open');
+                        toggle.setAttribute('aria-expanded', 'false');
+                    }
+                });
+            }
+
+            // 통합 검색: 기본은 문제 검색이고, 목록에서 사용자 검색을 고를 수 있다.
+            var form = document.getElementById('gs-search');
+            var input = document.getElementById('gs-search-input');
+            var results = document.getElementById('gs-search-panel');
+            if (!form || !input || !results) return;
+            var links = results.querySelectorAll('a');
+            var selected = 0;
+
+            function render() {
+                var keyword = input.value.replace(/^\s+|\s+$/g, '');
+                for (var i = 0; i < links.length; i++) {
+                    links[i].href = links[i].getAttribute('data-base') + encodeURIComponent(keyword);
+                    links[i].querySelector('b').textContent = '"' + keyword + '"';
+                    links[i].className = i === selected ? 'selected' : '';
+                }
+                if (keyword !== '' && document.activeElement === input) results.classList.add('open');
+                else results.classList.remove('open');
+            }
+
+            input.addEventListener('input', function () { selected = 0; render(); });
+            input.addEventListener('focus', render);
+            input.addEventListener('blur', function () { window.setTimeout(function () { results.classList.remove('open'); }, 150); });
+            input.addEventListener('keydown', function (e) {
+                if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    selected = (selected + (e.key === 'ArrowDown' ? 1 : links.length - 1)) % links.length;
+                    render();
+                } else if (e.key === 'Escape') {
+                    input.blur();
+                }
             });
-
-            window.addEventListener('resize', function () {
-                if (window.innerWidth > 991 && menu.classList.contains('mobile-menu-open')) {
-                    menu.classList.remove('mobile-menu-open');
-                    toggle.setAttribute('aria-expanded', 'false');
-                    toggle.querySelector('.icon').className = 'bars icon';
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+                if (input.value.replace(/^\s+|\s+$/g, '') === '') return;
+                render();
+                window.location.href = links[selected].href;
+            });
+            document.addEventListener('keydown', function (e) {
+                if ((e.ctrlKey || e.metaKey) && (e.key === 'k' || e.key === 'K')) {
+                    e.preventDefault();
+                    if (window.innerWidth <= 991 && panel && toggle && !panel.classList.contains('open')) toggle.click();
+                    input.focus();
+                    input.select();
                 }
             });
         })();
         </script>
-    </div>
-    <div style="margin-top: 49px; ">
+    </header>
+    <div style="margin-top: 72px; ">
         <div id="main" class="ui main container">
 <?php } ?>
