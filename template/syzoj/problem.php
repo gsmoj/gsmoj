@@ -308,9 +308,9 @@ document.addEventListener('keydown', function(e) {
 </style>
 <style>
 body.problem-split-active { overflow-x:hidden; }
-.problem-split-shell { display:flex !important; align-items:stretch; width:100%; min-width:0; margin-top:49px !important; }
-#main.problem-split-pane { flex:1 1 50%; width:50%; min-width:0; height:calc(100vh - 49px); margin:0 !important; padding:0 1rem; overflow:auto; }
-#submitPage { position:relative; flex:1 1 50%; width:50%; min-width:0; height:calc(100vh - 49px); background:rgba(255,255,255,.96); overflow:hidden; }
+.problem-split-shell { display:flex !important; align-items:stretch; width:100%; min-width:0; margin-top:72px !important; }
+#main.problem-split-pane { flex:1 1 50%; width:50%; min-width:0; height:calc(100vh - 72px); margin:0 !important; padding:0 1rem; overflow:auto; }
+#submitPage { position:relative; flex:1 1 50%; width:50%; min-width:0; height:calc(100vh - 72px); background:rgba(255,255,255,.96); overflow:hidden; }
 #ansFrame { display:block; width:100%; height:100%; border:0; background:#fff; }
 #dragButton { position:absolute; z-index:5; top:0; left:-5px; width:10px; height:100%; cursor:col-resize; background:linear-gradient(90deg,transparent 0 35%,#cbd5e1 35% 65%,transparent 65%); }
 #dragButton::after { content:''; position:absolute; top:50%; left:2px; width:6px; height:48px; margin-top:-24px; border-radius:999px; background:#94a3b8; box-shadow:0 0 0 3px rgba(255,255,255,.9); }
@@ -321,8 +321,8 @@ a#submit, a[onclick='transform()'] { display:none !important; }
   body.problem-split-active { overflow-x:hidden; overflow-y:auto; }
   .problem-split-shell { flex-direction:column; }
   #main.problem-split-pane, #submitPage { flex:0 0 auto !important; width:100% !important; min-width:0; }
-  #main.problem-split-pane { height:auto; min-height:calc(100vh - 49px); overflow:visible; }
-  #submitPage { height:max(680px,calc(100vh - 49px)); border-top:1px solid #cbd5e1; }
+  #main.problem-split-pane { height:auto; min-height:calc(100vh - 72px); overflow:visible; }
+  #submitPage { height:max(680px,calc(100vh - 72px)); border-top:1px solid #cbd5e1; }
   #dragButton { top:-5px; left:0; width:100%; height:10px; cursor:default; background:linear-gradient(180deg,transparent 0 35%,#cbd5e1 35% 65%,transparent 65%); }
   #dragButton::after { display:none; }
 }
@@ -355,7 +355,7 @@ body.problem-split-active .problem-split-shell *::after { transition:none !impor
 .problem-split-shell {
   position:fixed;
   z-index:20;
-  top:49px;
+  top:72px;
   right:0;
   bottom:0;
   left:0;
@@ -450,7 +450,7 @@ body.problem-workspace-dark .ui.menu { border-color:#334155 !important; backgrou
 body.problem-workspace-dark .ui.menu .item { color:#e5e7eb !important; }
 @media (max-width:900px) {
   .problem-split-shell { display:block !important; padding:108px 0 64px; overflow-y:auto; }
-  #workspaceTopBar { position:fixed; top:49px; height:108px; }
+  #workspaceTopBar { position:fixed; top:72px; height:108px; }
   #workspaceBottomBar { position:fixed; }
   .workspace-controls { flex-wrap:wrap; }
   #main.problem-split-pane, #submitPage { position:relative; display:block; flex:none !important; width:100% !important; height:calc(100vh - 172px) !important; min-height:620px; }
@@ -477,14 +477,14 @@ body.problem-workspace-dark .ui.menu .item { color:#e5e7eb !important; }
         let main=$("#main");
         let problem=main.html();
         if (window.screen.width < 500){
-        	main.parent().append("<div id='submitPage' class='container' style='opacity:0.95;z-index:2;top:49px;'></div>");
+        	main.parent().append("<div id='submitPage' class='container' style='opacity:0.95;z-index:2;top:72px;'></div>");
                 $("#submitPage").html("<iframe id='ansFrame' src='"+submitURL+"&spa' width='100%' height='"+window.screen.height+"px' ></iframe>");
                 window.setTimeout('$("#ansFrame")[0].scrollIntoView()',1000);
 	}else{
         	main.removeClass("container");
 		main.css("width",width2);
 		main.css("margin-left","10px");
-       	 	main.parent().append("<div id='submitPage' class='container' style='opacity:0.95;position:fixed;z-index:2;top:49px;right:-"+width2+"px'></div>");
+       	 	main.parent().append("<div id='submitPage' class='container' style='opacity:0.95;position:fixed;z-index:2;top:72px;right:-"+width2+"px'></div>");
 		$("#submitPage").html("<iframe id='ansFrame' src='"+submitURL+"&spa' width='"+width+"px' height='"+height+"px' ></iframe>");
 	}
 	$("#submit").remove();
