@@ -245,7 +245,7 @@
         .gs-search { position: relative; width: 240px; margin: 0 28px 0 0; }
         .gs-search > svg {
             position: absolute;
-            top: 50%;
+            top: 20px; /* 입력창(40px) 기준 중앙. 모바일에서 결과 패널이 펼쳐져도 위치가 유지된다. */
             left: 14px;
             width: 18px;
             height: 18px;
@@ -270,7 +270,7 @@
         .gs-search input[type="search"]:focus { border-color: #2563eb; background: #fff; box-shadow: 0 0 0 3px rgba(37, 99, 235, .12); }
         .gs-search kbd {
             position: absolute;
-            top: 50%;
+            top: 20px;
             right: 8px;
             padding: 1px 6px;
             border: 1px solid #d1d5db;
@@ -283,7 +283,8 @@
             transform: translateY(-50%);
             pointer-events: none;
         }
-        .gs-search-panel { top: calc(100% + 6px); left: 0; right: 0; min-width: 0; }
+        /* 검색창이 좁아져도(1199px 이하에서 180px) 안내 문구가 잘리지 않도록 패널은 최소 300px을 유지한다. */
+        .gs-search-panel { top: calc(100% + 6px); left: 0; right: auto; width: max(100%, 300px); min-width: 0; }
         .gs-search-panel.open { display: block; }
         .gs-search-panel a { display: block; overflow: hidden; text-overflow: ellipsis; }
         .gs-search-panel a.selected { background: #f3f4f6; }
@@ -399,6 +400,8 @@
             .gs-nav a.active { background: #f3f4f6; }
             .gs-actions { flex-direction: column; align-items: stretch; gap: 10px; margin-left: 0; }
             .gs-search { order: -1; width: 100%; margin: 0; }
+            /* 모바일 메뉴 안에서는 패널을 띄우지 않고 검색창 아래에 펼쳐, 메뉴 밖으로 잘리거나 본문 글자와 겹치지 않게 한다. */
+            .gs-search-panel { position: static; width: 100%; margin-top: 6px; box-shadow: none; }
             .gs-bell { width: auto; justify-content: flex-start; gap: 8px; padding: 0 12px; }
             .gs-bell::after { content: attr(aria-label); font-size: 15px; font-weight: 500; }
             .gs-bell-dot { left: 26px; right: auto; }
