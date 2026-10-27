@@ -181,7 +181,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         :root { --admin-primary: #2563eb; --admin-primary-dark: #1d4ed8; --admin-border: #dfe5ee; --admin-text: #1f2937; --admin-muted: #64748b; }
         /* 다른 관리자 화면과 같은 "제목 영역 + 흰 카드" 구조(admin.css의 통일 레이아웃)에 맞춘다. */
         body { margin: 0; padding: 0; color: var(--admin-text); background: #f4f7fb; font-family: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", Arial, sans-serif; }
-        .container { box-sizing: border-box; max-width: none; margin: 0; padding: 24px 28px 40px; }
+        .container { box-sizing: border-box; max-width: none; margin: 0; padding: 24px 36px 40px; }
         .settings-title { margin: 0 0 20px; padding: 0 0 16px; border-bottom: 1px solid var(--admin-border); }
         .settings-title h3 { margin: 0; font-size: 22px; }
         .settings-title p { margin: 5px 0 0; color: var(--admin-muted); font-size: 14px; }

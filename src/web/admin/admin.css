@@ -1116,6 +1116,8 @@ a:hover > .admin-badge { box-shadow: 0 0 0 2px rgba(37, 99, 235, .25); }
    - 카드: 화면마다 따로 만든 카드 클래스를 같은 테두리·여백·너비(입력 폼 880px)로 맞춘다.
    ========================================================================== */
 body:not(.admin-menu-frame) { padding: 0 !important; background: var(--admin-bg) !important; }
+/* 공통 페이지 틀을 쓰지 않는 화면(문제 등록·수정, 처리 결과 화면 등)은 바깥 여백을 직접 준다. */
+body:not(.admin-menu-frame):not(:has(.admin-content-page, .admin-form-shell, .admin-compact-form)) { padding: 24px 36px 40px !important; }
 body.admin-form-page { background: var(--admin-bg) !important; }
 
 body:not(.admin-menu-frame) .admin-content-page,
@@ -1126,7 +1128,7 @@ body:not(.admin-menu-frame) .admin-compact-form {
     max-width: none !important;
     min-height: 0;
     margin: 0 !important;
-    padding: 24px 28px 40px !important;
+    padding: 24px 36px 40px !important;
     border: 0 !important;
     border-radius: 0 !important;
     background: transparent !important;
@@ -1221,7 +1223,8 @@ body:not(.admin-menu-frame) .admin-form-shell .alert { max-width: 880px; }
 @media (max-width: 767px) {
     body:not(.admin-menu-frame) .admin-content-page,
     body:not(.admin-menu-frame) .admin-form-shell,
-    body:not(.admin-menu-frame) .admin-compact-form { padding: 16px 14px 28px !important; }
+    body:not(.admin-menu-frame) .admin-compact-form,
+    body:not(.admin-menu-frame):not(:has(.admin-content-page, .admin-form-shell, .admin-compact-form)) { padding: 16px 14px 28px !important; }
     body:not(.admin-menu-frame) .form-horizontal .control-label { flex-basis: 100%; }
     body:not(.admin-menu-frame) .form-horizontal .form-group:not(:has(.control-label)) { padding-left: 0; }
 }
