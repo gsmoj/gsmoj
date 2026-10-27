@@ -220,12 +220,8 @@ echo "</select>";
 
 <script>
 function phpfm(pid){
-  //alert(pid);
-  $.post("phpfm.php",{'frame':3,'pid':pid,'pass':''},function(data,status){
-    if(status=="success"){
-      document.location.href="phpfm.php?frame=3&pid="+pid;
-    }
-  });
+  // 채점 데이터 관리 화면(testdata.php)으로 이동한다.
+  document.location.href="testdata.php?pid="+pid;
 }
 function delPid(pid){
 
