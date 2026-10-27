@@ -52,12 +52,12 @@
 - `assessment_problem` (신규): `assessment_id, problem_id, num` — 회차들이 공유하는 문제 목록
 - `assessment_session` (신규): `assessment_id, contest_id, group_name` — 반별 회차와 실제 대회의 연결
 - 회차 대회: `contest_type |= 1<<9`, `private=1`, 참가자 = 해당 반 학생(`privilege cNNNN`), 관리자 = 교사(`privilege mNNNN`), 제목 "평가명 - 반"
-- 시각: `solution.in_date`는 PHP 시간대(`Asia/Shanghai`, +8), `judgetime`·DB `NOW()`는 UTC. 모든 비교는 PHP 시각 기준으로 하고 `judgetime`은 `date('Z')`만큼 보정한다.
+- 시각: 웹의 DB 연결은 `include/init.php`에서 `SET time_zone='+8:00'`을 실행하므로 `in_date`(DATETIME)·`loginlog.time`·`NOW()`는 같은 기준이다. `judgetime`은 TIMESTAMP라 UTC로 저장되지만 읽을 때 연결 시간대로 바뀌므로 웹 연결 안에서는 보정 없이 비교한다. (DB 콘솔은 시간대를 맞추지 않으므로 값이 8시간 다르게 보인다)
 
 ## 변경 대상 파일
 | 단계 | 파일 | 내용 |
 |---|---|---|
-| ① 모니터링 | `admin/monitor.php` | 탭(개요·채점 큐·제출 로그·대회·수행평가·접속 이상 징후), 경고 배너, 재채점 조치, 시간대 버그 수정 |
+| ① 모니터링 | `admin/monitor.php` | 탭(개요·채점 큐·제출 로그·대회·수행평가·접속 이상 징후), 경고 배너, 재채점 조치 |
 | ② 메뉴·반 | `template/syzoj/header.php` | 헤더 아래 역할별 메뉴 줄과 상태 배지 |
 | | `admin/user_group.php`(신규), `admin/menu2.php` | 학생 반 일괄 지정(목록 선택·CSV 붙여넣기) |
 | ③ 핵심 | `include/const.inc.php`, `lang/ko.php`, `admin/update_db.php`, `install/db.sql` | 9번 비트, 문구, 테이블 정의(브랜치 `feat/assessment-foundation`) |
@@ -72,7 +72,7 @@
 | | `admin/contest_add.php`, `admin/assessment_edit.php` | 대회·수행평가에 넣은 문제를 기본 비공개(`defunct='Y'`)로 설정 |
 
 ## 구현 순서
-1. **① 모니터링 확장**(독립): 시간대 버그 수정 → 경고 배너 → 채점 큐 → 제출 로그 → 대회 탭 → 접속·이상 징후 → 재채점 조치.
+1. **① 모니터링 확장**(독립): 경고 배너 → 채점 큐 → 제출 로그 → 대회 탭 → 접속·이상 징후 → 재채점 조치.
 2. **② 헤더 메뉴 줄과 반 지정**: 기존 권한만으로 동작하도록 먼저 넣고, ③에서 교사 항목을 채운다.
 3. **③ 교사 권한·수행평가·회차**: 테이블 → 권한 → 목록·작성·복사 → 회차·참가자 → 문제 소유 제한.
 4. **④ 부정행위 감지**: 수신 엔드포인트 → 감지 스크립트 → 학생 안내 → 모니터링 수행평가 탭에 학생별 요약·이벤트 목록.
