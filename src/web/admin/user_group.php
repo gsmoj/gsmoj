@@ -2,8 +2,8 @@
 // 학생 반(users.group_name) 일괄 지정 화면.
 // 목록에서 골라 한 번에 지정하거나, "아이디 반" 목록을 붙여 넣어 지정한다. 반은 학생당 하나이며 최대 16자다.
 require("admin-header.php");
-if (!isset($_SESSION[$OJ_NAME.'_'.'administrator'])) {
-    echo "<div class='admin-content-page'><div class='alert alert-danger'>관리자만 사용할 수 있습니다.</div></div>";
+if (!(isset($_SESSION[$OJ_NAME.'_'.'administrator']) || isset($_SESSION[$OJ_NAME.'_'.'teacher']))) {
+    echo "<div class='admin-content-page'><div class='alert alert-danger'>관리자와 교사만 사용할 수 있습니다.</div></div>";
     exit(1);
 }
 $MSG_CLASS = isset($MSG_CLASS) ? $MSG_CLASS : "반";

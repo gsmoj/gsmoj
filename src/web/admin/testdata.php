@@ -23,7 +23,7 @@ function td_json($data) {
 
 // 권한: phpfm.php와 같이 관리자 또는 해당 문제 권한이 있는 문제 편집자만 접근한다.
 $td_is_admin = isset($_SESSION[$OJ_NAME.'_'.'administrator']);
-if (!($td_is_admin || isset($_SESSION[$OJ_NAME.'_'.'problem_editor']))) {
+if (!($td_is_admin || isset($_SESSION[$OJ_NAME.'_'.'problem_editor']) || isset($_SESSION[$OJ_NAME.'_'.'teacher']))) {
     echo "<a href='../loginpage.php'>".(isset($MSG_Login) ? $MSG_Login : "Please Login First!")."</a>";
     exit(1);
 }

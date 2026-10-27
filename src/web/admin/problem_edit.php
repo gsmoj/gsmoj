@@ -3,7 +3,8 @@ require_once("../include/db_info.inc.php");
 require_once("admin-header.php");
 require_once("../include/my_func.inc.php");
 
-if (!(isset($_SESSION[$OJ_NAME.'_'.'administrator']) || isset($_SESSION[$OJ_NAME.'_'.'problem_editor']))) {
+// 교사는 아래 문제별 확인(pNNNN)으로 자기가 만든 문제만 수정할 수 있다.
+if (!(isset($_SESSION[$OJ_NAME.'_'.'administrator']) || isset($_SESSION[$OJ_NAME.'_'.'problem_editor']) || isset($_SESSION[$OJ_NAME.'_'.'teacher']))) {
   exit(1);
 }
 
