@@ -296,6 +296,35 @@ CREATE TABLE IF NOT EXISTS `assessment_event` (
   KEY `idx_contest_user` (`contest_id`,`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='수행평가 부정행위 감지 기록';
 
+CREATE TABLE IF NOT EXISTS `assessment` (
+  `assessment_id` int unsigned NOT NULL AUTO_INCREMENT,
+  `title` varchar(255) NOT NULL DEFAULT '',
+  `description` text,
+  `owner` varchar(48) NOT NULL DEFAULT '' COMMENT '만든 교사·관리자',
+  `settings` varchar(1000) NOT NULL DEFAULT '' COMMENT '감지 임계값 등(JSON)',
+  `published_at` datetime DEFAULT NULL COMMENT '문제·결과 공개 시각',
+  `created_at` datetime NOT NULL,
+  `defunct` char(1) NOT NULL DEFAULT 'N',
+  PRIMARY KEY (`assessment_id`),
+  KEY `idx_owner` (`owner`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='수행평가(반별 회차가 공유하는 문제 묶음)';
+CREATE TABLE IF NOT EXISTS `assessment_problem` (
+  `assessment_id` int unsigned NOT NULL,
+  `num` int NOT NULL DEFAULT 0,
+  `problem_id` int NOT NULL DEFAULT 0,
+  PRIMARY KEY (`assessment_id`,`num`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='수행평가 문제 목록';
+CREATE TABLE IF NOT EXISTS `assessment_session` (
+  `session_id` int unsigned NOT NULL AUTO_INCREMENT,
+  `assessment_id` int unsigned NOT NULL,
+  `contest_id` int NOT NULL,
+  `group_name` varchar(16) NOT NULL DEFAULT '',
+  `created_at` datetime NOT NULL,
+  PRIMARY KEY (`session_id`),
+  UNIQUE KEY `uk_contest` (`contest_id`),
+  KEY `idx_assessment` (`assessment_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='수행평가 반별 회차(회차마다 대회 1개)';
+
 delimiter //
 
 drop trigger if exists firstAC//
