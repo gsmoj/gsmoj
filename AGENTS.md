@@ -6,6 +6,17 @@
 
 우선순위는 한국어 번역 품질, 사용자·관리자 UI 통일, 관리자 기능 정리다. 세부 지침은 작업 파일과 가장 가까운 디렉터리의 `AGENTS.md`를 함께 따른다.
 
+## 저장소 구조
+
+저장소 루트는 서버의 채점기 홈 디렉터리(`/home/judge` → `/home/ubuntu/judge`)와 같다.
+
+- `src/web/`: 웹 루트(nginx root). 이 문서와 하위 `AGENTS.md`에서 말하는 `admin/`, `lang/`, `include/`, `template/syzoj/` 등의 경로는 모두 `src/web/` 기준이다.
+- `src/core/`: 채점기(`judge_client`, `judged`, `sim`) 소스
+- `src/install/`: 설치·백업·유지보수 스크립트
+- `src/docker/`: 채점용 Docker 이미지 설정
+- `etc/`: 채점기 설정. 실제 `judge.conf`는 비밀값이 있어 올리지 않으며, `judge.conf.example`을 참고한다.
+- 채점 데이터(`data/`), 실행 디렉터리(`run*/`), 로그, 샌드박스 시스템 파일(`bin/`, `lib/`, `lib64/`)은 `.gitignore`로 제외한다. 공개 저장소이므로 이 항목들을 커밋하지 않는다.
+
 ## 공통 작업 원칙
 
 - HUSTOJ의 기존 PHP 구조를 존중하며, 큰 프레임워크 교체나 전면 재작성은 하지 않는다.
