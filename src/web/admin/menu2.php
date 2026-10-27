@@ -35,7 +35,6 @@
 <a class='btn btn-sm admin-brand' href="../index.php" target="_top" title="GSMOJ 메인으로 이동"><b>GSMOJ</b></a>
 <hr>
 
-<a class='btn btn-sm' href="../status.php" target="_top" title="<?php echo $MSG_HELP_SEEOJ?>"><b><?php echo $MSG_SEEOJ?></b></a><br>
 <?php if (isset($_SESSION[$OJ_NAME.'_'.'administrator'])) { ?>
 <a class='btn btn-sm' href="monitor.php" target="main" title="서버 자원, 서비스, 채점 상황 보기"><b>서버 모니터링</b></a><br>
 <?php } ?>
