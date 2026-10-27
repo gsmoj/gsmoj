@@ -11,16 +11,23 @@ if(isset($OJ_LANG)){
 }
 ?>
 
-<title>대회 목록</title>
+<?php
+// 같은 화면을 대회 목록과 수행평가 목록(?type=assessment)으로 나눠 쓴다. 수행평가는 contest_type 9번 비트(512)로 구분한다.
+$is_assessment = isset($_GET['type']) && $_GET['type'] === "assessment";
+$type_cond = $is_assessment ? "(contest_type & 512)<>0" : "(contest_type & 512)=0";
+$type_query = $is_assessment ? "&type=assessment" : "";
+$list_name = $is_assessment ? (isset($MSG_ASSESSMENT) ? $MSG_ASSESSMENT : "수행평가") : "대회";
+?>
+<title><?php echo $list_name?> 목록</title>
 
 <div class='padding admin-content-page'>
 <div class="admin-page-heading">
-  <div><h3>대회 목록</h3><p>대회를 검색하고 공개 여부, 사용 상태, 관리 기능을 확인합니다.</p></div>
-  <a href="contest_add.php" class="btn btn-primary">대회 등록</a>
+  <div><h3><?php echo $list_name?> 목록</h3><p><?php echo $is_assessment ? "수행평가를 검색하고 공개 여부, 사용 상태, 관리 기능을 확인합니다. 수행평가는 대회와 같은 방식으로 운영되며, 진행 중 화면 이탈·붙여넣기·복사가 기록됩니다." : "대회를 검색하고 공개 여부, 사용 상태, 관리 기능을 확인합니다."?></p></div>
+  <a href="contest_add.php<?php echo $is_assessment ? "?type=assessment" : ""?>" class="btn btn-primary"><?php echo $list_name?> 등록</a>
 </div>
 
 <?php
-$sql = "SELECT COUNT('contest_id') AS ids FROM `contest`";
+$sql = "SELECT COUNT('contest_id') AS ids FROM `contest` WHERE $type_cond";
 $result = pdo_query($sql);
 $row = $result[0];
 
@@ -44,15 +51,16 @@ $sql = "";
 if(isset($_GET['keyword']) && $_GET['keyword']!=""){
   $keyword = $_GET['keyword'];
   $keyword = "%$keyword%";
-  $sql = "SELECT `contest_id`,`title`,`start_time`,`end_time`,`private`,`defunct` FROM `contest` WHERE (title LIKE ?) OR (description LIKE ?) ORDER BY `contest_id` DESC";
+  $sql = "SELECT `contest_id`,`title`,`start_time`,`end_time`,`private`,`defunct` FROM `contest` WHERE ((title LIKE ?) OR (description LIKE ?)) AND $type_cond ORDER BY `contest_id` DESC";
   $result = pdo_query($sql,$keyword,$keyword);
 }else{
-  $sql = "SELECT `contest_id`,`title`,`start_time`,`end_time`,`private`,`defunct` FROM `contest` ORDER BY `contest_id` DESC LIMIT $sid, $idsperpage";
+  $sql = "SELECT `contest_id`,`title`,`start_time`,`end_time`,`private`,`defunct` FROM `contest` WHERE $type_cond ORDER BY `contest_id` DESC LIMIT $sid, $idsperpage";
   $result = pdo_query($sql);
 }
 ?>
 
 <form action=contest_list.php class="form-search form-inline admin-list-search">
+  <?php if ($is_assessment) { ?><input type="hidden" name="type" value="assessment"><?php } ?>
   <input type="text" name='keyword' class="form-control search-query" 
     value="<?php echo htmlentities($_GET['keyword']??"")?>"
     placeholder="<?php echo $MSG_CONTEST_NAME.', '.$MSG_EXPLANATION?>">
@@ -109,13 +117,13 @@ if(!(isset($_GET['keyword']) && $_GET['keyword']!=""))
   echo "<div style='display:inline;'>";
   echo "<nav class='center'>";
   echo "<ul class='pagination pagination-sm'>";
-  echo "<li class='page-item'><a href='contest_list.php?page=".(strval(1))."'>&lt;&lt;</a></li>";
-  echo "<li class='page-item'><a href='contest_list.php?page=".($page==1?strval(1):strval($page-1))."'>&lt;</a></li>";
+  echo "<li class='page-item'><a href='contest_list.php?page=".(strval(1)).$type_query."'>&lt;&lt;</a></li>";
+  echo "<li class='page-item'><a href='contest_list.php?page=".($page==1?strval(1):strval($page-1)).$type_query."'>&lt;</a></li>";
   for($i=$spage; $i<=$epage; $i++){
-    echo "<li class='".($page==$i?"active ":"")."page-item'><a title='go to page' href='contest_list.php?page=".$i."'>".$i."</a></li>";
+    echo "<li class='".($page==$i?"active ":"")."page-item'><a title='go to page' href='contest_list.php?page=".$i.$type_query."'>".$i."</a></li>";
   }
-  echo "<li class='page-item'><a href='contest_list.php?page=".($page==$pages?strval($page):strval($page+1))."'>&gt;</a></li>";
-  echo "<li class='page-item'><a href='contest_list.php?page=".(strval($pages))."'>&gt;&gt;</a></li>";
+  echo "<li class='page-item'><a href='contest_list.php?page=".($page==$pages?strval($page):strval($page+1)).$type_query."'>&gt;</a></li>";
+  echo "<li class='page-item'><a href='contest_list.php?page=".(strval($pages)).$type_query."'>&gt;&gt;</a></li>";
   echo "</ul>";
   echo "</nav>";
   echo "</div>";

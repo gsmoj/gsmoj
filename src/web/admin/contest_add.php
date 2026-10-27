@@ -8,7 +8,10 @@
 if(!(isset($_SESSION[$OJ_NAME.'_'.'administrator'])||isset($_SESSION[$OJ_NAME.'_'.'contest_creator']))){
     exit(1);
   }
-  $page_heading = $MSG_CONTEST." - ".$MSG_ADD;
+  // ?type=assessment로 들어오면 수행평가 등록 화면으로 쓰고, 수행평가 모드 옵션(9번 비트)을 미리 켠다.
+  $is_assessment = isset($_GET['type']) && $_GET['type'] === "assessment";
+  $copied_type = 0;
+  $page_heading = ($is_assessment ? (isset($MSG_ASSESSMENT) ? $MSG_ASSESSMENT : "수행평가") : $MSG_CONTEST)." - ".$MSG_ADD;
   
 ?>
 
@@ -103,7 +106,7 @@ if(isset($_POST['startdate'])){
       pdo_query($sql_1,trim($pieces[$i]),"c$cid") ;
     }
   }
-  echo "<script>window.location.href=\"contest_list.php\";</script>";
+  echo "<script>window.location.href=\"contest_list.php".(($contest_type & 512) ? "?type=assessment" : "")."\";</script>";
 }
 else{
   if(isset($_GET['cid'])){
@@ -111,6 +114,7 @@ else{
     $sql = "select * FROM contest WHERE `contest_id`=?";
     $result = pdo_query($sql,$cid);
     $row = $result[0];
+    $copied_type = intval($row['contest_type']);
     $title = $row['title']."-Copy";
 
     $private = $row['private'];
@@ -242,7 +246,7 @@ else{
               <?php
               $locks_count = count($contest_locks);
               $contest_lock = 0;
-              $contest_type = 32;
+              $contest_type = 32 | (($is_assessment || ($copied_type & 512)) ? 512 : 0);
               for($i=0; $i<$locks_count; $i++){
                 echo "<input type=checkbox name='contest_type[]'  value=$i ".( $contest_type&(1<<$i)?"checked":"").">".$contest_locks[$i]."<br>";
               }

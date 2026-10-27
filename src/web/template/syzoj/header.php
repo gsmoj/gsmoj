@@ -127,6 +127,25 @@
             background: #fff;
         }
         .gs-header *, .gs-header *::before, .gs-header *::after { box-sizing: border-box; }
+        /* 헤더 아래 역할별 메뉴 줄 (관리 권한이 있는 사용자만) */
+        .gs-rolebar {
+            position: fixed;
+            top: 72px;
+            left: 0;
+            right: 0;
+            z-index: 99998;
+            height: 40px;
+            border-bottom: 1px solid #e5e7eb;
+            background: #f8fafc;
+        }
+        .gs-rolebar-inner { display: flex; align-items: center; gap: 4px; height: 40px; overflow-x: auto; white-space: nowrap; scrollbar-width: none; }
+        .gs-rolebar-inner::-webkit-scrollbar { display: none; }
+        .gs-rolebar-label { margin-right: 8px; padding: 2px 8px; border-radius: 6px; background: #111827; color: #fff; font-size: 12px; font-weight: 600; }
+        .gs-rolebar a { padding: 6px 10px; border-radius: 7px; color: #4b5563; font-size: 13px; font-weight: 500; text-decoration: none; }
+        .gs-rolebar a:hover { background: #eef2f7; color: #111827; }
+        .gs-rolebar .gs-rolebar-status { margin-left: auto; padding: 4px 10px; border-radius: 999px; background: #e0f2fe; color: #075985; font-size: 12px; font-weight: 600; }
+        .gs-rolebar .gs-rolebar-status.is-warn { background: #fef3c7; color: #92400e; }
+        body.has-rolebar#MainBg-C { min-height: calc(100vh - 112px); }
         .gs-header a { text-decoration: none; }
         #menu.gs-header-inner {
             display: flex;
@@ -432,7 +451,35 @@
         if(!isset($_GET['spa'])){
 ?>
    
-<body id="MainBg-C" style="position: relative; margin-top: 72px; min-height: calc(100vh - 72px); overflow-x: hidden; overflow-y: auto;">
+<?php
+        // 헤더 아래 역할별 메뉴 줄: 관리 권한이 있는 사용자에게만 바로가기와 진행 상태를 보여 준다. (학생에게는 표시하지 않음)
+        $gs_rolebar = array();
+        $gs_rolebar_status = "";
+        $gs_is_admin = isset($_SESSION[$OJ_NAME.'_'.'administrator']);
+        $gs_admin_url = $path_fix."admin/";
+        if ($gs_is_admin) {
+            $gs_rolebar[] = array($gs_admin_url, "관리자 페이지");
+            $gs_rolebar[] = array($gs_admin_url."?main=monitor.php", "서버 모니터링");
+            $gs_rolebar[] = array($gs_admin_url."?main=problem_list.php", "문제 관리");
+            $gs_rolebar[] = array($gs_admin_url."?main=contest_list.php", "대회 관리");
+            $gs_rolebar[] = array($gs_admin_url."?main=contest_list.php&type=assessment", "수행평가 관리");
+            $gs_rolebar[] = array($gs_admin_url."?main=user_list.php", "사용자");
+            $gs_rolebar[] = array($gs_admin_url."?main=user_group.php", "반 지정");
+            $gs_running = mysql_query_cache("select count(*) from contest where defunct='N' and start_time<=now() and end_time>now()");
+            $gs_waiting = mysql_query_cache("select count(*) from solution where problem_id>0 and result in (0,1,2,3)");
+            $gs_running = empty($gs_running) ? 0 : intval($gs_running[0][0]);
+            $gs_waiting = empty($gs_waiting) ? 0 : intval($gs_waiting[0][0]);
+            $gs_rolebar_status = array($gs_admin_url."?main=monitor.php&tab=".($gs_waiting ? "queue" : "contest"),
+                "진행 중 대회 ".$gs_running."개 · 채점 대기 ".$gs_waiting."건", $gs_waiting >= 20 ? "is-warn" : "");
+        } else {
+            if (isset($_SESSION[$OJ_NAME.'_'.'problem_editor'])) $gs_rolebar[] = array($gs_admin_url."?main=problem_list.php", "문제 관리");
+            if (isset($_SESSION[$OJ_NAME.'_'.'contest_creator'])) $gs_rolebar[] = array($gs_admin_url."?main=contest_list.php", "대회 관리");
+            if (count($gs_rolebar) || isset($_SESSION[$OJ_NAME.'_'.'user_adder']) || isset($_SESSION[$OJ_NAME.'_'.'password_setter']))
+                array_unshift($gs_rolebar, array($gs_admin_url, "관리자 페이지"));
+        }
+        $gs_top = count($gs_rolebar) ? 112 : 72;  // 고정 헤더 72px + 메뉴 줄 40px
+?>
+<body id="MainBg-C" class="<?php if (count($gs_rolebar)) echo 'has-rolebar'?>" style="position: relative; margin-top: <?php echo $gs_top?>px; min-height: calc(100vh - <?php echo $gs_top?>px); overflow-x: hidden; overflow-y: auto;">
 <?php
         $gs_logged_in = isset($_SESSION[$OJ_NAME.'_'.'user_id']);
         $gs_site_name = $domain==$DOMAIN?$OJ_NAME:ucwords($OJ_NAME)."'s OJ";
@@ -475,6 +522,7 @@
             <a class="item <?php if ($url=="problemset.php" || $url=="problem.php" || $url=="category.php") echo "active";?>"
                 href="<?php echo $path_fix?>problemset.php"><?php echo $MSG_PROBLEMS?></a>
             <a class="item <?php if ($url=="contest.php") echo "active";?>" href="<?php echo $path_fix?>contest.php<?php if(isset($_SESSION[$OJ_NAME."_user_id"])) echo "?my" ?>"><?php echo $MSG_CONTEST?></a>
+            <a class="item <?php if ($url=="assessment.php") echo "active";?>" href="<?php echo $path_fix?>assessment.php<?php if(isset($_SESSION[$OJ_NAME."_user_id"])) echo "?my" ?>"><?php echo isset($MSG_ASSESSMENT) ? $MSG_ASSESSMENT : "수행평가"?></a>
             <a class="item <?php if ($url=="status.php" || $url=="showsource.php") echo "active";?>" href="<?php echo $path_fix?>status.php"><?php echo $MSG_STATUS?></a>
             <a class="item <?php if ($url=="ranklist.php") echo "active";?>"
                 href="<?php echo $path_fix?>ranklist.php"><?php echo $MSG_RANKLIST?></a>
@@ -660,6 +708,19 @@ if(isset($_SESSION[$OJ_NAME.'_'.'balloon'])){
         })();
         </script>
     </header>
-    <div style="margin-top: 72px; ">
+    <?php if (count($gs_rolebar)) { ?>
+    <nav class="gs-rolebar" aria-label="관리 메뉴">
+        <div class="ui container gs-rolebar-inner">
+            <span class="gs-rolebar-label"><?php echo $gs_is_admin ? "관리자" : "관리"?></span>
+            <?php foreach ($gs_rolebar as $gs_item) { ?>
+            <a href="<?php echo htmlentities($gs_item[0], ENT_QUOTES, 'UTF-8')?>"><?php echo htmlentities($gs_item[1], ENT_QUOTES, 'UTF-8')?></a>
+            <?php } ?>
+            <?php if ($gs_rolebar_status) { ?>
+            <a class="gs-rolebar-status <?php echo $gs_rolebar_status[2]?>" href="<?php echo htmlentities($gs_rolebar_status[0], ENT_QUOTES, 'UTF-8')?>" title="서버 모니터링에서 자세히 보기"><?php echo htmlentities($gs_rolebar_status[1], ENT_QUOTES, 'UTF-8')?></a>
+            <?php } ?>
+        </div>
+    </nav>
+    <?php } ?>
+    <div style="margin-top: <?php echo $gs_top?>px; ">
         <div id="main" class="ui main container">
 <?php } ?>

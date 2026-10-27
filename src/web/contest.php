@@ -146,7 +146,11 @@ if (isset($_GET['cid'])) {
     $page_cnt = 25;
     $pstart = $page_cnt * $page - $page_cnt;
     $pend = $page_cnt;
-    $rows = pdo_query("select count(1) from contest where defunct='N'");
+    // 대회 목록과 수행평가 목록(assessment.php)을 contest_type 9번 비트로 나눠 보여 준다.
+    $gs_assessment_list = isset($GS_ASSESSMENT_LIST) && $GS_ASSESSMENT_LIST;
+    $gs_type_cond = $gs_assessment_list ? " AND (contest_type & 512)<>0" : " AND (contest_type & 512)=0";
+    $gs_list_page = $gs_assessment_list ? "assessment.php" : "contest.php";
+    $rows = pdo_query("select count(1) from contest where defunct='N' $gs_type_cond");
 
     if ($rows)
         $total = $rows[0][0];
@@ -218,12 +222,12 @@ if (isset($_GET['cid'])) {
     $sql = "SELECT * FROM `contest` WHERE `defunct`='N' ORDER BY `contest_id` DESC LIMIT 1000";
 
     if ($keyword) {
-        $sql = "SELECT *  FROM contest WHERE contest.defunct='N' AND contest.title LIKE ? $wheremy  ORDER BY contest_id DESC";
+        $sql = "SELECT *  FROM contest WHERE contest.defunct='N' AND contest.title LIKE ? $wheremy $gs_type_cond  ORDER BY contest_id DESC";
         $sql .= " limit " . strval($pstart) . "," . strval($pend);
 
         $result = pdo_query($sql, $keyword);
     } else {
-        $sql = "SELECT *  FROM contest WHERE contest.defunct='N' $wheremy  ORDER BY contest_id DESC";
+        $sql = "SELECT *  FROM contest WHERE contest.defunct='N' $wheremy $gs_type_cond  ORDER BY contest_id DESC";
         $sql .= " limit " . strval($pstart) . "," . strval($pend);
         //echo $sql;
         $result = mysql_query_cache($sql);

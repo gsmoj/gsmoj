@@ -66,6 +66,9 @@
     <ul id="admin-grp-user" class="admin-menu-list collapse" role="menu">
 <?php if (isset($_SESSION[$OJ_NAME.'_'.'administrator'])||isset( $_SESSION[$OJ_NAME.'_'.'password_setter'])){?>
         <li><a href="user_list.php" target="main" title="<?php echo $MSG_HELP_USER_LIST?>"><b><?php echo $MSG_USER."-".$MSG_LIST?></b></a></li>
+<?php if (isset($_SESSION[$OJ_NAME.'_'.'administrator'])) { ?>
+        <li><a href="user_group.php" target="main" title="학생 반 일괄 지정"><b><?php echo $MSG_USER."-".(isset($MSG_CLASS) ? $MSG_CLASS : "반")?> 지정</b></a></li>
+<?php } ?>
 <?php }?>
 <?php if (isset($_SESSION[$OJ_NAME.'_'.'administrator'])||isset($_SESSION[$OJ_NAME.'_'.'user_adder'])){?>
         <li><a href="user_add.php" target="main" title="<?php echo $MSG_HELP_USER_ADD?>"><b><?php echo $MSG_USER."-".$MSG_ADD?></b></a></li>
@@ -116,6 +119,22 @@
 <?php }?>
     </ul>
   </div>
+
+  <!-- ASSESSMENT: 기능은 대회와 같지만 메뉴를 따로 둔다(contest_type 9번 비트) -->
+<?php if (isset($_SESSION[$OJ_NAME.'_'.'administrator'])||isset($_SESSION[$OJ_NAME.'_'.'contest_creator'])){?>
+  <div class="admin-menu-group">
+    <button type="button" class="btn btn-default btn-sm admin-menu-toggle collapsed" data-toggle="collapse" data-target="#admin-grp-assessment" aria-expanded="false" aria-controls="admin-grp-assessment">
+      <?php echo (isset($MSG_ASSESSMENT) ? $MSG_ASSESSMENT : "수행평가")."-".$MSG_ADMIN ?> <span class="caret"></span>
+    </button>
+    <ul id="admin-grp-assessment" class="admin-menu-list collapse" role="menu">
+        <li><a href="contest_list.php?type=assessment" target="main" title="수행평가 목록과 관리"><b><?php echo (isset($MSG_ASSESSMENT) ? $MSG_ASSESSMENT : "수행평가")."-".$MSG_LIST?></b></a></li>
+        <li><a href="contest_add.php?type=assessment" target="main" title="수행평가 모드가 켜진 상태로 등록"><b><?php echo (isset($MSG_ASSESSMENT) ? $MSG_ASSESSMENT : "수행평가")."-".$MSG_ADD?></b></a></li>
+<?php if (isset($_SESSION[$OJ_NAME.'_'.'administrator'])) { ?>
+        <li><a href="user_group.php" target="main" title="학생 반 일괄 지정"><b><?php echo $MSG_USER."-".(isset($MSG_CLASS) ? $MSG_CLASS : "반")?> 지정</b></a></li>
+<?php } ?>
+    </ul>
+  </div>
+<?php }?>
 
 <?php if (isset($_SESSION[$OJ_NAME.'_'.'administrator'])){?>
   <!-- SYSTEM -->
