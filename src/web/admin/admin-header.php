@@ -15,7 +15,8 @@ if(isset($OJ_LOG_ENABLED) && $OJ_LOG_ENABLED){
 <!DOCTYPE html>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <link rel=stylesheet href='../bootstrap/css/bootstrap.min.css' type="text/css">
-<link rel="stylesheet" href="admin.css" type="text/css">
+<?php // 파일이 바뀌면 주소가 달라지도록 수정 시각을 붙여, 브라우저가 예전 스타일을 계속 쓰지 않게 한다. ?>
+<link rel="stylesheet" href="admin.css?v=<?php echo @filemtime(__DIR__."/admin.css")?>" type="text/css">
 <script src="../template/bs3/jquery.min.js"></script>
 <script>
 $("document").ready(function (){

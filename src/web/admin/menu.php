@@ -16,7 +16,7 @@ $OJ_TEMPLATE = "bs3";
     <script src="<?php echo $OJ_CDN_URL.$path_fix."template/$OJ_TEMPLATE/"?>jquery.min.js"></script>
     <!-- 관리자 메뉴 접기/버튼 동작에 필요한 Bootstrap JavaScript. -->
     <script src="<?php echo $OJ_CDN_URL.$path_fix."template/$OJ_TEMPLATE/"?>bootstrap.min.js"></script>
-    <link rel="stylesheet" href="admin.css">
+    <link rel="stylesheet" href="admin.css?v=<?php echo @filemtime(__DIR__."/admin.css")?>">
 </head>
 <body style="text-align:center;min-width:100px; margin-left: 250px;"> <!-- 고정 사이드바 폭만큼 본문 영역을 오른쪽으로 밀어 둔다. -->
     <div id="sidebar">
