@@ -120,17 +120,25 @@
     </ul>
   </div>
 
-  <!-- ASSESSMENT: 기능은 대회와 같지만 메뉴를 따로 둔다(contest_type 9번 비트) -->
-<?php if (isset($_SESSION[$OJ_NAME.'_'.'administrator'])||isset($_SESSION[$OJ_NAME.'_'.'contest_creator'])){?>
+  <!-- ASSESSMENT: 기능은 대회와 같지만 메뉴를 따로 둔다. 반별 회차마다 수행평가 모드 대회를 하나씩 만든다. -->
+<?php
+  $menu_teacher = isset($_SESSION[$OJ_NAME.'_'.'teacher']);
+  $menu_asm = isset($MSG_ASSESSMENT) ? $MSG_ASSESSMENT : "수행평가";
+  $menu_class = isset($MSG_CLASS) ? $MSG_CLASS : "반";
+  if (isset($_SESSION[$OJ_NAME.'_'.'administrator'])||isset($_SESSION[$OJ_NAME.'_'.'contest_creator'])||$menu_teacher){?>
   <div class="admin-menu-group">
-    <button type="button" class="btn btn-default btn-sm admin-menu-toggle collapsed" data-toggle="collapse" data-target="#admin-grp-assessment" aria-expanded="false" aria-controls="admin-grp-assessment">
-      <?php echo (isset($MSG_ASSESSMENT) ? $MSG_ASSESSMENT : "수행평가")."-".$MSG_ADMIN ?> <span class="caret"></span>
+    <button type="button" class="btn btn-default btn-sm admin-menu-toggle<?php if (!$menu_teacher) echo " collapsed"?>" data-toggle="collapse" data-target="#admin-grp-assessment" aria-expanded="<?php echo $menu_teacher ? "true" : "false"?>" aria-controls="admin-grp-assessment">
+      <?php echo $menu_asm."-".$MSG_ADMIN ?> <span class="caret"></span>
     </button>
-    <ul id="admin-grp-assessment" class="admin-menu-list collapse" role="menu">
-        <li><a href="contest_list.php?type=assessment" target="main" title="수행평가 목록과 관리"><b><?php echo (isset($MSG_ASSESSMENT) ? $MSG_ASSESSMENT : "수행평가")."-".$MSG_LIST?></b></a></li>
-        <li><a href="contest_add.php?type=assessment" target="main" title="수행평가 모드가 켜진 상태로 등록"><b><?php echo (isset($MSG_ASSESSMENT) ? $MSG_ASSESSMENT : "수행평가")."-".$MSG_ADD?></b></a></li>
-<?php if (isset($_SESSION[$OJ_NAME.'_'.'administrator'])) { ?>
-        <li><a href="user_group.php" target="main" title="학생 반 일괄 지정"><b><?php echo $MSG_USER."-".(isset($MSG_CLASS) ? $MSG_CLASS : "반")?> 지정</b></a></li>
+    <ul id="admin-grp-assessment" class="admin-menu-list collapse<?php if ($menu_teacher) echo " in"?>" role="menu">
+        <li><a href="assessment_list.php" target="main" title="내 수행평가와 반별 회차 관리"><b><?php echo $menu_asm."-".$MSG_LIST?></b></a></li>
+        <li><a href="assessment_edit.php" target="main" title="문제를 묶어 새 수행평가 만들기"><b><?php echo "새 ".$menu_asm?></b></a></li>
+        <li><a href="problem_add_page.php" target="main" title="수행평가용 문제 만들기(비공개로 만들어짐)"><b><?php echo $MSG_PROBLEM."-".$MSG_ADD?></b></a></li>
+<?php if (isset($_SESSION[$OJ_NAME.'_'.'administrator'])||$menu_teacher) { ?>
+        <li><a href="user_group.php" target="main" title="학생 반 일괄 지정"><b><?php echo $MSG_USER."-".$menu_class?> 지정</b></a></li>
+<?php } ?>
+<?php if (isset($_SESSION[$OJ_NAME.'_'.'administrator'])||isset($_SESSION[$OJ_NAME.'_'.'contest_creator'])) { ?>
+        <li><a href="contest_list.php?type=assessment" target="main" title="회차로 만들어진 수행평가 대회 목록"><b><?php echo $menu_asm?> 대회 목록</b></a></li>
 <?php } ?>
     </ul>
   </div>
@@ -199,6 +207,10 @@ $(function () {
     $(this).addClass("active");
   });
 });
+</script>
+<script>
+// 권한에 따라 링크가 하나도 없는 메뉴 그룹(예: 교사에게 공지·대회 관리)은 버튼까지 숨긴다.
+document.querySelectorAll('.admin-menu-group').forEach(function (g) { if (!g.querySelector('li')) g.style.display = 'none'; });
 </script>
 </body>
 </html>
