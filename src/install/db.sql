@@ -280,6 +280,22 @@ CREATE TABLE `openai_task_queue` (
   KEY `idx_user_status` (`user_id`,`status`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COMMENT='异步任务队列-MyISAM版';
 
+CREATE TABLE IF NOT EXISTS `assessment_event` (
+  `event_id` int unsigned NOT NULL AUTO_INCREMENT,
+  `contest_id` int NOT NULL DEFAULT 0,
+  `num` int NOT NULL DEFAULT -1 COMMENT '대회 문제 순서(A=0), 문제 밖이면 -1',
+  `user_id` varchar(48) NOT NULL DEFAULT '',
+  `event_type` varchar(16) NOT NULL DEFAULT '' COMMENT 'leave, return, paste, burst, copy',
+  `amount` int NOT NULL DEFAULT 0 COMMENT '글자 수 또는 이탈 시간(초)',
+  `line_count` int NOT NULL DEFAULT 0,
+  `place` varchar(16) NOT NULL DEFAULT '' COMMENT 'problem, editor',
+  `ip` varchar(46) NOT NULL DEFAULT '',
+  `created_at` datetime NOT NULL,
+  PRIMARY KEY (`event_id`),
+  KEY `idx_contest_time` (`contest_id`,`created_at`),
+  KEY `idx_contest_user` (`contest_id`,`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='수행평가 부정행위 감지 기록';
+
 delimiter //
 
 drop trigger if exists firstAC//

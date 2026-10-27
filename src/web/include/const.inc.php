@@ -19,4 +19,7 @@ $PID=Array("A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","
 $ball_color=Array('#66cccc','red','green','pink','yellow','violet','magenta','maroon','olive','chocolate');
 $ball_name=Array('티파니 블루','빨강','green','pink','yellow','violet','magenta','maroon','olive','chocolate');
 $color_theme=Array("default","primary","success","info","warning","danger");
-$contest_locks=array($MSG_SOURCE_NOT_ALLOWED_FOR_EXAM , $MSG_FORBIDDEN.$MSG_DOWNLOAD , $MSG_FORBIDDEN.$MSG_RANKLIST , $MSG_FORBIDDEN.$MSG_OTHERS.$MSG_CONTEST_STATUS , $MSG_NOIP_WARNING, $MSG_FORBIDDEN.$MSG_SHOW_DIFF,$MSG_FORBIDDEN.$MSG_UPSOLVING,$MSG_ONLY_LAST_SUBMISSION,$MSG_FORBIDDEN.$MSG_AI_HELP);
+$contest_locks=array($MSG_SOURCE_NOT_ALLOWED_FOR_EXAM , $MSG_FORBIDDEN.$MSG_DOWNLOAD , $MSG_FORBIDDEN.$MSG_RANKLIST , $MSG_FORBIDDEN.$MSG_OTHERS.$MSG_CONTEST_STATUS , $MSG_NOIP_WARNING, $MSG_FORBIDDEN.$MSG_SHOW_DIFF,$MSG_FORBIDDEN.$MSG_UPSOLVING,$MSG_ONLY_LAST_SUBMISSION,$MSG_FORBIDDEN.$MSG_AI_HELP,
+	(isset($MSG_ASSESSMENT_MODE)?$MSG_ASSESSMENT_MODE:"Assessment mode"));
+// 수행평가 모드: contest_type의 9번째 비트. 화면 이탈·붙여넣기·급격한 코드 증가·복사를 assessment_event에 기록한다.
+$OJ_CONTEST_ASSESSMENT_BIT = 1<<9;

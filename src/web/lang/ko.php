@@ -520,6 +520,8 @@ $MSG_HINT="도움";
     $MSG_SUBNET="서브넷 ";
     $MSG_ONLY_LAST_SUBMISSION="마지막 제출만 점수로 인정";  
 	$MSG_AI_HELP="AI 도움말";
+	$MSG_ASSESSMENT="수행평가";
+	$MSG_ASSESSMENT_MODE="수행평가 모드 (화면 이탈·붙여넣기·복사를 기록)";
     $MSG_SHOW_DIFF="차이점 출력 보기";
        $MSG_UPSOLVING="문제 풀이";
     //SaaS friendly
