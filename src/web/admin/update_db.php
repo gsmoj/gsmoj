@@ -271,6 +271,24 @@ $csql[62]="";
 $tsql[63]="ALTER TABLE $DB_NAME.`users` ADD COLUMN `coin_earned` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '做题获得的积分', ADD COLUMN `coin_bonus` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '老师奖励的积分', ADD COLUMN `coin_spent` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '已消耗的积分';";
 $csql[63]="ALTER TABLE $DB_NAME.`problem` ADD COLUMN `coin` INT UNSIGNED NOT NULL DEFAULT 1 COMMENT 'AC此题可得的金币数' AFTER `defunct`;";
 
+// 수행평가 모드의 부정행위 감지 기록(화면 이탈, 붙여넣기, 급격한 코드 증가, 복사)
+$tsql[64]="CREATE TABLE IF NOT EXISTS $DB_NAME.`assessment_event` (
+  `event_id` int unsigned NOT NULL AUTO_INCREMENT,
+  `contest_id` int NOT NULL DEFAULT 0,
+  `num` int NOT NULL DEFAULT -1 COMMENT '대회 문제 순서(A=0), 문제 밖이면 -1',
+  `user_id` varchar(48) NOT NULL DEFAULT '',
+  `event_type` varchar(16) NOT NULL DEFAULT '' COMMENT 'leave, return, paste, burst, copy',
+  `amount` int NOT NULL DEFAULT 0 COMMENT '글자 수 또는 이탈 시간(초)',
+  `line_count` int NOT NULL DEFAULT 0,
+  `place` varchar(16) NOT NULL DEFAULT '' COMMENT 'problem, editor',
+  `ip` varchar(46) NOT NULL DEFAULT '',
+  `created_at` datetime NOT NULL,
+  PRIMARY KEY (`event_id`),
+  KEY `idx_contest_time` (`contest_id`,`created_at`),
+  KEY `idx_contest_user` (`contest_id`,`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='수행평가 부정행위 감지 기록';";
+$csql[64]="";
+
 // 删除6个月以前的非正确源码，优化数据库空间。
 // delete from source_code  where solution_id in (select solution_id from solution where result>4 and  in_date<date_sub(now(),interval 6 month) ); //
 ?>
