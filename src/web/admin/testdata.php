@@ -236,23 +236,40 @@ if ($td_action !== "") {
 
     case "generate":
         // phpfm.php의 출력 생성과 같다: 문제 번호를 음수로 한 채점 요청을 넣으면 채점기가 기준 코드로 .out을 만든다.
-        $has_source = false;
-        foreach (array("interactor.cc", "Gen.py", "Main.c", "Main.cc") as $src) {
-            if (file_exists($td_dir."/".$src) && filesize($td_dir."/".$src) > 0) $has_source = true;
+        // 채점기의 makeout.sh는 Gen.py(입력 생성)를 먼저 실행한 뒤 Main.c/Main.cc(정답 코드)를 컴파일해 .out을 만든다.
+        // 정답 코드가 없으면 출력이 하나도 만들어지지 않으므로 미리 막는다.
+        $has_main = false;
+        foreach (array("Main.c", "Main.cc") as $src) {
+            if (file_exists($td_dir."/".$src) && filesize($td_dir."/".$src) > 0) $has_main = true;
         }
-        if (!$has_source) td_fail(400, "Main.cc, Main.c 또는 Gen.py에 기준 코드를 먼저 작성해 주세요.");
+        if (!$has_main) td_fail(400, "정답 코드가 없습니다. 기타 파일의 Main.cc(C++) 또는 Main.c(C)에 정답 코드를 작성해 주세요. Gen.py는 입력(.in)을 만드는 스크립트라 정답 코드로 쓰이지 않습니다.");
         $user_id = $_SESSION[$OJ_NAME.'_'.'user_id'];
         $nick = isset($_SESSION[$OJ_NAME.'_'.'nick']) ? $_SESSION[$OJ_NAME.'_'.'nick'] : $user_id;
         $sql = "INSERT INTO solution(problem_id,user_id,nick,in_date,language,ip,code_length,result) VALUES(?,?,?,NOW(),?,?,?,1)";
         $solution_id = pdo_query($sql, -$pid, $user_id, $nick, 6, $_SERVER['REMOTE_ADDR'], 0);
         trigger_judge($solution_id);
+        $_SESSION[$OJ_NAME.'_'.'testdata_gen'][intval($solution_id)] = time();
         td_json(array("solution_id" => intval($solution_id)));
 
     case "generate_status":
         $sid = isset($body['solution_id']) ? intval($body['solution_id']) : 0;
         $row = pdo_query("select result from solution where solution_id=? and problem_id=?", $sid, -$pid);
         if (empty($row)) td_fail(404, "출력 생성 요청을 찾을 수 없습니다.");
-        td_json(array("result" => intval($row[0][0]), "done" => intval($row[0][0]) >= 4));
+        $done = intval($row[0][0]) >= 4;
+        $made = 0; $empty = 0; $inputs = 0;
+        if ($done) {
+            // 요청 이후에 새로 쓰인 .out 수를 세어, 실제로 출력이 만들어졌는지 알려 준다.
+            $since = isset($_SESSION[$OJ_NAME.'_'.'testdata_gen'][$sid]) ? $_SESSION[$OJ_NAME.'_'.'testdata_gen'][$sid] - 1 : 0;
+            clearstatcache();
+            foreach (td_list()["files"] as $f) {
+                if (preg_match('/\.in$/', $f["name"])) $inputs++;
+                if (preg_match('/\.out$/', $f["name"]) && $f["mtime"] >= $since) {
+                    $made++;
+                    if ($f["size"] == 0) $empty++;
+                }
+            }
+        }
+        td_json(array("result" => intval($row[0][0]), "done" => $done, "made" => $made, "empty" => $empty, "inputs" => $inputs));
     }
     td_fail(400, "알 수 없는 작업입니다.");
 }
@@ -368,6 +385,7 @@ require("admin-header.php");
         <tbody id="td-pairs"></tbody>
       </table>
     </div>
+    <p class="td-note"><b>출력 자동 생성</b>: 기타 파일의 Main.cc(또는 Main.c)에 정답 코드를 작성하면, 모든 .in 파일로 실행해 같은 이름의 .out을 만듭니다. Gen.py가 있으면 그보다 먼저 실행해 .in을 만듭니다.</p>
   </section>
 
   <section class="td-section">
@@ -390,7 +408,7 @@ require("admin-header.php");
         <tbody id="td-others"></tbody>
       </table>
     </div>
-    <p class="td-note">기준 코드(Main.cc, Main.c, Gen.py), 스페셜 저지, 인터랙터 등 입출력 쌍이 아닌 파일입니다.</p>
+    <p class="td-note">입출력 쌍이 아닌 파일입니다. <b>Main.cc / Main.c</b>는 출력 자동 생성에 쓰는 정답 코드(C++/C), <b>Gen.py</b>는 입력(.in)을 만드는 Python 스크립트, <b>spj.cc</b>는 스페셜 저지입니다.</p>
   </section>
 </div>
 
@@ -419,7 +437,9 @@ require("admin-header.php");
   var EDIT_LIMIT = <?php echo TD_EDIT_LIMIT?>;
   var API = 'testdata.php?pid=' + PID + '&action=';
   var MSG = <?php echo json_encode(array("download" => $MSG_DOWNLOAD, "delete" => $MSG_DELETE), JSON_UNESCAPED_UNICODE)?>;
-  var GEN_SOURCES = ['interactor.cc', 'Gen.py', 'Main.c', 'Main.cc'];
+  var MAIN_SOURCES = ['Main.c', 'Main.cc'];
+  var ROLES = { 'Main.cc': '정답 코드', 'Main.c': '정답 코드', 'Gen.py': '입력 생성', 'spj.cc': '스페셜 저지', 'spj.c': '스페셜 저지', 'interactor.cc': '인터랙터' };
+  var MAIN_TEMPLATE = '#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    \n    return 0;\n}\n';
   var state = { files: [], dirs: [], selected: {}, editing: null };
 
   function $(id) { return document.getElementById(id); }
@@ -500,7 +520,7 @@ require("admin-header.php");
     var missing = g.pairs.filter(function (p) { return !p.input || !p.output; }).length;
     var total = state.files.reduce(function (s, f) { return s + f.size; }, 0);
     var ans = state.files.filter(function (f) { return /\.ans$/.test(f.name); }).length;
-    var hasGen = GEN_SOURCES.some(function (n) { return g.byName[n] && g.byName[n].size > 0; });
+    var hasGen = MAIN_SOURCES.some(function (n) { return g.byName[n] && g.byName[n].size > 0; });
 
     $('td-summary').innerHTML =
       '<span class="admin-badge admin-badge--info">입출력 ' + g.pairs.length + '쌍</span>' +
@@ -511,8 +531,9 @@ require("admin-header.php");
 
     $('td-ans2out').hidden = ans === 0;
     $('td-ans2out').textContent = '.ans → .out 변환 (' + ans + ')';
-    $('td-generate').disabled = !hasGen;
-    $('td-generate').title = hasGen ? 'Main.cc / Main.c / Gen.py 기준 코드로 .in에 맞는 .out을 만듭니다' : '기타 파일에서 Main.cc 또는 Gen.py에 기준 코드를 먼저 작성하세요';
+    $('td-generate').textContent = hasGen ? '출력 자동 생성' : '정답 코드 작성 (Main.cc)';
+    $('td-generate').title = hasGen ? 'Main.cc / Main.c 정답 코드로 모든 .in의 .out을 만듭니다' : '출력 자동 생성에 쓸 정답 코드를 먼저 작성합니다';
+    $('td-generate').setAttribute('data-has-main', hasGen ? '1' : '');
 
     var selectable = {};
     $('td-pairs').innerHTML = g.pairs.length ? g.pairs.map(function (p) {
@@ -535,7 +556,8 @@ require("admin-header.php");
       var body = f.binary ? '<span class="td-pre is-empty">바이너리 파일</span>' :
         (f.size === 0 ? '<span class="td-pre is-empty">(빈 파일)</span>' : '<span class="td-pre">' + esc(f.preview) + '</span>');
       return '<tr>' +
-        '<td><span class="td-name">' + esc(f.name) + '</span><div class="admin-field-help">' + fmtSize(f.size) + '</div></td>' +
+        '<td><span class="td-name">' + esc(f.name) + '</span><div class="admin-field-help">' + fmtSize(f.size) +
+          (ROLES[f.name] ? ' · ' + ROLES[f.name] : '') + '</div></td>' +
         '<td><div class="td-cell" role="button" tabindex="0" data-edit-file="' + esc(f.name) + '" title="' + esc(f.name) + ' 편집">' + body + '</div></td>' +
         '<td class="td-hide-sm admin-field-help">' + fmtTime(f.mtime) + '</td>' +
         '<td class="td-col-actions"><div class="td-actions">' +
@@ -754,7 +776,13 @@ require("admin-header.php");
     request('ans2out').then(function (r) { toast(r.converted + '개 파일을 변환했습니다.'); return load(); }).catch(function (e) { toast(e.message, true); });
   });
   $('td-generate').addEventListener('click', function () {
-    if (!confirm('기준 코드로 모든 .in 파일의 .out을 다시 만듭니다. 기존 .out 파일은 덮어씁니다. 계속할까요?')) return;
+    if (!this.getAttribute('data-has-main')) {
+      // 정답 코드가 없으면 Main.cc 편집 창을 C++ 기본 틀과 함께 연다.
+      openEditor({ title: '정답 코드: Main.cc (C++)', pair: false, name: 'Main.cc',
+        panes: [{ label: 'Main.cc', content: MAIN_TEMPLATE, note: '이 문제를 맞게 푸는 C++ 코드를 작성하세요. 저장한 뒤 "출력 자동 생성"을 누르면 모든 .in의 .out이 만들어집니다.' }] });
+      return;
+    }
+    if (!confirm('Main.cc(정답 코드)로 모든 .in 파일의 .out을 다시 만듭니다. 기존 .out 파일은 덮어씁니다. 계속할까요?')) return;
     var btn = this;
     btn.disabled = true;
     btn.textContent = '출력 생성 중…';
@@ -769,7 +797,11 @@ require("admin-header.php");
           }).catch(reject);
         })();
       });
-    }).then(function () { toast('출력 생성을 마쳤습니다.'); }).catch(function (e) { toast(e.message, true); })
+    }).then(function (st) {
+      if (st.made === 0) toast('출력 파일이 만들어지지 않았습니다. Main.cc가 컴파일되는지(문법 오류, C++ 코드인지) 확인하세요.', true);
+      else if (st.empty > 0) toast(st.made + '개 출력을 만들었지만 ' + st.empty + '개가 빈 파일입니다. 정답 코드가 입력을 제대로 읽는지 확인하세요.', true);
+      else toast('.in ' + st.inputs + '개 중 ' + st.made + '개의 출력을 만들었습니다.');
+    }).catch(function (e) { toast(e.message, true); })
       .then(function () { btn.textContent = '출력 자동 생성'; return load(); });
   });
 
