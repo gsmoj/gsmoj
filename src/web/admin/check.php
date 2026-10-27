@@ -11,7 +11,7 @@
 		<meta http-equiv="Cache-Control" content="no-cache">
 		<meta http-equiv="Content-Language" content="zh-cn">
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-		<link rel=stylesheet href='admin.css' type='text/css'>
+		<link rel=stylesheet href='admin.css?v=<?php echo @filemtime(__DIR__."/admin.css")?>' type='text/css'>
 	</head>
 <body>
 
