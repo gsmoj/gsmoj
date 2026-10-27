@@ -68,13 +68,14 @@
     }
     .home-content-grid {
         display: grid !important;
-        grid-template-columns: minmax(0, 1fr) minmax(260px, 360px);
+        grid-template-columns: minmax(0, 2fr) minmax(240px, 1fr);
         column-gap: 1rem;
         width: 100%;
         min-width: 0;
         margin: 0 !important;
     }
-    .home-content-grid > .column {
+    /* Semantic UI의 `.ui.grid > [class*="eleven wide"].column` 너비(!important)보다 우선하도록 선택자를 구체화한다. */
+    .ui.grid.home-content-grid > .wide.column {
         display: block;
         float: none !important;
         width: auto !important;
