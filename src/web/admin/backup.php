@@ -108,7 +108,7 @@ if ($zip->open($ztar, ZipArchive::CREATE | ZipArchive::OVERWRITE) === TRUE) {
 }else{
 ?>
 <p class="admin-field-help">백업에는 시간이 걸릴 수 있습니다. 완료될 때까지 페이지를 닫지 마세요.</p>
-<form method="post" action="backup.php">
+<form method="post" action="backup.php" class="admin-card">
     <div class="admin-form-actions">
         <input type="submit" class="btn btn-primary" name="do" value="<?php echo $MSG_BACKUP_DATABASE ?>">
     </div>

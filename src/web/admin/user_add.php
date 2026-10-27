@@ -63,7 +63,7 @@ if(isset($_POST['do'])){
 }
 ?>
 
-<form action=user_add.php method=post>
+<form action=user_add.php method=post class="admin-card">
   <div>
     <label class="admin-field-label" for="ulist"><?php echo $MSG_USER_ID?> <?php echo $MSG_PASSWORD?></label>
     <p class="admin-field-help">한 줄에 한 명씩 "아이디 비밀번호" 형식으로 입력합니다.</p>

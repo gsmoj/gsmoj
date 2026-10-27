@@ -179,12 +179,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <style>
         /* 관리자 공통 톤(admin/admin.css의 --admin-* 값)에 맞춘 설정 화면 전용 스타일 */
         :root { --admin-primary: #2563eb; --admin-primary-dark: #1d4ed8; --admin-border: #dfe5ee; --admin-text: #1f2937; --admin-muted: #64748b; }
-        body { margin: 0; padding: 0; color: var(--admin-text); background: #fff; font-family: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", Arial, sans-serif; }
-        .container { box-sizing: border-box; max-width: none; margin: 0; padding: 0 24px 32px; }
-        .settings-title { position: sticky; z-index: 30; top: 0; margin: 0 -24px 24px; padding: 16px 24px 14px; border-bottom: 1px solid var(--admin-border); background: #fff; }
-        .settings-title h3 { margin: 0; font-size: 20px; }
+        /* 다른 관리자 화면과 같은 "제목 영역 + 흰 카드" 구조(admin.css의 통일 레이아웃)에 맞춘다. */
+        body { margin: 0; padding: 0; color: var(--admin-text); background: #f4f7fb; font-family: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", Arial, sans-serif; }
+        .container { box-sizing: border-box; max-width: none; margin: 0; padding: 24px 28px 40px; }
+        .settings-title { margin: 0 0 20px; padding: 0 0 16px; border-bottom: 1px solid var(--admin-border); }
+        .settings-title h3 { margin: 0; font-size: 22px; }
         .settings-title p { margin: 5px 0 0; color: var(--admin-muted); font-size: 14px; }
-        .card { margin-bottom: 20px; }
+        .card { max-width: 1100px; margin-bottom: 16px; padding: 20px 22px; border: 1px solid var(--admin-border); border-radius: 12px; background: #fff; box-shadow: 0 1px 3px rgba(15, 23, 42, .04); }
         .card-body { padding: 0; }
         .alert { padding: 12px 15px; border-radius: 8px; margin-bottom: 15px; font-size: 14px; }
         .alert-success { color: #15803d; background: #dcfce7; border: 1px solid #bbf7d0; }
@@ -208,7 +209,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         .row { display: flex; align-items: flex-start; gap: 16px; padding: 12px 8px; border-bottom: 1px solid #eef2f7; }
         .row:last-child { border-bottom: none; }
         .row:hover { background: #f8fafc; }
-        .label { flex-shrink: 0; width: 240px; padding-top: 3px; }
+        /* include/hoj.css의 부트스트랩 .label(어두운 배지) 스타일이 덮이지 않도록 되돌린다. */
+        .row .label { display: block; flex-shrink: 0; width: 240px; padding: 3px 0 0; color: inherit; font-size: 13px; font-weight: 400; line-height: 1.5; text-align: left; white-space: normal; border-radius: 0; background: none; }
         .label code { padding: 1px 6px; color: var(--admin-primary-dark); font-size: 12px; border-radius: 4px; background: #eff6ff; }
         .label-desc { display: block; margin-top: 4px; color: var(--admin-muted); font-size: 12px; }
         .control { flex: 1; min-width: 0; }
@@ -224,10 +226,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         .btn-save:hover { background: var(--admin-primary-dark); }
         .beta-tag { margin-left: 4px; padding: 1px 6px; color: #b45309; font-size: 10px; font-weight: 700; border-radius: 999px; background: #fef3c7; }
         @media (max-width: 760px) {
-            .container { padding: 0 16px 24px; }
-            .settings-title { margin: 0 -16px 18px; padding: 14px 16px 12px; }
+            .container { padding: 16px 14px 28px; }
             .row { flex-direction: column; gap: 8px; }
-            .label { width: auto; }
+            .row .label { width: auto; }
         }
     </style>
 </head>

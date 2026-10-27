@@ -21,7 +21,7 @@ if (!(isset($_SESSION[$OJ_NAME.'_'.'administrator']))){
 	<h3><?php echo htmlentities($MSG_SYSTEM." - ".$MSG_GIVESOURCE, ENT_QUOTES, 'UTF-8')?></h3>
 	<p><?php echo $MSG_HELP_GIVESOURCE?>. 지정한 문제 범위의 정답 코드만 옮겨집니다.</p>
 </header>
-<form action='source_give.php' method=post class="admin-grid-form">
+<form action='source_give.php' method=post class="admin-grid-form admin-card">
 	<label class="admin-field-label" for="give-from">보내는 사용자ID</label>
 	<input class="form-control" id="give-from" type=text size=10 name="from" value="zhblue">
 	<label class="admin-field-label" for="give-to">받는 사용자ID</label>

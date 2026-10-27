@@ -304,7 +304,7 @@ if(isset($_POST['do'])){
 		<li>새 테이블을 만들고 필요 없는 열을 정리합니다.</li>
 		<li>표절 검사 기능을 쓰려면 반드시 실행해야 합니다.</li>
 	</ul>
-	<form action='update_db.php' method=post>
+	<form action='update_db.php' method=post class="admin-card">
 		<?php require_once("../include/set_post_key.php");?>
 		<input type='hidden' name='do' value='do'>
 		<div class="admin-form-actions">
