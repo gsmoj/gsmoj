@@ -236,13 +236,13 @@ if ($td_action !== "") {
 
     case "generate":
         // phpfm.php의 출력 생성과 같다: 문제 번호를 음수로 한 채점 요청을 넣으면 채점기가 기준 코드로 .out을 만든다.
-        // 채점기의 makeout.sh는 Gen.py(입력 생성)를 먼저 실행한 뒤 Main.c/Main.cc(정답 코드)를 컴파일해 .out을 만든다.
+        // 채점기의 makeout.sh는 Gen.py(입력 생성)를 먼저 실행한 뒤 Main.c/Main.cc/Main.py(정답 코드)로 .out을 만든다.
         // 정답 코드가 없으면 출력이 하나도 만들어지지 않으므로 미리 막는다.
         $has_main = false;
-        foreach (array("Main.c", "Main.cc") as $src) {
+        foreach (array("Main.c", "Main.cc", "Main.py") as $src) {
             if (file_exists($td_dir."/".$src) && filesize($td_dir."/".$src) > 0) $has_main = true;
         }
-        if (!$has_main) td_fail(400, "정답 코드가 없습니다. 기타 파일의 Main.cc(C++) 또는 Main.c(C)에 정답 코드를 작성해 주세요. Gen.py는 입력(.in)을 만드는 스크립트라 정답 코드로 쓰이지 않습니다.");
+        if (!$has_main) td_fail(400, "정답 코드가 없습니다. 기타 파일의 Main.cc(C++), Main.c(C) 또는 Main.py(Python)에 정답 코드를 작성해 주세요. Gen.py는 입력(.in)을 만드는 스크립트라 정답 코드로 쓰이지 않습니다.");
         $user_id = $_SESSION[$OJ_NAME.'_'.'user_id'];
         $nick = isset($_SESSION[$OJ_NAME.'_'.'nick']) ? $_SESSION[$OJ_NAME.'_'.'nick'] : $user_id;
         $sql = "INSERT INTO solution(problem_id,user_id,nick,in_date,language,ip,code_length,result) VALUES(?,?,?,NOW(),?,?,?,1)";
@@ -385,7 +385,7 @@ require("admin-header.php");
         <tbody id="td-pairs"></tbody>
       </table>
     </div>
-    <p class="td-note"><b>출력 자동 생성</b>: 기타 파일의 Main.cc(또는 Main.c)에 정답 코드를 작성하면, 모든 .in 파일로 실행해 같은 이름의 .out을 만듭니다. Gen.py가 있으면 그보다 먼저 실행해 .in을 만듭니다.</p>
+    <p class="td-note"><b>출력 자동 생성</b>: 기타 파일의 Main.cc(C++), Main.c(C) 또는 Main.py(Python)에 정답 코드를 작성하면, 모든 .in 파일로 실행해 같은 이름의 .out을 만듭니다. Gen.py가 있으면 그보다 먼저 실행해 .in을 만듭니다.</p>
   </section>
 
   <section class="td-section">
@@ -408,7 +408,7 @@ require("admin-header.php");
         <tbody id="td-others"></tbody>
       </table>
     </div>
-    <p class="td-note">입출력 쌍이 아닌 파일입니다. <b>Main.cc / Main.c</b>는 출력 자동 생성에 쓰는 정답 코드(C++/C), <b>Gen.py</b>는 입력(.in)을 만드는 Python 스크립트, <b>spj.cc</b>는 스페셜 저지입니다.</p>
+    <p class="td-note">입출력 쌍이 아닌 파일입니다. <b>Main.cc / Main.c / Main.py</b>는 출력 자동 생성에 쓰는 정답 코드(C++/C/Python, 여러 개면 C → C++ → Python 순서로 하나만 사용), <b>Gen.py</b>는 입력(.in)을 만드는 Python 스크립트, <b>spj.cc</b>는 스페셜 저지입니다.</p>
   </section>
 </div>
 
@@ -437,8 +437,8 @@ require("admin-header.php");
   var EDIT_LIMIT = <?php echo TD_EDIT_LIMIT?>;
   var API = 'testdata.php?pid=' + PID + '&action=';
   var MSG = <?php echo json_encode(array("download" => $MSG_DOWNLOAD, "delete" => $MSG_DELETE), JSON_UNESCAPED_UNICODE)?>;
-  var MAIN_SOURCES = ['Main.c', 'Main.cc'];
-  var ROLES = { 'Main.cc': '정답 코드', 'Main.c': '정답 코드', 'Gen.py': '입력 생성', 'spj.cc': '스페셜 저지', 'spj.c': '스페셜 저지', 'interactor.cc': '인터랙터' };
+  var MAIN_SOURCES = ['Main.c', 'Main.cc', 'Main.py'];
+  var ROLES = { 'Main.cc': '정답 코드', 'Main.c': '정답 코드', 'Main.py': '정답 코드', 'Gen.py': '입력 생성', 'spj.cc': '스페셜 저지', 'spj.c': '스페셜 저지', 'interactor.cc': '인터랙터' };
   var MAIN_TEMPLATE = '#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    \n    return 0;\n}\n';
   var state = { files: [], dirs: [], selected: {}, editing: null };
 
@@ -532,7 +532,7 @@ require("admin-header.php");
     $('td-ans2out').hidden = ans === 0;
     $('td-ans2out').textContent = '.ans → .out 변환 (' + ans + ')';
     $('td-generate').textContent = hasGen ? '출력 자동 생성' : '정답 코드 작성 (Main.cc)';
-    $('td-generate').title = hasGen ? 'Main.cc / Main.c 정답 코드로 모든 .in의 .out을 만듭니다' : '출력 자동 생성에 쓸 정답 코드를 먼저 작성합니다';
+    $('td-generate').title = hasGen ? '정답 코드(Main.cc / Main.c / Main.py)로 모든 .in의 .out을 만듭니다' : '출력 자동 생성에 쓸 정답 코드를 먼저 작성합니다';
     $('td-generate').setAttribute('data-has-main', hasGen ? '1' : '');
 
     var selectable = {};
@@ -764,7 +764,7 @@ require("admin-header.php");
     editPair(String((nums.length ? Math.max.apply(null, nums) : 0) + 1), true);
   });
   $('td-new-file').addEventListener('click', function () {
-    var name = prompt('새 파일 이름 (예: Main.cc, Gen.py, spj.cc)', 'Main.cc');
+    var name = prompt('새 파일 이름 (예: Main.cc, Main.py, Gen.py, spj.cc)', 'Main.cc');
     if (name === null || (name = name.trim()) === '') return;
     if (!validName(name)) { toast('파일 이름은 영문, 숫자, . _ - + 만 쓸 수 있습니다.', true); return; }
     if (groups().byName[name]) { editFile(name, false); return; }
@@ -779,10 +779,10 @@ require("admin-header.php");
     if (!this.getAttribute('data-has-main')) {
       // 정답 코드가 없으면 Main.cc 편집 창을 C++ 기본 틀과 함께 연다.
       openEditor({ title: '정답 코드: Main.cc (C++)', pair: false, name: 'Main.cc',
-        panes: [{ label: 'Main.cc', content: MAIN_TEMPLATE, note: '이 문제를 맞게 푸는 C++ 코드를 작성하세요. 저장한 뒤 "출력 자동 생성"을 누르면 모든 .in의 .out이 만들어집니다.' }] });
+        panes: [{ label: 'Main.cc', content: MAIN_TEMPLATE, note: '이 문제를 맞게 푸는 C++ 코드를 작성하세요. 저장한 뒤 "출력 자동 생성"을 누르면 모든 .in의 .out이 만들어집니다. Python으로 쓰려면 기타 파일의 "+ 새 파일"에서 Main.py를 만드세요.' }] });
       return;
     }
-    if (!confirm('Main.cc(정답 코드)로 모든 .in 파일의 .out을 다시 만듭니다. 기존 .out 파일은 덮어씁니다. 계속할까요?')) return;
+    if (!confirm('정답 코드로 모든 .in 파일의 .out을 다시 만듭니다. 기존 .out 파일은 덮어씁니다. 계속할까요?')) return;
     var btn = this;
     btn.disabled = true;
     btn.textContent = '출력 생성 중…';
@@ -798,7 +798,7 @@ require("admin-header.php");
         })();
       });
     }).then(function (st) {
-      if (st.made === 0) toast('출력 파일이 만들어지지 않았습니다. Main.cc가 컴파일되는지(문법 오류, C++ 코드인지) 확인하세요.', true);
+      if (st.made === 0) toast('출력 파일이 만들어지지 않았습니다. 정답 코드에 문법 오류가 없는지, 파일 이름과 언어가 맞는지(Main.cc는 C++, Main.py는 Python) 확인하세요.', true);
       else if (st.empty > 0) toast(st.made + '개 출력을 만들었지만 ' + st.empty + '개가 빈 파일입니다. 정답 코드가 입력을 제대로 읽는지 확인하세요.', true);
       else toast('.in ' + st.inputs + '개 중 ' + st.made + '개의 출력을 만들었습니다.');
     }).catch(function (e) { toast(e.message, true); })
