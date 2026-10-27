@@ -123,12 +123,8 @@ echo "&nbsp;&nbsp;- <a href='javascript:phpfm($pid);'>$MSG_ADD $MSG_DATA</a>";
 <script src='../template/bs3/jquery.min.js' ></script>
 <script>
 function phpfm(pid){
-  //alert(pid);
-  $.post("phpfm.php",{'frame':3,'pid':pid,'pass':''},function(data,status){
-    if(status=="success"){
-      document.location.href="phpfm.php?frame=3&pid="+pid;
-    }
-  });
+  // 채점 데이터 관리 화면(testdata.php)으로 이동한다.
+  document.location.href="testdata.php?pid="+pid;
 }
 window.setTimeout("phpfm(<?php echo $pid?>);",3000);
 </script>

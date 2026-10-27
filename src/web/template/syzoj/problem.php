@@ -824,12 +824,8 @@ const marked = new Marked(
   <script>
 // 관리자 권한으로 현재 문제의 데이터 파일 관리 화면을 연다.
 function phpfm(pid){
-    //alert(pid);
-    $.post("admin/phpfm.php",{'frame':3,'pid':pid,'pass':''},function(data,status){
-      if(status=="success"){
-        document.location.href="admin/phpfm.php?frame=3&pid="+pid;
-      }
-    });
+    // 채점 데이터 관리 화면(testdata.php)으로 이동한다.
+    document.location.href="admin/testdata.php?pid="+pid;
 }
 // 단일 선택형 자동 채점 문제에서 선택한 답안을 숨겨진 입력값에 저장한다.
 function selectOne( num, answer){
