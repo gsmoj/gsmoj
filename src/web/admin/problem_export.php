@@ -25,7 +25,7 @@
       <h3><?php echo htmlentities($page_heading, ENT_QUOTES, 'UTF-8')?></h3>
       <p>문제를 FPS XML 파일로 내보냅니다.</p>
     </header>
-    <form class="admin-export-form" action="problem_export_xml.php" method="post"  onsubmit="setTimeout('location.reload()',3000)" >
+    <form class="admin-export-form admin-card" action="problem_export_xml.php" method="post"  onsubmit="setTimeout('location.reload()',3000)" >
       <div class="admin-export-field">
         <label class="admin-field-label" for="export-start">1) 연속된 문제 번호</label>
         <div class="admin-export-range">

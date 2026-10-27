@@ -43,7 +43,7 @@ if(isset($_POST['pid'])){
 <script>document.body.classList.add('admin-form-page');</script>
 <div class="admin-form-shell">
   <header class="admin-form-title"><h3><?php echo htmlentities($page_heading, ENT_QUOTES, 'UTF-8')?></h3></header>
-  <form method=POST action=news_add.php class="admin-news-form">
+  <form method=POST action=news_add.php class="admin-news-form admin-card admin-card--wide">
     <div class="admin-news-field">
       <label class="admin-field-label" for="title"><?php echo $MSG_TITLE?></label>
       <input type=text name='title' id='title' value='<?php echo isset($title)?htmlentities($title." (복사본)", ENT_QUOTES, 'UTF-8'):""?>'>

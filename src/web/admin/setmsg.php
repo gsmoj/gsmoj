@@ -40,7 +40,7 @@ include("kindeditor.php");
   <?php if($saved_notice){ ?>
   <div class="alert alert-success" role="status"><?php echo htmlentities($saved_notice, ENT_QUOTES, 'UTF-8')?></div>
   <?php } ?>
-  <form action='setmsg.php' method='post'>
+  <form action='setmsg.php' method='post' class="admin-card">
     <textarea name='msg' class="kindeditor" ><?php echo $msg?></textarea>
     <input type='hidden' name='do' value='do'>
     <div class="admin-form-actions">

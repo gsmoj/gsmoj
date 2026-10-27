@@ -1107,3 +1107,121 @@ a:hover > .admin-badge { box-shadow: 0 0 0 2px rgba(37, 99, 235, .25); }
 .admin-form-actions .btn { min-width: 96px; }
 .admin-form-actions .btn-default { color: #334155; border-color: #cbd5e1; background: #fff; }
 .admin-form-actions .btn-default:hover { color: var(--admin-text); background: #f1f5f9; }
+
+/* ==========================================================================
+   관리자 화면 통일 레이아웃
+   모든 메뉴 화면을 "제목 영역 + 흰 카드" 한 가지 구조로 맞춘다.
+   - 페이지 틀: 목록(.admin-content-page)과 등록·도구(.admin-form-shell) 화면의 여백과 배경을 같게 한다.
+   - 제목: .admin-page-heading / .admin-form-title 을 같은 모양으로 쓴다.
+   - 카드: 화면마다 따로 만든 카드 클래스를 같은 테두리·여백·너비(입력 폼 880px)로 맞춘다.
+   ========================================================================== */
+body:not(.admin-menu-frame) { padding: 0 !important; background: var(--admin-bg) !important; }
+body.admin-form-page { background: var(--admin-bg) !important; }
+
+body:not(.admin-menu-frame) .admin-content-page,
+body:not(.admin-menu-frame) .admin-form-shell,
+body:not(.admin-menu-frame) .admin-compact-form {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: none !important;
+    min-height: 0;
+    margin: 0 !important;
+    padding: 24px 28px 40px !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+body:not(.admin-menu-frame) .admin-page-heading,
+body:not(.admin-menu-frame) .admin-form-title {
+    position: static;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px 16px;
+    margin: 0 0 20px !important;
+    padding: 0 0 16px;
+    border-bottom: 1px solid var(--admin-border);
+    background: transparent;
+}
+/* 사용자 템플릿(white.css)의 .padding 유리 효과(흰 반투명 판)가 관리자 화면에 겹치지 않게 끈다. */
+body:not(.admin-menu-frame) .padding::before,
+body:not(.admin-menu-frame) .padding::after { content: none !important; display: none !important; }
+/* 등록·도구 화면 제목은 설명을 제목 아래에 둔다. (오른쪽 버튼이 있는 목록 제목과 같은 배치) */
+body:not(.admin-menu-frame) .admin-form-title { display: block; }
+
+body:not(.admin-menu-frame) .admin-page-heading h3,
+body:not(.admin-menu-frame) .admin-form-title h3 { margin: 0; color: var(--admin-text); font-size: 22px; font-weight: 700; }
+body:not(.admin-menu-frame) .admin-page-heading p,
+body:not(.admin-menu-frame) .admin-form-title p { margin: 6px 0 0; color: var(--admin-muted); font-size: 14px; }
+body:not(.admin-menu-frame) .admin-heading-actions { align-items: center; }
+
+/* 카드 */
+body:not(.admin-menu-frame) .admin-card,
+body:not(.admin-menu-frame) .admin-tool-card,
+body:not(.admin-menu-frame) .admin-import-card,
+body:not(.admin-menu-frame) .changeid-card,
+body:not(.admin-menu-frame) .contest-form-card,
+body:not(.admin-menu-frame) .admin-team-form,
+body:not(.admin-menu-frame) .admin-ip-form,
+body:not(.admin-menu-frame) .admin-form-shell > form.form-horizontal,
+body:not(.admin-menu-frame) .admin-form-shell > div > form.form-horizontal {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 880px;
+    margin: 0 0 16px;
+    padding: 20px 22px;
+    border: 1px solid var(--admin-border);
+    border-radius: 12px;
+    background: var(--admin-surface);
+    box-shadow: 0 1px 3px rgba(15, 23, 42, .04);
+}
+body:not(.admin-menu-frame) .admin-card { max-width: none; }
+body:not(.admin-menu-frame) form.admin-card { max-width: 880px; }
+body:not(.admin-menu-frame) form.admin-card.admin-card--wide { max-width: none; }
+body:not(.admin-menu-frame) .admin-card-title,
+body:not(.admin-menu-frame) .admin-tool-card > h4,
+body:not(.admin-menu-frame) .admin-import-card > h4,
+body:not(.admin-menu-frame) .admin-form-section-title {
+    margin: 0 0 12px;
+    color: var(--admin-text);
+    font-size: 15px;
+    font-weight: 700;
+}
+body:not(.admin-menu-frame) .admin-card-title { color: var(--admin-muted); font-size: 13px; }
+
+/* 목록 화면: 검색 줄과 표 */
+body:not(.admin-menu-frame) .admin-list-search { max-width: 640px; margin: 0 0 16px; background: var(--admin-surface); }
+body:not(.admin-menu-frame) .admin-table-wrap { margin-bottom: 16px; }
+body:not(.admin-menu-frame) .admin-table-wrap > .table { margin-bottom: 0; }
+
+/* 부트스트랩 가로 폼(.form-horizontal + col-sm-*)을 "라벨 140px + 입력 380px" 줄로 정리한다. */
+body:not(.admin-menu-frame) .form-horizontal .form-group {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px 12px;
+    margin: 0 0 14px;
+}
+body:not(.admin-menu-frame) .form-horizontal .form-group:last-child { margin-bottom: 0; }
+body:not(.admin-menu-frame) .form-horizontal [class*="col-sm-"] { float: none; width: auto; margin-left: 0; padding: 0; }
+body:not(.admin-menu-frame) .form-horizontal .control-label { flex: 0 0 140px; padding: 0; text-align: left !important; }
+body:not(.admin-menu-frame) .form-horizontal .admin-form-section-title { width: auto; max-width: none; margin: 0 0 16px; }
+body:not(.admin-menu-frame) .form-horizontal .form-group > div[class*="col-sm-"]:has(input:not([type="hidden"]), select, textarea),
+body:not(.admin-menu-frame) .form-horizontal .form-group > select[class*="col-sm-"] { flex: 0 1 380px; }
+body:not(.admin-menu-frame) .form-horizontal .form-group:not(:has(.control-label)) { padding-left: 152px; }
+body:not(.admin-menu-frame) .form-horizontal .btn-block { width: auto; min-width: 96px; }
+
+/* 폼 아래 버튼 줄: 카드 안팎 어디서든 오른쪽 정렬 대신 왼쪽부터 같은 간격으로 */
+body:not(.admin-menu-frame) .admin-form-actions { max-width: 880px; margin: 0; padding: 14px 0 0; border-top: 0; background: transparent; position: static; justify-content: flex-start; }
+body:not(.admin-menu-frame) .admin-form-shell .alert { max-width: 880px; }
+
+@media (max-width: 767px) {
+    body:not(.admin-menu-frame) .admin-content-page,
+    body:not(.admin-menu-frame) .admin-form-shell,
+    body:not(.admin-menu-frame) .admin-compact-form { padding: 16px 14px 28px !important; }
+    body:not(.admin-menu-frame) .form-horizontal .control-label { flex-basis: 100%; }
+    body:not(.admin-menu-frame) .form-horizontal .form-group:not(:has(.control-label)) { padding-left: 0; }
+}

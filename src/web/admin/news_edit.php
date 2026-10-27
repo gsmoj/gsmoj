@@ -55,7 +55,7 @@ $page_heading = $MSG_NEWS." - 수정";
 <script>document.body.classList.add('admin-form-page');</script>
 <div class="admin-form-shell">
   <header class="admin-form-title"><h3><?php echo htmlentities($page_heading, ENT_QUOTES, 'UTF-8')?></h3></header>
-  <form method=POST action=news_edit.php class="admin-news-form">
+  <form method=POST action=news_edit.php class="admin-news-form admin-card admin-card--wide">
     <input type=hidden name='news_id' value=<?php echo $news_id?>>
     <div class="admin-news-field">
       <label class="admin-field-label" for="title"><?php echo $MSG_TITLE?></label>
