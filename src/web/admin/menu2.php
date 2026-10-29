@@ -68,6 +68,7 @@
         <li><a href="user_list.php" target="main" title="<?php echo $MSG_HELP_USER_LIST?>"><b><?php echo $MSG_USER."-".$MSG_LIST?></b></a></li>
 <?php if (isset($_SESSION[$OJ_NAME.'_'.'administrator'])) { ?>
         <li><a href="user_group.php" target="main" title="학생 반 일괄 지정"><b><?php echo $MSG_USER."-".(isset($MSG_CLASS) ? $MSG_CLASS : "반")?> 지정</b></a></li>
+        <li><a href="user_merge.php" target="main" title="두 계정의 제출 기록과 권한을 한 계정으로 합칩니다"><b><?php echo $MSG_USER?>-계정 통합</b></a></li>
 <?php } ?>
 <?php }?>
 <?php if (isset($_SESSION[$OJ_NAME.'_'.'administrator'])||isset($_SESSION[$OJ_NAME.'_'.'user_adder'])){?>
