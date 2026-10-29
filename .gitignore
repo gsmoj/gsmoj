@@ -1,1 +1,34 @@
-include/db_info.inc.php
+# 이 저장소의 루트는 서버의 채점기 홈(/home/judge -> /home/ubuntu/judge)이다.
+# 공개 저장소이므로 비밀값, 채점 데이터, 실행 중 생성되는 파일은 올리지 않는다.
+
+# judge 사용자 홈 파일
+/.bash_logout
+/.bashrc
+/.profile
+/.bash_history
+/.cache/
+
+# 실제 설정과 실행 상태 (judge.conf.example을 참고해 서버에서 만든다)
+/etc/judge.conf
+/etc/judge.pid
+
+# 채점 데이터(문제 입출력)와 실행·로그 디렉터리
+/data/
+/run*/
+/log/
+/backup/
+
+# 설치 아카이브와 채점 샌드박스용 시스템 파일
+/hustoj.tar.gz
+/bin/
+/lib/
+/lib64/
+
+# 채점기 빌드 산출물
+*.o
+/src/core/judge_client/judge_client
+/src/core/judge_client/judge_client.http
+/src/core/judged/judged
+/src/core/judged/judged.http
+/src/core/judged/judgehub
+/src/install/judge_client

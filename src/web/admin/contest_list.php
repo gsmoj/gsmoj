@@ -1,0 +1,135 @@
+<?php
+require("admin-header.php");
+require_once("../include/set_get_key.php");
+
+if(!(isset($_SESSION[$OJ_NAME.'_'.'administrator'])||isset($_SESSION[$OJ_NAME.'_'.'contest_creator']))){
+  exit(1);
+}
+
+if(isset($OJ_LANG)){
+  require_once("../lang/$OJ_LANG.php");
+}
+?>
+
+<?php
+// 같은 화면을 대회 목록과 수행평가 목록(?type=assessment)으로 나눠 쓴다. 수행평가는 contest_type 9번 비트(512)로 구분한다.
+$is_assessment = isset($_GET['type']) && $_GET['type'] === "assessment";
+$type_cond = $is_assessment ? "(contest_type & 512)<>0" : "(contest_type & 512)=0";
+$type_query = $is_assessment ? "&type=assessment" : "";
+$list_name = $is_assessment ? (isset($MSG_ASSESSMENT) ? $MSG_ASSESSMENT : "수행평가") : "대회";
+?>
+<title><?php echo $list_name?> 목록</title>
+
+<div class='padding admin-content-page'>
+<div class="admin-page-heading">
+  <div><h3><?php echo $list_name?> 목록</h3><p><?php echo $is_assessment ? "수행평가를 검색하고 공개 여부, 사용 상태, 관리 기능을 확인합니다. 수행평가는 대회와 같은 방식으로 운영되며, 진행 중 화면 이탈·붙여넣기·복사가 기록됩니다." : "대회를 검색하고 공개 여부, 사용 상태, 관리 기능을 확인합니다."?></p></div>
+  <a href="contest_add.php<?php echo $is_assessment ? "?type=assessment" : ""?>" class="btn btn-primary"><?php echo $list_name?> 등록</a>
+</div>
+
+<?php
+$sql = "SELECT COUNT('contest_id') AS ids FROM `contest` WHERE $type_cond";
+$result = pdo_query($sql);
+$row = $result[0];
+
+$ids = intval($row['ids']);
+
+$idsperpage = 25;
+$pages = intval(ceil($ids/$idsperpage));
+
+if(isset($_GET['page'])){ $page = intval($_GET['page']);}
+else{ $page = 1;}
+
+$pagesperframe = 5;
+$frame = intval(ceil($page/$pagesperframe));
+
+$spage = ($frame-1)*$pagesperframe+1;
+$epage = min($spage+$pagesperframe-1, $pages);
+
+$sid = ($page-1)*$idsperpage;
+
+$sql = "";
+if(isset($_GET['keyword']) && $_GET['keyword']!=""){
+  $keyword = $_GET['keyword'];
+  $keyword = "%$keyword%";
+  $sql = "SELECT `contest_id`,`title`,`start_time`,`end_time`,`private`,`defunct` FROM `contest` WHERE ((title LIKE ?) OR (description LIKE ?)) AND $type_cond ORDER BY `contest_id` DESC";
+  $result = pdo_query($sql,$keyword,$keyword);
+}else{
+  $sql = "SELECT `contest_id`,`title`,`start_time`,`end_time`,`private`,`defunct` FROM `contest` WHERE $type_cond ORDER BY `contest_id` DESC LIMIT $sid, $idsperpage";
+  $result = pdo_query($sql);
+}
+?>
+
+<form action=contest_list.php class="form-search form-inline admin-list-search">
+  <?php if ($is_assessment) { ?><input type="hidden" name="type" value="assessment"><?php } ?>
+  <input type="text" name='keyword' class="form-control search-query" 
+    value="<?php echo htmlentities($_GET['keyword']??"")?>"
+    placeholder="<?php echo $MSG_CONTEST_NAME.', '.$MSG_EXPLANATION?>">
+  <button type="submit" class="btn btn-primary"><?php echo $MSG_SEARCH?></button>
+</form>
+
+  <div class="admin-table-wrap">
+  <table class="table admin-contest-table">
+    <tr>
+    <td><?php echo $MSG_CONTEST_ID?></td>
+      <td><?php echo $MSG_CONTEST_NAME?></td>
+      <td><?php echo $MSG_START_TIME?></td>
+      <td><?php echo $MSG_END_TIME?></td>
+      <td><?php echo $MSG_CONTEST_OPEN?></td>
+      <td><?php echo $MSG_STATUS?></td>
+      <td><?php echo $MSG_EDIT ?></td>
+      <td><?php echo $MSG_COPY?></td>
+      <td><?php echo $MSG_EXPORT ?></td>
+      <td><?php echo $MSG_LOG?></td>
+      <td><?php echo $MSG_SUSPECT?></td>
+      <?php if ($is_assessment) { ?><td><?php echo isset($MSG_ASSESSMENT_EVENT) ? $MSG_ASSESSMENT_EVENT : "감지 기록"?></td><?php } ?>
+    </tr>
+    <?php
+    foreach($result as $row){
+      echo "<tr>";
+      echo "<td>".$row['contest_id']."</td>";
+      echo "<td><a href='../contest.php?cid=".$row['contest_id']."'>".$row['title']."</a></td>";
+      echo "<td>".$row['start_time']."</td>";
+      echo "<td>".$row['end_time']."</td>";
+      $cid = $row['contest_id'];
+      if(isset($_SESSION[$OJ_NAME.'_'.'administrator']) || isset($_SESSION[$OJ_NAME.'_'."m$cid"])){
+        echo "<td><a href=contest_pr_change.php?cid=".$row['contest_id']."&getkey=".htmlentities($_SESSION[$OJ_NAME.'_'.'getkey'], ENT_QUOTES, 'UTF-8').">".($row['private']=="0"?"<span class=green>$MSG_Public</span>":"<span class=red>$MSG_Private<span>")."</a></td>";
+        echo "<td><a href=contest_df_change.php?cid=".$row['contest_id']."&getkey=".htmlentities($_SESSION[$OJ_NAME.'_'.'getkey'], ENT_QUOTES, 'UTF-8').">".($row['defunct']=="N"?"<span class=green>$MSG_AVAILABLE </span>":"<span class=red>$MSG_RESERVED </span>")."</a></td>";
+        echo "<td><a href=contest_edit.php?cid=".$row['contest_id'].">$MSG_EDIT</a></td>";
+        echo "<td><a href=contest_add.php?cid=".$row['contest_id'].">$MSG_COPY</a></td>";
+        if(isset($_SESSION[$OJ_NAME.'_'.'administrator']) || isset($_SESSION[$OJ_NAME.'_'.'contest_creator'])){
+          echo "<td><a href=\"problem_export_xml.php?cid=".$row['contest_id']."&getkey=".htmlentities($_SESSION[$OJ_NAME.'_'.'getkey'], ENT_QUOTES, 'UTF-8')."\">$MSG_EXPORT</a></td>";
+        }else{
+          echo "<td></td>";
+        }
+        echo "<td> <a href=\"../export_contest_code.php?cid=".$row['contest_id']."&getkey=".htmlentities($_SESSION[$OJ_NAME.'_'.'getkey'], ENT_QUOTES, 'UTF-8')."\">$MSG_LOG</a></td>";
+      }else{
+        echo "<td colspan=5 align=right><a href=contest_add.php?cid=".$row['contest_id'].">$MSG_COPY</a><td>";
+      }
+      echo "<td><a href='suspect_list.php?cid=".$row['contest_id']."'>$MSG_SUSPECT</a></td>";
+      if ($is_assessment) echo "<td><a href='assessment_event_list.php?cid=".$row['contest_id']."'>".(isset($MSG_ASSESSMENT_EVENT) ? $MSG_ASSESSMENT_EVENT : "감지 기록")."</a></td>";
+      echo "</tr>";
+    }
+  ?>
+  </table>
+  </div>
+
+<?php
+if(!(isset($_GET['keyword']) && $_GET['keyword']!=""))
+{
+  echo "<div style='display:inline;'>";
+  echo "<nav class='center'>";
+  echo "<ul class='pagination pagination-sm'>";
+  echo "<li class='page-item'><a href='contest_list.php?page=".(strval(1)).$type_query."'>&lt;&lt;</a></li>";
+  echo "<li class='page-item'><a href='contest_list.php?page=".($page==1?strval(1):strval($page-1)).$type_query."'>&lt;</a></li>";
+  for($i=$spage; $i<=$epage; $i++){
+    echo "<li class='".($page==$i?"active ":"")."page-item'><a title='go to page' href='contest_list.php?page=".$i.$type_query."'>".$i."</a></li>";
+  }
+  echo "<li class='page-item'><a href='contest_list.php?page=".($page==$pages?strval($page):strval($page+1)).$type_query."'>&gt;</a></li>";
+  echo "<li class='page-item'><a href='contest_list.php?page=".(strval($pages)).$type_query."'>&gt;&gt;</a></li>";
+  echo "</ul>";
+  echo "</nav>";
+  echo "</div>";
+}
+?>
+
+</div>
