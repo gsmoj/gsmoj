@@ -989,6 +989,9 @@ require("admin-header.php");
     var tab = (location.hash || '').replace('#', '');
     if (LOADERS[tab] && tab !== state.tab) showTab(tab);
   });
+  // 수행평가 회차 등에서 ?cid=번호#contest로 들어오면 그 대회를 바로 보여 준다.
+  var initCid = parseInt((location.search.match(/[?&]cid=(\d+)/) || [])[1] || '0', 10);
+  if (initCid) state.contest = initCid;
   var initial = (location.hash || '').replace('#', '');
   showTab(LOADERS[initial] ? initial : 'overview');
 })();

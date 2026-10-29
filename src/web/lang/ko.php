@@ -525,6 +525,7 @@ $MSG_HINT="도움";
 	$MSG_ASSESSMENT_EVENT="감지 기록";
 	$MSG_ASSESSMENT_NOTICE="이 수행평가는 진행 중 화면 이탈, 붙여넣기, 복사, 한 번에 많은 코드 입력이 기록됩니다.";
 	$MSG_CLASS="반";
+	$MSG_TEACHER="교사";
     $MSG_SHOW_DIFF="차이점 출력 보기";
        $MSG_UPSOLVING="문제 풀이";
     //SaaS friendly

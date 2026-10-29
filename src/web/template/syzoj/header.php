@@ -468,7 +468,7 @@
             $gs_rolebar[] = array($gs_admin_url."?main=monitor.php", "서버 모니터링");
             $gs_rolebar[] = array($gs_admin_url."?main=problem_list.php", "문제 관리");
             $gs_rolebar[] = array($gs_admin_url."?main=contest_list.php", "대회 관리");
-            $gs_rolebar[] = array($gs_admin_url."?main=contest_list.php&type=assessment", "수행평가 관리");
+            $gs_rolebar[] = array($gs_admin_url."?main=assessment_list.php", "수행평가 관리");
             $gs_rolebar[] = array($gs_admin_url."?main=user_list.php", "사용자");
             $gs_rolebar[] = array($gs_admin_url."?main=user_group.php", "반 지정");
             $gs_running = mysql_query_cache("select count(*) from contest where defunct='N' and start_time<=now() and end_time>now()");
@@ -477,6 +477,15 @@
             $gs_waiting = empty($gs_waiting) ? 0 : intval($gs_waiting[0][0]);
             $gs_rolebar_status = array($gs_admin_url."?main=monitor.php&tab=".($gs_waiting ? "queue" : "contest"),
                 "진행 중 대회 ".$gs_running."개 · 채점 대기 ".$gs_waiting."건", $gs_waiting >= 20 ? "is-warn" : "");
+        } else if (isset($_SESSION[$OJ_NAME.'_'.'teacher'])) {
+            // 교사: 수행평가 중심 바로가기(대회 관리는 없음)
+            $gs_rolebar[] = array($gs_admin_url."?main=assessment_list.php", "내 수행평가");
+            $gs_rolebar[] = array($gs_admin_url."?main=assessment_edit.php", "새 수행평가");
+            $gs_rolebar[] = array($gs_admin_url."?main=problem_add_page.php", "문제 등록");
+            $gs_rolebar[] = array($gs_admin_url."?main=user_group.php", "반 지정");
+            $gs_mine = mysql_query_cache("select count(*) from assessment_session s join assessment a on a.assessment_id=s.assessment_id join contest c on c.contest_id=s.contest_id where a.owner=? and c.start_time<=now() and c.end_time>now()", $_SESSION[$OJ_NAME.'_'.'user_id']);
+            $gs_mine = empty($gs_mine) ? 0 : intval($gs_mine[0][0]);
+            $gs_rolebar_status = array($gs_admin_url."?main=assessment_list.php", "진행 중인 내 수행평가 회차 ".$gs_mine."개", "");
         } else {
             if (isset($_SESSION[$OJ_NAME.'_'.'problem_editor'])) $gs_rolebar[] = array($gs_admin_url."?main=problem_list.php", "문제 관리");
             if (isset($_SESSION[$OJ_NAME.'_'.'contest_creator'])) $gs_rolebar[] = array($gs_admin_url."?main=contest_list.php", "대회 관리");
@@ -719,7 +728,7 @@ if(isset($_SESSION[$OJ_NAME.'_'.'balloon'])){
     <?php if (count($gs_rolebar)) { ?>
     <nav class="gs-rolebar" aria-label="관리 메뉴">
         <div class="ui container gs-rolebar-inner">
-            <span class="gs-rolebar-label"><?php echo $gs_is_admin ? "관리자" : "관리"?></span>
+            <span class="gs-rolebar-label"><?php echo $gs_is_admin ? "관리자" : (isset($_SESSION[$OJ_NAME.'_'.'teacher']) ? "교사" : "관리")?></span>
             <?php foreach ($gs_rolebar as $gs_item) { ?>
             <a href="<?php echo htmlentities($gs_item[0], ENT_QUOTES, 'UTF-8')?>"><?php echo htmlentities($gs_item[1], ENT_QUOTES, 'UTF-8')?></a>
             <?php } ?>

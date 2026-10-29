@@ -27,8 +27,8 @@ $("document").ready(function (){
 
 </script>
 <?php
-// 관리자, 대회 생성자, 문제 편집자, 비밀번호 관리자만 관리자 페이지에 접근할 수 있다.
-if (!(isset($_SESSION[$OJ_NAME.'_'.'administrator'])||isset($_SESSION[$OJ_NAME.'_'.'contest_creator'])||isset($_SESSION[$OJ_NAME.'_'.'problem_editor'])||isset($_SESSION[$OJ_NAME.'_'.'password_setter']))){
+// 관리자, 대회 생성자, 문제 편집자, 비밀번호 관리자, 교사만 관리자 페이지에 접근할 수 있다.
+if (!(isset($_SESSION[$OJ_NAME.'_'.'administrator'])||isset($_SESSION[$OJ_NAME.'_'.'contest_creator'])||isset($_SESSION[$OJ_NAME.'_'.'problem_editor'])||isset($_SESSION[$OJ_NAME.'_'.'password_setter'])||isset($_SESSION[$OJ_NAME.'_'.'teacher']))){
 	echo "<a href='../loginpage.php'>".(isset($MSG_Login)?$MSG_Login:"Please Login First!")."</a>";
 	exit(1);
 }

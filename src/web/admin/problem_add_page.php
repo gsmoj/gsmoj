@@ -1,7 +1,8 @@
 <?php 
   require_once("../include/db_info.inc.php");
   require_once("admin-header.php");
-  if (!(isset($_SESSION[$OJ_NAME.'_'.'administrator']) || isset($_SESSION[$OJ_NAME.'_'.'contest_creator']) || isset($_SESSION[$OJ_NAME.'_'.'problem_editor']))) {
+  // 교사도 수행평가용 문제를 만들 수 있다(새 문제는 비공개로 만들어지고, 만든 사람에게 수정 권한 pNNNN이 생긴다).
+  if (!(isset($_SESSION[$OJ_NAME.'_'.'administrator']) || isset($_SESSION[$OJ_NAME.'_'.'contest_creator']) || isset($_SESSION[$OJ_NAME.'_'.'problem_editor']) || isset($_SESSION[$OJ_NAME.'_'.'teacher']))) {
     echo "<a href='../loginpage.php'> $MSG_Login </a>";
     exit(1);
   }
