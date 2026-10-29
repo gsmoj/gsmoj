@@ -38,7 +38,8 @@
         if ($url == "") $url = "index.php"; // 기본 루트 접속 시 index.php로 간주
         
         $dir=basename(getcwd());
-        if($dir=="discuss3") $path_fix="../";
+        // admin/index.php가 이 헤더를 그대로 포함하므로 admin 폴더에서도 상위 경로로 링크가 걸리게 한다.
+        if($dir=="discuss3"||$dir=="admin") $path_fix="../";
         else $path_fix="";
         
         // 로그인 필수 모드일 때는 로그인/비밀번호 찾기/회원가입 화면만 예외로 열어 둔다.
