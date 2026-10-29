@@ -146,6 +146,11 @@ static $OJ_QQ_AKEY = "change-me";
 static $OJ_QQ_ASEC = "change-me";
 static $OJ_QQ_CBURL = "localhost";
 
+// --- DataGSM 학교 계정 로그인 (OAuth PKCE) ---
+// 같은 이름의 환경 변수가 있으면 그 값을 우선 사용합니다. 실제 키는 커밋하지 않습니다.
+static $OJ_DATAGSM_CLIENT_ID    = "";   // 값이 비어 있으면 DataGSM 로그인을 끈다
+static $OJ_DATAGSM_REDIRECT_URI = "";   // 비우면 현재 호스트 기준 <scheme>://<host>/login_datagsm.php
+
 // --- 시스템 기록(Log) 제어 ---
 static $OJ_LOG_ENABLED = false;
 static $OJ_LOG_DATETIME_FORMAT = "Y-m-d H:i:s";

@@ -289,6 +289,26 @@ $tsql[64]="CREATE TABLE IF NOT EXISTS $DB_NAME.`assessment_event` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='수행평가 부정행위 감지 기록';";
 $csql[64]="";
 
+// DataGSM 학교 계정과 users.user_id 연결 정보. 학생 정보는 DataGSM 원본 값을 그대로 저장한다.
+$tsql[65]="CREATE TABLE IF NOT EXISTS $DB_NAME.`datagsm_user` (
+  `datagsm_id` bigint NOT NULL COMMENT 'DataGSM userinfo id',
+  `user_id` varchar(48) NOT NULL,
+  `email` varchar(100) NOT NULL DEFAULT '',
+  `name` varchar(50) NOT NULL DEFAULT '',
+  `object_type` varchar(16) NOT NULL DEFAULT '' COMMENT 'STUDENT, TEACHER',
+  `grade` int DEFAULT NULL,
+  `class_num` int DEFAULT NULL,
+  `number` int DEFAULT NULL,
+  `student_number` int DEFAULT NULL,
+  `major` varchar(32) DEFAULT NULL,
+  `student_role` varchar(32) DEFAULT NULL,
+  `linked_at` datetime NOT NULL,
+  `last_login` datetime DEFAULT NULL,
+  PRIMARY KEY (`datagsm_id`),
+  UNIQUE KEY `uk_user_id` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='DataGSM 계정 연결 정보';";
+$csql[65]="";
+
 // 删除6个月以前的非正确源码，优化数据库空间。
 // delete from source_code  where solution_id in (select solution_id from solution where result>4 and  in_date<date_sub(now(),interval 6 month) ); //
 ?>

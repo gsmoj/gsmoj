@@ -564,3 +564,15 @@ $MSG_NUM="#";
 	$MSG_SOLUTION_STATISTICS="채점 통계 리포트";
 	$MSG_PROBLEM_COPY="문제 복사";
 	$MSG_PROBLEM_REORDER="문제 번호 재정렬";
+	// DataGSM 학교 계정 로그인
+	$MSG_DATAGSM_LOGIN="DataGSM으로 로그인";
+	$MSG_DATAGSM_OR_LOCAL="또는 기존 아이디로 로그인";
+	$MSG_DATAGSM_ERR_SERVER="DataGSM 서버에 연결하지 못했습니다. 잠시 후 다시 시도하거나 기존 아이디로 로그인해 주세요.";
+	$MSG_DATAGSM_ERR_STATE="로그인 요청이 만료되었거나 올바르지 않습니다. 다시 시도해 주세요.";
+	$MSG_DATAGSM_ERR_DENIED="DataGSM 로그인이 취소되었습니다. 기존 아이디로 로그인해 주세요.";
+	$MSG_DATAGSM_ERR_PENDING="DataGSM 계정이 아직 승인되지 않았습니다. 승인 후 다시 시도하거나 기존 아이디로 로그인해 주세요.";
+	$MSG_DATAGSM_ERR_WITHDRAWN="자퇴 처리된 DataGSM 계정은 로그인할 수 없습니다.";
+	$MSG_DATAGSM_ERR_DEFUNCT="사용이 중지된 계정입니다. 관리자에게 문의해 주세요.";
+	$MSG_DATAGSM_ERR_CONFLICT="DataGSM 계정과 연결할 회원 아이디를 만들 수 없습니다. 관리자에게 문의해 주세요.";
+	$MSG_DATAGSM_ERR_EXAM="시험 중에는 처음 로그인한 컴퓨터에서만 로그인할 수 있습니다. 관리자에게 문의해 주세요.";
+	$MSG_DATAGSM_ERR_DISABLED="DataGSM 로그인이 설정되어 있지 않습니다. 기존 아이디로 로그인해 주세요.";

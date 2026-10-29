@@ -546,3 +546,15 @@
   $MSG_PAID="${MSG_COIN} Paid";
   $MSG_SPENT="Spent";
 $MSG_NUM="#";
+	// DataGSM school account login
+	$MSG_DATAGSM_LOGIN="Sign in with DataGSM";
+	$MSG_DATAGSM_OR_LOCAL="or sign in with your existing ID";
+	$MSG_DATAGSM_ERR_SERVER="Could not reach the DataGSM server. Please try again later or sign in with your existing ID.";
+	$MSG_DATAGSM_ERR_STATE="The login request expired or is invalid. Please try again.";
+	$MSG_DATAGSM_ERR_DENIED="DataGSM login was cancelled. Please sign in with your existing ID.";
+	$MSG_DATAGSM_ERR_PENDING="Your DataGSM account is pending approval. Try again after approval or sign in with your existing ID.";
+	$MSG_DATAGSM_ERR_WITHDRAWN="Withdrawn DataGSM accounts cannot sign in.";
+	$MSG_DATAGSM_ERR_DEFUNCT="This account is disabled. Please contact an administrator.";
+	$MSG_DATAGSM_ERR_CONFLICT="Could not create a user ID for this DataGSM account. Please contact an administrator.";
+	$MSG_DATAGSM_ERR_EXAM="During an exam you can only sign in from the computer you first used. Please contact an administrator.";
+	$MSG_DATAGSM_ERR_DISABLED="DataGSM login is not configured. Please sign in with your existing ID.";

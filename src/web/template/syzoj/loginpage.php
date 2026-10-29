@@ -10,6 +10,13 @@
           <?php echo $MSG_LOGIN ?>
         </div>
       </h2>
+<?php if (!empty($datagsm_error)) { ?>
+      <div class="ui warning message" style="text-align: left;"><?php echo htmlspecialchars($datagsm_error, ENT_QUOTES, 'UTF-8') ?></div>
+<?php } ?>
+<?php if (!empty($datagsm_enabled)) { ?>
+      <a class="ui fluid large primary button" href="login_datagsm.php"><?php echo isset($MSG_DATAGSM_LOGIN) ? $MSG_DATAGSM_LOGIN : 'DataGSM' ?></a>
+      <div class="ui horizontal divider"><?php echo isset($MSG_DATAGSM_OR_LOCAL) ? $MSG_DATAGSM_OR_LOCAL : '' ?></div>
+<?php } ?>
       <form class="ui large form" id="login" action="login.php" method="post" role="form" class="form-horizontal" onSubmit="return jsMd5();" >
         <div class="ui existing segment">
           <div class="field">
