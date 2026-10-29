@@ -296,6 +296,24 @@ CREATE TABLE IF NOT EXISTS `assessment_event` (
   KEY `idx_contest_user` (`contest_id`,`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='수행평가 부정행위 감지 기록';
 
+CREATE TABLE IF NOT EXISTS `datagsm_user` (
+  `datagsm_id` bigint NOT NULL COMMENT 'DataGSM userinfo id',
+  `user_id` varchar(48) NOT NULL,
+  `email` varchar(100) NOT NULL DEFAULT '',
+  `name` varchar(50) NOT NULL DEFAULT '',
+  `object_type` varchar(16) NOT NULL DEFAULT '' COMMENT 'STUDENT, TEACHER',
+  `grade` int DEFAULT NULL,
+  `class_num` int DEFAULT NULL,
+  `number` int DEFAULT NULL,
+  `student_number` int DEFAULT NULL,
+  `major` varchar(32) DEFAULT NULL,
+  `student_role` varchar(32) DEFAULT NULL,
+  `linked_at` datetime NOT NULL,
+  `last_login` datetime DEFAULT NULL,
+  PRIMARY KEY (`datagsm_id`),
+  UNIQUE KEY `uk_user_id` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='DataGSM 계정 연결 정보';
+
 delimiter //
 
 drop trigger if exists firstAC//

@@ -5,6 +5,20 @@ require_once('./include/db_info.inc.php');
 require_once('./include/memcache.php');
 require_once('./include/setlang.php');
 require_once('./include/bbcode.php');
+require_once('./include/datagsm_oauth.php');
+
+// DataGSM 로그인 버튼 노출 여부와 login_datagsm.php에서 돌려보낸 오류 문구
+$datagsm_enabled = datagsm_enabled();
+$datagsm_error = "";
+$datagsm_errors = array(
+    'server' => 'MSG_DATAGSM_ERR_SERVER', 'state' => 'MSG_DATAGSM_ERR_STATE', 'denied' => 'MSG_DATAGSM_ERR_DENIED',
+    'pending' => 'MSG_DATAGSM_ERR_PENDING', 'withdrawn' => 'MSG_DATAGSM_ERR_WITHDRAWN', 'defunct' => 'MSG_DATAGSM_ERR_DEFUNCT',
+    'conflict' => 'MSG_DATAGSM_ERR_CONFLICT', 'exam' => 'MSG_DATAGSM_ERR_EXAM', 'disabled' => 'MSG_DATAGSM_ERR_DISABLED',
+);
+if (isset($_GET['datagsm_error']) && is_string($_GET['datagsm_error']) && isset($datagsm_errors[$_GET['datagsm_error']])) {
+    $msg_name = $datagsm_errors[$_GET['datagsm_error']];
+    $datagsm_error = isset($$msg_name) ? $$msg_name : $_GET['datagsm_error'];
+}
 
 require_once("./include/db_info.inc.php");
 require_once("./include/setlang.php");
