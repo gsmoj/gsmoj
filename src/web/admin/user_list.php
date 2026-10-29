@@ -118,11 +118,19 @@ if(isset($_GET['keyword']) && $_GET['keyword']!=""){
         echo "<td><span class='admin-inline-edit' title='더블클릭하여 수정' fd='coin_bonus' user_id='".$row['user_id']."'>".intval($row['coin_bonus'])."</span></td>";
         echo "<td><span class='admin-inline-edit' title='더블클릭하여 수정' fd='coin_spent' user_id='".$row['user_id']."'>".intval($row['coin_spent'])."</span></td>";
         echo "<td>".intval($row['coin_earned']+$row['coin_bonus']-$row['coin_spent'])."</td>";
-        echo "<td>".($row['defunct']=="N"?"<span class='admin-badge admin-badge--on'>$MSG_NORMAL</span>":"<span class='admin-badge admin-badge--off'>$MSG_DELETED</span>")."</td>";
+        echo "<td>".($row['defunct']=="N"?"<span class='admin-badge admin-badge--on'>$MSG_NORMAL</span>":"<span class='admin-badge admin-badge--off'>비활성</span>")."</td>";
       if(isset($_SESSION[$OJ_NAME.'_'.'administrator']) && $row['user_id']!=$_SESSION[$OJ_NAME."_user_id"]){
         echo "<td><a href=user_df_change.php?cid=".$row['user_id']."&getkey=".htmlentities($_SESSION[$OJ_NAME.'_'.'getkey'], ENT_QUOTES, 'UTF-8').">".
-           ($row['defunct']=="N"?"<span class='admin-badge admin-badge--warn' title='$MSG_CLICK_TO_DELETE'>$MSG_CLICK_TO_DELETE</span>":"<span class='admin-badge admin-badge--info' title='$MSG_CLICK_TO_RECOVER'>$MSG_CLICK_TO_RECOVER</span>")
-            ."</a></td>";
+           ($row['defunct']=="N"?"<span class='admin-badge admin-badge--warn' title='로그인할 수 없게 합니다. 언제든 복구할 수 있습니다.'>비활성화</span>":"<span class='admin-badge admin-badge--info' title='$MSG_CLICK_TO_RECOVER'>복구</span>")
+            ."</a>";
+        // 비활성화된 사용자만 완전 삭제할 수 있다. 계정 정보만 지우고 제출 기록은 남긴다.
+        if($row['defunct']=="Y"){
+          $del_id=htmlentities($row['user_id'], ENT_QUOTES, 'UTF-8');
+          echo " <a href='user_delete.php?cid=".urlencode($row['user_id'])."&getkey=".htmlentities($_SESSION[$OJ_NAME.'_'.'getkey'], ENT_QUOTES, 'UTF-8')."'"
+              ." onclick=\"return confirm('".$del_id." 계정을 완전히 삭제할까요?\\n계정 정보는 되돌릴 수 없고, 제출 기록은 남습니다. 삭제 후 같은 ID로 다시 가입할 수 있습니다.');\">"
+              ."<span class='admin-badge admin-badge--off' title='계정 정보를 완전히 삭제합니다'>완전 삭제</span></a>";
+        }
+        echo "</td>";
       }else{
       	   echo "<td>&nbsp;</td>";
       }
