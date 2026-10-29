@@ -375,8 +375,8 @@ $view_month_rank=mysql_query_cache("select user_id,nick,count(distinct(problem_i
                     </thead>
                     <tbody>
                     <?php
-                        // 최근 생성된 공개 대회 5개를 보여준다.
-                        $sql_contests = "select * FROM `contest` where defunct='N' ORDER BY `contest_id` DESC LIMIT 5";
+                        // 최근 생성된 공개 대회 5개를 보여준다. 수행평가(contest_type 9번 비트)는 제외한다.
+                        $sql_contests = "select * FROM `contest` where defunct='N' and (contest_type & 512)=0 ORDER BY `contest_id` DESC LIMIT 5";
                         $result_contests = mysql_query_cache( $sql_contests );
                         if ( $result_contests ) {
                             $i = 1;
