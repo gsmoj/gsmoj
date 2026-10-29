@@ -77,11 +77,37 @@ if ($_SERVER['REQUEST_METHOD'] === "POST" && isset($_POST['confirm']) && !$error
     $source_id = $target_id = "";
 }
 
-// 같은 이메일을 쓰는 계정 묶음. 통합할 후보를 빠르게 고를 수 있게 보여 준다.
+// 고를 수 있는 계정 목록과, 같은 이메일을 쓰는 계정 묶음(빠른 선택용).
+$all_users = pdo_query("SELECT `user_id`,`nick`,`defunct` FROM `users` ORDER BY `defunct`, `user_id`");
 $dups = pdo_query("SELECT `email`, GROUP_CONCAT(`user_id` ORDER BY `reg_time` SEPARATOR ',') AS `ids` FROM `users` WHERE `email`<>'' GROUP BY `email` HAVING COUNT(*)>1 ORDER BY `email`");
+$show_preview = $source !== null && $target !== null && $source_id !== "" && !$errors;
+
+function um_select($name, $selected, $users) {
+    echo "<select id='$name' name='$name' class='form-control um-pick'>";
+    echo "<option value=''>계정 선택</option>";
+    foreach ($users as $u) {
+        $label = $u['user_id'] . ($u['nick'] !== '' && $u['nick'] !== $u['user_id'] ? " (" . html_entity_decode($u['nick'], ENT_QUOTES, 'UTF-8') . ")" : "") . ($u['defunct'] == 'Y' ? " - 비활성" : "");
+        $sel = strcasecmp($u['user_id'], $selected) == 0 ? " selected" : "";
+        echo "<option value='" . um_h($u['user_id']) . "'$sel>" . um_h($label) . "</option>";
+    }
+    echo "</select>";
+}
 ?>
 <title>계정 통합</title>
 <script>document.body.classList.add('admin-form-page');</script>
+<style>
+.um-pickers { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 12px; align-items: end; }
+.um-swap { height: 34px; padding: 0 12px; font-size: 16px; line-height: 1; }
+.um-quick { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 14px; }
+.um-quick-label { color: var(--admin-muted); font-size: 13px; margin-right: 4px; }
+.um-compare { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--admin-border); }
+.um-compare th:first-child { width: 120px; color: var(--admin-muted); font-weight: 500; }
+.um-compare td.um-diff { background: #fffbeb; }
+@media (max-width: 640px) {
+  .um-pickers { grid-template-columns: 1fr; }
+  .um-swap { justify-self: center; transform: rotate(90deg); }
+}
+</style>
 
 <div class="admin-form-shell">
 <header class="admin-form-title"><h3>사용자 - 계정 통합</h3></header>
@@ -89,27 +115,45 @@ $dups = pdo_query("SELECT `email`, GROUP_CONCAT(`user_id` ORDER BY `reg_time` SE
 <?php foreach ($messages as $m) echo "<div class='alert alert-success'>$m</div>"; ?>
 <?php foreach ($errors as $e) echo "<div class='alert alert-danger'>$e</div>"; ?>
 
-<form action="user_merge.php" method="get" class="admin-card">
+<div class="admin-card">
   <p class="admin-field-help">없앨 계정의 제출 기록, 권한, DataGSM 연결, 쪽지·게시글 등을 남길 계정으로 옮깁니다. 없앨 계정은 비활성화되고 이메일이 비워집니다.</p>
-  <div>
-    <label class="admin-field-label" for="source">없앨 계정 <?php echo $MSG_USER_ID?></label>
-    <input id="source" name="source" class="form-control" value="<?php echo um_h($source_id)?>" required>
-  </div>
-  <div>
-    <label class="admin-field-label" for="target">남길 계정 <?php echo $MSG_USER_ID?></label>
-    <input id="target" name="target" class="form-control" value="<?php echo um_h($target_id)?>" required>
-  </div>
-  <div class="admin-form-actions">
-    <button type="submit" class="btn btn-default">미리 보기</button>
-  </div>
-</form>
 
-<?php if ($source !== null && $target !== null && $source_id !== "" && !$errors) { ?>
-<form action="user_merge.php" method="post" class="admin-card" onsubmit="return confirm('<?php echo um_h($source['user_id'])?> 계정을 <?php echo um_h($target['user_id'])?> 계정으로 통합할까요?\n되돌릴 수 없습니다.');">
-  <div class="admin-table-wrap">
-  <table class="table table-condensed">
-    <thead><tr><th></th><th>없앨 계정</th><th>남길 계정</th></tr></thead>
-    <tbody>
+  <form id="um-pick-form" action="user_merge.php" method="get">
+    <div class="um-pickers">
+      <div>
+        <label class="admin-field-label" for="source">없앨 계정</label>
+        <?php um_select('source', $source_id, $all_users); ?>
+      </div>
+      <button type="button" id="um-swap" class="btn btn-default um-swap" title="없앨 계정과 남길 계정을 서로 바꿉니다" aria-label="서로 바꾸기">&#8644;</button>
+      <div>
+        <label class="admin-field-label" for="target">남길 계정</label>
+        <?php um_select('target', $target_id, $all_users); ?>
+      </div>
+    </div>
+  </form>
+
+<?php if (is_array($dups) && count($dups) > 0) { ?>
+  <div class="um-quick">
+    <span class="um-quick-label">같은 이메일을 쓰는 계정</span>
+<?php
+    foreach ($dups as $row) {
+        // 먼저 가입한 계정을 남길 계정으로 채운다. 반대로 하려면 바꾸기 버튼을 누른다.
+        $ids = explode(',', $row['ids']);
+        $keep = $ids[0];
+        $drop = $ids[1];
+        $title = um_h(html_entity_decode($row['email'], ENT_QUOTES, 'UTF-8'));
+        echo "<button type='button' class='btn btn-default btn-xs um-fill' data-source='" . um_h($drop) . "' data-target='" . um_h($keep) . "' title='$title'>" . um_h(implode(" · ", $ids)) . "</button>";
+    }
+?>
+  </div>
+<?php } ?>
+
+<?php if ($show_preview) { ?>
+  <form class="um-compare" action="user_merge.php" method="post" onsubmit="return confirm('<?php echo um_h($source['user_id'])?> 계정을 <?php echo um_h($target['user_id'])?> 계정으로 통합할까요?\n되돌릴 수 없습니다.');">
+    <div class="admin-table-wrap">
+    <table class="table table-condensed">
+      <thead><tr><th></th><th>없앨 계정</th><th>남길 계정</th></tr></thead>
+      <tbody>
 <?php
     $fields = array('user_id' => $MSG_USER_ID, 'nick' => $MSG_NICK, 'email' => $MSG_EMAIL, 'group_name' => '반', 'reg_time' => '가입일',
         'accesstime' => '마지막 접속', 'submit_cnt' => '제출 수', 'solved_cnt' => '맞힌 문제 수', 'rights' => '권한', 'datagsm_id' => 'DataGSM 연결');
@@ -117,49 +161,46 @@ $dups = pdo_query("SELECT `email`, GROUP_CONCAT(`user_id` ORDER BY `reg_time` SE
         $fmt = function ($u) use ($key) {
             if ($key === 'datagsm_id') return $u[$key] === null ? "없음" : "연결됨";
             if ($key === 'user_id' && $u['defunct'] == 'Y') return um_h($u[$key]) . " <span class='admin-badge admin-badge--off'>비활성</span>";
+            if ($key === 'email') return um_h(html_entity_decode($u[$key], ENT_QUOTES, 'UTF-8'));
             return um_h($u[$key]);
         };
-        echo "<tr><th>" . um_h($label) . "</th><td>" . $fmt($source) . "</td><td>" . $fmt($target) . "</td></tr>";
+        // 값이 다른 칸은 색으로 표시해 무엇이 바뀌는지 바로 보이게 한다.
+        $diff = strval($source[$key]) !== strval($target[$key]) && $key !== 'user_id' ? " class='um-diff'" : "";
+        echo "<tr><th>" . um_h($label) . "</th><td$diff>" . $fmt($source) . "</td><td$diff>" . $fmt($target) . "</td></tr>";
     }
 ?>
-    </tbody>
-  </table>
-  </div>
-  <input type="hidden" name="source" value="<?php echo um_h($source['user_id'])?>">
-  <input type="hidden" name="target" value="<?php echo um_h($target['user_id'])?>">
-  <?php require_once("../include/set_post_key.php");?>
-  <div class="admin-form-actions">
-    <button name="confirm" type="submit" value="1" class="btn btn-danger">통합하기</button>
-  </div>
-</form>
-<?php } ?>
-
-<div class="admin-card">
-  <label class="admin-field-label">같은 이메일을 쓰는 계정</label>
-<?php if (!is_array($dups) || count($dups) == 0) { ?>
-  <p class="admin-field-help">같은 이메일을 쓰는 계정이 없습니다.</p>
-<?php } else { ?>
-  <p class="admin-field-help">먼저 가입한 계정부터 적었습니다. 아이디를 누르면 그 계정을 남길 계정으로 골라 미리 봅니다.</p>
-  <div class="admin-table-wrap">
-  <table class="table table-condensed">
-    <thead><tr><th><?php echo $MSG_EMAIL?></th><th><?php echo $MSG_USER_ID?></th></tr></thead>
-    <tbody>
-<?php
-    foreach ($dups as $row) {
-        $ids = explode(',', $row['ids']);
-        $links = array();
-        foreach ($ids as $id) {
-            $others = array_values(array_diff($ids, array($id)));
-            $links[] = "<a href='user_merge.php?source=" . urlencode($others[0]) . "&target=" . urlencode($id) . "'>" . um_h($id) . "</a>";
-        }
-        // 가입 경로에 따라 이메일이 htmlentities를 거쳐 저장되어 있을 수 있어 한 번 풀고 다시 이스케이프한다.
-        echo "<tr><td>" . um_h(html_entity_decode($row['email'], ENT_QUOTES, 'UTF-8')) . "</td><td>" . implode(", ", $links) . "</td></tr>";
-    }
-?>
-    </tbody>
-  </table>
-  </div>
+      </tbody>
+    </table>
+    </div>
+    <input type="hidden" name="source" value="<?php echo um_h($source['user_id'])?>">
+    <input type="hidden" name="target" value="<?php echo um_h($target['user_id'])?>">
+    <?php require_once("../include/set_post_key.php");?>
+    <div class="admin-form-actions">
+      <button name="confirm" type="submit" value="1" class="btn btn-danger">통합하기</button>
+    </div>
+  </form>
 <?php } ?>
 </div>
 
 </div>
+
+<script>
+// 두 계정을 모두 고르면 바로 미리 보기로 넘어간다.
+(function () {
+  var form = document.getElementById('um-pick-form');
+  var source = document.getElementById('source');
+  var target = document.getElementById('target');
+  function go() { if (source.value !== '' && target.value !== '') form.submit(); }
+  source.addEventListener('change', go);
+  target.addEventListener('change', go);
+  document.getElementById('um-swap').addEventListener('click', function () {
+    var v = source.value; source.value = target.value; target.value = v; go();
+  });
+  var fills = document.querySelectorAll('.um-fill');
+  for (var i = 0; i < fills.length; i++) {
+    fills[i].addEventListener('click', function () {
+      source.value = this.getAttribute('data-source'); target.value = this.getAttribute('data-target'); go();
+    });
+  }
+})();
+</script>
