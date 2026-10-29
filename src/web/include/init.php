@@ -148,8 +148,8 @@ switch($OJ_FRIENDLY_LEVEL) {
 	case 2:
 	   $OJ_LANG="cn";
 	case 1:
-	   date_default_timezone_set("Asia/Shanghai");
-	   pdo_query("SET time_zone ='+8:00'");
+	   date_default_timezone_set("Asia/Seoul");
+	   pdo_query("SET time_zone ='+9:00'");
 	case 0:
 	   break;
 	case -1:
