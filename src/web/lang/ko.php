@@ -578,3 +578,4 @@ $MSG_NUM="#";
 	$MSG_DATAGSM_ERR_CONFLICT="DataGSM 계정과 연결할 회원 아이디를 만들 수 없습니다. 관리자에게 문의해 주세요.";
 	$MSG_DATAGSM_ERR_EXAM="시험 중에는 처음 로그인한 컴퓨터에서만 로그인할 수 있습니다. 관리자에게 문의해 주세요.";
 	$MSG_DATAGSM_ERR_DISABLED="DataGSM 로그인이 설정되어 있지 않습니다. 기존 아이디로 로그인해 주세요.";
+	$MSG_EMAIL_IN_USE="이미 다른 계정에서 사용 중인 이메일입니다. 이메일 하나로는 계정 하나만 만들 수 있습니다.";

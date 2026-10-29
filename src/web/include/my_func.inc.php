@@ -637,6 +637,14 @@ function is_valid_user_name($user_name) {
     return true;
 }
 
+// 이메일 하나로는 계정 하나만 만들 수 있다. 다른 회원이 이미 쓰는 이메일이면 true를 돌려준다.
+// $email은 users.email에 저장되는 형태(htmlentities 적용 뒤)로 넘긴다. 빈 이메일은 검사하지 않는다.
+function email_in_use($email, $except_user_id = '') {
+    if ($email === '') return false;
+    $rows = pdo_query("SELECT `user_id` FROM `users` WHERE `email`=? AND `user_id`<>?", $email, $except_user_id);
+    return is_array($rows) && count($rows) > 0;
+}
+
 // 초 단위의 시간을 시:분:초 형태의 깔끔한 문자열로 가공하는 함수
 function sec2str($sec) {
     return sprintf("%02d:%02d:%02d", $sec / 3600, ($sec % 3600) / 60, $sec % 60);

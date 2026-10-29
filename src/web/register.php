@@ -66,6 +66,7 @@ if ($existing_user) stop_registration(array($MSG_USER_ID . ' Existed!'));
 $nick = htmlentities($nick, ENT_QUOTES, 'UTF-8');
 $school = htmlentities($school, ENT_QUOTES, 'UTF-8');
 $email = htmlentities($email, ENT_QUOTES, 'UTF-8');
+if (email_in_use($email)) stop_registration(array(isset($MSG_EMAIL_IN_USE) ? $MSG_EMAIL_IN_USE : 'Email already in use!'));
 $ip = registration_client_ip();
 
 if (isset($OJ_REG_SPEED) && $OJ_REG_SPEED > 0) {
