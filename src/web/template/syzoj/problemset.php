@@ -43,10 +43,14 @@ body#MainBg-C { background:#f4f5f7 !important; }
 .problem-flag { padding:2px 8px; border-radius:6px; font-size:12px; font-weight:500; white-space:nowrap; }
 .problem-flag.is-hidden-problem { background:#fee2e2; color:#b91c1c; }
 .problem-flag.is-reward { background:#ffedd5; color:#c2410c; }
-.problem-tags { display:inline-flex; flex-wrap:wrap; align-items:center; gap:.4rem .6rem; }
-.problem-tags a, .problem-tags .label { display:inline-block; padding:2px 8px; border-radius:6px; background:#f1f3f5; color:#4b5563; font-size:12px; font-weight:500; line-height:1.6; white-space:nowrap; }
+.problemset-table .col-tags { width:280px; }
+/* 분류 칸: 제목 길이와 상관없이 같은 위치에 같은 크기의 칩으로 보여 준다. */
+.problem-tags { display:flex; flex-wrap:wrap; align-items:center; gap:6px; }
+.problem-tags a, .problem-tags .label, .problem-tag-more { display:inline-block; height:24px; max-width:8.5em; padding:0 10px; overflow:hidden; border-radius:6px; background:#f1f3f5; color:#4b5563; font-size:12px; font-weight:500; line-height:24px; text-overflow:ellipsis; white-space:nowrap; }
 .problem-tags a:hover { background:#e5e7eb; color:#111827; }
+.problem-tag-more { background:#fff; box-shadow:inset 0 0 0 1px #e5e7eb; color:#6b7280; cursor:default; }
 .problem-tags .label { cursor:pointer; }
+.problem-tags-empty { color:#c5cad1; font-size:13px; }
 .problem-rate { display:inline-flex; align-items:center; justify-content:flex-end; gap:1rem; }
 .problem-rate-track { width:64px; height:5px; overflow:hidden; border-radius:999px; background:#eceef1; }
 .problem-rate-fill { height:100%; border-radius:inherit; background:#2563eb; }
@@ -60,6 +64,9 @@ body#MainBg-C { background:#f4f5f7 !important; }
 .problemset-pagination svg { width:16px; height:16px; }
 @media (max-width:991px) {
   .problemset-selects { margin-left:0; }
+  /* 태블릿 폭에서는 제목이 좁아지지 않도록 맞은 사람/제출 칸을 숨기고 분류 칸을 줄인다. */
+  .problemset-table .col-num { display:none; }
+  .problemset-table .col-tags { width:180px; }
 }
 @media (max-width:767px) {
   .problemset-page { padding:1.5rem 1rem 2rem; }
@@ -72,7 +79,7 @@ body#MainBg-C { background:#f4f5f7 !important; }
   .problemset-table { font-size:15px; }
   .problemset-table .col-state { width:40px; }
   .problemset-table .col-id { width:60px; }
-  .problemset-table .col-num { display:none; }
+  .problemset-table .col-tags { display:none; }
   .problemset-table .col-rate { width:auto; }
   .problem-rate-track { display:none; }
   .problem-title-link { font-size:15px; }
@@ -153,6 +160,7 @@ function render_problemset_pagination($page,$start,$end,$view_total_page){
         <?php if($ps_logged_in){?><th class="col-state">상태</th><?php }?>
         <th class="col-id">번호</th>
         <th><?php echo $MSG_TITLE?></th>
+        <th class="col-tags">분류</th>
         <th class="col-rate">정답률</th>
         <th class="col-num">맞은 사람</th>
         <th class="col-num"><?php echo $MSG_SUBMIT?></th>
@@ -175,14 +183,24 @@ function render_problemset_pagination($page,$start,$end,$view_total_page){
               <a class="problem-title-link" href="problem.php?id=<?php echo $problem_id?>"><?php echo htmlentities($row['title'],ENT_QUOTES,'UTF-8')?></a>
               <?php if($row['defunct']=='Y'){?><span class="problem-flag is-hidden-problem">비공개</span><?php }?>
               <?php if(intval($row['coin'])>1){?><span class="problem-flag is-reward">보상 <?php echo min(intval($row['coin']),5)?></span><?php }?>
-              <div fd="source" pid="<?php echo $problem_id?>" class="problem-tags">
-                <?php
-                foreach(explode(" ",$row['source']) as $cat){
-                  $cat=trim($cat);
-                  if(mb_ereg("^http",$cat)) $cat=trim(get_domain($cat));
-                  if($cat==""||$cat=="&nbsp") continue;
-                ?><a title="<?php echo htmlentities($cat,ENT_QUOTES,'UTF-8')?>" href="<?php echo problemset_url(array("category"=>$cat))?>"><?php echo htmlentities(mb_substr($cat,0,10,'utf8'),ENT_QUOTES,'UTF-8')?></a><?php } ?>
-              </div>
+            </div>
+          </td>
+          <td class="col-tags">
+            <?php
+            $ps_tags=array();
+            foreach(explode(" ",$row['source']) as $cat){
+              $cat=trim($cat);
+              if(mb_ereg("^http",$cat)) $cat=trim(get_domain($cat));
+              if($cat==""||$cat=="&nbsp") continue;
+              $ps_tags[]=$cat;
+            }
+            // 분류가 많아도 줄 높이가 들쭉날쭉하지 않도록 3개까지만 보이고 나머지는 +N에 모은다.
+            $ps_more=array_slice($ps_tags,3);
+            ?>
+            <div fd="source" pid="<?php echo $problem_id?>" class="problem-tags">
+              <?php foreach(array_slice($ps_tags,0,3) as $cat){ ?><a title="<?php echo htmlentities($cat,ENT_QUOTES,'UTF-8')?>" href="<?php echo problemset_url(array("category"=>$cat))?>"><?php echo htmlentities($cat,ENT_QUOTES,'UTF-8')?></a><?php } ?>
+              <?php if(count($ps_more)>0){ ?><span class="problem-tag-more" title="<?php echo htmlentities(implode(", ",$ps_more),ENT_QUOTES,'UTF-8')?>">+<?php echo count($ps_more)?></span><?php } ?>
+              <?php if(count($ps_tags)==0){ ?><span class="problem-tags-empty">-</span><?php } ?>
             </div>
           </td>
           <td class="col-rate">
@@ -196,7 +214,7 @@ function render_problemset_pagination($page,$start,$end,$view_total_page){
         </tr>
       <?php } ?>
       <?php if(empty($result)){?>
-        <tr><td class="problemset-empty" colspan="<?php echo $ps_logged_in?6:5?>">조건에 맞는 문제가 없어요</td></tr>
+        <tr><td class="problemset-empty" colspan="<?php echo $ps_logged_in?7:6?>">조건에 맞는 문제가 없어요</td></tr>
       <?php }?>
       </tbody>
     </table>
