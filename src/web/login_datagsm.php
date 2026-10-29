@@ -14,8 +14,12 @@ if ((isset($_GET['code']) || isset($_GET['error'])) && !isset($_GET['bounce'])) 
     $target = htmlspecialchars('login_datagsm.php?' . http_build_query($query), ENT_QUOTES, 'UTF-8');
     header('Cache-Control: no-store');
     header('Referrer-Policy: no-referrer');
-    echo "<!doctype html><meta charset='utf-8'><meta http-equiv='refresh' content='0;url=$target'>";
-    echo "<a href='$target'>DataGSM</a>";
+    // 세션을 열기 전이라 lang 파일을 불러오지 않고 안내 문구를 직접 쓴다. 링크는 자동 이동이 막힌 경우를 위한 것이다.
+    echo "<!doctype html><html lang='ko'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width, initial-scale=1'>";
+    echo "<meta http-equiv='refresh' content='0;url=$target'><title>로그인 중</title>";
+    echo "<style>body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#f4f5f7;color:#4b5563;font:15px/1.6 -apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;text-align:center}";
+    echo "p{margin:0 0 6px}a{color:#9ca3af;font-size:13px}</style></head>";
+    echo "<body><div><p>DataGSM 로그인 처리 중입니다…</p><a href='$target'>자동으로 넘어가지 않으면 여기를 누르세요</a></div></body></html>";
     exit(0);
 }
 
