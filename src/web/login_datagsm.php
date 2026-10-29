@@ -105,7 +105,17 @@ if (count($linked) == 1) {
         $student_value('studentNumber'), $student_value('major'), $student_value('role'), $datagsm_id);
 } else {
     $same_email = pdo_query("SELECT `user_id`,`defunct` FROM `users` WHERE `email`=?", $email);
-    if (count($same_email) > 1) datagsm_fail('conflict');
+    // 같은 이메일로 가입한 회원이 여럿이면 사용 중인 회원만 남기고, 그래도 여럿이면 이메일 @ 앞부분과 같은 아이디를 고른다.
+    if (count($same_email) > 1) {
+        $candidates = array_values(array_filter($same_email, function ($row) { return $row['defunct'] != 'Y'; }));
+        if (count($candidates) == 0) datagsm_fail('defunct', $same_email[0]['user_id']);
+        if (count($candidates) > 1) {
+            $email_id = strtolower(strstr($email, '@', true));
+            $candidates = array_values(array_filter($candidates, function ($row) use ($email_id) { return strtolower($row['user_id']) === $email_id; }));
+        }
+        if (count($candidates) != 1) datagsm_fail('conflict');
+        $same_email = $candidates;
+    }
     if (count($same_email) == 1) {
         $login = $same_email[0]['user_id'];
         if ($same_email[0]['defunct'] == 'Y') datagsm_fail('defunct', $login);
