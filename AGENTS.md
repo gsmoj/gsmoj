@@ -70,6 +70,23 @@
 - 수정한 PHP 파일은 `php -l`로 문법을 검사한다. `php -l`에는 `-y` 옵션을 붙이지 않는다.
 - 변경 후 `git diff --stat`과 주요 화면을 확인하고, 의도하지 않은 변경이 없는지 점검한다.
 
+## 운영 서버 원격 작업
+
+운영 서버의 `/home/judge`는 nginx가 직접 서비스하는 디렉터리다. 저장하는 순간 사용자 화면에 반영되고, 커밋하지 않은 수정이 쌓이면 `git pull`이 막혀 머지된 PR이 배포되지 않는다.
+
+- 운영 서버에서 코드를 수정할 때는 **반드시 브랜치를 먼저 만든다.** `main`에서 직접 수정하거나 커밋하지 않는다.
+  ```bash
+  cd /home/judge && git switch main && git pull --ff-only && git switch -c <type>/<작업-이름>
+  ```
+- 작업 단위마다 커밋하고 push한다. 커밋하지 않은 수정을 서버에 남겨 두지 않는다.
+- 작업이 끝나면 PR을 열어 `main`에 머지한다. 서버에서 `main`으로 직접 push하지 않는다.
+- 머지한 뒤에는 서버를 `main`으로 되돌린다.
+  ```bash
+  cd /home/judge && git switch main && git pull --ff-only
+  ```
+- 작업을 시작하기 전에 `git status -sb`로 서버가 `main`이고, 변경 파일이 없고, `origin/main`보다 뒤처지지 않았는지 확인한다. 커밋하지 않은 수정이 있으면 되돌리지 말고 브랜치로 옮겨 커밋한 뒤 PR로 정리한다.
+- `include/db_info.inc.php`처럼 `.gitignore`로 제외된 서버 설정 파일은 이 절차에서 제외한다. 이 파일은 php-fpm(`www-data`)이 읽을 수 있어야 하므로 수정한 뒤 권한을 확인한다.
+
 ## 커밋 및 PR 메시지
 
 - 커밋과 PR 제목은 반드시 `<type>(<scope>): <변경 결과>` 형식을 사용한다. 예: `fix(submit): 제출 페이지의 CSRF 검증 오류 수정`.
