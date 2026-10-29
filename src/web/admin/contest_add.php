@@ -248,8 +248,10 @@ else{
               $contest_lock = 0;
               $contest_type = 32 | (($is_assessment || ($copied_type & 512)) ? 512 : 0);
               for($i=0; $i<$locks_count; $i++){
+                if($i==9) continue; // 수행평가 여부는 등록 메뉴(대회/수행평가)로 정하므로 체크박스로 보여 주지 않는다.
                 echo "<input type=checkbox name='contest_type[]'  value=$i ".( $contest_type&(1<<$i)?"checked":"").">".$contest_locks[$i]."<br>";
               }
+              if($contest_type & 512) echo "<input type=hidden name='contest_type[]' value=9><b>".$contest_locks[9]."</b><br>";
               ?>
             </p>
           </td>

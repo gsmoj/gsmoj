@@ -1212,6 +1212,7 @@ function pull_result(id){
 		    
 </script>
 
+<?php $gs_monitor_place = "editor"; include("template/$OJ_TEMPLATE/assessment_monitor.php"); ?>
   </body>
 </html>
 <?php //include("template/$OJ_TEMPLATE/footer.php");?>

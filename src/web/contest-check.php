@@ -22,8 +22,11 @@ $view_cid = $cid;
 $sql = "SELECT * FROM `contest` WHERE `contest_id`=?";
 $result = mysql_query_cache($sql, $cid);
 $rows_cnt = count($result);
+$is_assessment = false;
 
 if ($rows_cnt > 0) {
+    // 수행평가(contest_type 9번 비트)는 화면 문구와 부정행위 감지 기록을 대회와 다르게 처리한다.
+    $is_assessment = (intval($result[0]['contest_type']) & 512) != 0;
     $row = $result[0];
     $start_time = strtotime($row['start_time']);
     $end_time = strtotime($row['end_time']);

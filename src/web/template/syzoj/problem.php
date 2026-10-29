@@ -5,6 +5,14 @@
             $id=$row['problem_id'];
             $show_title="$MSG_PROBLEM ".$PID[$pid].": ".$row['title']." - $OJ_NAME";
           }
+          // 수행평가 문제에서는 "대회로 돌아가기", "이 대회" 문구를 "수행평가"로 바꿔 보여 준다.
+          $gs_return_contest = $MSG_RETURN_CONTEST;
+          $gs_this_contest = $MSG_THIS_CONTEST;
+          if (isset($is_assessment) && $is_assessment) {
+            $gs_assessment_name = isset($MSG_ASSESSMENT) ? $MSG_ASSESSMENT : "수행평가";
+            $gs_return_contest = str_replace($MSG_CONTEST, $gs_assessment_name, $MSG_RETURN_CONTEST);
+            $gs_this_contest = str_replace($MSG_CONTEST, $gs_assessment_name, $MSG_THIS_CONTEST);
+          }
 ?>
 <?php include("template/$OJ_TEMPLATE/header.php");?>
 <style>
@@ -102,7 +110,7 @@ if(file_exists($solution_file)){
               echo "<a class=\"small ui orange button\" href=\"problemstatus.php?id=$id\">$MSG_STATISTICS</a>";
               if($OJ_BBS)echo "<a class=\"small ui red button\" href=\"discuss.php?pid=$id\">$MSG_BBS</a>";
             }else{
-              echo "<a href=\"contest.php?cid=$cid\" class=\"ui orange button\">$MSG_RETURN_CONTEST</a>";
+              echo "<a href=\"contest.php?cid=$cid\" class=\"ui orange button\">$gs_return_contest</a>";
               if($contest_is_over)
                       echo "<a id='submit'  class=\"small ui primary button\" href=\"submitpage.php?id=$id\">$MSG_SUBMIT</a>";
               else
@@ -111,7 +119,7 @@ if(file_exists($solution_file)){
                    echo "<a class=\"small ui positive button\" href=\"status.php?problem_id=$id\">$MSG_GLOBAL$MSG_SUBMIT_RECORD</a>";
               }
 
-              echo "<a class=\"small ui orange button\" href=\"status.php?problem_id=$PID[$pid]&cid=$cid\">$MSG_THIS_CONTEST$MSG_SUBMIT_RECORD</a>";
+              echo "<a class=\"small ui orange button\" href=\"status.php?problem_id=$PID[$pid]&cid=$cid\">$gs_this_contest$MSG_SUBMIT_RECORD</a>";
 
             }
           ?>
@@ -284,7 +292,7 @@ document.addEventListener('keydown', function(e) {
               echo "<a class=\"small ui orange button\" href=\"problemstatus.php?id=$id\">$MSG_STATISTICS</a>";
 	      if($OJ_BBS)echo "<a class=\"small ui red button\" href=\"discuss.php?pid=$id\">$MSG_BBS</a>";
             }else{
-              echo "<a href=\"contest.php?cid=$cid\" class=\"ui orange button\">$MSG_RETURN_CONTEST</a>"; 
+              echo "<a href=\"contest.php?cid=$cid\" class=\"ui orange button\">$gs_return_contest</a>"; 
               if($contest_is_over)
                         echo "<a id='submit'  class=\"small ui primary button\" href=\"submitpage.php?id=$id\">$MSG_SUBMIT</a>";
               else
@@ -801,6 +809,7 @@ $(document).ready(function() {
   </script>
 
     
+<?php if (!$pr_flag) { $gs_monitor_place = "problem"; include("template/$OJ_TEMPLATE/assessment_monitor.php"); } ?>
 <?php include("template/$OJ_TEMPLATE/footer.php");?>
 
 <link rel="stylesheet" href="<?php echo $OJ_CDN_URL.$path_fix."template/$OJ_TEMPLATE/css/"?>highlight.css">

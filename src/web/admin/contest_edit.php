@@ -60,6 +60,10 @@ if(isset($_POST['startdate'])){
 
   if(!(isset($_SESSION[$OJ_NAME.'_'."m$cid"])||isset($_SESSION[$OJ_NAME.'_'.'administrator'])||isset($_SESSION[$OJ_NAME.'_'.'contest_creator']))) exit();
 
+  // 수행평가 여부(9번 비트)는 수정 화면에서 바꿀 수 없다. 기존 값을 그대로 유지한다.
+  $old_type = pdo_query("SELECT contest_type FROM `contest` WHERE `contest_id`=?",$cid);
+  $contest_type = ($contest_type & ~512) | ((!empty($old_type) && (intval($old_type[0]['contest_type']) & 512)) ? 512 : 0);
+
   $description = str_replace("<p>", "", $description); 
   $description = str_replace("</p>", "<br />", $description);
   $description = str_replace(",", "&#44;", $description);
@@ -115,7 +119,7 @@ if(isset($_POST['startdate'])){
     }
   }
 
-  echo "<script>window.location.href=\"contest_list.php\";</script>";
+  echo "<script>window.location.href=\"contest_list.php".(($contest_type & 512) ? "?type=assessment" : "")."\";</script>";
   exit();
 }else{
   $cid = intval($_GET['cid']);
@@ -135,6 +139,7 @@ if(isset($_POST['startdate'])){
   $langmask = $row['langmask'];
   $subnet= $row['subnet'];
   $contest_type= $row['contest_type'];
+  if (intval($contest_type) & 512) $page_heading = (isset($MSG_ASSESSMENT) ? $MSG_ASSESSMENT : "수행평가")." - 수정";
   $description = $row['description'];
   $title = htmlentities($row['title'],ENT_QUOTES,"UTF-8");
 
@@ -225,8 +230,10 @@ if(isset($_POST['startdate'])){
               $contest_lock = (~((int)$contest_type))&((1<<$locks_count)-1);
 
               for($i=0; $i<$locks_count; $i++){
+                if($i==9) continue; // 수행평가 여부는 저장 시 기존 값을 유지하므로 체크박스로 보여 주지 않는다.
                 echo "<input type=checkbox name='contest_type[]'  value=$i ".( $contest_type&(1<<$i)?"checked":"").">".$contest_locks[$i]."<br>";
               }
+              if($contest_type & 512) echo "<b>".$contest_locks[9]."</b><br>";
               ?>
             </p>
           </td>
