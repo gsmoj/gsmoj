@@ -81,6 +81,7 @@ if(isset($_GET['keyword']) && $_GET['keyword']!=""){
       <td><?php echo $MSG_EXPORT ?></td>
       <td><?php echo $MSG_LOG?></td>
       <td><?php echo $MSG_SUSPECT?></td>
+      <?php if ($is_assessment) { ?><td><?php echo isset($MSG_ASSESSMENT_EVENT) ? $MSG_ASSESSMENT_EVENT : "감지 기록"?></td><?php } ?>
     </tr>
     <?php
     foreach($result as $row){
@@ -105,6 +106,7 @@ if(isset($_GET['keyword']) && $_GET['keyword']!=""){
         echo "<td colspan=5 align=right><a href=contest_add.php?cid=".$row['contest_id'].">$MSG_COPY</a><td>";
       }
       echo "<td><a href='suspect_list.php?cid=".$row['contest_id']."'>$MSG_SUSPECT</a></td>";
+      if ($is_assessment) echo "<td><a href='assessment_event_list.php?cid=".$row['contest_id']."'>".(isset($MSG_ASSESSMENT_EVENT) ? $MSG_ASSESSMENT_EVENT : "감지 기록")."</a></td>";
       echo "</tr>";
     }
   ?>

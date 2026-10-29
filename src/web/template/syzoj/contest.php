@@ -1,4 +1,7 @@
-<?php $show_title="Contest".$view_cid." - ".$view_title." - $OJ_NAME"; ?>
+<?php
+// 수행평가(contest_type 9번 비트)는 제목과 안내 문구를 "수행평가"로 표시한다.
+$gs_contest_label = (isset($is_assessment) && $is_assessment) ? (isset($MSG_ASSESSMENT) ? $MSG_ASSESSMENT : "수행평가") : $MSG_CONTEST;
+$show_title=$gs_contest_label.$view_cid." - ".$view_title." - $OJ_NAME"; ?>
 <?php include("template/$OJ_TEMPLATE/header.php");?>
 <style>
 .ui.label.pointing.below.left::before {
@@ -24,7 +27,7 @@
 </style>
 
 <div class="padding">
-    <h1>Contest<?php echo $view_cid?> - <?php echo $view_title ?></h1>
+    <h1><?php echo $gs_contest_label.$view_cid?> - <?php echo $view_title ?></h1>
     <div class="ui pointing below left label"><?php echo $view_start_time?></div>
     <div class="ui pointing below right label"><?php echo $view_end_time?></div>
 
@@ -61,6 +64,9 @@
           <a href="suspect_list.php?cid=<?php echo $view_cid?>" class="ui small blue button"><?php echo $MSG_IP_VERIFICATION?></a>
           <a href="user_set_ip.php?cid=<?php echo $view_cid?>" class="ui small green button"><?php echo $MSG_SET_LOGIN_IP?></a>
           <a target="_blank" href="../../admin/contest_edit.php?cid=<?php echo $view_cid?>" class="ui small red button"><?php echo "$MSG_EDIT"?></a>
+          <?php if ($is_assessment) { ?>
+          <a target="_blank" href="admin/assessment_event_list.php?cid=<?php echo $view_cid?>" class="ui small orange button"><?php echo isset($MSG_ASSESSMENT_EVENT) ? $MSG_ASSESSMENT_EVENT : "감지 기록"?></a>
+          <?php } ?>
           <a target="_blank" href="group_statistics.php?list=<?php echo $pids?>" class="ui small blue button"><?php echo "$MSG_GROUP_NAME $MSG_STATISTICS"?></a>
         <?php } ?>
 
@@ -68,6 +74,13 @@
                 </div>
             </div>
         </div>
+        <?php if ($is_assessment) { ?>
+        <div class="row">
+            <div class="column">
+                <div class="ui warning message"><?php echo isset($MSG_ASSESSMENT_NOTICE) ? $MSG_ASSESSMENT_NOTICE : "이 수행평가는 진행 중 화면 이탈, 붙여넣기, 복사, 한 번에 많은 코드 입력이 기록됩니다."?></div>
+            </div>
+        </div>
+        <?php } ?>
         <?php if($view_description){ ?>
         <div class="row">
             <div class="column">

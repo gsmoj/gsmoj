@@ -1,6 +1,7 @@
 <?php
 require_once("./include/db_info.inc.php");
 require_once("./include/my_func.inc.php");
+require_once("./include/login_session.php");
 require_once('./include/setlang.php');
 if (isset($OJ_CSRF) && $OJ_CSRF) require_once("./include/csrf_check.php");
 
@@ -103,66 +104,10 @@ if (!$use_cookie) {
 }
 
 if ($login) {
-    session_regenerate_id();
-    $group_name = "";
-    $group_row = pdo_query("select group_name,nick from users where user_id=?", $login);
-    if (!empty($group_row)) {
-        $group_name = $group_row[0]['group_name'];
-        $_SESSION[$OJ_NAME . '_nick'] = $group_row[0]['nick'];
-        $_SESSION[$OJ_NAME . '_group_name'] = $group_name;
-    }
-    if (empty($group_name)) {
-        $sql = "SELECT * FROM `privilege` WHERE `user_id`=?";
-        $_SESSION[$OJ_NAME . '_' . 'user_id'] = $login;
-        $result = pdo_query($sql, $login);
-    } else {  
-        $sql = "SELECT * FROM `privilege` WHERE `user_id`=? or (user_id=? and rightstr like 'c%' )";
-        $_SESSION[$OJ_NAME . '_' . 'user_id'] = $login;
-        $result = pdo_query($sql, $login, $group_name);
-    }
-    
-    foreach ($result as $row) {
-        if (isset($row['valuestr']))
-            $_SESSION[$OJ_NAME . '_' . $row['rightstr']] = $row['valuestr'];
-        else
-            $_SESSION[$OJ_NAME . '_' . $row['rightstr']] = true;
-    }
-    if (isset($_SESSION[$OJ_NAME . '_vip'])) {  
-        $sql = "select contest_id from contest where title like '%[VIP]%'";
-        $result = pdo_query($sql);
-        foreach ($result as $row) {
-            $_SESSION[$OJ_NAME . '_c' . $row['contest_id']] = true;
-        }
-    }
-
-    $sql = "update users set accesstime=now() where user_id=?";
-    $result = pdo_query($sql, $login);
-
-    if ($OJ_LONG_LOGIN) {
-        $C_info = pdo_query("SELECT `password` , `accesstime` FROM `users` WHERE `user_id`=? and defunct='N'", $login)[0];
-        $C_len = strlen($C_info[1]);
-        $C_res = "";
-        for ($i = 0; $i < strlen($C_info[0]); $i++) {
-            $tp = ord($C_info[0][$i]);
-            $C_res .= chr(39 + ($tp * $tp + ord($C_info[1][$i % $C_len]) * $tp) % 88);
-        }
-        $C_res = sha1($C_res);
-        $C_time = time() + 86400 * $OJ_KEEP_TIME;
-        setcookie($OJ_NAME . "_user", $login, $C_time);
-        setcookie($OJ_NAME . "_check", $C_res . (strlen($C_res) * strlen($C_res)) % 7, $C_time);
-    }
-    
-    // 💡 [성공 로그 기록]
-    $sql = "INSERT INTO `loginlog`(user_id,password,ip,time) VALUES(?,'login ok',?,NOW())";
-    pdo_query($sql, $user_id, $ip);
+    login_complete($login, $ip);
 
     echo "<script language='javascript'>\n";
-    if (isset($_SESSION[$OJ_NAME . "_administrator"]))
-        echo "window.location.href='admin/';\n";
-    else if (isset($_SESSION[$OJ_NAME . "_contest_creator"]))
-        echo "window.location.href='contest.php?my';\n";
-    else
-        echo "window.location.href='index.php';\n"; // 💡 더 직관적이고 직진성 있는 메인 리다이렉트
+    echo "window.location.href='" . login_redirect_url() . "';\n";
     echo "</script>";
 } else {
     if (isset($OJ_LOG_ENABLED) && $OJ_LOG_ENABLED) {

@@ -9,7 +9,7 @@ $show_title="$gs_list_title - $OJ_NAME"; ?>
           <form method=post action=<?php echo $gs_list_page?> >
             <div class="ui search" style="width: 280px; height: 28px; margin-top: -5.3px; ">
               <div class="ui left icon input" style="width: 100%; ">
-                <input class="prompt" style="width: 100%; " type="text" value="" placeholder=" <?php echo $MSG_CONTEST_NAME ?> …" name="keyword">
+                <input class="prompt" style="width: 100%; " type="text" value="" placeholder=" <?php echo str_replace($MSG_CONTEST, $gs_list_title, $MSG_CONTEST_NAME) ?> …" name="keyword">
                 <i class="search icon"></i>&nbsp;&nbsp;&nbsp;
                 <?php
                 if(isset($_GET['my'])){

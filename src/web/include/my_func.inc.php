@@ -210,6 +210,14 @@ function contest_locked($contest_id, $level = 1) {
 }
 
 /**
+ * 대회가 수행평가(contest_type 9번 비트, 512)인지 판별하는 함수
+ */
+function is_assessment_contest($contest_id) {
+    $result = pdo_query("SELECT contest_type FROM contest WHERE contest_id=?", intval($contest_id));
+    return !empty($result) && (intval($result[0]['contest_type']) & 512) != 0;
+}
+
+/**
  * 특정 문제가 진행 중인 보안 대회에 묶여있어 조회가 잠긴 상태인지 판별하는 함수
  */
 function problem_locked($problem_id, $level = 1) {

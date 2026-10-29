@@ -548,8 +548,10 @@
                 ?>
             <?php if( isset($_GET['cid']) && intval($_GET['cid'])>0 ){
                      $cid=intval($_GET['cid']);
-                     if(!isset($OJ_ON_SITE_CONTEST_ID)){   ?>
-                            <a class="item" href="<?php echo $path_fix?>contest.php"><?php echo $MSG_CONTEST.$MSG_LIST?></a>
+                     if(!isset($OJ_ON_SITE_CONTEST_ID)){
+                       // 수행평가 안에서는 목록 링크를 수행평가 목록으로 보낸다.
+                       $gs_cid_assessment = function_exists("is_assessment_contest") && is_assessment_contest($cid);   ?>
+                            <a class="item" href="<?php echo $path_fix.($gs_cid_assessment ? "assessment.php" : "contest.php")?>"><?php echo ($gs_cid_assessment ? (isset($MSG_ASSESSMENT) ? $MSG_ASSESSMENT : "수행평가") : $MSG_CONTEST).$MSG_LIST?></a>
             <?php    }      ?>
             <a class="item active" href="<?php echo $path_fix?>contest.php?cid=<?php echo $cid?>"><?php echo $MSG_PROBLEMS.$MSG_LIST?></a>
             <a class="item active" href="<?php echo $path_fix?>status.php?cid=<?php echo $cid?>"><?php echo $MSG_STATUS.$MSG_LIST?></a>
