@@ -81,6 +81,11 @@ function import_user($filename) {
                         }
                     }
 
+                    // 다른 회원이 이미 쓰는 이메일은 넣지 않는다. 이메일 하나로는 계정 하나만 만들 수 있다.
+                    if (email_in_use($email, $user_id)) {
+                        echo htmlentities($user_id, ENT_QUOTES, 'UTF-8') . " : " . htmlentities($email, ENT_QUOTES, 'UTF-8') . " 은(는) 이미 다른 계정에서 사용 중인 이메일이라 비워 두었습니다.<br>\n";
+                        $email = "";
+                    }
                     $ip = "127.0.0.1";
                     $sql = "INSERT INTO `users`(" . "`user_id`,`email`,`ip`,`accesstime`,`password`,`reg_time`,`nick`,`school`,`group_name`,`expiry_date`)" . "VALUES(?,?,?,NOW(),?,NOW(),?,?,?,?)on DUPLICATE KEY UPDATE `email`=?,`ip`=?,`accesstime`=NOW(),`password`=?,`reg_time`=now(),nick=?,`school`=?,`group_name`=?,expiry_date=?";
                     $ret=pdo_query($sql, $user_id, $email, $ip, $password, $nick, $school,$group_name,$expiry_date, $email, $ip, $password, $nick, $school,$group_name,$expiry_date);

@@ -57,6 +57,9 @@ $len = strlen($_POST['email']);
 if ($len > 100) {
     $err_str = $err_str . "$MSG_EMAIL $MSG_TOO_LONG!";
     $err_cnt++;
+} else if (email_in_use(htmlentities($email, ENT_QUOTES, "UTF-8"), $user_id)) {
+    $err_str = $err_str . (isset($MSG_EMAIL_IN_USE) ? $MSG_EMAIL_IN_USE : "Email already in use!") . "\\n";
+    $err_cnt++;
 }
 
 if (has_bad_words($user_id)) {

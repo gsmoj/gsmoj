@@ -558,3 +558,4 @@ $MSG_NUM="#";
 	$MSG_DATAGSM_ERR_CONFLICT="Could not create a user ID for this DataGSM account. Please contact an administrator.";
 	$MSG_DATAGSM_ERR_EXAM="During an exam you can only sign in from the computer you first used. Please contact an administrator.";
 	$MSG_DATAGSM_ERR_DISABLED="DataGSM login is not configured. Please sign in with your existing ID.";
+	$MSG_EMAIL_IN_USE="This email is already used by another account. Only one account can be created per email.";

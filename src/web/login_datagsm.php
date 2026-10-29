@@ -141,6 +141,12 @@ if (count($linked) == 1) {
         $datagsm_id, $login, $email, $name, $object_type, $student_value('grade'), $student_value('classNum'), $student_value('number'),
         $student_value('studentNumber'), $student_value('major'), $student_value('role'));
     if ($inserted === -1 || $inserted === false) datagsm_fail('server', $login);
+    // 원래 있던 계정에 처음 연결할 때는 DataGSM의 실명을 닉네임으로 옮긴다. 반은 아래에서 매번 갱신한다.
+    if (count($same_email) == 1 && $name !== '') {
+        $nick = htmlentities(mb_substr($name, 0, 20, 'UTF-8'), ENT_QUOTES, 'UTF-8');
+        pdo_query("UPDATE `users` SET `nick`=? WHERE `user_id`=?", $nick, $login);
+        pdo_query("UPDATE `solution` SET `nick`=? WHERE `user_id`=?", $nick, $login);
+    }
 }
 
 // 비밀번호 로그인과 같은 기준으로 사용 중지·기간 만료 계정을 막는다.
