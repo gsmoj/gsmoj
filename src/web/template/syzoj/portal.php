@@ -1,14 +1,15 @@
 <?php
   include(dirname(__FILE__)."/header.php");
 ?>
-  <div class="ui <?php echo $ui_class?> icon message">
-  <div class="content">
-    <div class="header" style="margin-bottom: 10px; " >
-    <?php echo $MSG_TODO?>
-    </div>
+<div class="gs-page-head">
+  <h1><?php echo $MSG_TODO?></h1>
+  <p>아직 풀지 않은 문제와 참여할 수 있는 대회를 모아 보여 줘요</p>
+</div>
+<div class="padding">
+  <div class="gs-table-wrap">
   <table class="ui very basic center aligned table">
 					<thead>
-						<tr class='toprow'>
+						<tr>
 							<td></td>
 							<td class='hidden-xs center'>
 								<?php echo $MSG_PROBLEM_ID?>
@@ -48,10 +49,14 @@
 						}
 						?>
     </tbody>
-  </table><br>
+  </table>
+  </div>
+</div>
+<div class="padding">
+  <div class="gs-table-wrap">
       <table class='ui very basic center aligned table'>
         <thead>
-          <tr class=toprow align=center>
+          <tr>
             <td><?php echo $MSG_CONTEST_ID?></td>
             <td><?php echo $MSG_CONTEST_NAME?></td>
             <td><?php echo $MSG_CONTEST_STATUS?></td>
@@ -81,9 +86,6 @@
           ?>
         </tbody>
       </table>
-    <p>
-      <a href="javascript:history.go(-1)"><?php echo $MSG_BACK;?></a>
-    </p>
   </div>
 </div>
 

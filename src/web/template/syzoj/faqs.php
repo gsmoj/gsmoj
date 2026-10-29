@@ -1,8 +1,11 @@
 <?php $show_title="$MSG_FAQ - $OJ_NAME"; ?>
 <?php include("template/$OJ_TEMPLATE/header.php");?>
+<div class="gs-page-head">
+    <h1>도움말</h1>
+    <p>채점 환경과 자주 묻는 질문을 정리했어요</p>
+</div>
 <div class="padding">
-    <h1 class="ui center aligned header">도움말</h1>
-    <div style="font-content">
+    <div class="font-content">
         <h2 class="ui header">채점 안내</h2>
         <p>
             <br> C는 <code>gcc 11.4.0</code>을 사용하며, 컴파일 명령은 다음과 같습니다.
@@ -124,6 +127,8 @@ sys.stdout = io.TextIOWrapper(sys.stdout.buffer,encoding='utf8')
 for line in sys.stdin:
     a = line.split()
     print(int(a[0]) + int(a[1]))</code></pre>
-
+        </div>
+    </div>
+</div>
 
 <?php include("template/$OJ_TEMPLATE/footer.php");?>

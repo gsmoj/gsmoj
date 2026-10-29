@@ -6,15 +6,15 @@
     .home-hero {
         position: relative;
         overflow: hidden;
-        margin: 10px 0 24px;
-        padding: 34px 38px;
+        margin: 0 0 1.5rem;
+        padding: 36px 40px;
         width: 100%;
         box-sizing: border-box;
-        border: 1px solid #aeb8c4;
-        border-radius: 14px;
+        border: 0;
+        border-radius: 20px;
         color: #fff;
         background: linear-gradient(135deg, #1f2937 0%, #111827 70%, #1d4ed8 140%);
-        box-shadow: 0 10px 24px rgba(15, 23, 42, .16), 0 0 0 3px rgba(174, 184, 196, .16);
+        box-shadow: none;
     }
     .home-hero::after {
         position: absolute;
@@ -52,7 +52,7 @@
     }
     .home-hero-actions .button {
         margin: 0;
-        border-radius: 7px;
+        border-radius: 10px;
     }
     .home-hero-actions .button.primary {
         background: #2563eb;
@@ -69,7 +69,7 @@
     .home-content-grid {
         display: grid !important;
         grid-template-columns: minmax(0, 2fr) minmax(240px, 1fr);
-        column-gap: 1rem;
+        column-gap: 1.5rem;
         width: 100%;
         min-width: 0;
         margin: 0 !important;
@@ -84,13 +84,14 @@
     }
     .home-content-grid .ui.top.attached.block.header {
         margin-top: 0 !important;
-        border: 1px solid #aeb8c4 !important;
-        border-bottom: 0 !important;
-        border-left: 1px solid #aeb8c4 !important;
-        border-radius: 10px 10px 0 0 !important;
+        padding: 1.25rem 1.5rem .25rem !important;
+        border: 0 !important;
+        border-radius: 20px 20px 0 0 !important;
         background: #fff !important;
-        color: #1f2937 !important;
-        box-shadow: 0 4px 12px rgba(15, 23, 42, .06), 0 0 0 3px rgba(174, 184, 196, .12);
+        color: #111827 !important;
+        font-size: 16px;
+        font-weight: 600;
+        box-shadow: none;
     }
     .home-content-grid .ui.top.attached.block.header {
         display: flex;
@@ -107,12 +108,13 @@
         text-overflow: ellipsis;
     }
     .home-content-grid .ui.bottom.attached.segment {
-        margin-bottom: 22px !important;
+        margin-bottom: 1.5rem !important;
         min-width: 0;
-        border: 1px solid #aeb8c4 !important;
-        border-radius: 0 0 10px 10px !important;
+        padding: .5rem 1.5rem 1.25rem !important;
+        border: 0 !important;
+        border-radius: 0 0 20px 20px !important;
         background: #fff !important;
-        box-shadow: 0 6px 16px rgba(15, 23, 42, .07), 0 0 0 3px rgba(174, 184, 196, .12);
+        box-shadow: none;
     }
     .home-content-grid .ui.bottom.attached.segment table tr {
         border-bottom: 0 !important;
@@ -135,7 +137,7 @@
         max-width: 100%;
     }
     @media (max-width: 767px) {
-        .home-hero { margin: 8px 0 18px; padding: 28px 24px; }
+        .home-hero { margin: 0 0 1rem; padding: 28px 24px; border-radius: 16px; }
         .home-hero h1 { font-size: 25px; }
         .home-hero p { font-size: 14px; }
         .home-hero::after { right: 20px; font-size: 42px; letter-spacing: 4px; }
@@ -151,8 +153,10 @@
             display: block;
             width: 100% !important;
             min-width: 0;
-            padding: 0 0 1rem !important;
+            padding: 0 !important;
         }
+        .home-content-grid .ui.bottom.attached.segment { margin-bottom: 1rem !important; padding: .5rem 1rem 1rem !important; }
+        .home-content-grid .ui.top.attached.block.header { padding: 1rem 1rem .25rem !important; }
         .home-content-grid .ui.bottom.attached.segment {
             overflow-x: hidden;
         }
@@ -170,7 +174,7 @@
 // syzoj 메인 페이지는 왼쪽 11칸, 오른쪽 5칸의 Semantic UI 그리드로 구성된다.
 // 왼쪽은 공지/랭킹/메인 콘텐츠, 오른쪽은 검색/최근 문제/최근 대회를 담당한다.
 ?>
-<div class="padding">
+<div class="padding gs-plain">
     <section class="home-hero">
         <h1><?php echo htmlspecialchars($OJ_NAME, ENT_QUOTES, 'UTF-8'); ?></h1>
         <p><?php echo $MSG_HOME; ?>에서 문제를 풀고, 코드를 제출하고, 실력을 쌓아보세요.</p>
@@ -190,7 +194,7 @@
             $result_news = mysql_query_cache( $sql_news );
             $latest_news_id = (!empty($result_news) && isset($result_news[0]['news_id'])) ? intval($result_news[0]['news_id']) : 0;
             ?>
-            <h4 class="ui top attached block header" style='margin-top: 10px;'><i class="ui info icon"></i><a href="<?php echo $latest_news_id ? 'viewnews.php?id='.$latest_news_id : '#'; ?>"><?php echo $MSG_NEWS;?></a></h4>
+            <h4 class="ui top attached block header"><i class="ui info icon"></i><a href="<?php echo $latest_news_id ? 'viewnews.php?id='.$latest_news_id : '#'; ?>"><?php echo $MSG_NEWS;?></a></h4>
             <div class="ui bottom attached segment">
                 <table class="ui very basic table">
                     <thead>
@@ -219,7 +223,7 @@
             <?php /* 이미지 슬라이드 영역.
             image/slide1.jpg, slide2.jpg ... 파일이 있으면 캐러셀을 보여주던 코드지만 현재는 비활성화되어 있다.
             <?php if(file_exists("image/slide1.jpg")){ ?>
-            <h4 class="ui top attached block header" style='margin-top: 15px;'><i class="th icon"></i><?php echo $OJ_NAME ?></h4>
+            <h4 class="ui top attached block header"><i class="th icon"></i><?php echo $OJ_NAME ?></h4>
             <div class="ui bottom attached center aligned segment carousel">
                 <div class="carousel-arrow left" onclick="prevSlide()">&lt;</div> <?php for($i=1;file_exists("image/slide$i.jpg");$i++){ ?>
                 <div class="carousel-slide <?php if($i==1) echo "active";?>" style="background-image: url('image/slide<?php echo $i ?>.jpg')"></div>
@@ -316,7 +320,7 @@ $view_month_rank=mysql_query_cache("select user_id,nick,count(distinct(problem_i
         <div class="right floated five wide column">
             
             <?php // 문제 번호를 바로 입력해 problem.php?id=... 로 이동하는 빠른 검색 폼. ?>
-            <h4 class="ui top attached block header" style="margin-top: 10px;"><i class="ui search icon"></i><?php echo $MSG_SEARCH;?></h4>
+            <h4 class="ui top attached block header"><i class="ui search icon"></i><?php echo $MSG_SEARCH;?></h4>
             <div class="ui bottom attached segment">
                 <form action="problem.php" method="get">
                     <div class="ui search" style="width: 100%; ">
