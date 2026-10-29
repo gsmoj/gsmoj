@@ -46,7 +46,7 @@
       </div>
     <?php }?>
 
-    <button name="submit" type="submit" class="ui button"><?php echo $MSG_REGISTER; ?></button>
+    <button name="submit" type="submit" class="ui primary button"><?php echo $MSG_REGISTER; ?></button>
     <button name="submit" type="reset" class="ui button"><?php echo $MSG_RESET; ?></button>
   </form>
 </div>

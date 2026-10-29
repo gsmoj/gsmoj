@@ -9,31 +9,23 @@
 </style>
 
 
-<div class="padding">
-<div class="ui grid">
-    <div class="row">
-        <div class="five wide column">
-            <div class="ui card" style="width: 100%; " id="user_card">
-                <div class="">
-                <div class="column">
+<div class="gs-page-head">
+    <h1><?php echo $MSG_PROBLEMS." ".$MSG_STATISTICS ?></h1>
+    <p><?php echo intval($id) ?>번 문제의 채점 결과와 빠른 정답 순위를 보여 줘요</p>
+</div>
+<div class="padding gs-plain">
+<div class="gs-split">
+        <div class="gs-split-side">
                       <h4 class="ui top attached block header"><?php echo $MSG_STATISTICS ?></h4>
                       <div class="ui bottom attached segment">
                         <div id="pie_chart_legend"></div>
-                        <div style="width: 260px; height: 260px; margin-left: 15.5px; "><canvas style="width: 260px; height: 260px; " id="pie_chart"></canvas></div>
+                        <div style="width: 260px; max-width: 100%; height: 260px; margin: 0 auto; "><canvas style="width: 260px; height: 260px; " id="pie_chart"></canvas></div>
                       </div>
-                  </div>
-                </div>
-
-            </div>
-
         </div>
-        <div class="eleven wide column">
-            <div class="ui grid">
-                <div class="row">
-                    <div class="column">
+        <div class="gs-split-main">
                         <h4 class="ui top attached block header"><?php echo $MSG_RANKLIST ?></h4>
                         <div class="ui bottom attached segment">
-                            <table class="ui very basic table">
+                            <div class="gs-table-wrap"><table class="ui very basic table" style="white-space: nowrap; ">
                               <thead>
                                 <tr>
                                   <th><?php echo $MSG_RANKLIST ?></th>
@@ -59,9 +51,8 @@
                             }
                             ?>
                             
-                            </table>
-                            <div style="margin-bottom: 10px; ">
-  
+                            </table></div>
+                            <div class="gs-pager">
                                 <div style="text-align: center; ">
                                 <div class="ui pagination menu" style="box-shadow: none; ">
                                   <?php
@@ -82,13 +73,8 @@
                                 </div>
                                 </div>
                               </div>
-
                         </div>
-                    </div>
-                </div>
-            </div>
         </div>
-    </div>
 </div>
 </div>
 

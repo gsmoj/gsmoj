@@ -1,0 +1,343 @@
+/*
+ * GSMOJ 사용자 화면 공통 레이아웃
+ * 문제 목록(problemset.php)의 배경·카드·표·간격을 기준으로 나머지 사용자 화면을 맞춘다.
+ * header.php에서 다른 CSS보다 마지막에 불러오며, 각 페이지의 .padding 상자를 흰 카드로 바꾼다.
+ *
+ * 간격 기준
+ *   헤더 ↔ 제목/카드     2.25rem
+ *   제목 ↔ 도구줄/카드   1.5rem ~ 2rem
+ *   카드 ↔ 카드          1.5rem
+ *   카드 안쪽 여백       1.75rem (모바일 1rem)
+ *   마지막 카드 ↔ 바닥글 3rem
+ */
+
+:root {
+  --gs-bg: #f4f5f7;
+  --gs-card: #fff;
+  --gs-text: #1f2937;
+  --gs-title: #111827;
+  --gs-muted: #6b7280;
+  --gs-subtle: #4b5563;
+  --gs-line: #eef0f2;
+  --gs-line-soft: #f1f3f5;
+  --gs-fill: #f1f3f5;
+  --gs-fill-hover: #e5e7eb;
+  --gs-blue: #2563eb;
+  --gs-blue-dark: #1d4ed8;
+  --gs-gap: 1.5rem;
+  --gs-card-pad: 1.75rem;
+}
+
+/* 배경: 배경 이미지(OJ_BG)는 js.php가 인라인으로 넣으므로 !important로 덮는다. */
+body#MainBg-C { background: var(--gs-bg) !important; color: var(--gs-text); }
+
+/* js.php가 모든 form 끝에 붙이는 CSRF 토큰 상자(#csrf)가 flex 간격을 차지하지 않게 한다. */
+form > #csrf { display: contents; }
+/* 세션 유지용 숨은 iframe(#sk)의 테두리가 점처럼 보이지 않게 한다. */
+iframe#sk { position: absolute; width: 0; height: 0; border: 0; }
+
+/* ── 페이지 제목 (문제 목록의 제목 영역과 동일) ── */
+.gs-page-head { padding-top: 2.25rem; margin-bottom: 2rem; }
+.gs-page-head h1 { margin: 0; color: var(--gs-title); font-size: 32px; font-weight: 700; letter-spacing: -.02em; line-height: 1.3; }
+.gs-page-head p { margin: .5rem 0 0; color: var(--gs-subtle); font-size: 15px; }
+.gs-page-head + .padding,
+.gs-page-head + .gs-toolbar { margin-top: 0 !important; }
+
+/* 카드 바깥 도구줄 (검색·필터·버튼) */
+.gs-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: .75rem 1rem; margin: 0 0 1.5rem; }
+.gs-toolbar .gs-toolbar-end { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem .75rem; margin-left: auto; }
+.gs-toolbar + .padding { margin-top: 0 !important; }
+
+/* 둥근 칩 버튼 (문제 목록 필터와 동일) */
+.gs-chip { display: inline-flex; align-items: center; height: 38px; padding: 0 16px; border-radius: 999px; background: #eceef1; color: #374151; font-size: 14px; font-weight: 500; white-space: nowrap; text-decoration: none; transition: background-color .15s ease, color .15s ease; }
+.gs-chip:hover { background: #e2e5e9; color: var(--gs-title); text-decoration: none; }
+.gs-chip.active, .gs-chip.active:hover { background: var(--gs-title); color: #fff; }
+
+/* 카드 바깥 검색창 */
+.gs-search-box { position: relative; flex: 0 1 400px; min-width: 220px; margin: 0; }
+.gs-search-box.gs-search-box-sm { flex-basis: 240px; min-width: 180px; }
+.gs-search-box svg { position: absolute; top: 50%; left: 18px; width: 20px; height: 20px; color: #9ca3af; transform: translateY(-50%); pointer-events: none; }
+.gs-search-box input[type="search"], .gs-search-box input[type="text"] { width: 100%; font-weight: 400; height: 52px; min-height: 52px; padding: 0 16px 0 48px !important; border: 1px solid transparent; border-radius: 14px; outline: 0; background: #fff; color: var(--gs-title); font-size: 15px; }
+.gs-search-box input::placeholder { color: #9ca3af; }
+.gs-search-box input:focus { border-color: var(--gs-blue); box-shadow: 0 0 0 3px rgba(37, 99, 235, .12); }
+
+/* ── 본문 카드: 기존 .padding 유리 상자를 문제 목록 카드 모양으로 바꾼다 ── */
+#main > .padding,
+#main .padding {
+  box-sizing: border-box;
+  margin: 2.25rem 0 3rem;
+  padding: var(--gs-card-pad);
+  overflow: visible;
+  border: 0;
+  border-radius: 20px;
+  background: var(--gs-card);
+  box-shadow: none;
+  color: var(--gs-text);
+  transition: none;
+}
+#main .padding::before,
+#main .padding::after { display: none; }
+#main .padding > :first-child { margin-top: 0; }
+#main .padding > :last-child { margin-bottom: 0; }
+/* 안에 카드가 여러 개 있는 화면(홈 등)은 바깥 카드 없이 배경 위에 카드만 놓는다. */
+#main .padding.gs-plain { padding: 0; border-radius: 0; background: transparent; }
+
+/* 바깥 카드 없는 화면에서는 제목+내용 상자 하나하나를 흰 카드로 보여 준다. */
+#main .gs-plain .ui.top.attached.block.header,
+#main .gs-plain .ui.top.attached.header { padding: 1.25rem 1.5rem .25rem; border: 0; border-radius: 20px 20px 0 0; background: #fff; font-size: 16px; }
+#main .gs-plain .ui.bottom.attached.segment { padding: .5rem 1.5rem 1.25rem; border: 0; border-radius: 0 0 20px 20px; background: #fff; }
+#main .gs-plain .ui.grid > .row + .row { padding-top: var(--gs-gap); }
+
+/* 왼쪽 보조 카드 + 오른쪽 본문 카드 두 단 배치 (문제 통계 등) */
+#main .gs-split { display: grid; grid-template-columns: minmax(0, 320px) minmax(0, 1fr); gap: var(--gs-gap); align-items: start; }
+@media (max-width: 991px) { #main .gs-split { grid-template-columns: minmax(0, 1fr); } }
+
+/* 카드가 연달아 있을 때 사이 간격 */
+#main .padding + .padding { margin-top: calc(-3rem + var(--gs-gap)); }
+
+/* 카드 안 제목 */
+#main .padding > h1, #main .padding > h2 { margin: 0 0 1rem; color: var(--gs-title); font-size: 26px; font-weight: 700; letter-spacing: -.02em; line-height: 1.35; }
+#main .padding h3 { color: var(--gs-title); }
+
+/* 카드 안에서 grid 행 사이 간격을 일정하게 */
+#main .padding .ui.grid { margin-top: 0; margin-bottom: 0; }
+#main .padding .ui.grid > .row { padding-top: 0; padding-bottom: 0; }
+#main .padding .ui.grid > .row + .row { padding-top: var(--gs-gap); }
+
+/* 문제 풀이 화면(왼쪽 문제·오른쪽 편집기)은 자체 배치를 쓰므로 카드 여백을 없앤다. */
+#main.problem-split-pane .padding { margin: 0; border-radius: 0; }
+
+/* ── 블록 제목 + 내용 상자 (문제 설명, 대회 안내, 공지 등) ── */
+#main .ui.top.attached.block.header,
+#main .ui.top.attached.header {
+  margin: 0;
+  padding: .85rem 1.25rem;
+  border: 1px solid var(--gs-line);
+  border-bottom: 0;
+  border-radius: 14px 14px 0 0;
+  background: #f8f9fb;
+  color: var(--gs-title);
+  font-size: 15px;
+  font-weight: 600;
+}
+#main .ui.attached.segment {
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  border-color: var(--gs-line);
+}
+#main .ui.bottom.attached.segment {
+  margin-bottom: 0;
+  padding: 1.25rem;
+  border: 1px solid var(--gs-line);
+  border-radius: 0 0 14px 14px;
+  box-shadow: none;
+}
+#main .ui.segment:not(.attached):not(.basic) {
+  border: 1px solid var(--gs-line);
+  border-radius: 14px;
+  box-shadow: none;
+}
+#main .ui.segment, #main .ui.segments .segment { font-size: 16px; line-height: 1.7; }
+#main .ui.segments { border: 1px solid var(--gs-line); border-radius: 14px; box-shadow: none; }
+
+/* ── 표: 문제 목록 표와 같은 머리글·행 간격 ── */
+#main .ui.table {
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: #374151;
+  font-size: 15px;
+}
+#main .ui.table thead th,
+#main .ui.table thead td {
+  padding: 1.1rem .75rem 1rem;
+  border: 0;
+  border-bottom: 1px solid var(--gs-line);
+  background: transparent;
+  color: var(--gs-muted);
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+#main .ui.table thead tr:first-child > th:first-child,
+#main .ui.table thead tr:first-child > th:last-child { border-radius: 0; }
+#main .ui.table tbody td,
+#main .ui.table > tr > td {
+  padding: .95rem .75rem;
+  border: 0;
+  border-top: 1px solid var(--gs-line-soft);
+  vertical-align: middle;
+}
+#main .ui.table tbody tr:first-child td { border-top: 0; }
+#main .ui.table tbody tr { transition: background-color .15s ease; }
+#main .ui.table tbody tr:hover,
+#main .ui.selectable.table tbody tr:hover { background: #fafbfc !important; }
+#main .ui.celled.table tr th, #main .ui.celled.table tr td { border-left: 0; }
+#main .ui.table a { color: var(--gs-title); }
+#main .ui.table a:hover { color: var(--gs-blue); }
+/* 넓은 표는 카드 안에서 가로로 스크롤한다. */
+#main .gs-table-wrap { overflow-x: auto; }
+
+/* ── 버튼 ── */
+#main .ui.button { border-radius: 10px; }
+#main .ui.button:not(.basic) {
+  box-shadow: none;
+  font-weight: 500;
+  line-height: 1.4;
+}
+#main .ui.button:not(.primary):not(.blue):not(.green):not(.positive):not(.red):not(.negative):not(.orange):not(.yellow):not(.pink):not(.violet):not(.purple):not(.teal):not(.olive):not(.grey):not(.black):not(.basic):not(.inverted) {
+  background: #eceef1;
+  color: #374151;
+}
+#main .ui.button:not(.primary):not(.blue):not(.green):not(.positive):not(.red):not(.negative):not(.orange):not(.yellow):not(.pink):not(.violet):not(.purple):not(.teal):not(.olive):not(.grey):not(.black):not(.basic):not(.inverted):hover {
+  background: #e2e5e9;
+  color: var(--gs-title);
+}
+#main .ui.primary.button, #main .ui.blue.button { background: var(--gs-blue); color: #fff; }
+#main .ui.primary.button:hover, #main .ui.blue.button:hover { background: var(--gs-blue-dark); color: #fff; }
+#main .ui.green.button, #main .ui.positive.button { background: #16a34a; color: #fff; }
+#main .ui.green.button:hover, #main .ui.positive.button:hover { background: #15803d; color: #fff; }
+#main .ui.red.button, #main .ui.negative.button { background: #dc2626; color: #fff; }
+#main .ui.red.button:hover, #main .ui.negative.button:hover { background: #b91c1c; color: #fff; }
+#main .ui.grey.button { background: #6b7280; color: #fff; }
+#main .ui.buttons { gap: .5rem; flex-wrap: wrap; }
+#main .ui.buttons .button { margin: 0; border-radius: 10px !important; }
+#main .ui.buttons .button + .button { border-left: 0; }
+#main .ui.buttons .or { display: none; }
+
+/* ── 입력창: 흰 카드 안에서는 헤더 검색창처럼 옅은 회색 바탕 ── */
+#main .padding input[type="text"],
+#main .padding input[type="search"],
+#main .padding input[type="password"],
+#main .padding input[type="email"],
+#main .padding input[type="number"],
+#main .padding input:not([type]),
+#main .padding select,
+#main .padding textarea {
+  border: 1px solid transparent !important;
+  border-radius: 10px !important;
+  background-color: #f3f4f6 !important;
+  box-shadow: none !important;
+  color: var(--gs-title);
+  font-size: 14px;
+}
+#main .padding input:focus,
+#main .padding select:focus,
+#main .padding textarea:focus {
+  border-color: var(--gs-blue) !important;
+  background-color: #fff !important;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, .12) !important;
+}
+#main .padding select { height: 40px; padding-right: 32px; }
+#main .ui.form .field > label, #main .ui.form .inline.fields > label { color: #374151; font-size: 14px; font-weight: 500; }
+#main .ui.action.input > .button { border-radius: 0 10px 10px 0 !important; }
+#main .ui.action.input > input { border-radius: 10px 0 0 10px !important; }
+
+/* 카드 위쪽 필터 줄: 좁은 화면에서도 카드 밖으로 넘치지 않게 줄바꿈한다. */
+#main .ui.form .inline.fields.gs-filter-row,
+#main .gs-filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .75rem 1rem;
+  margin: 0 0 1.25rem;
+  white-space: normal;
+}
+#main .gs-filter-row > label { margin: 0 -.25rem 0 0 !important; padding: 0; color: var(--gs-muted); font-size: 13px !important; font-weight: 500; white-space: nowrap; }
+#main .gs-filter-row > .field { margin: 0 !important; padding: 0 !important; }
+#main .gs-filter-row input[type="text"] { width: 100px; height: 38px; }
+#main .gs-filter-row select { width: auto; min-width: 100px; max-width: 140px; height: 38px; }
+#main .gs-filter-row .gs-filter-note { color: var(--gs-muted); font-size: 13px; white-space: nowrap; }
+#main .gs-filter-row .ui.button { height: 38px; margin: 0; }
+
+/* 카드 아래 페이지 이동 (문제 목록 .problemset-pagination과 동일) */
+.gs-page-nav { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: .35rem; margin: -1.5rem 0 3rem; }
+.gs-page-nav a, .gs-page-nav span { display: inline-flex; align-items: center; justify-content: center; min-width: 36px; height: 36px; padding: 0 .5rem; border-radius: 10px; color: var(--gs-subtle); font-size: 14px; font-weight: 500; text-decoration: none; }
+.gs-page-nav a:hover { background: #e9ebee; color: var(--gs-title); }
+.gs-page-nav .active, .gs-page-nav .active:hover { background: #fff; color: var(--gs-title); }
+.gs-page-nav .disabled { color: #c5cad1; }
+
+/* 카드 아래쪽 출처·도움말 같은 작은 글 */
+#main .gs-card-note { margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid var(--gs-line-soft); color: var(--gs-muted); font-size: 13px; }
+
+/* 오류·안내 메시지(error.php)가 카드 없이 바로 나올 때도 헤더와 바닥글에서 띄운다. */
+#main > .ui.icon.message { margin: 2.25rem 0 3rem; padding: 1.75rem; border-radius: 20px; }
+
+/* 카드 없이 #main 바로 아래 놓인 grid(로그인 등)는 좌우 음수 여백 때문에 가로 스크롤이 생기므로 없앤다. */
+#main > .ui.grid { margin-right: 0; margin-left: 0; }
+
+/* 빈 목록 안내 */
+#main .gs-empty { padding: 3rem 0 2rem; color: var(--gs-muted); font-size: 15px; text-align: center; }
+
+/* 화면에는 숨기고 화면 낭독기에는 읽히는 라벨 */
+.gs-sr-only { position: absolute !important; width: 1px; height: 1px; margin: -1px !important; padding: 0 !important; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
+/* 표 아래 페이지 이동 */
+#main .gs-pager { margin-top: 1.25rem; }
+
+/* ── 라벨·태그 (문제 목록 태그와 같은 모양) ── */
+#main .ui.label { border-radius: 6px; font-weight: 500; }
+#main .ui.label:not([class*="red"]):not([class*="green"]):not([class*="blue"]):not([class*="orange"]):not([class*="yellow"]):not([class*="olive"]):not([class*="teal"]):not([class*="violet"]):not([class*="purple"]):not([class*="pink"]):not([class*="brown"]):not([class*="grey"]):not([class*="black"]) {
+  background: var(--gs-fill);
+  color: var(--gs-subtle);
+}
+
+/* ── 페이지 이동 (문제 목록 페이지 이동과 같은 모양) ── */
+#main .ui.pagination.menu {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: .35rem;
+  min-height: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+#main .ui.pagination.menu .item {
+  justify-content: center;
+  min-width: 36px;
+  height: 36px;
+  min-height: 36px;
+  padding: 0 .65rem !important;
+  border-radius: 10px;
+  color: var(--gs-subtle);
+  font-size: 14px;
+}
+#main .ui.pagination.menu .item::before { display: none; }
+#main .ui.pagination.menu .item:hover { background: #e9ebee; color: var(--gs-title); }
+#main .ui.pagination.menu .active.item { background: var(--gs-fill); color: var(--gs-title); font-weight: 600; }
+#main .ui.pagination.menu .disabled.item { color: #c5cad1; }
+#main .ui.pagination.menu .icon.item i.icon { margin: 0; }
+
+/* ── 알림 메시지 ── */
+#main .ui.message { border-radius: 14px; box-shadow: none; }
+#main .ui.message:not(.error):not(.negative):not(.warning):not(.positive):not(.success):not(.info) { border: 1px solid var(--gs-line); background: #fff; }
+
+/* ── 진행 막대 ── */
+#main .ui.progress { border-radius: 999px; background: #eceef1; }
+#main .ui.progress .bar { border-radius: 999px; }
+
+/* ── 모바일 ── */
+@media (max-width: 767px) {
+  :root { --gs-card-pad: 1rem; --gs-gap: 1rem; }
+  /* 본문 좌우 여백을 헤더·바닥글(.ui.container 14px + 15px)과 맞춘다.
+     js.php가 화면 폭 800px 미만에서 #main의 클래스를 지우므로 클래스 없이 지정한다. */
+  #main:not(.problem-split-pane) { margin-right: 14px !important; margin-left: 14px !important; padding: 0 15px; }
+  #main .problemset-page { padding-right: 0; padding-left: 0; }
+  /* Semantic UI는 좁은 화면에서 표 칸을 한 줄씩 쌓는데, 가로 스크롤 상자 안의 표는 표 모양을 유지한다. */
+  #main .gs-table-wrap .ui.table:not(.unstackable) thead { display: table-header-group !important; }
+  #main .gs-table-wrap .ui.table:not(.unstackable) tbody { display: table-row-group !important; }
+  #main .gs-table-wrap .ui.table:not(.unstackable) tr { display: table-row !important; padding: 0 !important; box-shadow: none !important; }
+  #main .gs-table-wrap .ui.table:not(.unstackable) tr > th,
+  #main .gs-table-wrap .ui.table:not(.unstackable) tr > td { display: table-cell !important; width: auto !important; padding: .75rem .6rem !important; white-space: nowrap; }
+  .gs-page-head { padding-top: 1.5rem; margin-bottom: 1.5rem; }
+  .gs-page-head h1 { font-size: 26px; }
+  .gs-toolbar { margin-bottom: 1rem; }
+  .gs-search-box { flex: 1 1 100%; }
+  .gs-toolbar .gs-toolbar-end { width: 100%; margin-left: 0; }
+  #main > .padding, #main .padding { margin: 1.5rem 0 2rem; border-radius: 16px; overflow-x: auto; }
+  #main .padding + .padding { margin-top: calc(-2rem + var(--gs-gap)); }
+  #main .padding > h1, #main .padding > h2 { font-size: 22px; }
+}

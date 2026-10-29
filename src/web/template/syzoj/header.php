@@ -138,8 +138,9 @@
             border-bottom: 1px solid #e5e7eb;
             background: #f8fafc;
         }
-        .gs-rolebar-inner { display: flex; align-items: center; gap: 4px; height: 40px; overflow-x: auto; white-space: nowrap; scrollbar-width: none; }
-        .gs-rolebar-inner::-webkit-scrollbar { display: none; }
+        /* .ui.container의 display:block보다 우선하도록 선택자를 구체화한다. */
+        .gs-rolebar .ui.container.gs-rolebar-inner { display: flex; align-items: center; gap: 4px; height: 40px; overflow-x: auto; white-space: nowrap; scrollbar-width: none; }
+        .gs-rolebar .gs-rolebar-inner::-webkit-scrollbar { display: none; }
         .gs-rolebar-label { margin-right: 8px; padding: 2px 8px; border-radius: 6px; background: #111827; color: #fff; font-size: 12px; font-weight: 600; }
         .gs-rolebar a { padding: 6px 10px; border-radius: 7px; color: #4b5563; font-size: 13px; font-weight: 500; text-decoration: none; }
         .gs-rolebar a:hover { background: #eef2f7; color: #111827; }
@@ -189,6 +190,7 @@
         }
         .gs-nav {
             display: flex;
+            flex: 0 0 auto; /* 메뉴는 줄어들지 않고, 남는 폭은 검색창이 줄어서 맞춘다. */
             align-items: center;
             gap: 2px;
             min-width: 0;
@@ -256,12 +258,14 @@
         .gs-user-meta strong { display: block; color: #111827; font-size: 14px; }
         .gs-actions {
             display: flex;
-            flex: 0 0 auto;
+            flex: 0 1 auto;
             align-items: center;
             gap: 12px;
+            min-width: 0;
             margin-left: auto;
+            padding-left: 16px;
         }
-        .gs-search { position: relative; width: 240px; margin: 0 28px 0 0; }
+        .gs-search { position: relative; flex: 0 1 240px; width: 240px; min-width: 140px; margin: 0 28px 0 0; }
         .gs-search > svg {
             position: absolute;
             top: 20px; /* 입력창(40px) 기준 중앙. 모바일에서 결과 패널이 펼쳐져도 위치가 유지된다. */
@@ -302,7 +306,7 @@
             transform: translateY(-50%);
             pointer-events: none;
         }
-        /* 검색창이 좁아져도(1199px 이하에서 180px) 안내 문구가 잘리지 않도록 패널은 최소 300px을 유지한다. */
+        /* 검색창이 좁아져도(1299px 이하에서 180px) 안내 문구가 잘리지 않도록 패널은 최소 300px을 유지한다. */
         .gs-search-panel { top: calc(100% + 6px); left: 0; right: auto; width: max(100%, 300px); min-width: 0; }
         .gs-search-panel.open { display: block; }
         .gs-search-panel a { display: block; overflow: hidden; text-overflow: ellipsis; }
@@ -384,10 +388,11 @@
         #mobile-menu-toggle:hover { background: #f3f4f6; }
         #mobile-menu-toggle svg { width: 22px; height: 22px; }
 
-        @media (max-width: 1199px) {
+        /* 1300px 미만에서는 메뉴 6개와 검색창이 겹치므로 간격을 줄인다. */
+        @media (max-width: 1299px) {
             .gs-nav { margin-left: 20px; }
             .gs-nav a, .gs-nav .gs-nav-group > span { padding: 8px 10px; font-size: 15px; }
-            .gs-search { width: 180px; margin-right: 8px; }
+            .gs-search { flex-basis: 180px; width: 180px; margin-right: 8px; }
             .gs-search input[type="search"] { padding-right: 12px !important; }
             .gs-search kbd { display: none; }
             .gs-user-button { max-width: 130px; }
@@ -417,8 +422,9 @@
             .gs-nav { flex-direction: column; align-items: stretch; gap: 0; margin-left: 0; }
             .gs-nav a, .gs-nav .gs-nav-group > span { padding: 11px 12px; font-size: 15px; }
             .gs-nav a.active { background: #f3f4f6; }
-            .gs-actions { flex-direction: column; align-items: stretch; gap: 10px; margin-left: 0; }
-            .gs-search { order: -1; width: 100%; margin: 0; }
+            .gs-nav { flex: none; }
+            .gs-actions { flex-direction: column; align-items: stretch; gap: 10px; margin-left: 0; padding-left: 0; }
+            .gs-search { order: -1; flex: none; width: 100%; margin: 0; }
             /* 모바일 메뉴 안에서는 패널을 띄우지 않고 검색창 아래에 펼쳐, 메뉴 밖으로 잘리거나 본문 글자와 겹치지 않게 한다. */
             .gs-search-panel { position: static; width: 100%; margin-top: 6px; box-shadow: none; }
             .gs-bell { width: auto; justify-content: flex-start; gap: 8px; padding: 0 12px; }

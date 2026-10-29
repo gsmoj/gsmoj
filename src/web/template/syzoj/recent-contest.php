@@ -2,7 +2,12 @@
 <?php include("template/$OJ_TEMPLATE/header.php");?>
 
 
+<div class="gs-page-head">
+    <h1><?php echo $MSG_RECENT_CONTEST ?></h1>
+    <p>다른 온라인 저지에서 열리는 대회 일정을 모아 보여 줘요</p>
+</div>
     <div class="padding">
+    <div class="gs-table-wrap">
 
     <table class="ui very basic center aligned table">
       <thead>
@@ -19,7 +24,8 @@
 
         </tbody>
     </table>
-    <div>데이터 출처: <a href="https://algcontest.rainng.com/contests.json" target="_blank">https://algcontest.rainng.com/contests.json</a>&nbsp;&nbsp;&nbsp;&nbsp;제작자: <a href="https://www.rainng.com/"  target="_blank" >Azure99</a></div>
+    </div>
+    <div class="gs-card-note">데이터 출처: <a href="https://algcontest.rainng.com/contests.json" target="_blank">https://algcontest.rainng.com/contests.json</a>&nbsp;&nbsp;&nbsp;&nbsp;제작자: <a href="https://www.rainng.com/"  target="_blank" >Azure99</a></div>
     </div>
         <script>
                 var contestList = $("#contest-list");

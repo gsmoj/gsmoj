@@ -1,21 +1,35 @@
 <?php $show_title="$MSG_RANKLIST - $OJ_NAME"; ?>
 <?php include("template/$OJ_TEMPLATE/header.php");?>
 
+<?php
+  $gs_rank_scopes=array(""=>"전체","d"=>"일간","w"=>"주간","m"=>"월간","y"=>"연간");
+  $gs_rank_prefix=htmlentities(isset($_GET['prefix'])?$_GET['prefix']:"",ENT_QUOTES,"utf-8");
+  $gs_rank_group=htmlentities(isset($_GET['group_name'])?$_GET['group_name']:"",ENT_QUOTES,"utf-8");
+?>
+<div class="gs-page-head">
+  <h1><?php echo $MSG_RANKLIST?></h1>
+  <p>맞힌 문제 수를 기준으로 순위를 보여 줘요</p>
+</div>
+
+<form action="ranklist.php" class="gs-toolbar" method="get" role="search">
+  <label class="gs-search-box gs-search-box-sm">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    <input type="search" name="prefix" placeholder="<?php echo $MSG_USER?>로 검색" aria-label="<?php echo $MSG_USER?>로 검색" value="<?php echo $gs_rank_prefix ?>">
+  </label>
+  <label class="gs-search-box gs-search-box-sm">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    <input type="search" name="group_name" placeholder="<?php echo $MSG_GROUP_NAME ?>으로 검색" aria-label="<?php echo $MSG_GROUP_NAME ?>으로 검색" value="<?php echo $gs_rank_group ?>">
+  </label>
+  <button class="gs-sr-only" type="submit"><?php echo $MSG_SEARCH?></button>
+  <div class="gs-toolbar-end">
+    <?php foreach($gs_rank_scopes as $gs_key=>$gs_label){ ?>
+    <a class="gs-chip<?php if($scope===$gs_key) echo ' active'?>" href="ranklist.php<?php if($gs_key!=="") echo "?scope=".$gs_key?>"><?php echo $gs_label?></a>
+    <?php } ?>
+  </div>
+</form>
+
 <div class="padding">
-	<a href="ranklist.php?scope=d" class="ui mini button"><?php echo $MSG_DAY?></a>
-	<a href="ranklist.php?scope=w" class="ui mini button"><?php echo $MSG_WEEK?></a>
-	<a href="ranklist.php?scope=m" class="ui mini button"><?php echo $MSG_MONTH?></a>
-	<a href="ranklist.php?scope=y" class="ui mini button"><?php echo $MSG_YEAR?></a>
-  <form action="ranklist.php" class="ui mini form" method="get" role="form" style="margin-bottom: 25px; text-align: right; ">
-    <div class="ui action left icon input inline" style="width: 180px; margin-right: 77px; ">
-      <i class="search icon"></i><input name="prefix" placeholder="<?php echo $MSG_USER?>" type="text" value="<?php echo htmlentities(isset($_GET['prefix'])?$_GET['prefix']:"",ENT_QUOTES,"utf-8") ?>">
-      <button class="ui mini button" type="submit"><?php echo $MSG_SEARCH?></button>
-    </div>
-     <div class="ui action left icon input inline" style="width: 180px; margin-right: 77px; ">
-      <i class="search icon"></i><input name="group_name" placeholder="<?php echo $MSG_GROUP_NAME ?>" type="text" value="<?php echo htmlentities(isset($_GET['group_name']) ? $_GET['group_name'] : "", ENT_QUOTES, "utf-8") ?>">
-      <button class="ui mini button" type="submit"><?php echo $MSG_SEARCH ?></button>
-    </div>
-  </form>
+  <div class="gs-table-wrap">
 	    <table class="ui very basic center aligned table" style="table-layout: fixed; ">
 	        <thead>
 	        <tr>
@@ -42,14 +56,15 @@
           ?>
 	        </tbody>
 	    </table>
-    <br>
-    <div style="margin-bottom: 30px; ">
-  
-  <div style="text-align: center; ">
-	<div class="ui pagination" style="box-shadow: none; ">      
+  </div>
+</div>
+
+<?php if($view_total>$page_size){ ?>
+<nav class="gs-page-nav" aria-label="순위 페이지 이동">
     <?php
+    $gs_rank_start=isset($_GET['start'])?intval($_GET['start']):0;
     for($i = 0; $i <$view_total ; $i += $page_size) {
-    $str= "<a class=\"ui button\" href='./ranklist.php?start=" . strval ( $i ).($scope?"&scope=$scope":"") . "'>";
+    $str= "<a class=\"".($gs_rank_start==$i?"active":"")."\" href='./ranklist.php?start=" . strval ( $i ).($scope?"&scope=$scope":"") . "'>";
     $str.= strval ( $i + 1 );
     $str.= "-";
     $str.= strval ( $i + $page_size );
@@ -57,9 +72,7 @@
     echo $str;
     }
     ?>
-	</div>
-  </div>
-</div>
-</div>
+</nav>
+<?php } ?>
 
 <?php include("template/$OJ_TEMPLATE/footer.php");?>

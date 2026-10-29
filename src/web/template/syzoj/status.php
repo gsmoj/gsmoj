@@ -1,23 +1,27 @@
 <?php $show_title="$MSG_STATUS - $OJ_NAME"; ?>
 <?php include("template/$OJ_TEMPLATE/header.php");?>
 <script src="<?php echo $OJ_CDN_URL?>template/<?php echo $OJ_TEMPLATE?>/js/textFit.min.js"></script>
+<div class="gs-page-head">
+  <h1><?php echo $MSG_STATUS?></h1>
+  <p>제출한 코드의 채점 결과를 확인할 수 있어요</p>
+</div>
 <div class="padding" >
 
   <!-- <form action="" class="ui mini form" method="get" role="form" id="form"> -->
   <form id=simform class="ui mini form" action="status.php" method="get">
-    <div class="inline fields" style="margin-bottom: 25px; white-space: nowrap; ">
-      <label style="font-size: 1.2em; margin-right: 1px; "><?php echo $MSG_PROBLEM_ID?>：</label>
-      <div class="field"><input name="problem_id" style="width: 50px; " type="text" value="<?php echo isset($problem_id)?htmlspecialchars($problem_id, ENT_QUOTES):"" ?>"></div>
-        <label style="font-size: 1.2em; margin-right: 1px; "><?php echo $MSG_USER?>：</label>
-        <div class="field"><input name="user_id" style="width: 50px; " type="text" value="<?php echo  isset($user_id)?htmlspecialchars($user_id, ENT_QUOTES):"" ?>"></div>
+    <div class="inline fields gs-filter-row">
+      <label class="gs-sr-only"><?php echo $MSG_PROBLEM_ID?>：</label>
+      <div class="field"><input name="problem_id" type="text" placeholder="<?php echo $MSG_PROBLEM_ID?>" aria-label="<?php echo $MSG_PROBLEM_ID?>" value="<?php echo isset($problem_id)?htmlspecialchars($problem_id, ENT_QUOTES):"" ?>"></div>
+        <label class="gs-sr-only"><?php echo $MSG_USER?>：</label>
+        <div class="field"><input name="user_id" type="text" placeholder="<?php echo $MSG_USER?>" aria-label="<?php echo $MSG_USER?>" value="<?php echo  isset($user_id)?htmlspecialchars($user_id, ENT_QUOTES):"" ?>"></div>
 
-        <label style="font-size: 1.2em; margin-right: 1px; "><?php echo $MSG_SCHOOL?>：</label>
-        <div class="field"><input name="school" style="width: 50px; " type="text" value="<?php echo isset($school)?htmlspecialchars($school, ENT_QUOTES):"" ?>"></div>
-        <label style="font-size: 1.2em; margin-right: 1px; "><?php echo $MSG_GROUP_NAME?>：</label>
-        <div class="field"><input name="group_name" style="width: 50px; " type="text" value="<?php echo isset($group_name)?htmlspecialchars($group_name, ENT_QUOTES):"" ?>"></div>
-        <label style="font-size: 1.2em; margin-right: 1px; "><?php echo $MSG_LANG?>：</label>
-        <select class="form-control" size="1" name="language" style="width: 110px;font-size: 1em ">
-          <option value="-1">All</option>
+        <label class="gs-sr-only"><?php echo $MSG_SCHOOL?>：</label>
+        <div class="field"><input name="school" type="text" placeholder="<?php echo $MSG_SCHOOL?>" aria-label="<?php echo $MSG_SCHOOL?>" value="<?php echo isset($school)?htmlspecialchars($school, ENT_QUOTES):"" ?>"></div>
+        <label class="gs-sr-only"><?php echo $MSG_GROUP_NAME?>：</label>
+        <div class="field"><input name="group_name" type="text" placeholder="<?php echo $MSG_GROUP_NAME?>" aria-label="<?php echo $MSG_GROUP_NAME?>" value="<?php echo isset($group_name)?htmlspecialchars($group_name, ENT_QUOTES):"" ?>"></div>
+        <label class="gs-sr-only"><?php echo $MSG_LANG?>：</label>
+        <select class="form-control" size="1" name="language" aria-label="<?php echo $MSG_LANG?>">
+          <option value="-1">모든 언어</option>
           <?php
           if(isset($_GET['language'])){
             $selectedLang=intval($_GET['language']);
@@ -35,13 +39,13 @@
           }
           ?>
         </select>
-        <label style="font-size: 1.2em; margin-right: 1px;margin-left: 10px; ">상태：</label>
-        <select class="form-control" size="1" name="jresult" style="width: 110px;">
+        <label class="gs-sr-only">상태：</label>
+        <select class="form-control" size="1" name="jresult" aria-label="상태">
           <?php if (isset($_GET['jresult'])) $jresult_get=intval($_GET['jresult']);
           else $jresult_get=-1;
           if ($jresult_get>=12||$jresult_get<0) $jresult_get=-1;
-          if ($jresult_get==-1) echo "<option value='-1' selected>All</option>";
-          else echo "<option value='-1'>All</option>";
+          if ($jresult_get==-1) echo "<option value='-1' selected>모든 결과</option>";
+          else echo "<option value='-1'>모든 결과</option>";
           for ($j=0;$j<12;$j++){
           $i=($j+4)%12;
           if ($i==$jresult_get) echo "<option value='".strval($jresult_get)."' selected>".$jresult[$i]."</option>";
@@ -54,9 +58,9 @@
             $showsim=intval($_GET['showsim']);
             else
             $showsim=0;
-            echo "<label style=\"font-size: 1.2em; margin-right: 1px;margin-left: 10px; \">유사도：</label>";
+            echo "<label>유사도：</label>";
           echo "
-          <select id=\"appendedInputButton\" class=\"form-control\" name=showsim onchange=\"document.getElementById('simform').submit();\" style=\"width: 110px;\">
+          <select id=\"appendedInputButton\" class=\"form-control\" name=showsim onchange=\"document.getElementById('simform').submit();\">
           <option value=0 ".($showsim==0?'selected':'').">All</option>
           <option value=80 ".($showsim==80?'selected':'').">80</option>
           <option value=85 ".($showsim==85?'selected':'').">85</option>
@@ -66,16 +70,14 @@
           </select>";
           }
           ?>
-      <button class="ui labeled icon mini green button" type="submit" style="margin-left: 20px;">
-        <i class="search icon"></i>
-       <?php echo $MSG_SEARCH;?>
-      </button>
-                <span class='ui mini grey button'>AWT:<?php echo round($avg_delay,2)?>s </span>
+      <button class="ui primary button" type="submit"><?php echo $MSG_SEARCH;?></button>
+                <span class='gs-filter-note' title='평균 채점 대기 시간'>평균 대기 <?php echo round($avg_delay,2)?>s </span>
                  <script>var AWT=<?php echo round($avg_delay*500,0) ?>;</script>
     </div>
   </form>
 
 
+  <div class="gs-table-wrap">
   <table id="result-tab" class="ui very basic center aligned table" style="white-space: nowrap; " id="table">
     <thead>
       <tr>
@@ -96,7 +98,7 @@
                                                 } ?>
       </tr>
     </thead>
-    <tbody  style='font-weight:700' >
+    <tbody>
       <!-- <tr v-for="item in items" :config="displayConfig" :show-rejudge="false" :data="item" is='submission-item'>
           </tr> -->
     <?php
@@ -120,8 +122,9 @@
 
     </tbody>
   </table>
+  </div>
 
-  <div style="margin-bottom: 30px; ">
+  <div class="gs-pager">
 
   <div style="text-align: center; ">
         <div class="ui pagination menu" style="box-shadow: none; ">
