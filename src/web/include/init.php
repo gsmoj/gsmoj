@@ -54,6 +54,29 @@ if (isset($_SESSION[$OJ_NAME . '_' . 'OJ_LANG'])) {
 }
 require(dirname(__FILE__)."/../lang/$OJ_LANG.php");
 
+// 수행평가 회차(contest_type 9번 비트) 안의 화면과 수행평가 관리 화면(?type=assessment)은
+// 대회 관련 문구의 "대회"를 "수행평가"로 바꿔, 수행평가가 대회로 표시되지 않게 한다.
+$gs_wording_cid = isset($_GET['cid']) ? intval($_GET['cid']) : (isset($_POST['cid']) ? intval($_POST['cid']) : 0);
+$gs_wording_assessment = isset($_GET['type']) && $_GET['type'] === "assessment";
+if (!$gs_wording_assessment && $gs_wording_cid > 0) {
+	$gs_wording_rows = pdo_query("SELECT contest_type FROM contest WHERE contest_id=?", abs($gs_wording_cid));
+	$gs_wording_assessment = !empty($gs_wording_rows) && (intval($gs_wording_rows[0]['contest_type']) & 512) != 0;
+}
+if ($gs_wording_assessment && isset($MSG_ASSESSMENT)) {
+	$gs_wording_from = array("대회중", "대회시작", "대회예정", "대회종료", "대회시간", "대회순위", "대회ID", "대회");
+	$gs_wording_to = array("수행평가 중", "수행평가 시작", "수행평가 예정", "수행평가 종료", "수행평가 시간", "수행평가 순위", "수행평가 ID", $MSG_ASSESSMENT);
+	foreach (array("MSG_CONTEST", "MSG_NOT_IN_CONTEST", "MSG_NOT_INVITED", "MSG_PRIVATE_WARNING", "MSG_TIME_WARNING",
+			"MSG_WATCH_RANK", "MSG_NOIP_WARNING", "MSG_NOIP_NOHINT", "MSG_CONTEST_ID", "MSG_CONTEST_NAME",
+			"MSG_CONTEST_STATUS", "MSG_CONTEST_OPEN", "MSG_CONTEST_SUSPECT1", "MSG_CONTEST_SUSPECT2",
+			"MSG_REVIEW_CONTESTRANK", "MSG_Running", "MSG_Start", "MSG_End", "MSG_TotalTime", "MSG_Ended",
+			"MSG_SOURCE_NOT_ALLOWED_FOR_EXAM", "MSG_BBS_NOT_ALLOWED_FOR_EXAM", "MSG_MODIFY_NOT_ALLOWED_FOR_EXAM",
+			"MSG_MAIL_NOT_ALLOWED_FOR_EXAM", "MSG_HELP_SET_LOGIN_IP", "MSG_HELP_ADD_CONTEST_USER",
+			"MSG_PROBLEM_USED_IN", "MSG_COPY_USER_LIST_FROM_CONTEST", "MSG_THIS_CONTEST", "MSG_RETURN_CONTEST",
+			"MSG_Contest_Infomation") as $gs_wording_name) {
+		if (isset($$gs_wording_name)) $$gs_wording_name = str_replace($gs_wording_from, $gs_wording_to, $$gs_wording_name);
+	}
+}
+
 if($OJ_SaaS_ENABLE){
 	$DOMAIN="my.hustoj.com";   // SaaS를 사용할 경우 실제 서비스의 메인 도메인으로 바꿔야 한다.
 	if(isset($_SERVER["HTTP_HOST"])) $OJ_SaaS_CONF=realpath(dirname(__FILE__)."/..")."/SaaS/".basename($_SERVER["HTTP_HOST"]).".php";

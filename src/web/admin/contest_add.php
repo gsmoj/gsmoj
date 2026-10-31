@@ -175,7 +175,7 @@ else{
   <meta http-equiv="Cache-Control" content="no-cache">
   <meta http-equiv="Content-Language" content="ko">
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <title>대회 등록</title>
+  <title><?php echo $MSG_CONTEST?> 등록</title>
 </head>
 <?php 
   include_once("kindeditor.php") ;
@@ -186,7 +186,7 @@ else{
     <form method=POST class="contest-form">
     <section class="contest-form-card">
     <p align=left>
-      <label class="admin-field-label">대회 이름</label>
+      <label class="admin-field-label"><?php echo $MSG_CONTEST?> 이름</label>
       <input class="input input-xxlarge" style="width:100%;" type=text name=title value="<?php echo isset($title)?$title:""?>"><br><br>
     </p>
     </section>
@@ -215,7 +215,7 @@ else{
     </section>
     <section class="contest-form-card">
     <p align=left>
-      <label class="admin-field-label">대회 설명</label>
+      <label class="admin-field-label"><?php echo $MSG_CONTEST?> 설명</label>
       <textarea class=kindeditor rows=13 name=description cols=80><?php echo isset($description)?$description:""?></textarea>
       <br>
       <table class="contest-options-table" width="100%">
@@ -271,7 +271,7 @@ else{
           <td height="*">
             <p align=left>
               <?php echo $MSG_CONTEST."-".$MSG_USER?>
-              <span class="admin-field-help">비공개 대회에 참여할 사용자 ID를 한 줄에 하나씩 입력하세요.</span>
+              <span class="admin-field-help">비공개 <?php echo $MSG_CONTEST?>에 참여할 사용자 ID를 한 줄에 하나씩 입력하세요.</span>
               <select id="copy_from" onchange="copy_user_from_contest($(this).val());" >
               <option value=0 ><?php echo $MSG_COPY_USER_LIST_FROM_CONTEST ?></option>
                         <?php

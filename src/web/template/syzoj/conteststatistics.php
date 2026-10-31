@@ -25,7 +25,7 @@
 				}
 
 				if ($rows_cnt==0) {
-					$view_title = "대회가 종료되었습니다!";
+					$view_title = $MSG_CONTEST."가 종료되었습니다!";
 				}
 				else{
 					$row = $result[0];
