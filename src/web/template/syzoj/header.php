@@ -38,7 +38,8 @@
         if ($url == "") $url = "index.php"; // 기본 루트 접속 시 index.php로 간주
         
         $dir=basename(getcwd());
-        if($dir=="discuss3") $path_fix="../";
+        // admin/index.php도 이 헤더를 그대로 쓰므로 admin 폴더에서는 상위 경로로 링크를 건다.
+        if($dir=="discuss3"||$dir=="admin") $path_fix="../";
         else $path_fix="";
         
         // 로그인 필수 모드일 때는 로그인/비밀번호 찾기/회원가입 화면만 예외로 열어 둔다.
@@ -541,7 +542,6 @@
             <a class="item <?php if ($url=="status.php" || $url=="showsource.php") echo "active";?>" href="<?php echo $path_fix?>status.php"><?php echo $MSG_STATUS?></a>
             <a class="item <?php if ($url=="ranklist.php") echo "active";?>"
                 href="<?php echo $path_fix?>ranklist.php"><?php echo $MSG_RANKLIST?></a>
-            <a class="item <?php if ($url=="index.php") echo "active";?>" href="/">공지</a>
             <?php if(isset($OJ_RECENT_CONTEST)&&$OJ_RECENT_CONTEST){    ?>
             <a class="item <?php if ($url=="recent-contest.php") echo "active";?>"
                 href="<?php echo $path_fix?>recent-contest.php"><?php echo $MSG_RECENT_CONTEST?></a>
