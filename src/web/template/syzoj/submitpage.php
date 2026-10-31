@@ -141,7 +141,7 @@ body{
 //$PID="ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 //if ($pid>25) $pid=25;
 ?>
-<span class="submission-problem-label">대회 <span class=blue><b><?php echo $cid?></b></span>의 문제 <span class=blue><b><?php echo chr($pid+ord('A'))?></b></span></span>
+<span class="submission-problem-label"><?php echo $MSG_CONTEST?> <span class=blue><b><?php echo $cid?></b></span>의 문제 <span class=blue><b><?php echo chr($pid+ord('A'))?></b></span></span>
 <input id="cid" type='hidden' value='<?php echo $cid?>' name="cid">
 <input id="pid" type='hidden' value='<?php echo $pid?>' name="pid">
 <?php }?>

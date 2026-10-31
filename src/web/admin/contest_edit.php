@@ -16,7 +16,7 @@
   <meta http-equiv="Cache-Control" content="no-cache">
   <meta http-equiv="Content-Language" content="ko">
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <title>대회 수정</title>
+  <title><?php echo $MSG_CONTEST?> 수정</title>
 </head>
 <body class="admin-form-page">
 <?php
@@ -169,7 +169,7 @@ if(isset($_POST['startdate'])){
     <?php require_once("../include/set_post_key.php");?>
     <input type=hidden name='cid' value=<?php echo $cid?>>
     <section class="contest-form-card"><p align=left>
-      <label class="admin-field-label">대회 이름</label>
+      <label class="admin-field-label"><?php echo $MSG_CONTEST?> 이름</label>
       <input class="input input-xxlarge" style="width:100%;" type=text name=title value="<?php echo $title?>"><br><br>
     </p></section>
     <section class="contest-form-card"><div class="contest-form-grid"><p align=left>
@@ -194,7 +194,7 @@ if(isset($_POST['startdate'])){
       <input class=input-xxlarge type=text style="width:100%" name=subnet value='<?php echo htmlentities($subnet)?>' placeholder='0.0.0.0/0'>
     </section>
     <section class="contest-form-card"><p align=left>
-      <label class="admin-field-label">대회 설명</label>
+      <label class="admin-field-label"><?php echo $MSG_CONTEST?> 설명</label>
       <textarea class=kindeditor rows=13 name=description cols=80>
         <?php echo htmlentities($description,ENT_QUOTES,'UTF-8')?>
       </textarea>
@@ -254,7 +254,7 @@ if(isset($_POST['startdate'])){
           <td height="*">
             <p align=left>
               <?php echo $MSG_CONTEST."-".$MSG_USER?>
-              <span class="admin-field-help">비공개 대회에 참여할 사용자 ID를 한 줄에 하나씩 입력하세요.</span>
+              <span class="admin-field-help">비공개 <?php echo $MSG_CONTEST?>에 참여할 사용자 ID를 한 줄에 하나씩 입력하세요.</span>
               <br>
               <textarea name='ulist' rows='10' style='width:100%;' placeholder='user1<?php echo "\n"?>user2<?php echo "\n"?>user3<?php echo "\n"?>
               <?php echo $MSG_PRIVATE_USERS_ADD?><?php echo "\n"?>'><?php if(isset($ulist)){ echo $ulist;}?></textarea>
