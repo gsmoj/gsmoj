@@ -150,7 +150,12 @@
         .gs-rolebar .gs-rb-tab { padding: 6px 12px; border: 0; border-radius: 7px; background: none; color: #4b5563; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
         .gs-rolebar .gs-rb-tab:hover { background: #eef2f7; color: #111827; }
         .gs-rolebar .gs-rb-tab.active { background: #111827; color: #fff; }
-        .gs-subbar { position: fixed; top: 112px; left: 0; right: 0; z-index: 99997; height: 40px; border-bottom: 1px solid #e5e7eb; background: #fff; }
+        /* 관리자 페이지에서는 사이트 헤더 대신 이 줄이 맨 위에 오고, 왼쪽에 첫 화면으로 가는 로고만 둔다. */
+        .gs-rolebar.is-top { top: 0; height: 56px; background: #fff; }
+        .gs-rolebar.is-top .ui.container.gs-rolebar-inner { height: 56px; }
+        .gs-rolebar.is-top a.gs-logo { margin-right: 16px; padding: 0; border-radius: 0; }
+        .gs-rolebar.is-top a.gs-logo:hover { background: none; }
+        .gs-subbar { position: fixed; top: 56px; left: 0; right: 0; z-index: 99997; height: 40px; border-bottom: 1px solid #e5e7eb; background: #fff; }
         .gs-subbar .ui.container.gs-subbar-inner { height: 40px; }
         .gs-subbar .gs-rb-sub { display: none; align-items: center; gap: 2px; height: 40px; overflow-x: auto; white-space: nowrap; scrollbar-width: none; }
         .gs-subbar .gs-rb-sub.active { display: flex; }
@@ -161,7 +166,7 @@
         /* 관리자 페이지로 가는 헤더 버튼(관리 권한이 있는 사용자만) */
         .gs-admin-link { display: inline-flex; align-items: center; height: 34px; margin-right: 8px; padding: 0 12px; border: 1px solid #d1d5db; border-radius: 8px; color: #111827 !important; font-size: 13px; font-weight: 600; white-space: nowrap; }
         .gs-admin-link:hover { background: #f3f4f6; }
-        body.has-rolebar#MainBg-C { min-height: calc(100vh - 152px); }
+        body.has-rolebar#MainBg-C { min-height: calc(100vh - 96px); }
         .gs-header a { text-decoration: none; }
         #menu.gs-header-inner {
             display: flex;
@@ -511,7 +516,7 @@
             }
             if ($gs_file_group >= 0) $gs_active_group = $gs_file_group;
         }
-        $gs_top = $gs_in_admin ? 152 : 72;  // 고정 헤더 72px + 관리자 페이지에서는 그룹 탭 줄 40px + 하위 기능 줄 40px
+        $gs_top = $gs_in_admin ? 96 : 72;  // 고정 헤더 72px. 관리자 페이지는 사이트 헤더 없이 그룹 탭 줄 56px + 하위 기능 줄 40px
 ?>
 <body id="MainBg-C" class="<?php if ($gs_in_admin) echo 'has-rolebar'?>" style="position: relative; margin-top: <?php echo $gs_top?>px; min-height: calc(100vh - <?php echo $gs_top?>px); overflow-x: hidden; overflow-y: auto;">
 <?php
@@ -528,6 +533,7 @@
             if($gs_mail_html) $gs_mail_count = intval(preg_replace('/\D/', '', strip_tags($gs_mail_html)));
         }
 ?>
+    <?php if (!$gs_in_admin) { // 관리자 페이지에서는 사이트 헤더를 그리지 않는다. ?>
     <header id="page-header" class="gs-header">
         <div id="menu" class="ui container gs-header-inner">
             <a class="gs-logo" href="/">
@@ -746,9 +752,14 @@ if(isset($_SESSION[$OJ_NAME.'_'.'balloon'])){
         })();
         </script>
     </header>
+    <?php } ?>
     <?php if ($gs_in_admin) { ?>
-    <nav class="gs-rolebar" aria-label="관리 메뉴">
+    <nav class="gs-rolebar is-top" aria-label="관리 메뉴">
         <div class="ui container gs-rolebar-inner" role="tablist">
+            <a class="gs-logo" href="/" title="첫 화면으로">
+                <span class="gs-logo-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m9 7-5 5 5 5"/><path d="m15 7 5 5-5 5"/></svg></span>
+                <span class="gs-logo-text"><?php echo $gs_site_name?></span>
+            </a>
             <span class="gs-rolebar-label"><?php echo $gs_is_admin ? "관리자" : ($gs_is_teacher ? "교사" : "관리")?></span>
             <?php if ($gs_is_admin) { ?><a href="monitor.php" target="main">서버 모니터링</a><?php } ?>
             <?php foreach ($gs_admin_groups as $gs_i => $gs_group) { ?>
