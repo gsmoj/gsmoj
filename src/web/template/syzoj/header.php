@@ -140,13 +140,21 @@
             background: #f8fafc;
         }
         /* .ui.container의 display:block보다 우선하도록 선택자를 구체화한다. */
-        .gs-rolebar .ui.container.gs-rolebar-inner { display: flex; align-items: center; gap: 4px; height: 40px; overflow-x: auto; white-space: nowrap; scrollbar-width: none; }
-        .gs-rolebar .gs-rolebar-inner::-webkit-scrollbar { display: none; }
+        .gs-rolebar .ui.container.gs-rolebar-inner { display: flex; align-items: center; gap: 4px; height: 40px; white-space: nowrap; }
         .gs-rolebar-label { margin-right: 8px; padding: 2px 8px; border-radius: 6px; background: #111827; color: #fff; font-size: 12px; font-weight: 600; }
         .gs-rolebar a { padding: 6px 10px; border-radius: 7px; color: #4b5563; font-size: 13px; font-weight: 500; text-decoration: none; }
         .gs-rolebar a:hover { background: #eef2f7; color: #111827; }
         .gs-rolebar .gs-rolebar-status { margin-left: auto; padding: 4px 10px; border-radius: 999px; background: #e0f2fe; color: #075985; font-size: 12px; font-weight: 600; }
         .gs-rolebar .gs-rolebar-status.is-warn { background: #fef3c7; color: #92400e; }
+        /* 관리 항목 그룹 상자: 마우스를 올리거나 포커스하면 아래에 하위 기능 목록이 펼쳐진다. */
+        .gs-rb-group { position: relative; }
+        .gs-rb-title { display: inline-flex; align-items: center; gap: 4px; padding: 6px 10px; border-radius: 7px; color: #4b5563; font-size: 13px; font-weight: 500; cursor: default; outline: none; }
+        .gs-rb-title::after { content: ""; width: 0; height: 0; border-left: 4px solid transparent; border-right: 4px solid transparent; border-top: 4px solid currentColor; opacity: .6; }
+        .gs-rb-group:hover .gs-rb-title, .gs-rb-group:focus-within .gs-rb-title { background: #eef2f7; color: #111827; }
+        .gs-rb-drop { display: none; position: absolute; top: 100%; left: 0; z-index: 2; min-width: 190px; padding: 6px; border: 1px solid #e5e7eb; border-radius: 8px; background: #fff; box-shadow: 0 10px 24px rgba(15, 23, 42, .12); }
+        .gs-rb-group:hover .gs-rb-drop, .gs-rb-group:focus-within .gs-rb-drop { display: block; }
+        .gs-rolebar .gs-rb-drop a { display: block; padding: 7px 10px; border-radius: 6px; }
+        .gs-rolebar .gs-rb-drop a.is-danger { color: #dc2626; }
         body.has-rolebar#MainBg-C { min-height: calc(100vh - 112px); }
         .gs-header a { text-decoration: none; }
         #menu.gs-header-inner {
@@ -464,14 +472,12 @@
         $gs_rolebar_status = "";
         $gs_is_admin = isset($_SESSION[$OJ_NAME.'_'.'administrator']);
         $gs_admin_url = $path_fix."admin/";
+        // 관리 항목 그룹(공지·사용자·문제·대회·수행평가·시스템 등)은 admin/menu_items.inc.php가 권한별로 정한다.
+        require_once(dirname(__FILE__)."/../../admin/menu_items.inc.php");
+        $gs_in_admin = ($dir == "admin");
+        $gs_admin_groups = gs_admin_menu();
         if ($gs_is_admin) {
-            $gs_rolebar[] = array($gs_admin_url, "관리자 페이지");
-            $gs_rolebar[] = array($gs_admin_url."?main=monitor.php", "서버 모니터링");
-            $gs_rolebar[] = array($gs_admin_url."?main=problem_list.php", "문제 관리");
-            $gs_rolebar[] = array($gs_admin_url."?main=contest_list.php", "대회 관리");
-            $gs_rolebar[] = array($gs_admin_url."?main=assessment_list.php", "수행평가 관리");
-            $gs_rolebar[] = array($gs_admin_url."?main=user_list.php", "사용자");
-            $gs_rolebar[] = array($gs_admin_url."?main=user_group.php", "반 지정");
+            $gs_rolebar[] = array($gs_admin_url."?main=monitor.php", "서버 모니터링", "monitor.php");
             $gs_running = mysql_query_cache("select count(*) from contest where defunct='N' and start_time<=now() and end_time>now()");
             $gs_waiting = mysql_query_cache("select count(*) from solution where problem_id>0 and result in (0,1,2,3)");
             $gs_running = empty($gs_running) ? 0 : intval($gs_running[0][0]);
@@ -479,20 +485,13 @@
             $gs_rolebar_status = array($gs_admin_url."?main=monitor.php&tab=".($gs_waiting ? "queue" : "contest"),
                 "진행 중 대회 ".$gs_running."개 · 채점 대기 ".$gs_waiting."건", $gs_waiting >= 20 ? "is-warn" : "");
         } else if (isset($_SESSION[$OJ_NAME.'_'.'teacher'])) {
-            // 교사: 수행평가 중심 바로가기(대회 관리는 없음)
-            $gs_rolebar[] = array($gs_admin_url."?main=assessment_list.php", "내 수행평가");
-            $gs_rolebar[] = array($gs_admin_url."?main=assessment_edit.php", "새 수행평가");
-            $gs_rolebar[] = array($gs_admin_url."?main=problem_add_page.php", "문제 등록");
-            $gs_rolebar[] = array($gs_admin_url."?main=user_group.php", "반 지정");
             $gs_mine = mysql_query_cache("select count(*) from assessment_session s join assessment a on a.assessment_id=s.assessment_id join contest c on c.contest_id=s.contest_id where a.owner=? and c.start_time<=now() and c.end_time>now()", $_SESSION[$OJ_NAME.'_'.'user_id']);
             $gs_mine = empty($gs_mine) ? 0 : intval($gs_mine[0][0]);
             $gs_rolebar_status = array($gs_admin_url."?main=assessment_list.php", "진행 중인 내 수행평가 회차 ".$gs_mine."개", "");
-        } else {
-            if (isset($_SESSION[$OJ_NAME.'_'.'problem_editor'])) $gs_rolebar[] = array($gs_admin_url."?main=problem_list.php", "문제 관리");
-            if (isset($_SESSION[$OJ_NAME.'_'.'contest_creator'])) $gs_rolebar[] = array($gs_admin_url."?main=contest_list.php", "대회 관리");
-            if (count($gs_rolebar) || isset($_SESSION[$OJ_NAME.'_'.'user_adder']) || isset($_SESSION[$OJ_NAME.'_'.'password_setter']))
-                array_unshift($gs_rolebar, array($gs_admin_url, "관리자 페이지"));
         }
+        // 관리 권한이 하나라도 있으면 관리자 페이지 바로가기를 맨 앞에 둔다.
+        if (count($gs_admin_groups) || isset($_SESSION[$OJ_NAME.'_'.'user_adder']) || isset($_SESSION[$OJ_NAME.'_'.'password_setter']))
+            array_unshift($gs_rolebar, array($gs_admin_url, "관리자 페이지", ""));
         $gs_top = count($gs_rolebar) ? 112 : 72;  // 고정 헤더 72px + 메뉴 줄 40px
 ?>
 <body id="MainBg-C" class="<?php if (count($gs_rolebar)) echo 'has-rolebar'?>" style="position: relative; margin-top: <?php echo $gs_top?>px; min-height: calc(100vh - <?php echo $gs_top?>px); overflow-x: hidden; overflow-y: auto;">
@@ -729,14 +728,33 @@ if(isset($_SESSION[$OJ_NAME.'_'.'balloon'])){
     <nav class="gs-rolebar" aria-label="관리 메뉴">
         <div class="ui container gs-rolebar-inner">
             <span class="gs-rolebar-label"><?php echo $gs_is_admin ? "관리자" : (isset($_SESSION[$OJ_NAME.'_'.'teacher']) ? "교사" : "관리")?></span>
-            <?php foreach ($gs_rolebar as $gs_item) { ?>
-            <a href="<?php echo htmlentities($gs_item[0], ENT_QUOTES, 'UTF-8')?>"><?php echo htmlentities($gs_item[1], ENT_QUOTES, 'UTF-8')?></a>
+            <?php foreach ($gs_rolebar as $gs_item) {
+                // 관리자 화면 안에서는 바로가기도 본문(iframe)으로 연다. "관리자 페이지"는 첫 화면을 다시 연다.
+                $gs_href = ($gs_in_admin && $gs_item[2] !== "") ? $gs_item[2] : $gs_item[0]; ?>
+            <a href="<?php echo htmlentities($gs_href, ENT_QUOTES, 'UTF-8')?>"<?php if ($gs_in_admin && $gs_item[2] !== "") echo ' target="main"'?>><?php echo htmlentities($gs_item[1], ENT_QUOTES, 'UTF-8')?></a>
+            <?php } ?>
+            <?php foreach ($gs_admin_groups as $gs_group) { ?>
+            <div class="gs-rb-group">
+                <span class="gs-rb-title" tabindex="0" aria-haspopup="true"><?php echo htmlentities($gs_group[0], ENT_QUOTES, 'UTF-8')?></span>
+                <div class="gs-rb-drop" role="menu">
+                    <?php foreach ($gs_group[1] as $gs_item) {
+                        list($gs_href, $gs_target) = gs_admin_menu_link($gs_item[0], $gs_in_admin, $path_fix); ?>
+                    <a role="menuitem" href="<?php echo htmlentities($gs_href, ENT_QUOTES, 'UTF-8')?>"<?php if ($gs_target) echo ' target="'.$gs_target.'"'?><?php if (isset($gs_item[2]) && $gs_item[2] == "danger") echo ' class="is-danger"'?>><?php echo htmlentities($gs_item[1], ENT_QUOTES, 'UTF-8')?></a>
+                    <?php } ?>
+                </div>
+            </div>
             <?php } ?>
             <?php if ($gs_rolebar_status) { ?>
             <a class="gs-rolebar-status <?php echo $gs_rolebar_status[2]?>" href="<?php echo htmlentities($gs_rolebar_status[0], ENT_QUOTES, 'UTF-8')?>" title="서버 모니터링에서 자세히 보기"><?php echo htmlentities($gs_rolebar_status[1], ENT_QUOTES, 'UTF-8')?></a>
             <?php } ?>
         </div>
     </nav>
+    <script>
+    // 하위 기능을 누르면 포커스를 풀어 펼친 목록을 닫는다(관리자 화면에서는 본문만 바뀌고 페이지가 그대로 남기 때문).
+    document.querySelectorAll('.gs-rb-drop a').forEach(function (a) {
+        a.addEventListener('click', function () { if (document.activeElement) document.activeElement.blur(); a.blur(); });
+    });
+    </script>
     <?php } ?>
     <div style="margin-top: <?php echo $gs_top?>px; ">
         <div id="main" class="ui main container">
