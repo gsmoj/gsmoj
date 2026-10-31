@@ -626,6 +626,24 @@ $(document).ready(function() {
       }
       if(state==='success'){
         const solutionId=parseInt(data,10);
+        // submit.php는 제출 대기시간(실행 포함) 안에 다시 보내면 -1을 돌려준다. 실패가 아니므로 남은 시간을 알려 주고 버튼을 잠근다.
+        if(solutionId===-1){
+          let waitLeft=<?php echo isset($OJ_SUBMIT_COOLDOWN_TIME) ? intval($OJ_SUBMIT_COOLDOWN_TIME) : 5?>;
+          button.html("<i class='hourglass half icon'></i>대기 중");
+          const tick=function(){
+            if(waitLeft<=0){
+              button.prop('disabled',false).html("<i class='paper plane icon'></i>제출");
+              $('#workspaceCountdown').text('');
+              workspaceStatusLocked=false;
+              return;
+            }
+            $('#workspaceCountdown').text('방금 제출하거나 실행해서 '+waitLeft+'초 후에 다시 제출할 수 있습니다.');
+            waitLeft--;
+            window.setTimeout(tick,1000);
+          };
+          tick();
+          return;
+        }
         if(!(solutionId>0)){
           window.updateWorkspaceSubmission('error');
           return;
