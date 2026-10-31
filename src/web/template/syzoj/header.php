@@ -519,6 +519,8 @@
                 }
             }
             if ($gs_file_group >= 0) $gs_active_group = $gs_file_group;
+            // 서버 모니터링을 열면 그룹 탭 대신 서버 모니터링 탭을 선택하고, 하위 기능 줄은 비워 둔다.
+            if ($gs_main_file === "monitor.php") $gs_active_group = "monitor";
         }
         $gs_top = $gs_in_admin ? 112 : 72;  // 고정 헤더 72px. 관리자 페이지는 같은 높이의 관리자 헤더 + 하위 기능 줄 40px
 ?>
@@ -765,9 +767,9 @@ if(isset($_SESSION[$OJ_NAME.'_'.'balloon'])){
                 <span class="gs-logo-text"><?php echo $gs_site_name?></span>
             </a>
             <nav class="gs-admin-tabs" role="tablist" aria-label="관리 메뉴">
-                <?php if ($gs_is_admin) { ?><a href="monitor.php" target="main">서버 모니터링</a><?php } ?>
+                <?php if ($gs_is_admin) { ?><a class="gs-rb-tab<?php if ($gs_active_group === "monitor") echo ' active'?>" href="monitor.php" target="main" role="tab" data-group="monitor" aria-selected="<?php echo $gs_active_group === "monitor" ? 'true' : 'false'?>">서버 모니터링</a><?php } ?>
                 <?php foreach ($gs_admin_groups as $gs_i => $gs_group) { ?>
-                <button type="button" class="gs-rb-tab<?php if ($gs_i == $gs_active_group) echo ' active'?>" role="tab" data-group="<?php echo $gs_i?>" aria-selected="<?php echo $gs_i == $gs_active_group ? 'true' : 'false'?>"><?php echo htmlentities($gs_group[0], ENT_QUOTES, 'UTF-8')?></button>
+                <button type="button" class="gs-rb-tab<?php if ($gs_i === $gs_active_group) echo ' active'?>" role="tab" data-group="<?php echo $gs_i?>" aria-selected="<?php echo $gs_i === $gs_active_group ? 'true' : 'false'?>"><?php echo htmlentities($gs_group[0], ENT_QUOTES, 'UTF-8')?></button>
                 <?php } ?>
             </nav>
             <?php if ($gs_rolebar_status) { ?>
@@ -778,7 +780,7 @@ if(isset($_SESSION[$OJ_NAME.'_'.'balloon'])){
     <nav class="gs-subbar" aria-label="하위 기능">
         <div class="ui container gs-subbar-inner">
             <?php foreach ($gs_admin_groups as $gs_i => $gs_group) { ?>
-            <div class="gs-rb-sub<?php if ($gs_i == $gs_active_group) echo ' active'?>" role="tabpanel" data-group="<?php echo $gs_i?>">
+            <div class="gs-rb-sub<?php if ($gs_i === $gs_active_group) echo ' active'?>" role="tabpanel" data-group="<?php echo $gs_i?>">
                 <?php foreach ($gs_group[1] as $gs_item) {
                     list($gs_href, $gs_target) = gs_admin_menu_link($gs_item[0], true, $path_fix);
                     $gs_class = trim((isset($gs_item[2]) && $gs_item[2] == "danger" ? "is-danger " : "").(isset($main_src) && $gs_item[0] === preg_replace('/#.*$/', '', $main_src) ? "active" : "")); ?>
@@ -793,12 +795,15 @@ if(isset($_SESSION[$OJ_NAME.'_'.'balloon'])){
     (function () {
         var tabs = document.querySelectorAll('.gs-rb-tab');
         var subs = document.querySelectorAll('.gs-rb-sub');
-        tabs.forEach(function (tab) {
-            tab.addEventListener('click', function () {
-                tabs.forEach(function (t) { var on = t === tab; t.classList.toggle('active', on); t.setAttribute('aria-selected', on ? 'true' : 'false'); });
-                subs.forEach(function (s) { s.classList.toggle('active', s.getAttribute('data-group') === tab.getAttribute('data-group')); });
-            });
-        });
+        function select(tab) {
+            tabs.forEach(function (t) { var on = t === tab; t.classList.toggle('active', on); t.setAttribute('aria-selected', on ? 'true' : 'false'); });
+            subs.forEach(function (s) { s.classList.toggle('active', s.getAttribute('data-group') === tab.getAttribute('data-group')); });
+        }
+        tabs.forEach(function (tab) { tab.addEventListener('click', function () { select(tab); }); });
+        // 상태 배지는 서버 모니터링을 여므로 서버 모니터링 탭을 선택한다.
+        var monitorTab = document.querySelector('.gs-rb-tab[data-group="monitor"]');
+        var badge = document.querySelector('.gs-rolebar-status');
+        if (monitorTab && badge && badge.getAttribute('href').indexOf('monitor.php') === 0) badge.addEventListener('click', function () { select(monitorTab); });
         document.querySelectorAll('.gs-subbar a[target="main"]').forEach(function (a) {
             a.addEventListener('click', function () {
                 document.querySelectorAll('.gs-subbar a.active').forEach(function (x) { x.classList.remove('active'); });

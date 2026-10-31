@@ -15,8 +15,8 @@
         require_once("../include/my_func.inc.php");
         if(file_exists("../lang/$OJ_LANG.php")) require_once("../lang/$OJ_LANG.php");
 
-        // 첫 화면은 서버 모니터링을 보여 준다. 관리자가 아니면 기존 도움말을 연다.
-        $main_src = isset($_SESSION[$OJ_NAME.'_'.'administrator']) ? 'monitor.php' : 'help.php';
+        // 첫 화면은 서버 모니터링이다. 서버 모니터링은 관리자 전용이라 교사는 수행평가 목록, 그 밖의 권한은 기존 도움말을 연다.
+        $main_src = isset($_SESSION[$OJ_NAME.'_'.'administrator']) ? 'monitor.php' : (isset($_SESSION[$OJ_NAME.'_'.'teacher']) ? 'assessment_list.php' : 'help.php');
         // 헤더 메뉴의 바로가기(?main=problem_list.php&tab=queue)로 본문을 바로 연다. 관리자 폴더의 PHP 파일 이름만 허용한다.
         if (isset($_GET['main']) && preg_match('/^[a-z0-9_]+\.php$/', $_GET['main']) && $_GET['main'] !== 'index.php' && is_file(__DIR__.'/'.$_GET['main'])) {
                 $main_src = $_GET['main'];
