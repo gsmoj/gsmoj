@@ -39,8 +39,11 @@ $show_title=$gs_contest_label.$view_cid." - ".$view_title." - $OJ_NAME"; ?>
         <div class="row">
             <div class="column">
                 <div class="ui buttons">
+                    <?php // 수행평가 순위는 관리자와 회차 관리자(교사)에게만 보여 준다. ?>
+                    <?php if (!$is_assessment || isset($_SESSION[$OJ_NAME.'_'.'administrator']) || isset($_SESSION[$OJ_NAME.'_m'.$cid])) { ?>
                     <a class="ui small blue button" href="contestrank.php?cid=<?php echo $view_cid?>">ACM<?php echo $MSG_STANDING?></a>
                     <a class="ui small yellow button" href="contestrank-oi.php?cid=<?php echo $view_cid?>">OI<?php echo $MSG_STANDING?></a>
+                    <?php } ?>
                     <a class="ui small positive button" href="status.php?cid=<?php echo $view_cid?>"><?php echo $MSG_STATUS?></a>
                     <!-- <a class="ui small pink button" href="conteststatistics.php?cid=<?php echo $view_cid?>"><?php echo $MSG_STATISTICS?></a> -->
                 </div>
