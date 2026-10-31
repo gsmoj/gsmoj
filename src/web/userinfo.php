@@ -117,6 +117,12 @@ $row = $result[0];
 $school = $row['school'];
 $group_name = $row['group_name'];
 if (empty($group_name)) $group_name = getMappedSpecial($user);
+// DataGSM으로 연결된 학생은 반 코드(예: 22) 대신 "2학년 2반 5번"처럼 학년·반·번호로 보여 준다.
+$datagsm = pdo_query("SELECT grade,class_num,number FROM datagsm_user WHERE user_id=? AND object_type='STUDENT'", $user);
+if (!empty($datagsm) && intval($datagsm[0]['grade']) > 0 && intval($datagsm[0]['class_num']) > 0) {
+    $group_name = intval($datagsm[0]['grade'])."학년 ".intval($datagsm[0]['class_num'])."반";
+    if (intval($datagsm[0]['number']) > 0) $group_name .= " ".intval($datagsm[0]['number'])."번";
+}
 $email = $row['email'];
 $nick = $row['nick'];
 $starred = $row['starred'];
