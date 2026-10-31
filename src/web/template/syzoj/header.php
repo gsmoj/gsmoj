@@ -561,8 +561,11 @@
             <?php    }      ?>
             <a class="item active" href="<?php echo $path_fix?>contest.php?cid=<?php echo $cid?>"><?php echo $MSG_PROBLEMS.$MSG_LIST?></a>
             <a class="item active" href="<?php echo $path_fix?>status.php?cid=<?php echo $cid?>"><?php echo $MSG_STATUS.$MSG_LIST?></a>
+            <?php // 수행평가는 순위를 공개하지 않으므로 관리자와 회차 관리자(교사)에게만 순위 메뉴를 보여 준다.
+            if (!(function_exists("is_assessment_contest") && is_assessment_contest($cid)) || isset($_SESSION[$OJ_NAME.'_'.'administrator']) || isset($_SESSION[$OJ_NAME.'_m'.$cid])) { ?>
             <a class="item active" href="<?php echo $path_fix?>contestrank.php?cid=<?php echo $cid?>"><?php echo $MSG_RANKLIST?></a>
             <a class="item active" href="<?php echo $path_fix?>contestrank-oi.php?cid=<?php echo $cid?>">OI-<?php echo $MSG_RANKLIST?></a>
+            <?php } ?>
             <?php if (isset($OJ_BBS)&& $OJ_BBS){ ?>
                   <a class='item active' href="discuss.php?cid=<?php echo $cid?>"><?php echo $MSG_BBS?></a>
              <?php } ?>

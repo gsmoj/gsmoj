@@ -10,6 +10,7 @@ $OJ_CACHE_SHARE = true;
 $cache_time = 10;
 
 // 包含缓存开始文件
+require_once('./include/assessment_rank_guard.php');  // 수행평가 순위 비공개(캐시보다 먼저 확인)
 require_once('./include/cache_start.php');
 
 // 包含数据库信息文件

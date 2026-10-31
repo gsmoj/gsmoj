@@ -7,6 +7,7 @@
  */
 $OJ_CACHE_SHARE = true;
 $cache_time = 10;
+require_once('./include/assessment_rank_guard.php');  // 수행평가 순위 비공개(캐시보다 먼저 확인)
 require_once('./include/cache_start.php');
 require_once('./include/db_info.inc.php');
 require_once('./include/setlang.php');
