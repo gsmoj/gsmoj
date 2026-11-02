@@ -69,7 +69,7 @@ if ($rows_cnt == 0 || ($row['defunct'] == 'Y' && !isset($_SESSION[$OJ_NAME . '_a
         $row = $result[0];
         $ccnt = intval($row[0]);
         if ($ccnt > 0) {
-            $contest_ok = true;
+            // 권한이 있어도 위에서 실패한 서브넷 제한을 되돌리지 않도록 $contest_ok는 바꾸지 않는다.
             $_SESSION[$OJ_NAME . '_' . 'c' . $cid] = true;
         } else {
             $contest_ok = false;
