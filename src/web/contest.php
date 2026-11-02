@@ -57,8 +57,9 @@ if (isset($_GET['cid'])) {
     /**
      * NOIP 대회이거나 잠긴 대회인지 판단한다.
      * 대회가 진행 중이면서 NOIP 키워드가 있거나 잠겨 있는지 확인한다.
+     * 진행 중인 수행평가(contest_type 9번 비트, 512)도 NOIP처럼 정답 여부와 정답·제출 수를 숨긴다.
      */
-    $noip = (time() < $end_time) && (stripos($view_title, $OJ_NOIP_KEYWORD) !== false || contest_locked($cid, 16));
+    $noip = (time() < $end_time) && (stripos($view_title, $OJ_NOIP_KEYWORD) !== false || contest_locked($cid, 16 | 512));
     $hide_others = contest_locked($cid, 8);
 
     /**
