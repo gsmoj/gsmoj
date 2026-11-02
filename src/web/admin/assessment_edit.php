@@ -24,6 +24,8 @@ if ($_SERVER['REQUEST_METHOD'] === "POST" && isset($_POST['action'])) {
     $action = $_POST['action'];
 
     if ($action === "save") {
+        // 삭제됐거나 없는 수행평가 번호로 저장하면 새로 만들지 않고 오류를 돌려준다.
+        if ($id && !$a) asm_back(0, false, "저장할 ".$MSG_ASSESSMENT."를 찾을 수 없습니다. 삭제되었을 수 있습니다.");
         if ($a && !asm_can_manage($a)) asm_back($id, false, "만든 사람과 관리자만 수정할 수 있습니다.");
         $title = trim(isset($_POST['title']) ? $_POST['title'] : "");
         if ($title === "" || mb_strlen($title, "UTF-8") > 200) asm_back($id, false, "제목을 200자 이내로 입력하세요.");
@@ -96,6 +98,15 @@ if ($_SERVER['REQUEST_METHOD'] === "POST" && isset($_POST['action'])) {
         $start = asm_valid_datetime(isset($_POST['start']) ? $_POST['start'] : "");
         $end = asm_valid_datetime(isset($_POST['end']) ? $_POST['end'] : "");
         if (!$start || !$end || $start >= $end) asm_back($id, false, "시작·끝 시각을 확인하세요.");
+        // 시작한 회차의 시작 시각은 바꿀 수 없고, 끝난 회차는 관리자만 끝 시각을 옮겨 다시 열 수 있다.
+        $cur = pdo_query("select start_time, end_time, start_time<=now() as started, end_time<=now() as ended from contest where contest_id=?", $cid);
+        if (empty($cur)) asm_back($id, false, "회차를 찾을 수 없습니다.");
+        $cur = $cur[0];
+        if (intval($cur['started'])) {
+            if (substr($start, 0, 16) !== substr((string)$cur['start_time'], 0, 16)) asm_back($id, false, "이미 시작한 회차의 시작 시각은 바꿀 수 없습니다.");
+            $start = $cur['start_time'];
+        }
+        if (intval($cur['ended']) && !asm_is_admin()) asm_back($id, false, "끝난 회차의 시간은 관리자만 바꿀 수 있습니다.");
         pdo_query("update contest set start_time=?, end_time=? where contest_id=?", $start, $end, $cid);
         asm_back($id, true, "'".$group."' 회차 시간을 바꿨습니다.");
     }
