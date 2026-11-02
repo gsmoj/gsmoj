@@ -11,11 +11,11 @@ $view_cid = $cid;
 //print $cid;
 
 /**
- * 验证比赛是否有效并检查用户权限
- * 获取比赛基本信息，验证比赛状态、权限、时间等条件
- * 处理比赛密码验证、IP子网限制、私人比赛权限等
- * 支持个人限时赛功能，限制用户答题时间
- * 根据验证结果决定是否允许用户访问比赛
+ * 대회가 유효한지 확인하고 사용자 권한을 검사한다.
+ * 대회 기본 정보를 가져와 상태, 권한, 시간 조건을 확인한다.
+ * 대회 비밀번호, IP 서브넷 제한, 비공개 대회 권한을 처리한다.
+ * 개인 시간제한 대회를 지원해 사용자의 풀이 시간을 제한한다.
+ * 확인 결과에 따라 대회 접근 허용 여부를 정한다.
  */
 
 //check contest valid
@@ -42,13 +42,13 @@ $password = "";
 if (isset($_POST['password']))
     $password = $_POST['password'];
 
-// 检查IP是否在比赛允许的子网范围内
+// IP가 대회에서 허용한 서브넷 범위 안에 있는지 확인한다.
 if (!in_subnet_of_contest($ip, $cid)) {
     $contest_ok = false;
     $view_description = "Not in $MSG_SUBNET $subnet";
 }
 
-// 检查比赛是否存在或是否已关闭（非管理员无法访问已关闭比赛）
+// 대회가 없거나 닫혔는지 확인한다(관리자가 아니면 닫힌 대회에 접근할 수 없다).
 if ($rows_cnt == 0 || ($row['defunct'] == 'Y' && !isset($_SESSION[$OJ_NAME . '_administrator']))) {
     $view_title = $MSG_CONTEST . "가 닫혔습니다!";
     $contest_ok = false;
@@ -59,7 +59,7 @@ if ($rows_cnt == 0 || ($row['defunct'] == 'Y' && !isset($_SESSION[$OJ_NAME . '_a
     if ($password != "" && $password == $row['password'])
         $_SESSION[$OJ_NAME . '_' . 'c' . $cid] = true;
 
-    // 检查私人比赛权限
+    // 비공개 대회 권한을 확인한다.
     if ($row['private'] && !isset($_SESSION[$OJ_NAME . '_' . 'c' . $cid])) {
 
         $sql = "SELECT count(*) FROM `privilege` WHERE `user_id`=? AND `rightstr`=?";
@@ -76,15 +76,15 @@ if ($rows_cnt == 0 || ($row['defunct'] == 'Y' && !isset($_SESSION[$OJ_NAME . '_a
 //              if($row['defunct']=='Y')  //defunct problem not in contest/exam list
 //                      $contest_ok = false;
 
-    // 管理员和比赛创建者拥有特殊权限
+    // 관리자와 대회 출제자는 특별 권한이 있다.
     if (isset($_SESSION[$OJ_NAME . '_' . 'administrator']) || isset($_SESSION[$OJ_NAME . '_' . 'contest_creator']))
         $contest_ok = true;
 
-    // 判断比赛是否已经结束
-    if ($unixnow > $end_time) $contest_is_over = true;    // 已经结束的比赛，按练习方式提交
+    // 대회가 끝났는지 판단한다.
+    if ($unixnow > $end_time) $contest_is_over = true;    // 끝난 대회는 연습 방식으로 제출한다.
     else $contest_is_over = false;
 
-    // 检查比赛是否还未开始，未开始则显示错误页面
+    // 대회가 시작 전이면 오류 페이지를 보여 준다.
     if (!isset($_SESSION[$OJ_NAME . '_' . 'administrator']) && $unixnow < $start_time) {
         $view_errors = "<center>";
         $view_errors .= "<h3>$MSG_CONTEST_ID : $view_cid - $view_title</h3>";
@@ -99,17 +99,17 @@ if ($rows_cnt == 0 || ($row['defunct'] == 'Y' && !isset($_SESSION[$OJ_NAME . '_a
     }
 }
 
-// 处理个人限时赛功能
+// 개인 시간제한 대회 기능을 처리한다.
 if (!isset($OJ_CONTEST_LIMIT_KEYWORD)) $OJ_CONTEST_LIMIT_KEYWORD = "限时";
 if ($contest_ok && str_contains($view_description, $OJ_CONTEST_LIMIT_KEYWORD) && isset($_SESSION[$OJ_NAME . "_user_id"])) {
-    //echo "<!-- 个人限时赛  -->";
-    $contest_limit_minutes = intval(getPartByMark($view_description, $OJ_CONTEST_LIMIT_KEYWORD, "分钟"));  //允许比赛描述中用 "限时xx分钟" 规定个人做题时间。
+    //echo "<!-- 개인 시간제한 대회  -->";
+    $contest_limit_minutes = intval(getPartByMark($view_description, $OJ_CONTEST_LIMIT_KEYWORD, "分钟"));  //대회 설명에 "限时xx分钟"이라고 쓰면 개인 풀이 시간을 정할 수 있다.
     if ($contest_limit_minutes == 0) $contest_limit_minutes = 120;
     //echo "<!-- $contest_limit_minutes mins -->";
     $user_id = $_SESSION[$OJ_NAME . "_user_id"];
     $first_login_contest = mysql_query_cache("select time from loginlog where user_id=? and password=?", $user_id, "c" . $cid);
     if (empty($first_login_contest)) {
-        //echo "<!-- 首次访问  -->";
+        //echo "<!-- 첫 방문  -->";
         $ip = ($_SERVER['REMOTE_ADDR']);
         if (isset($_SERVER['HTTP_X_FORWARDED_FOR']) && !empty(trim($_SERVER['HTTP_X_FORWARDED_FOR']))) {
             $REMOTE_ADDR = $_SERVER['HTTP_X_FORWARDED_FOR'];
@@ -144,7 +144,7 @@ if ($contest_ok && str_contains($view_description, $OJ_CONTEST_LIMIT_KEYWORD) &&
 
 };
 
-// 如果比赛验证失败，显示错误页面和密码输入表单
+// 대회 확인에 실패하면 오류 페이지와 비밀번호 입력 폼을 보여 준다.
 if (!$contest_ok) {
     $view_errors = "<center>";
     $view_errors .= "<h3>$MSG_CONTEST_ID : $view_cid - $view_title</h3>";

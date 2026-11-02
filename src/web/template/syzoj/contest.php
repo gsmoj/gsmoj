@@ -184,7 +184,7 @@ clock();
 <?php }?>
     $(document).ready(function (){
                 marked.use({
-                  // 开启异步渲染
+                  // 비동기 렌더링을 켠다.
                   async: true,
                   pedantic: false,
                   gfm: true,

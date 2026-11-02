@@ -152,7 +152,7 @@ else{
   $pieces = explode(",",$plist);
   $pieces = array_unique($pieces);
   if($pieces[0]=="") unset($pieces[0]);
-  // 安全修复：每个ID元素强制intval，防止SQL注入
+  // 보안 수정: SQL 삽입을 막기 위해 각 ID를 intval로 변환한다.
   $plist = implode(",", array_map('intval', $pieces));
 
   }else if(isset($_GET['spid'])){
