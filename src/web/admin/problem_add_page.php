@@ -7,6 +7,20 @@
     exit(1);
   }
 
+  // ?assessment=번호로 들어오면 그 수행평가의 전용 문제를 만든다. 교사는 이 경로로만 문제를 만들 수 있다.
+  require_once("assessment_lib.php");
+  $assessment = null;
+  if (isset($_GET['assessment'])) {
+    $assessment = asm_get(intval($_GET['assessment']));
+    if (!$assessment || !asm_can_manage($assessment)) {
+      echo "<div class='alert alert-danger'>만든 사람과 관리자만 이 수행평가에 문제를 추가할 수 있습니다.</div>";
+      exit(1);
+    }
+  } else if (!(isset($_SESSION[$OJ_NAME.'_'.'administrator']) || isset($_SESSION[$OJ_NAME.'_'.'contest_creator']) || isset($_SESSION[$OJ_NAME.'_'.'problem_editor']))) {
+    echo "<div class='alert alert-info'>문제는 수행평가 화면의 \"문제 추가\"에서 만듭니다. <a href='assessment_list.php'>수행평가 목록</a></div>";
+    exit(1);
+  }
+
   $problem_form_placeholders = array(
     "title" => isset($MSG_PROBLEM_TITLE_PLACEHOLDER) ? $MSG_PROBLEM_TITLE_PLACEHOLDER : "예: 두 수의 합",
     "description" => isset($MSG_PROBLEM_DESCRIPTION_PLACEHOLDER) ? $MSG_PROBLEM_DESCRIPTION_PLACEHOLDER : "예: 두 정수 A와 B가 주어집니다. 두 수의 합을 구하세요.",
@@ -76,7 +90,7 @@
   </style>
 </head>	  
 	  <?php
-  $page_heading = $MSG_PROBLEM." - ".$MSG_ADD;
+  $page_heading = $assessment ? "'".$assessment['title']."' 전용 ".$MSG_PROBLEM." - ".$MSG_ADD : $MSG_PROBLEM." - ".$MSG_ADD;
   $source=pdo_query("select source from problem order by problem_id desc limit 1"); //默认续用最后一次的分类标签
   if(!empty($source)&&isset($source[0]))$source=$source[0][0];else $source="";
 ?>
@@ -86,6 +100,7 @@
     <header class="problem-page-title"><h3><?php echo htmlentities($page_heading, ENT_QUOTES, 'UTF-8')?></h3></header>
     <form method=POST action=problem_add.php>
       <input type=hidden name=problem_id value="New Problem">
+      <?php if ($assessment) { ?><input type=hidden name=assessment value="<?php echo intval($assessment['assessment_id'])?>"><?php } ?>
       <div class="problem-form-top">
         <div class="problem-form-options">
           <div class="ui toggle checkbox">
@@ -162,6 +177,7 @@
           <?php echo "<h4>".$MSG_SOURCE."</h4>"?>
           <textarea name=source style="width:100%;" rows=1 placeholder="<?php echo problem_placeholder_attr($problem_form_placeholders['source'])?>"><?php echo htmlentities($source,ENT_QUOTES,'UTF-8') ?></textarea><br><br>
         </section>
+        <?php if (!$assessment) { ?>
         <section class="problem-form-section"><?php echo "<h4>".$MSG_CONTEST."</h4>"?>
           <select name=contest_id>
             <?php
@@ -177,6 +193,7 @@
             }?>
           </select>
         </section>
+        <?php } ?>
 
         <div align=center>
           <?php require_once("../include/set_post_key.php");?>

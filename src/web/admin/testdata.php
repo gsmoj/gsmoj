@@ -23,7 +23,7 @@ function td_json($data) {
 
 // 권한: phpfm.php와 같이 관리자 또는 해당 문제 권한이 있는 문제 편집자만 접근한다.
 $td_is_admin = isset($_SESSION[$OJ_NAME.'_'.'administrator']);
-if (!($td_is_admin || isset($_SESSION[$OJ_NAME.'_'.'problem_editor']) || isset($_SESSION[$OJ_NAME.'_'.'teacher']))) {
+if (!($td_is_admin || isset($_SESSION[$OJ_NAME.'_'.'problem_editor']) || isset($_SESSION[$OJ_NAME.'_'.'teacher']) || isset($_SESSION[$OJ_NAME.'_'.'contest_creator']))) {
     echo "<a href='../loginpage.php'>".(isset($MSG_Login) ? $MSG_Login : "Please Login First!")."</a>";
     exit(1);
 }
@@ -347,6 +347,7 @@ require("admin-header.php");
       <p class="td-heading-meta"><a href="../problem.php?id=<?php echo $pid?>" target="_blank">#<?php echo $pid?> <?php echo htmlentities($td_title, ENT_QUOTES, 'UTF-8')?></a></p>
     </div>
     <div class="admin-heading-actions">
+      <?php require_once("assessment_lib.php"); $td_assessment = asm_of_problem($pid); if ($td_assessment) { ?><a class="btn btn-default" href="assessment_edit.php?id=<?php echo $td_assessment?>">수행평가로 돌아가기</a><?php } ?>
       <a class="btn btn-default" href="problem_edit.php?id=<?php echo $pid?>&getkey=<?php echo isset($_SESSION[$OJ_NAME.'_'.'getkey']) ? htmlentities($_SESSION[$OJ_NAME.'_'.'getkey'], ENT_QUOTES, 'UTF-8') : ""?>">문제 수정</a>
       <a class="btn btn-default" href="testdata.php?pid=<?php echo $pid?>&action=zip">전체 ZIP 다운로드</a>
     </div>

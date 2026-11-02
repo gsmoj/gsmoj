@@ -23,7 +23,7 @@ $list_name = $is_assessment ? (isset($MSG_ASSESSMENT) ? $MSG_ASSESSMENT : "수�
 <div class='padding admin-content-page'>
 <div class="admin-page-heading">
   <div><h3><?php echo $list_name?> 목록</h3><p><?php echo $is_assessment ? "수행평가를 검색하고 공개 여부, 사용 상태, 관리 기능을 확인합니다. 수행평가는 대회와 같은 방식으로 운영되며, 진행 중 화면 이탈·붙여넣기·복사가 기록됩니다." : "대회를 검색하고 공개 여부, 사용 상태, 관리 기능을 확인합니다."?></p></div>
-  <a href="contest_add.php<?php echo $is_assessment ? "?type=assessment" : ""?>" class="btn btn-primary"><?php echo $list_name?> 등록</a>
+  <a href="<?php echo $is_assessment ? "assessment_edit.php" : "contest_add.php"?>" class="btn btn-primary"><?php echo $is_assessment ? "새 ".$list_name : $list_name." 등록"?></a>
 </div>
 
 <?php

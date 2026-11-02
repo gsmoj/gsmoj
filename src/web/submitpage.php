@@ -42,6 +42,13 @@ if (!empty($_SERVER['HTTP_REFERER'])) {
 }
 if (isset($_GET['id'])) {
     $id = intval($_GET['id']);
+    // 수행평가 전용 문제는 회차 밖에서 예제가 보이지 않게 한다.
+    $gs_dedicated = pdo_query("SELECT 1 FROM problem WHERE problem_id=? AND defunct='A'", $id);
+    if (!empty($gs_dedicated) && !(isset($_SESSION[$OJ_NAME . '_administrator']) || isset($_SESSION[$OJ_NAME . '_contest_creator']) || isset($_SESSION[$OJ_NAME . '_problem_editor']) || isset($_SESSION[$OJ_NAME . '_p' . $id]))) {
+        $view_errors = "<h2>No Such Problem!</h2>";
+        require("template/" . $OJ_TEMPLATE . "/error.php");
+        exit(0);
+    }
 } else if (isset($_GET['cid']) && isset($_GET['pid'])) {
     $cid = intval($_GET['cid']);
     $pid = intval($_GET['pid']);

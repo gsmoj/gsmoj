@@ -219,7 +219,7 @@ else {
             }
             $nextNum=$i_inner;
             //echo $sql_1;
-            $sql = "UPDATE `problem` SET defunct='N' WHERE `problem_id` IN ($plist)";
+            $sql = "UPDATE `problem` SET defunct='N' WHERE `problem_id` IN ($plist) AND defunct<>'A'";
             pdo_query($sql) ;
           }else if(endsWith($answer,".cpp")){
             $student=dirname($file_name);

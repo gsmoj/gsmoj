@@ -28,7 +28,8 @@ if(isset($OJ_LANG)){
 </header>
 
 <?php
-$sql = "SELECT COUNT('problem_id') AS ids FROM `problem`";
+// 수행평가 전용 문제(defunct='A')는 각 수행평가 화면에서 관리하므로 목록에서 제외한다.
+$sql = "SELECT COUNT('problem_id') AS ids FROM `problem` WHERE defunct<>'A'";
 $result = pdo_query($sql);
 $row = $result[0];
 
@@ -52,10 +53,10 @@ $sql = "";
 if(isset($_GET['keyword']) && $_GET['keyword']!=""){
   $keyword = $_GET['keyword'];
   $keyword = "%$keyword%";
-  $sql = "SELECT `problem_id`,`title`,`accepted`,`in_date`,`defunct`,`source`,`remote_oj`,`remote_id`,`coin`  FROM `problem` WHERE (problem_id LIKE ?) OR (title LIKE ?) OR (description LIKE ?) OR (source LIKE ?) OR (hint LIKE ?) ORDER BY `problem_id` ASC";
+  $sql = "SELECT `problem_id`,`title`,`accepted`,`in_date`,`defunct`,`source`,`remote_oj`,`remote_id`,`coin`  FROM `problem` WHERE defunct<>'A' AND ((problem_id LIKE ?) OR (title LIKE ?) OR (description LIKE ?) OR (source LIKE ?) OR (hint LIKE ?)) ORDER BY `problem_id` ASC";
   $result = pdo_query($sql,$keyword,$keyword,$keyword,$keyword,$keyword);
 }else{
-  $sql = "SELECT `problem_id`,`title`,`accepted`,`in_date`,`defunct`,`source`,`remote_oj`,`remote_id`,`coin`  FROM `problem` ORDER BY `problem_id` DESC LIMIT $sid, $idsperpage";
+  $sql = "SELECT `problem_id`,`title`,`accepted`,`in_date`,`defunct`,`source`,`remote_oj`,`remote_id`,`coin`  FROM `problem` WHERE defunct<>'A' ORDER BY `problem_id` DESC LIMIT $sid, $idsperpage";
   $result = pdo_query($sql);
 }
 ?>

@@ -38,10 +38,10 @@ if(isset($_POST['pid'])&&!empty($_POST['pid'])) {
   }
 
 if(isset($_POST['enable'])&&$plist){
-  $sql = "UPDATE `problem` SET defunct='N' WHERE `problem_id` IN ($plist)";           
+  $sql = "UPDATE `problem` SET defunct='N' WHERE `problem_id` IN ($plist) AND defunct<>'A'";
   pdo_query($sql);
 }else if(isset($_POST['disable'])&&$plist){
-  $sql = "UPDATE `problem` SET defunct='Y' WHERE `problem_id` IN ($plist)";           
+  $sql = "UPDATE `problem` SET defunct='Y' WHERE `problem_id` IN ($plist) AND defunct<>'A'";
   pdo_query($sql);
 }else{
   $id = intval($_GET['id']);
@@ -52,8 +52,9 @@ if(isset($_POST['enable'])&&$plist){
   $defunct = $row[0];
   echo $defunct;
 
-  if($defunct=='Y') $sql = "UPDATE `problem` SET `defunct`='N' WHERE `problem_id`=?";
-  else $sql = "UPDATE `problem` SET `defunct`='Y' WHERE `problem_id`=?";
+  // 수행평가 전용 문제(defunct='A')의 상태는 바꾸지 않는다.
+  if($defunct=='Y') $sql = "UPDATE `problem` SET `defunct`='N' WHERE `problem_id`=? AND defunct<>'A'";
+  else $sql = "UPDATE `problem` SET `defunct`='Y' WHERE `problem_id`=? AND defunct<>'A'";
    if(isset($_SESSION[$OJ_NAME.'_'.'administrator']) || isset($_SESSION[$OJ_NAME.'_'."p".$id]) ){
         pdo_query($sql,$id) ;
    }

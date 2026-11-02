@@ -6,8 +6,14 @@ $pid=intval($_GET['id']);
 if(!(isset($_SESSION[$OJ_NAME.'_'.'administrator']) || isset($_SESSION[$OJ_NAME.'_'."p".$pid]) )){
   exit(1);
 }
+// 전용 문제는 시작한 회차·제출 여부를 확인하는 수행평가 화면에서만 삭제한다.
+$df=pdo_query("select defunct from problem where problem_id=?",$pid);
+if(!empty($df)&&$df[0][0]==='A'){
+  echo "<script>alert('수행평가 전용 문제는 수행평가 화면에서 삭제하세요.');history.go(-1);</script>";
+  exit(1);
+}
 
-?> 
+?>
 <?php
 function recursiveDelete($dir) {
     if (is_dir($dir)) {

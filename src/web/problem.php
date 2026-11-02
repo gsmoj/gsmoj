@@ -30,7 +30,7 @@ if (isset($_GET['id'])) {
     $sql = "select c.contest_id,c.title,c.contest_type,c.user_id from contest c inner join contest_problem cp on c.contest_id=cp.contest_id and cp.problem_id=?  WHERE ( c.`end_time`>'$now' and c.defunct='N' ) or c.`private`='1' ";
     $used_in_contests = pdo_query($sql, $id);
 
-    if (isset($_SESSION[$OJ_NAME . '_' . 'administrator']) || isset($_SESSION[$OJ_NAME . '_' . 'problem_verifiter']) || isset($_SESSION[$OJ_NAME . '_' . 'contest_creator']) || isset($_SESSION[$OJ_NAME . '_' . 'problem_editor']))
+    if (isset($_SESSION[$OJ_NAME . '_' . 'administrator']) || isset($_SESSION[$OJ_NAME . '_' . 'problem_verifiter']) || isset($_SESSION[$OJ_NAME . '_' . 'contest_creator']) || isset($_SESSION[$OJ_NAME . '_' . 'problem_editor']) || isset($_SESSION[$OJ_NAME . '_p' . $id]))  // 문제 권한(pNNNN)이 있는 교사는 비공개 문제를 미리 볼 수 있다.
 	{
 		$sql = "SELECT * FROM `problem` WHERE `problem_id`=?";
 		$result = pdo_query($sql, $id);

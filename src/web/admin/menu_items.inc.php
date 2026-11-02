@@ -58,7 +58,6 @@ function gs_admin_menu() {
     if ($admin || $has('contest_creator') || $teacher) {
         $items[] = array("assessment_list.php", "수행평가 목록");
         $items[] = array("assessment_edit.php", "새 수행평가");
-        $items[] = array("problem_add_page.php", "수행평가 문제 등록");
         if ($admin || $teacher) $items[] = array("user_group.php", "반 지정");
         if ($admin || $has('contest_creator')) $items[] = array("contest_list.php?type=assessment", "수행평가 회차 목록");
     }

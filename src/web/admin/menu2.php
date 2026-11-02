@@ -133,8 +133,7 @@
     </button>
     <ul id="admin-grp-assessment" class="admin-menu-list collapse<?php if ($menu_teacher) echo " in"?>" role="menu">
         <li><a href="assessment_list.php" target="main" title="내 수행평가와 반별 회차 관리"><b><?php echo $menu_asm."-".$MSG_LIST?></b></a></li>
-        <li><a href="assessment_edit.php" target="main" title="문제를 묶어 새 수행평가 만들기"><b><?php echo "새 ".$menu_asm?></b></a></li>
-        <li><a href="problem_add_page.php" target="main" title="수행평가용 문제 만들기(비공개로 만들어짐)"><b><?php echo $MSG_PROBLEM."-".$MSG_ADD?></b></a></li>
+        <li><a href="assessment_edit.php" target="main" title="전용 문제를 넣어 새 수행평가 만들기"><b><?php echo "새 ".$menu_asm?></b></a></li>
 <?php if (isset($_SESSION[$OJ_NAME.'_'.'administrator'])||$menu_teacher) { ?>
         <li><a href="user_group.php" target="main" title="학생 반 일괄 지정"><b><?php echo $MSG_USER."-".$menu_class?> 지정</b></a></li>
 <?php } ?>

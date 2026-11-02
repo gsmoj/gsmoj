@@ -162,7 +162,8 @@ if ($view_sort != "id")
  * 管理员可查看所有问题，普通用户不能查看竞赛期间的问题
  */
 //if($OJ_SAE) $first=1;
-if (isset($_SESSION[$OJ_NAME . '_' . 'administrator'])) {  //all problems
+if (isset($_SESSION[$OJ_NAME . '_' . 'administrator'])) {  // 수행평가 전용 문제를 뺀 모든 문제
+    $filter_sql .= " and defunct<>'A' ";
     //$limit = $limit_sql;
 } else if ($OJ_FREE_PRACTICE) {  // open free practice without limit of contest using
     $filter_sql .= " and defunct='N' ";

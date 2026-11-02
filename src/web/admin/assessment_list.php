@@ -22,11 +22,11 @@ $rows = call_user_func_array("pdo_query", array_merge(array("select a.assessment
         (select group_concat(s.group_name order by s.group_name separator ', ') from assessment_session s where s.assessment_id=a.assessment_id) as groups_list
     from assessment a where $where order by a.assessment_id desc limit 200"), $args));
 
-// 내가 만든 문제(수정 권한 pNNNN이 있는 문제)
+// 내가 만든 문제(수정 권한 pNNNN이 있는 문제). 전용 문제는 각 수행평가 화면에서 관리한다.
 $my_problems = pdo_query("select p.problem_id, p.title, p.defunct, p.in_date,
         (select count(distinct ap.assessment_id) from assessment_problem ap join assessment a on a.assessment_id=ap.assessment_id and a.defunct='N' where ap.problem_id=p.problem_id) as used
     from privilege pv join problem p on concat('p', p.problem_id)=pv.rightstr
-    where pv.user_id=? and pv.rightstr like 'p%' order by p.problem_id desc limit 200", $me);
+    where pv.user_id=? and pv.rightstr like 'p%' and p.defunct<>'A' order by p.problem_id desc limit 200", $me);
 $getkey = isset($_SESSION[$OJ_NAME.'_'.'getkey']) ? $_SESSION[$OJ_NAME.'_'.'getkey'] : "";
 ?>
 <title><?php echo $MSG_ASSESSMENT?> 관리</title>
@@ -42,10 +42,9 @@ $getkey = isset($_SESSION[$OJ_NAME.'_'.'getkey']) ? $_SESSION[$OJ_NAME.'_'.'getk
   <div class="admin-page-heading">
     <div>
       <h3><?php echo $MSG_ASSESSMENT?> 관리</h3>
-      <p>문제를 묶어 <?php echo $MSG_ASSESSMENT?>를 만들고, 반마다 시간을 정해 회차를 추가합니다. 회차의 참가자는 그 반 학생이며, 진행 중 결과·감지 기록은 만든 사람과 관리자만 볼 수 있습니다.</p>
+      <p><?php echo $MSG_ASSESSMENT?>를 만들어 전용 문제를 추가하고, 반마다 시간을 정해 회차를 추가합니다. 회차의 참가자는 그 반 학생이며, 진행 중 결과·감지 기록은 만든 사람과 관리자만 볼 수 있습니다.</p>
     </div>
     <div class="admin-heading-actions">
-      <a class="btn btn-default" href="problem_add_page.php">문제 등록</a>
       <a class="btn btn-primary" href="assessment_edit.php">새 <?php echo $MSG_ASSESSMENT?></a>
     </div>
   </div>
@@ -85,13 +84,14 @@ $getkey = isset($_SESSION[$OJ_NAME.'_'.'getkey']) ? $_SESSION[$OJ_NAME.'_'.'getk
     </div>
   </section>
 
+  <?php if (!empty($my_problems)) { ?>
   <section class="admin-card">
-    <div class="admin-card-title">내가 만든 문제 (새 문제는 비공개로 만들어집니다)</div>
+    <div class="admin-card-title">내가 만든 문제</div>
     <div class="admin-table-wrap">
       <table class="table asm-table">
         <thead><tr><th>번호</th><th>제목</th><th>공개</th><th>사용 중인 <?php echo $MSG_ASSESSMENT?></th><th>등록일</th><th>작업</th></tr></thead>
         <tbody>
-        <?php if (!empty($my_problems)) foreach ($my_problems as $p) { ?>
+        <?php foreach ($my_problems as $p) { ?>
           <tr>
             <td><?php echo intval($p['problem_id'])?></td>
             <td class="asm-title"><a href="../problem.php?id=<?php echo intval($p['problem_id'])?>" target="_blank"><?php echo asm_h($p['title'])?></a></td>
@@ -103,11 +103,10 @@ $getkey = isset($_SESSION[$OJ_NAME.'_'.'getkey']) ? $_SESSION[$OJ_NAME.'_'.'getk
               <a class="btn btn-default btn-sm" href="testdata.php?pid=<?php echo intval($p['problem_id'])?>">채점 데이터</a>
             </td>
           </tr>
-        <?php } else { ?>
-          <tr><td colspan="6" class="admin-field-help" style="padding:20px;text-align:center">아직 만든 문제가 없습니다. "문제 등록"으로 수행평가용 문제를 만드세요.</td></tr>
         <?php } ?>
         </tbody>
       </table>
     </div>
   </section>
+  <?php } ?>
 </div>
