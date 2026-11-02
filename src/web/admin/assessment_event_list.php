@@ -5,7 +5,8 @@ require("admin-header.php");
 require_once("../include/const.inc.php");
 
 $cid = intval($_GET['cid'] ?? 0);
-if (!(isset($_SESSION[$OJ_NAME.'_'.'administrator']) || isset($_SESSION[$OJ_NAME.'_'.'contest_creator']) || isset($_SESSION[$OJ_NAME.'_'."m$cid"]))) {
+// 감지 기록은 회차를 만든 사람(mNNNN)과 관리자만 본다.
+if (!(isset($_SESSION[$OJ_NAME.'_'.'administrator']) || isset($_SESSION[$OJ_NAME.'_'."m$cid"]))) {
     echo "<div class='admin-content-page'><div class='alert alert-danger'>권한이 없습니다.</div></div>";
     exit(1);
 }
