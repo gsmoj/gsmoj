@@ -11,15 +11,16 @@
   .md-editor:focus-within { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, .15); }
   .md-editor-toolbar { align-items: center; background: #f8fafc; border-bottom: 1px solid #e2e8f0; display: flex; flex-wrap: wrap; gap: 2px; padding: 6px 8px; }
   .md-editor-toolbar .md-editor-sep { background: #e2e8f0; height: 18px; margin: 0 6px; width: 1px; }
-  .md-editor-toolbar button { align-items: center; background: transparent; border: 1px solid transparent; border-radius: 6px; color: #475569; cursor: pointer; display: inline-flex; font: 600 14px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", "Malgun Gothic", sans-serif; height: 32px; justify-content: center; margin: 0; min-width: 32px; padding: 0 8px; transition: background .12s, color .12s; }
-  .md-editor-toolbar button:hover { background: #e2e8f0; color: #0f172a; }
-  .md-editor-toolbar button:active { background: #cbd5e1; }
-  .md-editor-toolbar button:focus-visible { outline: 2px solid #2563eb; outline-offset: 1px; }
-  .md-editor-toolbar button svg { display: block; height: 16px; width: 16px; }
-  .md-editor-toolbar .md-b { font-weight: 800; }
-  .md-editor-toolbar .md-i { font-family: Georgia, "Times New Roman", serif; font-style: italic; font-size: 16px; }
-  .md-editor-toolbar .md-u { text-decoration: underline; text-underline-offset: 3px; }
-  .md-editor-toolbar .md-s { text-decoration: line-through; }
+  /* 관리자 공통 버튼 규칙(body:not(.admin-menu-frame) button)보다 우선하도록 .md-editor를 앞에 붙인다. */
+  .md-editor .md-editor-toolbar button { align-items: center; background: transparent; border: 1px solid transparent; border-radius: 6px; color: #475569; cursor: pointer; display: inline-flex; font: 600 14px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", "Malgun Gothic", sans-serif; height: 32px; justify-content: center; margin: 0; min-width: 32px; min-height: 32px; padding: 0 8px; transition: background .12s, color .12s; }
+  .md-editor .md-editor-toolbar button:hover { background: #e2e8f0; color: #0f172a; }
+  .md-editor .md-editor-toolbar button:active { background: #cbd5e1; }
+  .md-editor .md-editor-toolbar button:focus-visible { outline: 2px solid #2563eb; outline-offset: 1px; }
+  .md-editor .md-editor-toolbar button svg { display: block; height: 16px; width: 16px; }
+  .md-editor .md-editor-toolbar .md-b { font-weight: 800; }
+  .md-editor .md-editor-toolbar .md-i { font-family: Georgia, "Times New Roman", serif; font-style: italic; font-size: 16px; }
+  .md-editor .md-editor-toolbar .md-u { text-decoration: underline; text-underline-offset: 3px; }
+  .md-editor .md-editor-toolbar .md-s { text-decoration: line-through; }
   .md-editor-toolbar .md-editor-hint { color: #94a3b8; font-size: 12px; margin-left: auto; padding-right: 4px; }
   .md-editor textarea.problem-md-editor { background: #fff; border: 0 !important; border-radius: 0; box-shadow: none !important; box-sizing: border-box; color: #1e293b; display: block; font: 15px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", "Malgun Gothic", sans-serif; margin: 0; min-height: 140px; outline: none; padding: 12px 14px; resize: vertical; width: 100% !important; }
   .md-editor textarea.problem-md-editor::placeholder { color: #94a3b8; }
