@@ -7,7 +7,8 @@ require_once("./include/my_func.inc.php");
 require_once('./include/setlang.php');
 require_once('./include/memcache.php');
 $now = date('Y-m-d H:i', time());
-$sql = "select count(contest_id) from contest where start_time<'$now' and end_time>'$now' and ( title like '%$OJ_NOIP_KEYWORD%' or (contest_type & 20)>0 )  ";
+// 진행 중인 수행평가(contest_type 9번 비트, 512)가 있어도 순위를 숨긴다. 맞힌 문제 수로 정답 여부를 알 수 있기 때문이다.
+$sql = "select count(contest_id) from contest where start_time<'$now' and end_time>'$now' and ( title like '%$OJ_NOIP_KEYWORD%' or (contest_type & (20|512))>0 )  ";
 $rows = pdo_query($sql);
 $row = $rows[0];
 if ($row[0] > 0 && !isset($_SESSION[$OJ_NAME . '_' . "administrator"])) {
