@@ -32,3 +32,6 @@
 /src/core/judged/judged.http
 /src/core/judged/judgehub
 /src/install/judge_client
+
+# IDE 설정은 개인 환경이며 서버 주소 등이 들어가므로 올리지 않는다.
+/.idea/
