@@ -108,6 +108,7 @@ function pm_bulkbar($with_ai, $extra_class = "") {
 <form id='pform' class="pm-list-form" method=post action=contest_add.php>
 <input type="hidden" name=keyword value="<?php if(isset($_GET['keyword']))echo htmlentities($_GET['keyword'],ENT_QUOTES,"utf-8")?>">
 <input type="hidden" name=hlist value="" >
+<?php require_once("../include/set_post_key.php");?>
 <?php pm_bulkbar(true); ?>
 <div class="pm-table-wrap">
 <table class="table">
