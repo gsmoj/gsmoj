@@ -113,8 +113,6 @@ if (isset($_GET['cid'])) {
 
 $result2 = "";
 if ((isset($_SESSION[$OJ_NAME . '_' . 'administrator']) || isset($_SESSION[$OJ_NAME . '_' . 'contest_creator'])) && isset($_POST['do'])) {
-    // 템플릿 js.php가 폼에 붙이는 CSRF 토큰을 확인한다.
-    require_once("./include/csrf_check.php");
 
     $user_id = $_POST['user_id'];
     $ip = $_POST['ip'];
