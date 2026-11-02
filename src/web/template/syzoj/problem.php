@@ -468,6 +468,69 @@ body.problem-workspace-dark .ui.menu .item { color:#e5e7eb !important; }
   #dragButton { top:-14px; left:0; width:100%; height:18px; }
 }
 </style>
+<style>
+/* ── 문제 풀이 화면 보강 ──
+   예제 입출력·코드 블록·복사 버튼을 정리하고, 다크 모드를 문제 영역뿐 아니라 같은 화면의 헤더·예제 칸까지 적용한다. */
+
+/* 예제 입출력·코드 블록 */
+#main .font-content pre { margin: 0; padding: 12px 14px; border: 1px solid #e2e8f0; border-radius: 8px; background: #f8fafc; color: #0f172a; font-size: 14px; line-height: 1.6; white-space: pre-wrap; word-break: break-word; }
+#main .font-content pre code, #main .font-content pre code.hljs { padding: 0; background: transparent; color: inherit; font-size: inherit; }
+#main .pre-wrapper { display: block; }
+#main .font-content .pre-wrapper pre { padding-right: 72px; }
+#main .copy { top: 8px; right: 8px; padding: 3px 10px; border: 1px solid #cbd5e1; border-radius: 999px; background: #fff; color: #475569; font-size: 12px; font-weight: 600; line-height: 1.5; opacity: .85; transition: opacity .15s, color .15s, border-color .15s; user-select: none; }
+#main .copy:hover { border-color: #93c5fd; color: #1d4ed8; opacity: 1; }
+#main .pre-wrapper:hover .copy { opacity: 1; }
+
+/* 다크 모드: 문제 영역의 코드·예제·표·스포일러 */
+body.problem-workspace-dark #main .font-content pre { border-color: #334155 !important; background: #0b1220 !important; color: #e2e8f0 !important; }
+body.problem-workspace-dark #main pre code,
+body.problem-workspace-dark #main .hljs { background: transparent !important; color: #e2e8f0 !important; }
+body.problem-workspace-dark #main :not(pre) > code { background: rgba(148, 163, 184, .18); color: #f1f5f9; }
+body.problem-workspace-dark #main .copy { border-color: #475569; background: #1e293b; color: #cbd5e1; }
+body.problem-workspace-dark #main .copy:hover { border-color: #60a5fa; color: #bfdbfe; }
+body.problem-workspace-dark #main .hljs-comment, body.problem-workspace-dark #main .hljs-quote { color: #94a3b8; }
+body.problem-workspace-dark #main .hljs-keyword, body.problem-workspace-dark #main .hljs-selector-tag, body.problem-workspace-dark #main .hljs-built_in, body.problem-workspace-dark #main .hljs-type { color: #93c5fd; }
+body.problem-workspace-dark #main .hljs-string, body.problem-workspace-dark #main .hljs-number, body.problem-workspace-dark #main .hljs-literal, body.problem-workspace-dark #main .hljs-title, body.problem-workspace-dark #main .hljs-section { color: #fca5a5; }
+body.problem-workspace-dark #main .hljs-meta, body.problem-workspace-dark #main .hljs-attr, body.problem-workspace-dark #main .hljs-variable { color: #fcd34d; }
+body.problem-workspace-dark #main table th, body.problem-workspace-dark #main table td { border-color: #475569 !important; color: #e5e7eb; }
+body.problem-workspace-dark #main table th { background-color: #334155 !important; }
+body.problem-workspace-dark #main .md-spoiler { background: #475569; }
+body.problem-workspace-dark #main .md-spoiler:focus { background: #334155; color: #f8fafc; }
+body.problem-workspace-dark #main hr { border-color: #334155; }
+body.problem-workspace-dark #submitPage { border-left-color: #334155; }
+
+/* 다크 모드: 같은 화면의 사이트 헤더(로고·메뉴·검색·드롭다운)와 관리자 메뉴 줄 */
+body.problem-workspace-dark .gs-header { border-bottom-color: #1f2937; background: #0f172a; }
+body.problem-workspace-dark .gs-logo, body.problem-workspace-dark .gs-logo:hover { color: #f8fafc; }
+body.problem-workspace-dark .gs-nav a, body.problem-workspace-dark .gs-nav .gs-nav-group > span { color: #cbd5e1; }
+body.problem-workspace-dark .gs-nav a:hover, body.problem-workspace-dark .gs-nav .gs-nav-group:hover > span,
+body.problem-workspace-dark .gs-nav a.active, body.problem-workspace-dark .gs-nav .gs-nav-group > span.active { color: #fff; }
+body.problem-workspace-dark .gs-dropdown { border-color: #334155; background: #1e293b; box-shadow: 0 12px 32px rgba(0, 0, 0, .45); }
+body.problem-workspace-dark .gs-dropdown a, body.problem-workspace-dark .gs-nav .gs-dropdown a { color: #e2e8f0; }
+body.problem-workspace-dark .gs-dropdown a:hover, body.problem-workspace-dark .gs-search-panel a.selected { background: #334155; color: #fff; }
+body.problem-workspace-dark .gs-user-meta { border-bottom-color: #334155; color: #94a3b8; }
+body.problem-workspace-dark .gs-user-meta strong { color: #f8fafc; }
+body.problem-workspace-dark .gs-search input[type="search"] { border-color: #334155; background: #1e293b; color: #f1f5f9; }
+body.problem-workspace-dark .gs-search input[type="search"]:focus { border-color: #3b82f6; background: #0f172a; }
+body.problem-workspace-dark .gs-search kbd { border-color: #475569; background: #1e293b; color: #94a3b8; }
+body.problem-workspace-dark .gs-search-panel b { color: #93c5fd; }
+body.problem-workspace-dark .gs-bell, body.problem-workspace-dark .gs-user-button, body.problem-workspace-dark #mobile-menu-toggle { color: #e2e8f0; }
+body.problem-workspace-dark .gs-bell:hover, body.problem-workspace-dark #mobile-menu-toggle:hover { background: #1e293b; color: #fff; }
+body.problem-workspace-dark .gs-bell-dot { box-shadow: 0 0 0 2px #0f172a; }
+body.problem-workspace-dark .gs-avatar { background: #1e3a8a; color: #dbeafe; }
+body.problem-workspace-dark .gs-auth a { color: #e2e8f0; }
+body.problem-workspace-dark .gs-auth a:hover { background: #1e293b; color: #fff; }
+body.problem-workspace-dark .gs-auth a.primary, body.problem-workspace-dark .gs-auth a.primary:hover { color: #fff; }
+body.problem-workspace-dark .gs-admin-link { border-color: #334155; color: #e2e8f0 !important; }
+body.problem-workspace-dark .gs-admin-link:hover { background: #1e293b; }
+body.problem-workspace-dark .gs-rolebar, body.problem-workspace-dark .gs-subbar { border-bottom-color: #1f2937; background: #111827; }
+body.problem-workspace-dark .gs-rolebar a, body.problem-workspace-dark .gs-subbar a { color: #cbd5e1; }
+body.problem-workspace-dark .gs-rolebar a:hover, body.problem-workspace-dark .gs-subbar a:hover { background: #1e293b; color: #fff; }
+@media (max-width: 991px) {
+  body.problem-workspace-dark .gs-collapse { border-color: #1f2937; background: #0f172a; }
+  body.problem-workspace-dark .gs-nav a.active, body.problem-workspace-dark .gs-auth a { background: #1e293b; }
+}
+</style>
   <script type="text/javascript">
   
   function legacyTransform(){

@@ -186,6 +186,9 @@
             color: #111827;
         }
         .gs-logo:hover { color: #111827; }
+        /* 마우스로 누를 때 생기는 브라우저 기본 검은 테두리는 숨기고, 키보드(Tab)로 이동할 때만 파란 테두리를 보여 준다. */
+        .gs-header a:focus, .gs-header button:focus { outline: none; }
+        .gs-header a:focus-visible, .gs-header button:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; }
         .gs-logo-mark {
             display: inline-flex;
             flex: 0 0 30px;

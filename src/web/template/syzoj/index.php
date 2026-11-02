@@ -57,15 +57,25 @@
     .home-hero-actions .button.primary {
         background: #2563eb;
     }
-    .home-hero-actions .ui.basic.button {
+    /* Semantic UI가 basic 버튼의 hover·focus 배경을 흰색(!important)으로 바꿔 흰 글자가 묻히므로, 상태마다 반투명 배경을 직접 준다. */
+    .home-hero-actions .ui.basic.button,
+    .home-hero-actions .ui.basic.button:focus {
         color: #fff !important;
-        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .45);
+        background: rgba(255, 255, 255, .06) !important;
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .45) !important;
+        transition: background-color .15s ease, box-shadow .15s ease;
     }
     .home-hero-actions .ui.basic.button:hover {
         color: #fff !important;
-        background: rgba(255, 255, 255, .12);
-        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .7);
+        background: rgba(255, 255, 255, .16) !important;
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .8) !important;
     }
+    .home-hero-actions .ui.basic.button:active {
+        color: #fff !important;
+        background: rgba(255, 255, 255, .24) !important;
+    }
+    .home-hero-actions .button:focus { outline: none; }
+    .home-hero-actions .button:focus-visible { outline: 2px solid #93c5fd; outline-offset: 2px; }
     .home-content-grid {
         display: grid !important;
         grid-template-columns: minmax(0, 2fr) minmax(240px, 1fr);
