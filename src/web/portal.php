@@ -1,15 +1,15 @@
 <?php
-ini_set("display_errors", "Off");  // 当我们需要调试的时候，把这里设成On，在出问题的时候php会尝试在页面上输出错误信息
-require_once("include/db_info.inc.php"); // 导入基本配置和数据库操作函数
-require_once('include/const.inc.php');   // 导入需要的一些可选常量
-require_once('include/my_func.inc.php'); // 导入自定义的一些可选函数
-require_once('include/curl.php'); // 导入与爬虫有关的一些可选函数
+ini_set("display_errors", "Off");  // 디버깅할 때 On으로 바꾸면 문제가 생겼을 때 PHP가 페이지에 오류를 출력한다.
+require_once("include/db_info.inc.php"); // 기본 설정과 데이터베이스 함수를 불러온다.
+require_once('include/const.inc.php');   // 필요한 상수를 불러온다.
+require_once('include/my_func.inc.php'); // 공통 함수를 불러온다.
+require_once('include/curl.php'); // 크롤러 관련 함수를 불러온다.
 $now = date('Y-m-d H:i', time());
-if (isset($_SESSION[$OJ_NAME . '_user_id'])) {  //如果用户已经登录
+if (isset($_SESSION[$OJ_NAME . '_user_id'])) {  //로그인한 사용자
     $user_id = $_SESSION[$OJ_NAME . '_user_id'];
     $show_title = $MSG_TODO . " - " . $OJ_NAME;
-    $sub_arr = array(); //已经提交的题目号
-    $acc_arr = array(); //已经通过的题目号
+    $sub_arr = array(); //제출한 문제 번호
+    $acc_arr = array(); //정답을 받은 문제 번호
     if (isset($_SESSION[$OJ_NAME . '_' . 'user_id'])) {
         $sql = "SELECT problem_id, MIN(result) AS result FROM solution WHERE user_id=? and result>=4 GROUP BY problem_id ";
         $result = pdo_query($sql, $_SESSION[$OJ_NAME . '_' . 'user_id']);
@@ -20,7 +20,7 @@ if (isset($_SESSION[$OJ_NAME . '_user_id'])) {  //如果用户已经登录
     }
     $noip_problems = array_merge(...mysql_query_cache("select problem_id from contest c left join contest_problem cp on start_time<'$now' and end_time>'$now' and (c.title like ? or (c.contest_type & 20) >0) and c.contest_id=cp.contest_id", "%$OJ_NOIP_KEYWORD%"));
     $noip_problems = array_unique($noip_problems);
-} else {    //没有登录的用户提示登录
+} else {    //로그인하지 않은 사용자에게 로그인을 안내한다.
     $view_errors = "<a href=loginpage.php>$MSG_Login</a>";
     require("template/" . $OJ_TEMPLATE . "/error.php");
     exit(0);
@@ -29,13 +29,13 @@ $sql = "select * from problem p inner join (
  			select distinct problem_id,contest_id from solution where result!=4 and user_id=? and problem_id not in 
     				(select distinct problem_id from solution where result=4 and user_id=?)
 			) f on p.problem_id=f.problem_id ";
-$result = pdo_query($sql, $user_id, $user_id);      // 查找做了但是没做对的题
+$result = pdo_query($sql, $user_id, $user_id);      // 풀었지만 정답을 받지 못한 문제를 찾는다.
 $cnt = 0;
-$view_problemset = array();  //用于传递查询结果给显示页的二维数组
+$view_problemset = array();  //조회 결과를 화면에 넘기는 2차원 배열
 $i = 0;
 foreach ($result as $row) {
     if (in_array($row['problem_id'], $noip_problems)) continue;
-    $view_problemset[$i] = array();    //第$i行的数组初始化
+    $view_problemset[$i] = array();    //$i번째 행 배열 초기화
     if (isset($sub_arr[$row['problem_id']])) {
         if (isset($acc_arr[$row['problem_id']]))
             $view_problemset[$i][0] = "<div class='label label-success'>Y</div>";
@@ -45,11 +45,11 @@ foreach ($result as $row) {
         $view_problemset[$i][0] = "<div class=none> </div>";
     }
     $category = array();
-    $cate = explode(" ", $row['source']);  //分类标签
+    $cate = explode(" ", $row['source']);  //분류 태그
     foreach ($cate as $cat) {
         $cat = trim($cat);
         if (mb_ereg("^http", $cat)) {
-            $cat = get_domain($cat);   // 标签是URL地址的显示成域名,get_domain在curl.php里
+            $cat = get_domain($cat);   // URL 태그는 도메인으로 표시한다. get_domain은 curl.php에 있다.
         }
         array_push($category, trim($cat));
     }
@@ -61,7 +61,7 @@ foreach ($result as $row) {
         if (trim($cat) == "" || trim($cat) == "&nbsp")
             continue;
         $hash_num = hexdec(substr(md5($cat), 0, 7));
-        $label_theme = $color_theme[$hash_num % count($color_theme)];   //$color_theme 在 const.inc.php 里
+        $label_theme = $color_theme[$hash_num % count($color_theme)];   //$color_theme은 const.inc.php에 있다.
         if ($label_theme == "")
             $label_theme = "default";
         $view_problemset[$i][3] .= "<a title='" . htmlentities($cat, ENT_QUOTES, 'UTF-8') . "' class='label label-$label_theme' style='display: inline-block;' href='problemset.php?search=" . htmlentities(urlencode($cat), ENT_QUOTES, 'UTF-8') . "'>" . mb_substr($cat, 0, 10, 'utf8') . "</a>&nbsp;";
@@ -73,20 +73,21 @@ foreach ($result as $row) {
     $i++;
 }
 $mycontests = $wheremy = "";
+$gs_visible_args = array();
 
 if (isset($_SESSION[$OJ_NAME . '_user_id'])) {
     $sql = "select distinct contest_id from solution where contest_id>0 and user_id=?";
-    $result = pdo_query($sql, $_SESSION[$OJ_NAME . '_user_id']);  //有提交记录的比赛
+    $result = pdo_query($sql, $_SESSION[$OJ_NAME . '_user_id']);  //제출 기록이 있는 대회
     foreach ($result as $row) {
         $mycontests .= "," . $row[0];
     }
     $len = mb_strlen($OJ_NAME . '_');
     $user_id = $_SESSION[$OJ_NAME . '_' . 'user_id'];
     if (!empty($user_id)) {
-        // 已登录的
+        // 로그인한 사용자
         $sql = "SELECT * FROM `privilege` WHERE `user_id`=?";
         $result = pdo_query($sql, $user_id);
-        // 刷新各种权限
+        // 각종 권한을 새로 고친다.
         foreach ($result as $row) {
             if (isset($row['valuestr'])) {
                 $_SESSION[$OJ_NAME . '_' . $row['rightstr']] = $row['valuestr'];
@@ -103,7 +104,7 @@ if (isset($_SESSION[$OJ_NAME . '_user_id'])) {
         };
     }
 
-    foreach ($_SESSION as $key => $value) {   //有权限的比赛
+    foreach ($_SESSION as $key => $value) {   //권한이 있는 대회
         if ((mb_substr($key, $len, 1) == 'm' || mb_substr($key, $len, 1) == 'c') && intval(mb_substr($key, $len + 1)) > 0) {
             //echo substr($key,1)."<br>";
             $mycontests .= "," . intval(mb_substr($key, $len + 1));
@@ -115,12 +116,17 @@ if (isset($_SESSION[$OJ_NAME . '_user_id'])) {
         $mycontests = substr($mycontests, 1);
         $wheremy = " and  contest_id in ($mycontests) ";
     }
-    $wheremy .= " and start_time < now() and end_time > now() ";   //运行中的比赛
+    $wheremy .= " and start_time < now() and end_time > now() ";   //진행 중인 대회
+    // 수행평가는 들어갈 수 있는 회차만 보여 준다.
+    if (!isset($_SESSION[$OJ_NAME . '_administrator'])) {
+        list($gs_visible_cond, $gs_visible_args) = assessment_visible_cond($_SESSION[$OJ_NAME . '_user_id']);
+        $wheremy .= " and ((contest_type & 512)=0 or $gs_visible_cond) ";
+    }
 }
 
 $sql = "SELECT *  FROM contest WHERE contest.defunct='N' $wheremy  ORDER BY contest_id DESC";
 //echo htmlentities($sql);
-$result = pdo_query($sql);
+$result = call_user_func_array("pdo_query", array_merge(array($sql), $gs_visible_args));
 $view_contest = array();
 foreach ($result as $row) {
     $view_contest[$i][0] = $row['contest_id'];

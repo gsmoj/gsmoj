@@ -20,10 +20,12 @@ $show_title="$gs_list_title - $OJ_NAME"; ?>
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
     <input type="search" name="keyword" value="" placeholder="<?php echo str_replace($MSG_CONTEST, $gs_list_title, $MSG_CONTEST_NAME) ?>으로 검색" aria-label="<?php echo str_replace($MSG_CONTEST, $gs_list_title, $MSG_CONTEST_NAME) ?>으로 검색">
   </label>
+  <?php if(empty($gs_hide_my_chip)){ ?>
   <div class="gs-toolbar-end">
     <a class="gs-chip<?php if(!isset($_GET['my'])) echo ' active'?>" href="<?php echo $gs_list_page?>">전체</a>
     <a class="gs-chip<?php if(isset($_GET['my'])) echo ' active'?>" href="<?php echo $gs_list_page?>?my"><?php echo str_replace($MSG_CONTEST, $gs_list_title, $MSG_VIEW_MY_CONTESTS)?></a>
   </div>
+  <?php } ?>
 </form>
 
 <div class="padding">

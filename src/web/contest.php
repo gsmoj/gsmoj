@@ -1,7 +1,7 @@
 <?php
 /**
- * 根据是否有关键词POST请求设置缓存时间
- * 有关键词时缓存时间短，无关键词时缓存时间长
+ * 검색어 POST 요청 여부에 따라 캐시 시간을 정한다.
+ * 검색어가 있으면 짧게, 없으면 길게 캐시한다.
  */
 if (isset($_POST['keyword']))
     $cache_time = 1;
@@ -9,14 +9,14 @@ else
     $cache_time = 10;
 
 /**
- * 设置缓存共享标志，当前设置为false
- * 注释掉的代码原本用于在cid或my参数存在时禁用缓存
+ * 캐시 공유 여부. 현재는 false다.
+ * 주석 처리된 코드는 원래 cid나 my 인자가 있을 때 캐시를 끄는 용도였다.
  */
 $OJ_CACHE_SHARE = false;//!(isset($_GET['cid'])||isset($_GET['my']));
 
 /**
- * 包含必要的系统文件
- * 包括缓存、数据库、内存缓存、自定义函数、常量和语言设置
+ * 필요한 시스템 파일을 불러온다.
+ * 캐시, 데이터베이스, 메모리 캐시, 공통 함수, 상수, 언어 설정이 포함된다.
  */
 require_once('./include/cache_start.php');
 require_once('./include/db_info.inc.php');
@@ -26,26 +26,26 @@ require_once('./include/const.inc.php');
 require_once('./include/setlang.php');
 
 /**
- * 设置页面标题为竞赛标题
+ * 페이지 제목을 대회 제목으로 설정한다.
  */
 $view_title = $MSG_CONTEST;
 
 /**
- * 获取当前时间戳
+ * 현재 타임스탬프를 가져온다.
  */
 $now = time();
 
 /**
- * 处理竞赛详情页面
- * 当存在cid参数时，显示特定竞赛的问题列表
+ * 대회 상세 페이지를 처리한다.
+ * cid 인자가 있으면 해당 대회의 문제 목록을 보여 준다.
  */
 if (isset($_GET['cid'])) {
 
     require_once("contest-check.php");
 
     /**
-     * 查询竞赛相关问题信息
-     * 使用内连接获取问题标题、ID、来源和竞赛问题编号
+     * 대회에 포함된 문제 정보를 조회한다.
+     * 내부 조인으로 문제 제목, ID, 출처, 대회 내 문제 번호를 가져온다.
      */
     $sql = "select p.title,p.problem_id,p.source,cp.num as pnum,p.coin coin,cp.c_accepted accepted,cp.c_submit submit from problem p inner join contest_problem cp on p.problem_id = cp.problem_id and cp.contest_id=$cid order by cp.num";
     $result = mysql_query_cache($sql);
@@ -55,14 +55,14 @@ if (isset($_GET['cid'])) {
     $cnt = 0;
 
     /**
-     * 判断是否为NOIP竞赛或竞赛是否锁定
-     * 检查竞赛是否在进行中且包含NOIP关键词或被锁定
+     * NOIP 대회이거나 잠긴 대회인지 판단한다.
+     * 대회가 진행 중이면서 NOIP 키워드가 있거나 잠겨 있는지 확인한다.
      */
     $noip = (time() < $end_time) && (stripos($view_title, $OJ_NOIP_KEYWORD) !== false || contest_locked($cid, 16));
     $hide_others = contest_locked($cid, 8);
 
     /**
-     * 管理员、竞赛管理员、源码浏览器或竞赛创建者不受NOIP限制
+     * 관리자, 대회 관리자, 소스 열람자, 대회 출제자는 NOIP 제한을 받지 않는다.
      */
     if (isset($_SESSION[$OJ_NAME . '_' . "administrator"]) ||
         isset($_SESSION[$OJ_NAME . '_' . "m$cid"]) ||
@@ -71,8 +71,8 @@ if (isset($_GET['cid'])) {
     ) $noip = false;
 
     /**
-     * 遍历结果集，构建问题列表
-     * 根据竞赛状态和用户权限设置问题显示内容
+     * 조회 결과를 순회하며 문제 목록을 만든다.
+     * 대회 상태와 사용자 권한에 따라 문제 표시 내용을 정한다.
      */
     foreach ($result as $row) {
         $view_problemset[$cnt][0] = "";
@@ -89,12 +89,12 @@ if (isset($_GET['cid'])) {
             $view_problemset[$cnt][0] = "";
 
 
-        if ($now < $end_time) { //竞赛进行中
+        if ($now < $end_time) { //대회 진행 중
             $view_problemset[$cnt][1] = "<a href='problem.php?cid=$cid&pid=$cnt'>" . $PID[$cnt] . "</a>";
             $view_problemset[$cnt][2] = "<a href='problem.php?cid=$cid&pid=$cnt'>" . $row['title'] . "</a>";
             $view_problemset[$cnt][2] .= intval($row['coin']) > 0 ? str_repeat('<span style=\'color:orange\'>✦</span>', min(intval($row['coin']), 5)) : '';
-        } else {               //竞赛结束
-            //检查问题是否会在其他竞赛中使用
+        } else {               //대회 종료
+            //문제가 다른 대회에서 쓰일 예정인지 확인한다.
             $tpid = intval($row['problem_id']);
             $sql = "SELECT `problem_id` FROM `problem` WHERE `problem_id`=? AND `problem_id` IN (
 				SELECT `problem_id` FROM `contest_problem` WHERE `contest_id` IN (
@@ -105,8 +105,8 @@ if (isset($_GET['cid'])) {
             $tresult = pdo_query($sql, $tpid);
 
             if (intval($tresult) != 0 && !isset($_SESSION[$OJ_NAME . '_' . "m$cid"])) {
-                //如果问题将在其他私有竞赛中使用，不向其他教师和学生显示
-                $view_problemset[$cnt][1] = $PID[$cnt]; //竞赛结束后隐藏标题
+                //다른 비공개 대회에서 쓰일 문제는 다른 교사와 학생에게 보여 주지 않는다.
+                $view_problemset[$cnt][1] = $PID[$cnt]; //대회 종료 후 제목을 숨긴다.
                 $view_problemset[$cnt][2] = '--using in another private contest--';
             } else {
                 $view_problemset[$cnt][1] = "<a href='problem.php?id=" . $row['problem_id'] . "'>" . $PID[$cnt] . "</a>";
@@ -120,8 +120,8 @@ if (isset($_GET['cid'])) {
         //$view_problemset[$cnt][3] = $row['source'];
 
         /**
-         * 根据NOIP或隐藏设置决定是否显示接受和提交数量
-         * 管理员不受限制
+         * NOIP 또는 숨김 설정에 따라 정답 수와 제출 수 표시 여부를 정한다.
+         * 관리자는 제한을 받지 않는다.
          */
         if (($noip || $hide_others) && !(isset($_SESSION[$OJ_NAME . 'm' . $cid]) || isset($_SESSION[$OJ_NAME . '_administrator']))) {
             $view_problemset[$cnt][3] = "<span class=red>?</span>";
@@ -136,8 +136,8 @@ if (isset($_GET['cid'])) {
     }
 } else {
     /**
-     * 处理竞赛列表页面
-     * 当不存在cid参数时，显示竞赛列表
+     * 대회 목록 페이지를 처리한다.
+     * cid 인자가 없으면 대회 목록을 보여 준다.
      */
     $page = 1;
     if (isset($_GET['page']))
@@ -150,12 +150,18 @@ if (isset($_GET['cid'])) {
     $gs_assessment_list = isset($GS_ASSESSMENT_LIST) && $GS_ASSESSMENT_LIST;
     $gs_type_cond = $gs_assessment_list ? " AND (contest_type & 512)<>0" : " AND (contest_type & 512)=0";
     $gs_list_page = $gs_assessment_list ? "assessment.php" : "contest.php";
-    $rows = pdo_query("select count(1) from contest where defunct='N' $gs_type_cond");
+    // 관리자가 아니면 수행평가는 들어갈 수 있는 회차만 보이므로 전체·내 수행평가 칩을 숨긴다.
+    $gs_filter_assessment = $gs_assessment_list && !isset($_SESSION[$OJ_NAME . '_administrator']);
+    $gs_hide_my_chip = $gs_filter_assessment;
+    $gs_visible_cond = "";
+    $gs_visible_args = array();
 
-    if ($rows)
-        $total = $rows[0][0];
+    if ($gs_filter_assessment && !isset($_SESSION[$OJ_NAME . '_user_id'])) {
+        $view_errors = "<a href=loginpage.php>$MSG_Login</a>";
+        require("template/" . $OJ_TEMPLATE . "/error.php");
+        exit(0);
+    }
 
-    $view_total_page = intval($total / $page_cnt) + 1;
     $keyword = "";
 
     if (isset($_POST['keyword'])) {
@@ -167,8 +173,8 @@ if (isset($_GET['cid'])) {
     $wheremy = "";
 
     /**
-     * 获取当前用户参与的竞赛列表
-     * 用于显示"我的竞赛"功能
+     * 현재 사용자가 참가한 대회 목록을 가져온다.
+     * "내 대회" 기능에 쓰인다.
      */
     if (isset($_SESSION[$OJ_NAME . '_user_id'])) {
         $sql = "select distinct contest_id from solution where contest_id>0 and user_id=?";
@@ -183,11 +189,11 @@ if (isset($_GET['cid'])) {
         $user_id = $_SESSION[$OJ_NAME . '_' . 'user_id'];
 
         if ($user_id) {
-            // 已登录的
+            // 로그인한 사용자
             $sql = "SELECT * FROM `privilege` WHERE `user_id`=?";
             $result = pdo_query($sql, $user_id);
 
-            // 刷新各种权限
+            // 각종 권한을 새로 고친다.
             foreach ($result as $row) {
                 if (isset($row['valuestr'])) {
                     $_SESSION[$OJ_NAME . '_' . $row['rightstr']] = $row['valuestr'];
@@ -217,28 +223,41 @@ if (isset($_GET['cid'])) {
             $mycontests = substr($mycontests, 1);
         if (isset($_GET['my']) && $mycontests != "")
             if (isset($_GET['my'])) $wheremy = " and( contest_id in ($mycontests) or user_id='" . $_SESSION[$OJ_NAME . '_user_id'] . "')";
+
+        if ($gs_filter_assessment) {
+            list($gs_visible_cond, $gs_visible_args) = assessment_visible_cond($user_id);
+            $gs_visible_cond = " AND " . $gs_visible_cond;
+        }
     }
+
+    // 페이지 수도 목록과 같은 표시 조건으로 센다.
+    $rows = call_user_func_array("pdo_query", array_merge(array("select count(1) from contest where defunct='N' $gs_type_cond $gs_visible_cond"), $gs_visible_args));
+
+    if ($rows)
+        $total = $rows[0][0];
+
+    $view_total_page = max(1, intval(ceil($total / $page_cnt)));
 
     $sql = "SELECT * FROM `contest` WHERE `defunct`='N' ORDER BY `contest_id` DESC LIMIT 1000";
 
     if ($keyword) {
-        $sql = "SELECT *  FROM contest WHERE contest.defunct='N' AND contest.title LIKE ? $wheremy $gs_type_cond  ORDER BY contest_id DESC";
+        $sql = "SELECT *  FROM contest WHERE contest.defunct='N' AND contest.title LIKE ? $wheremy $gs_type_cond $gs_visible_cond  ORDER BY contest_id DESC";
         $sql .= " limit " . strval($pstart) . "," . strval($pend);
 
-        $result = pdo_query($sql, $keyword);
+        $result = call_user_func_array("pdo_query", array_merge(array($sql, $keyword), $gs_visible_args));
     } else {
-        $sql = "SELECT *  FROM contest WHERE contest.defunct='N' $wheremy $gs_type_cond  ORDER BY contest_id DESC";
+        $sql = "SELECT *  FROM contest WHERE contest.defunct='N' $wheremy $gs_type_cond $gs_visible_cond  ORDER BY contest_id DESC";
         $sql .= " limit " . strval($pstart) . "," . strval($pend);
         //echo $sql;
-        $result = mysql_query_cache($sql);
+        $result = call_user_func_array("mysql_query_cache", array_merge(array($sql), $gs_visible_args));
     }
 
     $view_contest = array();
     $i = 0;
 
     /**
-     * 遍历竞赛结果，构建竞赛列表
-     * 根据竞赛状态（已结束、待开始、进行中）设置不同的显示内容
+     * 조회 결과를 순회하며 대회 목록을 만든다.
+     * 대회 상태(종료, 시작 전, 진행 중)에 따라 표시 내용을 다르게 정한다.
      */
     foreach ($result as $row) {
         $view_contest[$i][0] = $row['contest_id'];
@@ -255,15 +274,15 @@ if (isset($_GET['cid'])) {
         $left = $end_time - $now;
 
         if ($end_time <= $now) {
-            //已结束
+            //종료
             $view_contest[$i][2] = "<span class=text-muted>$MSG_Ended</span>" . " " . "<span class=text-muted>" . $row['end_time'] . "</span>";
 
         } else if ($now < $start_time) {
-            //待开始
+            //시작 전
             $view_contest[$i][2] = "<span class=text-success>$MSG_Start</span>" . " " . $row['start_time'] . "&nbsp;";
             $view_contest[$i][2] .= "<span class=text-success>$MSG_TotalTime</span>" . " " . formatTimeLength($length);
         } else {
-            //进行中
+            //진행 중
             $view_contest[$i][2] = "<span class=text-danger>$MSG_Running</span>" . " " . $row['start_time'] . "&nbsp;";
             $view_contest[$i][2] .= "<span class=text-danger>$MSG_LeftTime</span>" . " " . formatTimeLength($left) . "</span>";
         }
@@ -282,8 +301,8 @@ if (isset($_GET['cid'])) {
 
 /////////////////////////Template
 /**
- * 根据参数加载相应的模板文件
- * 有cid参数时加载竞赛模板，否则加载竞赛集模板
+ * 인자에 맞는 템플릿 파일을 불러온다.
+ * cid 인자가 있으면 대회 템플릿, 없으면 대회 목록 템플릿을 쓴다.
  */
 if (isset($_GET['cid']))
     require("template/" . $OJ_TEMPLATE . "/contest.php");
@@ -291,7 +310,7 @@ else
     require("template/" . $OJ_TEMPLATE . "/contestset.php");
 /////////////////////////Common foot
 /**
- * 包含缓存结束文件（如果存在）
+ * 캐시 종료 파일이 있으면 불러온다.
  */
 if (file_exists('./include/cache_end.php'))
     require_once('./include/cache_end.php');

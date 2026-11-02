@@ -64,6 +64,22 @@ if(isset($_POST['startdate'])){
   $old_type = pdo_query("SELECT contest_type FROM `contest` WHERE `contest_id`=?",$cid);
   $contest_type = ($contest_type & ~512) | ((!empty($old_type) && (intval($old_type[0]['contest_type']) & 512)) ? 512 : 0);
 
+  // 수행평가는 지정한 반의 학생만 들어갈 수 있으므로 공개 범위·비밀번호·참가자 목록 대신 반을 받는다.
+  // 수행평가 관리 화면에서 만든 회차(assessment_id>0)의 반은 그 화면의 회차 구성을 따르므로 바꾸지 않는다.
+  if($contest_type & 512){
+    $private = 1;
+    $password = "";
+    $session = pdo_query("SELECT assessment_id FROM `assessment_session` WHERE `contest_id`=?",$cid);
+    if(empty($session) || intval($session[0]['assessment_id']) == 0){
+      $assessment_group = isset($_POST['group_name']) ? trim($_POST['group_name']) : "";
+      if($assessment_group === ""){
+        echo "반을 선택하세요.";
+        exit(1);
+      }
+      pdo_query("INSERT INTO `assessment_session`(assessment_id,contest_id,group_name,created_at) VALUES(0,?,?,NOW()) ON DUPLICATE KEY UPDATE group_name=VALUES(group_name)",$cid,$assessment_group);
+    }
+  }
+
   $description = str_replace("<p>", "", $description); 
   $description = str_replace("</p>", "<br />", $description);
   $description = str_replace(",", "&#44;", $description);
@@ -108,6 +124,8 @@ if(isset($_POST['startdate'])){
     pdo_query($sql) ;
   }
 
+  // 수행평가의 참가 권한은 수정 화면에서 받지 않으므로 그대로 둔다.
+  if(!($contest_type & 512)){
   $sql = "DELETE FROM `privilege` WHERE `rightstr`=?";
   pdo_query($sql,"c$cid");
   $pieces = explode("\n", trim($_POST['ulist']));
@@ -117,6 +135,7 @@ if(isset($_POST['startdate'])){
     for($i=0; $i<count($pieces); $i++){
       pdo_query($sql_1,trim($pieces[$i]),"c$cid") ;
     }
+  }
   }
 
   echo "<script>window.location.href=\"contest_list.php".(($contest_type & 512) ? "?type=assessment" : "")."\";</script>";
@@ -140,6 +159,13 @@ if(isset($_POST['startdate'])){
   $subnet= $row['subnet'];
   $contest_type= $row['contest_type'];
   if (intval($contest_type) & 512) $page_heading = (isset($MSG_ASSESSMENT) ? $MSG_ASSESSMENT : "수행평가")." - 수정";
+  $assessment_group = "";
+  $assessment_fixed = false;
+  $session = pdo_query("SELECT assessment_id, group_name FROM `assessment_session` WHERE `contest_id`=?",$cid);
+  if(!empty($session)){
+    $assessment_group = $session[0]['group_name'];
+    $assessment_fixed = intval($session[0]['assessment_id']) > 0;
+  }
   $description = $row['description'];
   $title = htmlentities($row['title'],ENT_QUOTES,"UTF-8");
 
@@ -239,6 +265,14 @@ if(isset($_POST['startdate'])){
           </td>
 
           <td height="10px">
+            <?php if($contest_type & 512){ ?>
+            <p align=left>
+              대상 반: <?php if($assessment_fixed) echo "<b>".htmlentities($assessment_group,ENT_QUOTES,"UTF-8")."</b>"; else assessment_group_select($assessment_group);?>
+              <span class="admin-field-help">이 반의 학생만 이 <?php echo $MSG_CONTEST?>를 보고 들어갈 수 있습니다.</span>
+              <input type=hidden name=private value=1>
+              <input type=hidden name=password value="">
+            </p>
+            <?php } else { ?>
             <p align=left>
               <?php echo $MSG_CONTEST."-".$MSG_Public?>:
               <select name=private style="width:150px;">
@@ -248,10 +282,12 @@ if(isset($_POST['startdate'])){
               <?php echo $MSG_CONTEST."-".$MSG_PASSWORD?>:
               <input type=text name=password style="width:150px;" value='<?php echo htmlentities($password,ENT_QUOTES,'utf-8')?>'>
             </p>
+            <?php } ?>
           </td>
         </tr>
         <tr>
           <td height="*">
+            <?php if(!($contest_type & 512)){ ?>
             <p align=left>
               <?php echo $MSG_CONTEST."-".$MSG_USER?>
               <span class="admin-field-help">비공개 <?php echo $MSG_CONTEST?>에 참여할 사용자 ID를 한 줄에 하나씩 입력하세요.</span>
@@ -259,6 +295,7 @@ if(isset($_POST['startdate'])){
               <textarea name='ulist' rows='10' style='width:100%;' placeholder='user1<?php echo "\n"?>user2<?php echo "\n"?>user3<?php echo "\n"?>
               <?php echo $MSG_PRIVATE_USERS_ADD?><?php echo "\n"?>'><?php if(isset($ulist)){ echo $ulist;}?></textarea>
             </p>
+            <?php } ?>
           </td>
         </tr>
       </table>
