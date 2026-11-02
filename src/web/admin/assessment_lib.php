@@ -109,7 +109,7 @@ function asm_delete_session($a, $cid) {
     $s = pdo_query("select count(*) from assessment_session where assessment_id=? and contest_id=?", $a['assessment_id'], $cid);
     if (empty($s) || intval($s[0][0]) == 0) return "회차를 찾을 수 없습니다.";
     $n = pdo_query("select count(*) from solution where contest_id=?", $cid);
-    if (!empty($n) && intval($n[0][0]) > 0) return "제출이 있는 회차는 삭제할 수 없습니다. 기록을 보존하려면 대회 목록에서 비활성으로 바꾸세요.";
+    if (!empty($n) && intval($n[0][0]) > 0) return "제출이 있는 회차는 삭제할 수 없습니다. 기록을 보존하려면 수행평가 목록에서 비활성으로 바꾸세요.";
     pdo_query("delete from contest_problem where contest_id=?", $cid);
     pdo_query("delete from privilege where rightstr=? or rightstr=?", "c".$cid, "m".$cid);
     pdo_query("delete from assessment_session where contest_id=?", $cid);

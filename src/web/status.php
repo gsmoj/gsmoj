@@ -318,7 +318,7 @@ for ($i = 0; $i < $rows_cnt; $i++) {
     
     // 깃허브 스타(Star)처럼 오픈소스 기여 유저 요소를 표시하기 위한 특별 별 표시 처리
     if (isset($row['starred']) && $row['starred'] > 0) {
-        $view_status[$i][1] = "⭐" . $view_status[$i][1] . "<span title='용同名账户给hustoj项目加星，可以点亮此星' >⭐</span>";
+        $view_status[$i][1] = "⭐" . $view_status[$i][1] . "<span title='같은 이름의 계정으로 hustoj 프로젝트에 별을 주면 이 별이 켜집니다' >⭐</span>";
     }
 
     $view_status[$i]['nick'] = "<span title='" . $row['group_name'] . "@" . myLocation($row['ip']) . "'>" . (

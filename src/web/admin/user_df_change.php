@@ -26,11 +26,11 @@ if ($row[0]=='N'){
         if(isset($OJ_SaaS_ENABLE) && $OJ_SaaS_ENABLE && $domain == $DOMAIN ){
                 create_subdomain($user_id,'syzoj',3);
                 $address=$row['email'];
-                $mailtitle = "$OJ_NAME 账号重置激活通知";//邮件主题
-                $mailcontent = "$user_id:\n您好！\n
-                                              您在".$DOMAIN."系统开通了子OJ，您的子系统域名是".$user_id.".".$DOMAIN."。\n
-                                              请及时访问该系统，并注册一个新账号".$user_id."，自动成为管理员。\n\n\n
-                                                                                        $OJ_NAME 在线评测系统";//邮件内容
+                $mailtitle = "$OJ_NAME 계정 재활성화 안내";//邮件主题
+                $mailcontent = "$user_id:\n안녕하세요.\n
+                                              ".$DOMAIN." 시스템에 하위 OJ가 개설되었습니다. 하위 시스템 도메인은 ".$user_id.".".$DOMAIN." 입니다.\n
+                                              시스템에 접속해 새 계정 ".$user_id."을(를) 등록하면 자동으로 관리자가 됩니다.\n\n\n
+                                                                                        $OJ_NAME 온라인 저지";//邮件内容
                 email($address,$mailtitle,$mailcontent);
 
         }

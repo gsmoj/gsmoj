@@ -81,7 +81,7 @@ $page_heading = $MSG_NEWS." - 수정";
 
 	function ai_gen(filename){
 		    let oldval=$('#ai_bt').val();
-		    $('#ai_bt').val('AI思考中...请稍候...');
+		    $('#ai_bt').val('AI가 생각하는 중입니다... 잠시만 기다려 주세요...');
 		    $('#ai_bt').prop('disabled', true);;
 		    let title=$('#title').val();
 		    $.ajax({
@@ -98,10 +98,10 @@ $page_heading = $MSG_NEWS." - 수정";
 				    $("textarea").eq(0).val(description); // 假设 #file_data 是 div
 			    }
 		    	    $('#ai_bt').prop('disabled', false);;
-			    $('#ai_bt').val('AI一下');
+			    $('#ai_bt').val('AI로 작성');
 			},
 			error: function() {
-			    $('#ai_bt').val('获取数据失败');
+			    $('#ai_bt').val('데이터를 가져오지 못했습니다');
 		    	    $('#ai_bt').prop('disabled', false);;
 			}
 		    });

@@ -42,12 +42,12 @@ if (strlen($_POST['title']) > 60) {
     exit(0);
 }
 if (has_bad_words($_POST['content'])) {
-    $view_errors = "请文明上网！";
+    $view_errors = "바른 말을 사용해 주세요!";
     require("template/" . $OJ_TEMPLATE . "/error.php");
     exit(0);
 }
 if (has_bad_words($_POST['title'])) {
-    $view_errors = "请文明上网！";
+    $view_errors = "바른 말을 사용해 주세요!";
     require("template/" . $OJ_TEMPLATE . "/error.php");
     exit(0);
 }
@@ -107,17 +107,17 @@ if ($_REQUEST['action'] == 'reply' || !is_null($tid)) {
                 }
                 exit(0);
             } else {
-                $view_errors = "发帖失败！";
+                $view_errors = "글을 등록하지 못했습니다!";
                 require("template/" . $OJ_TEMPLATE . "/error.php");
                 exit(0);
             }
         } else {
-            $view_errors = "回复不存在的帖子！";
+            $view_errors = "존재하지 않는 글에는 답글을 달 수 없습니다!";
             require("template/" . $OJ_TEMPLATE . "/error.php");
             exit(0);
         }
     } else {
-        $view_errors = "请文明上网！";
+        $view_errors = "바른 말을 사용해 주세요!";
         require("template/" . $OJ_TEMPLATE . "/error.php");
         exit(0);
     }

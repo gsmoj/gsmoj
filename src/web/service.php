@@ -140,7 +140,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     echo json_encode($ret);
 } else if (isset($_SESSION[$OJ_NAME . "_service_port"])) {
     ?>
-    请使用F12调试这个接口的示例，帮助理解如何开发对接。如果看不懂这些东西如何使用，也许您不适合使用这个接口，请删除本文件。
+    F12 개발자 도구로 이 인터페이스의 예제를 살펴보면 연동 방법을 이해할 수 있습니다. 사용법을 이해하기 어렵다면 이 인터페이스가 맞지 않을 수 있으니 이 파일을 삭제하세요.
     Press F12 to watch network payload in Devtab,if you don't know what to do, you need to learn more before using this page.
     <form action="service.php" method="POST">
         submit a solution to a problem<br>

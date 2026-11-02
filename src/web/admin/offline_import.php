@@ -260,8 +260,8 @@ else {
               $sql = "INSERT INTO `source_code_user`(`solution_id`,`source`) VALUES(?,?)";
               $ret=pdo_query($sql, $insert_id, $file_content);
               if($ret<0){  //fail safe 大概率没用了，以后可能会删除
-                echo "<h3> $student - $problem</h3> - 非法字符，提交失败<br>  ";
-                echo " - 尝试转码 <br>  ";
+                echo "<h3> $student - $problem</h3> - 허용되지 않는 문자가 있어 제출하지 못했습니다<br>  ";
+                echo " - 문자 인코딩 변환을 시도합니다 <br>  ";
                 $file_content=mb_convert_encoding($file_content, "utf8", "gbk");
                 $sql = "INSERT INTO `source_code`(`solution_id`,`source`) VALUES(?,?)";
                 pdo_query($sql ,$insert_id, $file_content);
@@ -269,9 +269,9 @@ else {
                 $ret=pdo_query($sql, $insert_id, $file_content);
                 if($ret<0){
                   pdo_query("delete from solution where solution_id=?",$insert_id);
-                  echo " - 转码失败,提交无效 <br>  ";
+                  echo " - 인코딩 변환에 실패해 제출이 무효 처리되었습니다 <br>  ";
                 }else{
-                  echo " - 转码成功 <br>  ";
+                  echo " - 인코딩 변환에 성공했습니다 <br>  ";
                 }
               }
               pdo_query("UPDATE solution SET result=1 WHERE solution_id=?", $insert_id);
@@ -288,7 +288,7 @@ else {
       // 关闭 ZIP 文件
       $zip->close();
     } else {
-      echo "无法打开ZIP文件";
+      echo "ZIP 파일을 열 수 없습니다";
     }
 	  
     unlink ( $_FILES ["offline"] ["tmp_name"] );

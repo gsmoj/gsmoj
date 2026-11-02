@@ -110,7 +110,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (strpos($key, 'cfg_') !== 0) continue;
         $var = substr($key, 4);
         if (in_array($var, $protected)) {
-            $errors[] = "变量 \${$var} 受保护，无法通过此页面修改。";
+            $errors[] = "변수 \${$var}은(는) 보호되어 있어 이 화면에서 수정할 수 없습니다.";
             continue;
         }
         $orig_val = get_config_value($config_file, $var);

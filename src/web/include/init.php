@@ -54,10 +54,12 @@ if (isset($_SESSION[$OJ_NAME . '_' . 'OJ_LANG'])) {
 }
 require(dirname(__FILE__)."/../lang/$OJ_LANG.php");
 
-// 수행평가 회차(contest_type 9번 비트) 안의 화면과 수행평가 관리 화면(?type=assessment)은
+// 수행평가 회차(contest_type 9번 비트) 안의 화면, 수행평가 목록(assessment.php), 수행평가 관리 화면(?type=assessment)은
 // 대회 관련 문구의 "대회"를 "수행평가"로 바꿔, 수행평가가 대회로 표시되지 않게 한다.
 $gs_wording_cid = isset($_GET['cid']) ? intval($_GET['cid']) : (isset($_POST['cid']) ? intval($_POST['cid']) : 0);
-$gs_wording_assessment = isset($_GET['type']) && $_GET['type'] === "assessment";
+$gs_wording_assessment = (isset($GS_ASSESSMENT_LIST) && $GS_ASSESSMENT_LIST) || (isset($_GET['type']) && $_GET['type'] === "assessment");
+// 상단 메뉴의 "대회"는 수행평가 화면에서도 대회 메뉴이므로 교체 전 값을 따로 둔다.
+$MSG_CONTEST_MENU = $MSG_CONTEST;
 if (!$gs_wording_assessment && $gs_wording_cid > 0) {
 	$gs_wording_rows = pdo_query("SELECT contest_type FROM contest WHERE contest_id=?", abs($gs_wording_cid));
 	$gs_wording_assessment = !empty($gs_wording_rows) && (intval($gs_wording_rows[0]['contest_type']) & 512) != 0;
@@ -66,7 +68,7 @@ if ($gs_wording_assessment && isset($MSG_ASSESSMENT)) {
 	$gs_wording_from = array("대회중", "대회시작", "대회예정", "대회종료", "대회시간", "대회순위", "대회ID", "대회");
 	$gs_wording_to = array("수행평가 중", "수행평가 시작", "수행평가 예정", "수행평가 종료", "수행평가 시간", "수행평가 순위", "수행평가 ID", $MSG_ASSESSMENT);
 	foreach (array("MSG_CONTEST", "MSG_NOT_IN_CONTEST", "MSG_NOT_INVITED", "MSG_PRIVATE_WARNING", "MSG_TIME_WARNING",
-			"MSG_WATCH_RANK", "MSG_NOIP_WARNING", "MSG_NOIP_NOHINT", "MSG_CONTEST_ID", "MSG_CONTEST_NAME",
+			"MSG_WATCH_RANK", "MSG_VIEW_ALL_CONTESTS", "MSG_VIEW_MY_CONTESTS", "MSG_NOIP_WARNING", "MSG_NOIP_NOHINT", "MSG_CONTEST_ID", "MSG_CONTEST_NAME",
 			"MSG_CONTEST_STATUS", "MSG_CONTEST_OPEN", "MSG_CONTEST_SUSPECT1", "MSG_CONTEST_SUSPECT2",
 			"MSG_REVIEW_CONTESTRANK", "MSG_Running", "MSG_Start", "MSG_End", "MSG_TotalTime", "MSG_Ended",
 			"MSG_SOURCE_NOT_ALLOWED_FOR_EXAM", "MSG_BBS_NOT_ALLOWED_FOR_EXAM", "MSG_MODIFY_NOT_ALLOWED_FOR_EXAM",

@@ -50,7 +50,7 @@ if (!in_subnet_of_contest($ip, $cid)) {
 
 // 检查比赛是否存在或是否已关闭（非管理员无法访问已关闭比赛）
 if ($rows_cnt == 0 || ($row['defunct'] == 'Y' && !isset($_SESSION[$OJ_NAME . '_administrator']))) {
-    $view_title = "比赛已经关闭!";
+    $view_title = $MSG_CONTEST . "가 닫혔습니다!";
     $contest_ok = false;
 } else {
 

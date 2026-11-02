@@ -47,7 +47,7 @@ include("kindeditor.php");
       <input type='submit' class='btn btn-primary' value='<?php echo $MSG_SAVE?>'>
     </div>
 <!--    <br>
-      如果升级无法修改公告，发送“修改公告”到微信公众号onlinejudge看解决方案。<br>
+      업그레이드 후 공지를 수정할 수 없으면 위챗 공식 계정 onlinejudge에 “修改公告”를 보내 해결 방법을 확인하세요.<br>
       if this does not work, try run "sudo chown -R www-data /home/judge/src/web " in terminal.
 -->
     <?php require_once("../include/set_post_key.php");?>

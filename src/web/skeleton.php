@@ -1,5 +1,5 @@
 <?php
-// 每增加一个公式就少一半读者, 每依赖一种框架就少一半开发者。
+// 수식이 하나 늘 때마다 독자가 절반으로 줄고, 프레임워크에 하나 더 의존할 때마다 개발자가 절반으로 줄어듭니다.
 ini_set("display_errors", "Off");  // 当我们需要调试的时候，把这里设成On，在出问题的时候php会尝试在页面上输出错误信息
 $cache_time = 30;    // 缓存时长
 $OJ_CACHE_SHARE = false;   // 是否跨会话共享
@@ -13,7 +13,7 @@ require_once('include/my_func.inc.php');    // 导入自定义的一些可选函
 require_once('include/curl.php');           // 导入与爬虫有关的一些可选函数
 
 
-$view_title = "Hello skeleton <br> 每增加一个公式就少一半读者, 每依赖一种框架就少一半开发者。";
+$view_title = "Hello skeleton <br> 수식이 하나 늘 때마다 독자가 절반으로 줄고, 프레임워크에 하나 더 의존할 때마다 개발자가 절반으로 줄어듭니다.";
 
 //演示如何查询数据库
 $sql = "select count(1) cnt from users where defunct=? ";
@@ -22,7 +22,7 @@ if (!empty($result))
     $cnt = $result[0]['cnt'];
 
 //创建一个变量，传递数据给视图页
-$view_content = "这是一个骨架页，如果您想二次开发一个自己的页面，可以分别在web目录和template/syzoj目录，复制两个skeleton.php到新的文件名:
+$view_content = "이 페이지는 뼈대 페이지입니다. 직접 페이지를 만들려면 web 디렉터리와 template/syzoj 디렉터리에서 skeleton.php를 각각 새 파일 이름으로 복사하세요:
 ```bash
 sudo su
 cd /home/judge/src/web
@@ -31,10 +31,10 @@ cd template/syzoj
 cp skeleton.php myfile.php
 
 ```
-然后开始修改自己的myfile.php";
+그런 다음 myfile.php를 수정하면 됩니다.";
 
 // 在显示变量中附加查询结果
-$view_content .= "\n\n当前有效用户: $cnt 人";
+$view_content .= "\n\n현재 유효 사용자: $cnt명";
 
 // 执行当前模板下同名的视图页
 /////////////////////////Template

@@ -74,7 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] === "POST" && isset($_POST['action'])) {
         $members = count(asm_group_members($group));
         if ($members == 0) asm_back($id, false, "'".$group."' ".$MSG_CLASS."에 학생이 없습니다. 사용자 → ".$MSG_CLASS." 지정에서 먼저 지정하세요.");
         list($new_cid, $added) = asm_create_session($a, $group, $start, $end);
-        asm_back($id, true, "'".$group."' 회차(대회 ".$new_cid.")를 만들고 학생 ".$added."명을 참가자로 지정했습니다.");
+        asm_back($id, true, "'".$group."' 회차(".$MSG_ASSESSMENT." ".$new_cid.")를 만들고 학생 ".$added."명을 참가자로 지정했습니다.");
     }
     if ($action === "update_time") {
         $group = $own_session($cid);
@@ -172,7 +172,7 @@ function asm_dt($v) { return str_replace(" ", "T", substr((string)$v, 0, 16)); }
         <input type="text" id="asm-title" name="title" maxlength="200" required value="<?php echo $a ? asm_h($a['title']) : ""?>" placeholder="예: 1학기 2차 수행평가 - 반복문" <?php if (!$can) echo "readonly"?>>
       </div>
       <div class="asm-field asm-wide">
-        <label for="asm-desc">안내문 <span class="admin-field-help">(회차 대회 화면에 보이는 설명, 회차를 만들 때 복사됩니다)</span></label>
+        <label for="asm-desc">안내문 <span class="admin-field-help">(회차 화면에 보이는 설명, 회차를 만들 때 복사됩니다)</span></label>
         <textarea id="asm-desc" name="description" rows="4" <?php if (!$can) echo "readonly"?>><?php echo $a ? asm_h($a['description']) : ""?></textarea>
       </div>
       <div class="asm-field">
@@ -219,7 +219,7 @@ function asm_dt($v) { return str_replace(" ", "T", substr((string)$v, 0, 16)); }
     <div class="admin-card-title"><?php echo $MSG_CLASS?>별 회차 (<?php echo count($sessions)?>회)</div>
     <div class="admin-table-wrap">
       <table class="table asm-stable">
-        <thead><tr><th><?php echo $MSG_CLASS?></th><th>대회</th><th>상태</th><th>시간</th><th>참가자 / <?php echo $MSG_CLASS?> 인원</th><th>제출</th><th>보기</th><?php if ($can) echo "<th>관리</th>"; ?></tr></thead>
+        <thead><tr><th><?php echo $MSG_CLASS?></th><th><?php echo $MSG_ASSESSMENT?></th><th>상태</th><th>시간</th><th>참가자 / <?php echo $MSG_CLASS?> 인원</th><th>제출</th><th>보기</th><?php if ($can) echo "<th>관리</th>"; ?></tr></thead>
         <tbody>
         <?php foreach ($sessions as $s) {
             $cid = intval($s['contest_id']);
@@ -243,7 +243,7 @@ function asm_dt($v) { return str_replace(" ", "T", substr((string)$v, 0, 16)); }
             <td><?php echo intval($s['invited'])?> / <?php echo $members?><?php if ($members > intval($s['invited'])) echo " <span class='admin-badge admin-badge--warn'>".($members - intval($s['invited']))."명 빠짐</span>"; ?></td>
             <td><?php echo intval($s['submitters'])?>명 · <?php echo intval($s['submits'])?>회</td>
             <td>
-              <a href="../contest.php?cid=<?php echo $cid?>" target="_blank">대회 화면</a> ·
+              <a href="../contest.php?cid=<?php echo $cid?>" target="_blank">회차 화면</a> ·
               <a href="../status.php?cid=<?php echo $cid?>" target="_blank">채점 현황</a> ·
               <a href="../contestrank.php?cid=<?php echo $cid?>" target="_blank">순위</a>
               <?php if (asm_is_admin()) { ?> · <a href="monitor.php?cid=<?php echo $cid?>#contest">모니터링</a><?php } ?>
@@ -282,7 +282,7 @@ function asm_dt($v) { return str_replace(" ", "T", substr((string)$v, 0, 16)); }
       <label>시작 <input type="datetime-local" name="start" required></label>
       <label>끝 <input type="datetime-local" name="end" required></label>
       <button type="submit" class="btn btn-primary">회차 추가</button>
-      <span class="admin-field-help"><?php echo $MSG_CLASS?>이 없으면 <a href="user_group.php">사용자 → <?php echo $MSG_CLASS?> 지정</a>에서 먼저 학생을 묶으세요. 회차마다 비공개 대회가 하나씩 만들어지고, 그 <?php echo $MSG_CLASS?> 학생만 참가할 수 있습니다.</span>
+      <span class="admin-field-help"><?php echo $MSG_CLASS?>이 없으면 <a href="user_group.php">사용자 → <?php echo $MSG_CLASS?> 지정</a>에서 먼저 학생을 묶으세요. 회차마다 비공개 <?php echo $MSG_ASSESSMENT?>가 하나씩 만들어지고, 그 <?php echo $MSG_CLASS?> 학생만 참가할 수 있습니다.</span>
     </form>
     <?php } ?>
   </section>

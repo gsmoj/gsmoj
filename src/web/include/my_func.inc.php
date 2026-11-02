@@ -69,7 +69,7 @@ function myLocation($ip) {
         array(ip2long("10.1.48.55"),  ip2long("10.1.48.253"),  "X504B"),
         array(ip2long("10.1.44.1"),   ip2long("10.1.44.254"),  "X506"),
         array(ip2long("10.1.43.1"),   ip2long("10.1.43.254"),  "X212"),
-        array(ip2long("10.44.0.0"),   ip2long("10.45.255.255"), "校园无线"), // 학교 와이파이
+        array(ip2long("10.44.0.0"),   ip2long("10.45.255.255"), "교내 무선망"), // 학교 와이파이
         array(ip2long("10.1.56.1"),   ip2long("10.1.56.254"),  "X406"),
         array(ip2long("10.1.55.1"),   ip2long("10.1.55.254"),  "X410"),
     );
@@ -83,7 +83,7 @@ function myLocation($ip) {
     
     // 특정 컴퓨터실이 아니고 대역만 10.으로 시작할 경우 사설 교내망으로 표시
     if (str_starts_with($ip, "10.")) {
-        return "校园网: $ip";
+        return "교내망: $ip";
     }
     return $ip;
 }
