@@ -53,28 +53,63 @@ if ($_SERVER['REQUEST_METHOD'] === "POST" && isset($_POST['confirm']) && !$error
     require_once("../include/check_post_key.php");
     $from = $source['user_id'];
     $to = $target['user_id'];
-    pdo_query("START TRANSACTION");
+
+    // 핵심 테이블이 MyISAM이면 ROLLBACK으로 되돌릴 수 없다. 그래서 아무것도 바꾸기 전에 옮길 열이 모두 있는지 읽기 쿼리로 먼저 확인한다.
+    // pdo_query는 SQL 오류가 나도 예외 없이 -1을 돌려준다.
+    $missing = array();
     foreach ($um_columns as $col) {
-        pdo_query("UPDATE `{$col[0]}` SET `{$col[1]}`=? WHERE `{$col[1]}`=?", $to, $from);
+        if (pdo_query("SELECT 1 FROM `{$col[0]}` WHERE `{$col[1]}`=? LIMIT 1", $from) === -1) $missing[] = $col[0] . "." . $col[1];
     }
-    // 권한은 대상에 없는 것만 옮기고, 겹치는 원본 권한은 지운다.
-    pdo_query("UPDATE `privilege` p SET p.`user_id`=? WHERE p.`user_id`=? AND p.`rightstr` NOT IN (SELECT `rightstr` FROM (SELECT `rightstr` FROM `privilege` WHERE `user_id`=?) t)", $to, $from, $to);
-    pdo_query("DELETE FROM `privilege` WHERE `user_id`=?", $from);
-    // DataGSM 연결은 대상에 없을 때만 옮긴다. 같은 DataGSM 계정이면 원본 쪽 연결만 지운다.
-    if ($target['datagsm_id'] === null) pdo_query("UPDATE `datagsm_user` SET `user_id`=? WHERE `user_id`=?", $to, $from);
-    else pdo_query("DELETE FROM `datagsm_user` WHERE `user_id`=?", $from);
-    pdo_query("UPDATE `solution` SET `nick`=? WHERE `user_id`=?", $target['nick'], $to);
-    pdo_query("UPDATE `users` t JOIN `users` s ON s.`user_id`=? SET t.`coin_earned`=t.`coin_earned`+s.`coin_earned`, t.`coin_bonus`=t.`coin_bonus`+s.`coin_bonus`, t.`coin_spent`=t.`coin_spent`+s.`coin_spent` WHERE t.`user_id`=?", $from, $to);
-    pdo_query("UPDATE `users` SET `defunct`='Y', `email`='', `coin_earned`=0, `coin_bonus`=0, `coin_spent`=0, `solved`=0, `submit`=0 WHERE `user_id`=?", $from);
-    pdo_query("UPDATE `users` SET `solved`=(SELECT COUNT(DISTINCT `problem_id`) FROM `solution` WHERE `user_id`=? AND `result`=4), `submit`=(SELECT COUNT(*) FROM `solution` WHERE `user_id`=?) WHERE `user_id`=?", $to, $to, $to);
-    // 대상 계정에 이메일이 없으면 원본 이메일을 옮긴다. 원본 이메일은 위에서 비웠으므로 겹치지 않는다.
-    if ($target['email'] === '' && $source['email'] !== '') pdo_query("UPDATE `users` SET `email`=? WHERE `user_id`=?", $source['email'], $to);
-    pdo_query("COMMIT");
-    pdo_query("INSERT INTO `loginlog`(user_id,password,ip,time) VALUES(?,?,?,NOW())", $to, substr('merged from ' . $from, 0, 40), $_SERVER['REMOTE_ADDR']);
-    $messages[] = "'".um_h($from)."' 계정을 '".um_h($to)."' 계정으로 통합했습니다. '".um_h($from)."' 계정은 비활성화했습니다.";
-    $source = um_user($from);
-    $target = um_user($to);
-    $source_id = $target_id = "";
+    foreach (array('privilege', 'datagsm_user') as $table) {
+        if (pdo_query("SELECT 1 FROM `$table` WHERE `user_id`=? LIMIT 1", $from) === -1) $missing[] = $table . ".user_id";
+    }
+    if (pdo_query("SELECT `coin_earned`,`coin_bonus`,`coin_spent`,`solved`,`submit`,`email`,`defunct` FROM `users` WHERE `user_id`=? LIMIT 1", $from) === -1) $missing[] = "users";
+    if ($missing) {
+        $errors[] = "통합에 필요한 테이블이나 열을 읽을 수 없어 아무것도 바꾸지 않았습니다: " . um_h(implode(", ", $missing)) . " (관리자 &gt; 데이터베이스 업데이트를 먼저 실행해 주세요.)";
+    } else {
+        // 실행 순서가 중요하다. 없앨 계정을 비활성화하는 단계('deactivate')는 기록을 옮기는 단계가 모두 끝난 뒤에 둔다.
+        // 중간에 실패해도 원본이 그대로 남으므로 같은 통합을 다시 실행하면 이어서 처리된다.
+        $steps = array();
+        foreach ($um_columns as $col) {
+            $steps[] = array("{$col[0]}.{$col[1]}", "UPDATE `{$col[0]}` SET `{$col[1]}`=? WHERE `{$col[1]}`=?", array($to, $from));
+        }
+        // 권한은 대상에 없는 것만 옮기고, 겹치는 원본 권한은 지운다.
+        $steps[] = array("privilege 이동", "UPDATE `privilege` p SET p.`user_id`=? WHERE p.`user_id`=? AND p.`rightstr` NOT IN (SELECT `rightstr` FROM (SELECT `rightstr` FROM `privilege` WHERE `user_id`=?) t)", array($to, $from, $to));
+        $steps[] = array("privilege 정리", "DELETE FROM `privilege` WHERE `user_id`=?", array($from));
+        // DataGSM 연결은 대상에 없을 때만 옮긴다. 같은 DataGSM 계정이면 원본 쪽 연결만 지운다.
+        if ($target['datagsm_id'] === null) $steps[] = array("datagsm_user 이동", "UPDATE `datagsm_user` SET `user_id`=? WHERE `user_id`=?", array($to, $from));
+        else $steps[] = array("datagsm_user 정리", "DELETE FROM `datagsm_user` WHERE `user_id`=?", array($from));
+        $steps[] = array("solution.nick", "UPDATE `solution` SET `nick`=? WHERE `user_id`=?", array($target['nick'], $to));
+        // 코인을 더하는 단계와 원본을 비활성화하며 0으로 만드는 단계는 붙여 둔다. 코인을 더한 뒤 다시 실행하면 두 번 더해지기 때문이다.
+        $steps[] = array("coin 합산", "UPDATE `users` t JOIN `users` s ON s.`user_id`=? SET t.`coin_earned`=t.`coin_earned`+s.`coin_earned`, t.`coin_bonus`=t.`coin_bonus`+s.`coin_bonus`, t.`coin_spent`=t.`coin_spent`+s.`coin_spent` WHERE t.`user_id`=?", array($from, $to));
+        $steps[] = array("deactivate", "UPDATE `users` SET `defunct`='Y', `email`='', `coin_earned`=0, `coin_bonus`=0, `coin_spent`=0, `solved`=0, `submit`=0 WHERE `user_id`=?", array($from));
+        $steps[] = array("solved/submit 다시 계산", "UPDATE `users` SET `solved`=(SELECT COUNT(DISTINCT `problem_id`) FROM `solution` WHERE `user_id`=? AND `result`=4), `submit`=(SELECT COUNT(*) FROM `solution` WHERE `user_id`=?) WHERE `user_id`=?", array($to, $to, $to));
+        // 대상 계정에 이메일이 없으면 원본 이메일을 옮긴다. 원본 이메일은 위에서 비웠으므로 겹치지 않는다.
+        if ($target['email'] === '' && $source['email'] !== '') $steps[] = array("email 이동", "UPDATE `users` SET `email`=? WHERE `user_id`=?", array($source['email'], $to));
+
+        $failed = null;
+        $deactivated = false;
+        pdo_query("START TRANSACTION");
+        foreach ($steps as $step) {
+            if (pdo_query($step[1], $step[2]) === -1) { $failed = $step[0]; break; }
+            if ($step[0] === 'deactivate') $deactivated = true;
+        }
+        if ($failed !== null) {
+            pdo_query("ROLLBACK");   // InnoDB 테이블만 되돌아간다. MyISAM 테이블에 이미 옮긴 기록은 남아 있을 수 있다.
+            if ($deactivated) {
+                $errors[] = "통합 중 '".um_h($failed)."' 단계에서 오류가 발생해 중단했습니다. 없앨 계정은 이미 비활성화되었으므로 남은 정리를 직접 확인해 주세요. 원본 이메일: '".um_h($source['email'])."'";
+            } else {
+                $errors[] = "통합 중 '".um_h($failed)."' 단계에서 오류가 발생해 중단했습니다. 없앨 계정은 아직 비활성화하지 않았으니 원인을 해결한 뒤 같은 통합을 다시 실행하면 남은 기록을 이어서 옮깁니다.";
+            }
+        } else {
+            pdo_query("COMMIT");
+            pdo_query("INSERT INTO `loginlog`(user_id,password,ip,time) VALUES(?,?,?,NOW())", $to, substr('merged from ' . $from, 0, 40), $_SERVER['REMOTE_ADDR']);
+            $messages[] = "'".um_h($from)."' 계정을 '".um_h($to)."' 계정으로 통합했습니다. '".um_h($from)."' 계정은 비활성화했습니다.";
+            $source_id = $target_id = "";
+        }
+        $source = um_user($from);
+        $target = um_user($to);
+    }
 }
 
 // 고를 수 있는 계정 목록과, 같은 이메일을 쓰는 계정 묶음(빠른 선택용).
