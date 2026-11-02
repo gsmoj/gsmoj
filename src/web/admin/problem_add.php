@@ -8,6 +8,7 @@ if (!(isset($_SESSION[$OJ_NAME.'_'.'administrator']) || isset($_SESSION[$OJ_NAME
 require_once ("../include/db_info.inc.php");
 require_once ("../include/my_func.inc.php");
 require_once ("../include/problem.php");
+require_once ("problem_markdown.inc.php");
 
 // contest_id
 $title = $_POST['title'];
@@ -15,17 +16,17 @@ $title = str_replace(",", "&#44;", $title);
 $time_limit = $_POST['time_limit'];
 $memory_limit = $_POST['memory_limit'];
 
-$description = $_POST['description'];
+$description = problem_markdown_wrap($_POST['description'], true);
 //$description = str_replace("<p>", "", $description); 
 //$description = str_replace("</p>", "<br />", $description);
 $description = str_replace(",", "&#44;", $description); 
 
-$input = $_POST['input'];
+$input = problem_markdown_wrap($_POST['input']);
 //$input = str_replace("<p>", "", $input); 
 //$input = str_replace("</p>", "<br />", $input); 
 $input = str_replace(",", "&#44;", $input);
 
-$output = $_POST['output'];
+$output = problem_markdown_wrap($_POST['output']);
 //$output = str_replace("<p>", "", $output); 
 //$output = str_replace("</p>", "<br />", $output);
 $output = str_replace(",", "&#44;", $output); 
@@ -40,7 +41,7 @@ if ($sample_output=="") $sample_output="\n";
 if ($test_input=="") $test_input="\n";
 if ($test_output=="") $test_output="\n";
 */
-$hint = $_POST['hint'];
+$hint = problem_markdown_wrap($_POST['hint']);
 //$hint = str_replace("<p>", "", $hint); 
 //$hint = str_replace("</p>", "<br />", $hint); 
 $hint = str_replace(",", "&#44;", $hint);

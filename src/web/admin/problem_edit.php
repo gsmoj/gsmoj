@@ -2,6 +2,7 @@
 require_once("../include/db_info.inc.php");
 require_once("admin-header.php");
 require_once("../include/my_func.inc.php");
+require_once("problem_markdown.inc.php");
 
 // 교사는 아래 문제별 확인(pNNNN)으로 자기가 만든 문제만 수정할 수 있다.
 if (!(isset($_SESSION[$OJ_NAME.'_'.'administrator']) || isset($_SESSION[$OJ_NAME.'_'.'problem_editor']) || isset($_SESSION[$OJ_NAME.'_'.'teacher']))) {
@@ -265,17 +266,17 @@ function untransform() {
 
       $memory_limit = $_POST['memory_limit'];
 
-      $description = $_POST['description'];
+      $description = problem_markdown_wrap($_POST['description'], true);
      // $description = str_replace("<p>", "", $description);
      // $description = str_replace("</p>", "<br />", $description);
     //  $description = str_replace(",", "&#44;", $description);
 
-      $input = $_POST['input'];
+      $input = problem_markdown_wrap($_POST['input']);
      // $input = str_replace("<p>", "", $input);
      // $input = str_replace("</p>", "<br />", $input);
     //  $input = str_replace(",", "&#44;", $input);
 
-      $output = $_POST['output'];
+      $output = problem_markdown_wrap($_POST['output']);
      // $output = str_replace("<p>", "", $output);
      // $output = str_replace("</p>", "<br />", $output);
      // $output = str_replace(",", "&#44;", $output);
@@ -285,7 +286,7 @@ function untransform() {
       //if ($sample_input=="") $sample_input="\n";
       //if ($sample_output=="") $sample_output="\n";
 
-      $hint = $_POST['hint'];
+      $hint = problem_markdown_wrap($_POST['hint']);
      // $hint = str_replace("<p>", "", $hint);
     //  $hint = str_replace("</p>", "<br />", $hint);
     //  $hint = str_replace(",", "&#44;", $hint);
