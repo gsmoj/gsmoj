@@ -42,6 +42,8 @@ html, body { margin:0 !important; background:#fff !important; }
   box-shadow:none !important;
 }
 .padding::before, .padding::after { border-radius:0 !important; box-shadow:none !important; backdrop-filter:none !important; filter:none !important; }
+/* 관리자 문제 수정 화면의 미리보기에서는 제출·채점 기록·통계 버튼을 처음부터 숨긴다. */
+#submit-buttons { display:none !important; }
 <?php } ?>
 
 </style>
@@ -53,14 +55,14 @@ html, body { margin:0 !important; background:#fff !important; }
       <h1 class="ui header">
         <?php
           if($pr_flag){
-            echo "$id"."：".$row['title'];
+            echo "$id"."：<span id='problem-title-text'>".$row['title']."</span>";
             // <%= problem.title %><% if (problem.allowedEdit && !problem.is_public) { %><span class="ui tiny red label">비공개</span><% } %>";
             //echo "<title>$MSG_PROBLEM".$row['problem_id']."--". $row['title']."</title>";
             //echo "<center><h2><strong>$id: ".$row['title']."</strong></h2>";
           }else{
             $id=$row['problem_id'];
             //echo "<title>$MSG_PROBLEM ".$PID[$pid].": ".$row['title']." </title>";
-            echo "$MSG_PROBLEM ".$PID[$pid]."：".$row['title'];
+            echo "$MSG_PROBLEM ".$PID[$pid]."：<span id='problem-title-text'>".$row['title']."</span>";
           }
           if(intval($row['coin'])>0) for($i=0;$i<min(intval($row['coin']),5);$i++) echo "<span style='color:orange'>✦</span>";
           if($row['defunct']=="Y")
@@ -797,7 +799,9 @@ $(document).ready(function() {
   }
 
   $(function () {
+    <?php if(!isset($_GET['spa'])){ // 관리자 미리보기(spa)에서는 답안 작성 분할 화면을 열지 않는다. 열면 스크롤이 막힌다. ?>
     transform();
+    <?php } ?>
   });
 
   function submit_code() {

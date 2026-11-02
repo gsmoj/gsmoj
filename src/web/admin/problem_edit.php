@@ -179,31 +179,26 @@ function untransform() {
         main.parent().append("<div id='preview'></div>");
         $("#preview").html("<iframe id='previewFrame' src='"+submitURL+"&spa'></iframe>");
         $("#submit").remove();
-        setTimeout('hide()',1500);	
+        $("#previewFrame").on("load", hide);
 	$("input").keyup(sync);
 	// 서식 버튼·붙여넣기는 keyup이 생기지 않으므로 input 이벤트로도 미리보기를 갱신한다.
 	$("textarea").on('keyup input', sync);
   }
+  // 미리보기 문제 화면이 다 열린 뒤 입력값으로 한 번 맞춘다.
+  // 제출 버튼은 문제 화면(spa 모드)이 처음부터 숨기므로, 문제 번호·라벨·분류 태그는 그대로 둔다.
   function hide(){
-	let preview=$("#previewFrame").contents();
-	preview.find(".ui.buttons").hide();
-	preview.find("span.ui.label").eq(2).hide();
-	preview.find("span.ui.label").eq(3).hide();
-	preview.find("span.ui.label").eq(4).hide();
-	preview.find("span.ui.label").eq(5).hide();
-	preview.find("#show_tag_div").parent().hide();
 	sync();
-//	preview.find("h1:first").parent().parent().hide();
   }
   function sync(){
-	console.log("sync...");
 	let preview=$("#previewFrame").contents();
+	// 제목만 바꾸고 앞의 문제 번호와 뒤의 표시(코인·비공개)는 유지한다.
 	let title=$("input[name=title]").val();
-	preview.find("h1:first").html(title);
+	preview.find("#problem-title-text").text(title);
+	// 라벨 순서는 화면에 따라 달라지므로 값이 들어 있는 칸(fd)을 직접 찾는다.
 	let time=$("input[name=time_limit]").val();
-	preview.find("span.ui.label").eq(0).html("<?php echo $MSG_Time_Limit ?>："+time);
+	preview.find("[fd=time_limit]").text(time);
 	let memory=$("input[name=memory_limit]").val();
-	preview.find("span.ui.label").eq(1).html("<?php echo $MSG_Memory_Limit ?>："+memory);
+	preview.find("[fd=memory_limit]").text(memory);
 	
 	let description=$("textarea[name='description']").val();
 	renderMarkdownPreview(preview.find("#description"), description, true);

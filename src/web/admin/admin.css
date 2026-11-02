@@ -641,6 +641,25 @@ body:not(.admin-menu-frame) input[type="submit"] {
 body:not(.admin-menu-frame) .btn-success { color: #fff; border-color: #16a34a; background-color: #16a34a; }
 body:not(.admin-menu-frame) .btn-warning { color: #422006; border-color: #f59e0b; background-color: #fbbf24; }
 body:not(.admin-menu-frame) .btn-danger { color: #fff; border-color: #dc2626; background-color: #dc2626; }
+/* input[type=button|reset]의 밝은 기본 배경이 위 색상 클래스보다 우선해서 흰 글자가 안 보이던 문제를 막는다. */
+body:not(.admin-menu-frame) input[type="button"].btn-primary,
+body:not(.admin-menu-frame) input[type="reset"].btn-primary,
+body:not(.admin-menu-frame) input[type="button"].btn-info,
+body:not(.admin-menu-frame) input[type="reset"].btn-info { color: #fff; border-color: var(--admin-primary); background-color: var(--admin-primary); }
+body:not(.admin-menu-frame) input[type="button"].btn-primary:hover,
+body:not(.admin-menu-frame) input[type="reset"].btn-primary:hover,
+body:not(.admin-menu-frame) input[type="button"].btn-info:hover,
+body:not(.admin-menu-frame) input[type="reset"].btn-info:hover { border-color: var(--admin-primary-dark); background-color: var(--admin-primary-dark); }
+body:not(.admin-menu-frame) input[type="button"].btn-success,
+body:not(.admin-menu-frame) input[type="reset"].btn-success { color: #fff; border-color: #16a34a; background-color: #16a34a; }
+body:not(.admin-menu-frame) input[type="button"].btn-success:hover,
+body:not(.admin-menu-frame) input[type="reset"].btn-success:hover { border-color: #15803d; background-color: #15803d; }
+body:not(.admin-menu-frame) input[type="button"].btn-danger,
+body:not(.admin-menu-frame) input[type="reset"].btn-danger { color: #fff; border-color: #dc2626; background-color: #dc2626; }
+body:not(.admin-menu-frame) input[type="button"].btn-danger:hover,
+body:not(.admin-menu-frame) input[type="reset"].btn-danger:hover { border-color: #b91c1c; background-color: #b91c1c; }
+body:not(.admin-menu-frame) input[type="button"]:disabled,
+body:not(.admin-menu-frame) input[type="reset"]:disabled { cursor: wait; opacity: .7; }
 body:not(.admin-menu-frame) input[type="file"] { height: 40px; min-height: 40px; padding: 7px 10px; }
 
 body:not(.admin-menu-frame) .form-inline,
