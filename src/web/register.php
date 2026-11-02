@@ -38,10 +38,13 @@ $password_text = $_POST['password'];
 $repeated_password = $_POST['rptpassword'];
 $vcode = isset($_POST['vcode']) ? trim($_POST['vcode']) : '';
 
-if (isset($OJ_VCODE) && $OJ_VCODE && ($vcode === '' || $vcode != $_SESSION[$OJ_NAME . '_vcode'])) {
+if (isset($OJ_VCODE) && $OJ_VCODE) {
+    $session_vcode = isset($_SESSION[$OJ_NAME . '_vcode']) ? $_SESSION[$OJ_NAME . '_vcode'] : null;
     $_SESSION[$OJ_NAME . '_vcode'] = null;
-    $_SESSION[$OJ_NAME . '_vfail'] = true;
-    registration_error($errors, 'Verification Code Wrong!');
+    if ($vcode === '' || $session_vcode === null || $session_vcode === '' || $vcode != $session_vcode) {
+        $_SESSION[$OJ_NAME . '_vfail'] = true;
+        registration_error($errors, 'Verification Code Wrong!');
+    }
 }
 if ($OJ_LOGIN_MOD !== 'hustoj') registration_error($errors, "$MSG_SYSTEM $MSG_DISABLE $MSG_REGISTER");
 
@@ -56,6 +59,9 @@ elseif ($nick === '') $nick = $user_id;
 if (has_bad_words($user_id) || has_bad_words($school) || has_bad_words($nick)) {
     registration_error($errors, '비속어 또는 금지 단어가 포함되어 있습니다.');
 }
+if (mb_strlen($email) > 100) registration_error($errors, "$MSG_EMAIL $MSG_TOO_LONG !");
+elseif (filter_var($email, FILTER_VALIDATE_EMAIL) === false) registration_error($errors, '이메일 형식이 올바르지 않습니다.');
+elseif (substr($email, -10) !== '@gsm.hs.kr') registration_error($errors, 'gsm.hs.kr 도메인의 학교 이메일만 가입 가능합니다.');
 if (strcmp($password_text, $repeated_password) !== 0) registration_error($errors, $MSG_WARNING_REPEAT_PASSWORD_DIFF . '!');
 if (strlen($password_text) < 6) registration_error($errors, $MSG_WARNING_PASSWORD_SHORT);
 if ($errors) stop_registration($errors);
@@ -83,12 +89,9 @@ $needs_email_confirmation = isset($OJ_EMAIL_CONFIRM) && $OJ_EMAIL_CONFIRM;
 $defunct = ($needs_admin_confirmation || $needs_email_confirmation) ? 'Y' : 'N';
 $active_code = '';
 
-if ($needs_email_confirmation) {
-    if (empty($_SESSION[$OJ_NAME . '_activecode'])) $_SESSION[$OJ_NAME . '_activecode'] = getToken(18);
-    $active_code = $_SESSION[$OJ_NAME . '_activecode'];
-} else {
-    $_SESSION[$OJ_NAME . '_activecode'] = '';
-}
+// 인증 토큰은 가입 요청마다 새로 만들고 세션에 남기지 않는다.
+unset($_SESSION[$OJ_NAME . '_activecode']);
+if ($needs_email_confirmation) $active_code = getToken(18);
 
 $group_name = function_exists('getMappedSpecial') ? getMappedSpecial($user_id) : '';
 if ($needs_email_confirmation) pdo_query('START TRANSACTION');
@@ -126,7 +129,6 @@ if ($needs_email_confirmation) {
         $view_errors = "<span style='font-size:18px;font-weight:bold;'>📩 인증 메일이 발송되었습니다.</span><br><br><strong>" . htmlspecialchars($email, ENT_QUOTES, 'UTF-8') . "</strong> 주소로 계정 활성화 링크를 전송했습니다.<br>메일함을 확인하신 후 인증 링크를 클릭하여 가입을 완료해 주세요.";
     } else {
         pdo_query('ROLLBACK');
-        $_SESSION[$OJ_NAME . '_activecode'] = '';
         $mark = 0;
         $view_errors = "<span style='font-size:18px;font-weight:bold;'>회원가입을 완료하지 못했습니다.</span><br><br>인증 메일을 발송하지 못해 계정이 생성되지 않았습니다.<br>SMTP 설정이 복구된 후 다시 가입해 주세요.";
     }

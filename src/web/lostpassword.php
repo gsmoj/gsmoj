@@ -39,7 +39,10 @@ if ($lost_user_id === '') {
     exit(0);
 }
 
-if ($vcode === '' || $vcode != ($_SESSION[$OJ_NAME . '_vcode'] ?? null)) {
+$session_vcode = $_SESSION[$OJ_NAME . '_vcode'] ?? null;
+// 인증 코드는 한 번만 쓸 수 있도록 확인 직후 성공·실패와 관계없이 지운다.
+$_SESSION[$OJ_NAME . '_vcode'] = null;
+if ($vcode === '' || $session_vcode === null || $session_vcode === '' || $vcode != $session_vcode) {
     echo "<script>alert('인증 코드가 틀렸습니다!');history.go(-1);</script>";
     exit(0);
 }
