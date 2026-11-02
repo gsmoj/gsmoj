@@ -12,10 +12,10 @@ if(isset($_GET['uid'])){
 	}
 	$sql="delete from `privilege` where user_id=? and rightstr=?";
 	$rows=pdo_query($sql,$user_id,$rightstr);
-	echo "$user_id $rightstr deleted!";
+	echo htmlspecialchars($user_id, ENT_QUOTES, 'UTF-8')." ".htmlspecialchars($rightstr, ENT_QUOTES, 'UTF-8')." deleted!";
 }
 ?>
 
 <script language=javascript>
-	window.setTimeOut(1000,"history.go(-1)");
+	window.setTimeout(function(){ history.go(-1); }, 1000);
 </script>

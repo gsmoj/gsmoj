@@ -134,8 +134,9 @@ function pm_bulkbar($with_ai, $extra_class = "") {
 		$view = "";
         echo "<tr>";
         echo "<td><label class='pm-id'><input type=checkbox name='pid[]' value='".$row['problem_id']."'>".$row['problem_id']."</label></td>";
-        echo "<td class='pm-col-title'><a href='../problem.php?id=".$row['problem_id']."'>".$row['title']."</a>";
-               if(!empty($row['remote_oj']))echo "<a class='pm-remote' href='".$row['source']."' target=_blank>".$row['remote_oj'].$row['remote_id']."</a>";
+        // 제목·분류는 원문으로 저장되므로(쉼표만 &#44;) 기존 엔티티는 살리고 출력 시 이스케이프한다.
+        echo "<td class='pm-col-title'><a href='../problem.php?id=".$row['problem_id']."'>".htmlspecialchars($row['title'], ENT_QUOTES, 'UTF-8', false)."</a>";
+               if(!empty($row['remote_oj']))echo "<a class='pm-remote' href='".(preg_match('/^https?:\/\//i', $row['source']) ? htmlspecialchars($row['source'], ENT_QUOTES, 'UTF-8') : '#')."' target=_blank>".htmlspecialchars($row['remote_oj'].$row['remote_id'], ENT_QUOTES, 'UTF-8', false)."</a>";
         echo "</td>";
         echo "<td>".$row['accepted']."</td>";
         echo "<td class='pm-date'>".$row['in_date']."</td>";
@@ -158,7 +159,7 @@ function pm_bulkbar($with_ai, $extra_class = "") {
 			$label_theme = $color_theme[$hash_num%count($color_theme)];
 
 			if ($label_theme=="") $label_theme = "default";
-			$view .= "<a title='".htmlentities($cat,ENT_QUOTES,'UTF-8')."' class='label label-$label_theme' style='display: inline-block;' href='problem_list.php?keyword=".htmlentities(urlencode($cat),ENT_QUOTES,'UTF-8')."'>".mb_substr($cat,0,10,'utf8')."</a>";
+			$view .= "<a title='".htmlentities($cat,ENT_QUOTES,'UTF-8')."' class='label label-$label_theme' style='display: inline-block;' href='problem_list.php?keyword=".htmlentities(urlencode($cat),ENT_QUOTES,'UTF-8')."'>".htmlspecialchars(mb_substr($cat,0,10,'utf8'), ENT_QUOTES, 'UTF-8', false)."</a>";
 		}
 		echo "<div id='source_".$row['problem_id']."' class=\"show_tag_controled\">";
     	echo $view;
@@ -302,8 +303,7 @@ function modify_source(pid){
 	//alert(pid);
 	let view=$("#source_"+pid);
 	let old=removeAIEnd(view.text());
-	let html="<input id='new_source_"+pid+"' type=text value='"+old+"' >";
-	view.html(html);
+	view.empty().append($("<input type=text>").attr("id","new_source_"+pid).val(old));
 	$('#new_source_'+pid).on("blur change",function (){
 		let ns=($(this).val());
 		    $.ajax({
@@ -311,7 +311,7 @@ function modify_source(pid){
 			type: 'POST',
 			data: { m:'problem_set_source' , pid:pid , ns:ns},
 			success: function(data) {
-				$("#source_"+pid).html("<span class='label label-info'>"+ns+"</span>");		
+				$("#source_"+pid).empty().append($("<span class='label label-info'>").text(ns));		
 			},
 			error: function() {
 				console.log("분류 추가 실패");
@@ -333,7 +333,7 @@ function modify_source(pid){
 			success: function(data) {
 				console.log(data);
 				if(parseInt(data)>=0){
-					$("#source_"+pid).html("<span class='label label-info'>"+ns+"</span>");		
+					$("#source_"+pid).empty().append($("<span class='label label-info'>").text(ns));		
 				}
 			},
 			error: function() {
