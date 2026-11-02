@@ -87,7 +87,7 @@ if (($ok && $OJ_FRIENDLY_LEVEL > 2) ||
         $view_reinfo = htmlentities(str_replace("\n\r", "\n", $error_info ?? ""), ENT_QUOTES, "UTF-8");
     }
 
-    if ($error_info !== null && strpos($error_info, "judge/") !== false && !isset($_SESSION[$OJ_NAME . "_administrator"])) $view_reinfo = "潜在的数组或指针越界，请检查代码。";
+    if ($error_info !== null && strpos($error_info, "judge/") !== false && !isset($_SESSION[$OJ_NAME . "_administrator"])) $view_reinfo = "배열이나 포인터가 범위를 넘었을 수 있습니다. 코드를 확인하세요.";
     else if ($error_info !== null && strpos($error_info, "php") !== false) $view_reinfo = "error2";
     else if ($error_info !== null && strpos($error_info, "PASS") !== false) $view_reinfo = "error3";
     else if ($OJ_SHOW_DIFF && $row && ($ok || $isRE) && ($OJ_TEST_RUN || is_valid($error_info) || $ok)) {

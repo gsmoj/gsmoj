@@ -100,7 +100,7 @@ if (
     (isset($OJ_ON_SITE_CONTEST_ID) && $OJ_ON_SITE_CONTEST_ID > 0) ||
     (isset($OJ_SHARE_CODE) && !$OJ_SHARE_CODE)
 ) {
-    $view_errors = "代码分享功能当前不可用！";
+    $view_errors = "코드 공유 기능을 지금은 사용할 수 없습니다!";
     require("template/" . $OJ_TEMPLATE . "/error.php");
     exit (0);
 }
@@ -113,19 +113,19 @@ if (isset($_POST['delete'])) {
     if (!isset($_SESSION[$OJ_NAME . '_' . 'user_id'])) {
         echo '{
         "status": "error",
-        "msg": "请先登录！"
+        "msg": "먼저 로그인해 주세요!"
        }';
     } else {
         if (!checkCodeOwner($sid, $user_id)) {
             echo '{
             "status": "error",
-            "msg": "您没有权限删除！"
+            "msg": "삭제할 권한이 없습니다!"
            }';
         } else {
             deleteShareCodeBySid($sid, $user_id);
             echo '{
             "status": "success",
-            "msg": "删除成功！"
+            "msg": "삭제했습니다!"
            }';
         }
     }
@@ -140,7 +140,7 @@ if (isset($_GET['sid'])) {
     $share_info = getShareCodeBySid($OJ_MEMCACHE, $sid);
     // 代码不存在
     if (count($share_info) == 0) {
-        $view_errors = "该代码不存在！";
+        $view_errors = "존재하지 않는 코드입니다!";
         require("template/" . $OJ_TEMPLATE . "/error.php");
     } else {
         //echo array_column($share_info,"user_id")[0] ;
@@ -174,7 +174,7 @@ if (isset($_POST['code'])) {
             $_SESSION[$OJ_NAME . '_' . "vcode"] = null;
             echo '{
             "status": "error",
-            "msg": "验证码错误"
+            "msg": "인증 코드가 틀렸습니다"
            }';
         } else {
             if (isset($_POST['sid'])) {
@@ -193,14 +193,14 @@ if (isset($_POST['code'])) {
             } catch (Exception $e) {
                 echo '{
                 "status": "error",
-                "msg": "系统繁忙"
+                "msg": "시스템이 바쁩니다. 잠시 후 다시 시도해 주세요"
                }';
                 exit(0);
             }
 
             echo '{
             "status": "success",
-            "msg": "添加成功！",
+            "msg": "추가했습니다!",
             "data": {
               "sid":' . $new_id . '
             }

@@ -1,4 +1,4 @@
 <center>
-	如果页面显示不正常，可以尝试：Win键+R，输入ms-settings:network-proxy，将【自动检测设置】关闭。
-	<span>欢迎关注微信公众号</span><img src="http://hustoj.com/wx.jpg" width="96px" />onlinejudge
+	화면이 제대로 보이지 않으면 Win 키+R을 누르고 ms-settings:network-proxy를 입력한 뒤 [자동으로 설정 검색]을 꺼 보세요.
+	<span>위챗 공식 계정 구독하기</span><img src="http://hustoj.com/wx.jpg" width="96px" />onlinejudge
 </center>

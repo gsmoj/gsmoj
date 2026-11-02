@@ -348,5 +348,5 @@ else {
         rmdir($tmpDir);
         exit;
     } else {
-        die("无法创建压缩文件");
+        die("압축 파일을 만들 수 없습니다");
     }

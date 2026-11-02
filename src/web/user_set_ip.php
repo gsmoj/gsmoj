@@ -40,7 +40,7 @@ if (isset($_GET['cid'])) {
     }
 
     if ($rows_cnt == 0) {
-        $view_title = "比赛已经关闭!";
+        $view_title = $MSG_CONTEST . "가 닫혔습니다!";
     } else {
         $row = $result[0];
         $view_private = $row['private'];

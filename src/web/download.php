@@ -65,7 +65,7 @@ if (!empty($data)) {
     $zip = new ZipArchive();
 
     if ($zip->open($zipname, ZIPARCHIVE::CREATE) !== TRUE) {
-        exit ('无法打开文件，或者文件创建失败');
+        exit ('파일을 열거나 만들 수 없습니다');
     }
     $files = [$infile, $outfile];
 

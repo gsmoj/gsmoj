@@ -28,7 +28,7 @@ if (
     (isset($OJ_ON_SITE_CONTEST_ID) && $OJ_ON_SITE_CONTEST_ID > 0) ||
     (isset($OJ_SHARE_CODE) && !$OJ_SHARE_CODE)
 ) {
-    $view_errors = "代码分享功能当前不可用！";
+    $view_errors = "코드 공유 기능을 지금은 사용할 수 없습니다!";
     require("template/" . $OJ_TEMPLATE . "/error.php");
     exit (0);
 }

@@ -33,7 +33,7 @@
 
         },
         error: function() {
-            alert("获取Submit数据失败");
+            alert("제출 데이터를 가져오지 못했습니다");
         }
     });
     return data;
@@ -57,7 +57,7 @@ function getSubmitList(cid) {
 
         },
         error: function() {
-            alert("获取Submit数据失败");
+            alert("제출 데이터를 가져오지 못했습니다");
         }
     });
     return data;
@@ -85,7 +85,7 @@ function getSubmitList(cid) {
             }
         },
         error: function() {
-            alert("获取Team数据失败");
+            alert("참가자 데이터를 가져오지 못했습니다");
         }
     });
     return data;
@@ -108,7 +108,7 @@ function getTeamList(cid) {
             }
         },
         error: function() {
-            alert("获取Team数据失败");
+            alert("참가자 데이터를 가져오지 못했습니다");
         }
     });
     return data;

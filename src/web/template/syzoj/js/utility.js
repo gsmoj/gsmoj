@@ -196,7 +196,7 @@ module.exports = {
           cases: st.cases.map(c => {
             function getFileName(template, id, mustExist) {
               let s = template.split('#').join(String(id));
-              if (mustExist && !list.includes(s)) throw `找不到文件 ${s}`;
+              if (mustExist && !list.includes(s)) throw `파일을 찾을 수 없습니다: ${s}`;
               return s;
             }
 

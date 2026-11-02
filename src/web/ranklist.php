@@ -113,7 +113,7 @@ for ($i = 0; $i < $rows_cnt; $i++) {
 
     $view_rank[$i][0] = $rank;
     $view_rank[$i][1] = "<a href='userinfo.php?user=" . htmlentities($row['user_id'], ENT_QUOTES, "UTF-8") . "'>" . $row['user_id'] . "</a>";
-    if (isset($row['starred']) && $row['starred'] > 0) $view_rank[$i][1] = "⭐" . $view_rank[$i][1] . "<span title='用同名账户给hustoj项目加星，可以点亮此星' >⭐</span>";     //github starred rewarding
+    if (isset($row['starred']) && $row['starred'] > 0) $view_rank[$i][1] = "⭐" . $view_rank[$i][1] . "<span title='같은 이름의 계정으로 hustoj 프로젝트에 별을 주면 이 별이 켜집니다' >⭐</span>";     //github starred rewarding
     $view_rank[$i][2] = "<div class=center>" . htmlentities($row['nick'], ENT_QUOTES, "UTF-8") . "</div>";
     $view_rank[$i][3] = "<div class=center>" . htmlentities($row['group_name'], ENT_QUOTES, "UTF-8") . "</div>";
     $view_rank[$i][4] = "<div class=center><a href='status.php?user_id=" . htmlentities($row['user_id'], ENT_QUOTES, "UTF-8") . "&jresult=4'>" . $row['solved'] . "</a>" . "</div>";
