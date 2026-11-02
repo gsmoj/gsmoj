@@ -68,6 +68,12 @@ if (isset($_POST['cid'])) {
     if (!($test_run || isset($_SESSION[$OJ_NAME . '_' . 'administrator']) || isset($_SESSION[$OJ_NAME . '_' . 'problem_editor']) || isset($_SESSION[$OJ_NAME . '_' . 'problem_verifiter'])))
         $sql .= " and defunct='N'";
     $res = mysql_query_cache($sql,$id);
+    // 진행 중이거나 시작 전인 대회·수행평가, 비공개 대회에 쓰인 문제는 연습으로 제출할 수 없다(problem.php의 id 경로와 같은 조건).
+    // 관리자·문제 검수자·대회 출제자·문제 편집자·문제 작성자(pNNNN)는 제한하지 않는다.
+    if (!empty($res) && !($test_run || (isset($OJ_FREE_PRACTICE) && $OJ_FREE_PRACTICE) || isset($_SESSION[$OJ_NAME . '_' . 'administrator']) || isset($_SESSION[$OJ_NAME . '_' . 'problem_verifiter']) || isset($_SESSION[$OJ_NAME . '_' . 'contest_creator']) || isset($_SESSION[$OJ_NAME . '_' . 'problem_editor']) || isset($_SESSION[$OJ_NAME . '_' . 'p' . $id]))) {
+        $sql = "SELECT 1 FROM `contest_problem` cp INNER JOIN `contest` c ON cp.contest_id=c.contest_id WHERE cp.problem_id=? AND (c.end_time>? AND c.defunct='N' OR c.private='1') LIMIT 1";
+        if (!empty(pdo_query($sql, $id, $now))) $res = array();
+    }
 }
 if (!$test_run) {
     if (isset($res) && count($res) < 1 && !isset($_SESSION[$OJ_NAME . '_' . 'administrator']) && !((isset($cid) && $cid <= 0) || (isset($id) && $id <= 0))) {
