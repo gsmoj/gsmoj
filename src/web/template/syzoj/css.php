@@ -33,4 +33,4 @@
 <?php } ?>
 
 <!-- 사용자 화면 공통 배치(문제 목록 기준): 다른 CSS를 덮어야 하므로 마지막에 불러온다. -->
-<link href="<?php echo $OJ_CDN_URL.$path_fix."template/$OJ_TEMPLATE"?>/css/gs-page.css?v=1" rel="stylesheet">
+<link href="<?php echo $OJ_CDN_URL.$path_fix."template/$OJ_TEMPLATE"?>/css/gs-page.css?v=2" rel="stylesheet">

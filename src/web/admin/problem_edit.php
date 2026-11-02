@@ -2,6 +2,7 @@
 require_once("../include/db_info.inc.php");
 require_once("admin-header.php");
 require_once("../include/my_func.inc.php");
+require_once("problem_markdown.inc.php");
 
 // 교사는 아래 문제별 확인(pNNNN)으로 자기가 만든 문제만 수정할 수 있다.
 if (!(isset($_SESSION[$OJ_NAME.'_'.'administrator']) || isset($_SESSION[$OJ_NAME.'_'.'problem_editor']) || isset($_SESSION[$OJ_NAME.'_'.'teacher']))) {
@@ -50,7 +51,7 @@ function problem_editor_content($content) {
 </head>
   <?php
 $page_heading = $MSG_PROBLEM." - 수정";
-include_once("kindeditor.php") ;
+include_once("problem_md_editor.php");
 ?>
 
 
@@ -99,16 +100,16 @@ include_once("kindeditor.php") ;
         </section>
         <section class="problem-form-section">
           <?php echo "<h4>".$MSG_Description."</h4>"?>
-          <textarea class="kindeditor" rows=33 name=description cols=80><?php echo htmlentities(problem_editor_content($row['description']),ENT_QUOTES,"UTF-8")?></textarea>
+          <textarea class="problem-md-editor" rows=33 name=description cols=80><?php echo htmlentities(problem_editor_content($row['description']),ENT_QUOTES,"UTF-8")?></textarea>
         </section>
 	<div class="full">
         <section class="problem-form-section">
           <?php echo "<h4>".$MSG_Input."</h4>"?>
-          <textarea class="kindeditor" rows=13 name=input cols=80><?php echo htmlentities(problem_editor_content($row['input']),ENT_QUOTES,"UTF-8")?></textarea>
+          <textarea class="problem-md-editor" rows=13 name=input cols=80><?php echo htmlentities(problem_editor_content($row['input']),ENT_QUOTES,"UTF-8")?></textarea>
         </section>
         <section class="problem-form-section">
           <?php echo "<h4>".$MSG_Output."</h4>"?>
-          <textarea  class="kindeditor" rows=13 name=output cols=80><?php echo htmlentities(problem_editor_content($row['output']),ENT_QUOTES,"UTF-8")?></textarea>
+          <textarea class="problem-md-editor" rows=13 name=output cols=80><?php echo htmlentities(problem_editor_content($row['output']),ENT_QUOTES,"UTF-8")?></textarea>
         </section>
         <section class="problem-form-section">
           <?php echo "<h4>".$MSG_Sample_Input."</h4>"?>
@@ -120,7 +121,7 @@ include_once("kindeditor.php") ;
         </section>
         <section class="problem-form-section">
           <?php echo "<h4>".$MSG_HINT."</h4>"?>
-          <textarea class="kindeditor" rows=13 name=hint cols=80><?php echo htmlentities(problem_editor_content($row['hint']),ENT_QUOTES,"UTF-8")?></textarea>
+          <textarea class="problem-md-editor" rows=13 name=hint cols=80><?php echo htmlentities(problem_editor_content($row['hint']),ENT_QUOTES,"UTF-8")?></textarea>
         </section>
 	</div>
         <section class="problem-form-section">
@@ -167,7 +168,7 @@ function untransform() {
   
     // 미리보기 동기화 이벤트 제거
     $("input").off('keyup', sync);
-    $("textarea").off('keyup', sync);
+    $("textarea").off('keyup input', sync);
 }
   function transform(){
 	let submitURL="../problem.php?id=<?php echo $pid ?>";
@@ -180,7 +181,8 @@ function untransform() {
         $("#submit").remove();
         setTimeout('hide()',1500);	
 	$("input").keyup(sync);
-	$("textarea").keyup(sync);
+	// 서식 버튼·붙여넣기는 keyup이 생기지 않으므로 input 이벤트로도 미리보기를 갱신한다.
+	$("textarea").on('keyup input', sync);
   }
   function hide(){
 	let preview=$("#previewFrame").contents();
@@ -265,17 +267,17 @@ function untransform() {
 
       $memory_limit = $_POST['memory_limit'];
 
-      $description = $_POST['description'];
+      $description = problem_markdown_wrap($_POST['description'], true);
      // $description = str_replace("<p>", "", $description);
      // $description = str_replace("</p>", "<br />", $description);
     //  $description = str_replace(",", "&#44;", $description);
 
-      $input = $_POST['input'];
+      $input = problem_markdown_wrap($_POST['input']);
      // $input = str_replace("<p>", "", $input);
      // $input = str_replace("</p>", "<br />", $input);
     //  $input = str_replace(",", "&#44;", $input);
 
-      $output = $_POST['output'];
+      $output = problem_markdown_wrap($_POST['output']);
      // $output = str_replace("<p>", "", $output);
      // $output = str_replace("</p>", "<br />", $output);
      // $output = str_replace(",", "&#44;", $output);
@@ -285,7 +287,7 @@ function untransform() {
       //if ($sample_input=="") $sample_input="\n";
       //if ($sample_output=="") $sample_output="\n";
 
-      $hint = $_POST['hint'];
+      $hint = problem_markdown_wrap($_POST['hint']);
      // $hint = str_replace("<p>", "", $hint);
     //  $hint = str_replace("</p>", "<br />", $hint);
     //  $hint = str_replace(",", "&#44;", $hint);

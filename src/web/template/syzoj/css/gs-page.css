@@ -341,3 +341,11 @@ iframe#sk { position: absolute; width: 0; height: 0; border: 0; }
   #main .padding + .padding { margin-top: calc(-2rem + var(--gs-gap)); }
   #main .padding > h1, #main .padding > h2 { font-size: 22px; }
 }
+
+/* 문제 본문의 스포일러(숨김) 글자. 관리자 문제 입력기의 스포일러 버튼이 <span class="md-spoiler" tabindex="0">으로 넣는다.
+   클릭(포커스)하면 보이고, 다른 곳을 누르면 다시 가려진다. */
+.md-spoiler { background: #334155; border-radius: 4px; box-decoration-break: clone; -webkit-box-decoration-break: clone; color: transparent; cursor: pointer; padding: 0 3px; transition: background .15s, color .15s; }
+.md-spoiler:not(:focus) * { background: transparent !important; border-color: transparent !important; color: transparent !important; }
+.md-spoiler:not(:focus) img { visibility: hidden; }
+.md-spoiler:hover { background: #475569; }
+.md-spoiler:focus { background: #e2e8f0; color: inherit; outline: none; }
