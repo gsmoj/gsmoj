@@ -91,7 +91,7 @@
 </head>	  
 	  <?php
   $page_heading = $assessment ? "'".$assessment['title']."' 전용 ".$MSG_PROBLEM." - ".$MSG_ADD : $MSG_PROBLEM." - ".$MSG_ADD;
-  $source=pdo_query("select source from problem order by problem_id desc limit 1"); //默认续用最后一次的分类标签
+  $source=pdo_query("select source from problem order by problem_id desc limit 1"); // 마지막으로 쓴 분류를 기본값으로 이어서 쓴다.
   if(!empty($source)&&isset($source[0]))$source=$source[0][0];else $source="";
 ?>
 
@@ -379,12 +379,12 @@ function fill_data( data ){
 		if(title==""){
 				$('#title').val(data);
 		}else{
-		    // 尝试以JSON格式解析AI输出内容
+		    // AI 출력을 JSON으로 해석해 본다.
 		    let parsedData = null;
 		    
-		    // 先检查是否是分隔符格式
+		    // 먼저 구분자 형식인지 확인한다.
 		    if(data.indexOf('###TITLE###') !== -1){
-			console.log("检测到分隔符格式");
+			console.log("구분자 형식 감지");
 			let sections = data.split('###');
 			parsedData = {};
 			
@@ -407,109 +407,109 @@ function fill_data( data ){
 			    }
 			}
 		    } else {
-			// 尝试解析JSON
+			// JSON 해석을 시도한다.
 			try {
-			    console.log("尝试解析JSON格式");
+			    console.log("JSON 형식 해석 시도");
 			    parsedData = JSON.parse(data);
-			    console.log("JSON解析成功");
+			    console.log("JSON 해석 성공");
 			} catch(e) {
-			    console.log("JSON解析失败,使用旧格式");
-			    // 如果解析失败,按旧格式处理
+			    console.log("JSON 해석 실패, 이전 형식 사용");
+			    // 해석에 실패하면 이전 형식으로 처리한다.
 			    let description = data.trim();
 			    $("textarea[name='description']").val(description);
 			    parsedData = { description: description };
 			}
 		    }
 		    
-		    // 如果成功解析出结构化数据,填充表单
+		    // 구조화된 데이터를 얻으면 양식을 채운다.
 		    if(parsedData && typeof parsedData === 'object') {
-			console.log("=== 解析后的数据 ===");
+			console.log("=== 해석한 데이터 ===");
 			console.log(parsedData);
 			
-			// 填充到对应的表单字段
+			// 해당 입력란을 채운다.
 			if(parsedData.title) {
 			    $('#title').val(parsedData.title);
-			    console.log("填充title:", parsedData.title);
+			    console.log("title 채움:", parsedData.title);
 			}
 			
-			// 处理description - 需要特殊处理kindeditor
+			// description 처리 - kindeditor는 별도로 처리해야 한다.
 			if(parsedData.description) {
 			    let descContent = parsedData.description;
-			    // 先尝试设置textarea的值
+			    // 먼저 textarea 값을 설정한다.
 			    $("textarea[name='description']").val(descContent);
-			    // 如果有kindeditor实例,也设置它的值
+			    // kindeditor 인스턴스가 있으면 그 값도 설정한다.
 			    try {
 				if(typeof KindEditor !== 'undefined') {
-				    let editor = KindEditor.instances[0]; // 第一个编辑器是description
+				    let editor = KindEditor.instances[0]; // 첫째 편집기는 description
 				    if(editor) {
 					editor.html(descContent);
-					console.log("通过KindEditor设置description成功");
+					console.log("KindEditor로 description 설정 성공");
 				    }
 				}
 			    } catch(e) {
-				console.log("KindEditor设置失败,已使用textarea方式:", e);
+				console.log("KindEditor 설정 실패, textarea 값만 사용:", e);
 			    }
-			    console.log("填充description");
+			    console.log("description 채움");
 			}
 			
-			// 处理input - 也是kindeditor
+			// input 처리 - 역시 kindeditor
 			if(parsedData.input) {
 			    let inputContent = parsedData.input;
 			    $("textarea[name='input']").val(inputContent);
 			    try {
 				if(typeof KindEditor !== 'undefined') {
-				    let editor = KindEditor.instances[1]; // 第二个编辑器是input
+				    let editor = KindEditor.instances[1]; // 둘째 편집기는 input
 				    if(editor) {
 					editor.html(inputContent);
 				    }
 				}
 			    } catch(e) {
-				console.log("KindEditor input设置失败:", e);
+				console.log("KindEditor input 설정 실패:", e);
 			    }
-			    console.log("填充input");
+			    console.log("input 채움");
 			}
 			
-			// 处理output - 也是kindeditor
+			// output 처리 - 역시 kindeditor
 			if(parsedData.output) {
 			    let outputContent = parsedData.output;
 			    $("textarea[name='output']").val(outputContent);
 			    try {
 				if(typeof KindEditor !== 'undefined') {
-				    let editor = KindEditor.instances[2]; // 第三个编辑器是output
+				    let editor = KindEditor.instances[2]; // 셋째 편집기는 output
 				    if(editor) {
 					editor.html(outputContent);
 				    }
 				}
 			    } catch(e) {
-				console.log("KindEditor output设置失败:", e);
+				console.log("KindEditor output 설정 실패:", e);
 			    }
-			    console.log("填充output");
+			    console.log("output 채움");
 			}
 			
 			if(parsedData.sample_input) {
 			    $("textarea[name='sample_input']").val(parsedData.sample_input);
-			    console.log("填充sample_input");
+			    console.log("sample_input 채움");
 			}
 			if(parsedData.sample_output) {
 			    $("textarea[name='sample_output']").val(parsedData.sample_output);
-			    console.log("填充sample_output");
+			    console.log("sample_output 채움");
 			}
 			
-			// 处理hint - 也是kindeditor
+			// hint 처리 - 역시 kindeditor
 			if(parsedData.hint) {
 			    let hintContent = parsedData.hint;
 			    $("textarea[name='hint']").val(hintContent);
 			    try {
 				if(typeof KindEditor !== 'undefined') {
-				    let editor = KindEditor.instances[3]; // 第四个编辑器是hint
+				    let editor = KindEditor.instances[3]; // 넷째 편집기는 hint
 				    if(editor) {
 					editor.html(hintContent);
 				    }
 				}
 			    } catch(e) {
-				console.log("KindEditor hint设置失败:", e);
+				console.log("KindEditor hint 설정 실패:", e);
 			    }
-			    console.log("填充hint");
+			    console.log("hint 채움");
 			}
 		     }
 

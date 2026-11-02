@@ -30,7 +30,7 @@ if(isset($_POST['pid'])&&!empty($_POST['pid'])) {
     $pieces = explode(",", $plist);
     $pieces = array_unique($pieces);
     if (isset($pieces[0]) && $pieces[0] === "") unset($pieces[0]);
-    // 安全修复：每个ID元素强制intval，并过滤掉非正整数，防止SQL注入及意外的0
+    // 보안 수정: SQL 삽입과 의도하지 않은 0을 막기 위해 ID를 intval로 변환하고 양의 정수만 남긴다.
     $intPieces = array_map('intval', $pieces);
     $intPieces = array_filter($intPieces, function ($v) { return $v > 0; });
     $intPieces = array_values($intPieces);

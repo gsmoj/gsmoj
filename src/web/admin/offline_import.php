@@ -1,6 +1,6 @@
 <?php
-ini_set("display_errors", "Off");  // 生产环境应关闭调试
-error_reporting(0);  // 禁止显示任何错误信息
+ini_set("display_errors", "Off");  // 운영 환경에서는 디버그 출력을 끈다.
+error_reporting(0);  // 오류 메시지를 표시하지 않는다.
 require_once ("admin-header.php");
 //require_once("../include/check_post_key.php");
 
@@ -162,7 +162,7 @@ else {
   $cid=0;
   $nextNum=0;
   if (get_extension( $_FILES ["offline"] ["name"])=="zip") {
-    // 使用 ZipArchive 替代旧的 zip 函数
+    // 예전 zip 함수 대신 ZipArchive를 사용한다.
     $zip = new ZipArchive();
     if ($zip->open($tempfile) === TRUE) {
       $save_path="";
@@ -170,14 +170,14 @@ else {
       $pid=$title=$description=$input=$output=$sample_input=$sample_output=$hint=$source=$spj="";
       $type="normal";
       
-      // 遍历 ZIP 文件中的所有条目
+      // ZIP 파일의 모든 항목을 순회한다.
       for ($i = 0; $i < $zip->numFiles; $i++) {
         $file_name = $zip->getNameIndex($i);
         $file_path = dirname($file_name);
         $file_info = $zip->statIndex($i);
         $file_size = $file_info['size'];
         
-        // 获取文件内容
+        // 파일 내용을 가져온다.
         $file_content = $zip->getFromIndex($i);
         
         if(startsWith($file_name,"data")){
@@ -259,7 +259,7 @@ else {
               pdo_query($sql ,$insert_id, $file_content);
               $sql = "INSERT INTO `source_code_user`(`solution_id`,`source`) VALUES(?,?)";
               $ret=pdo_query($sql, $insert_id, $file_content);
-              if($ret<0){  //fail safe 大概率没用了，以后可能会删除
+              if($ret<0){  // 예비 처리. 거의 쓰이지 않아 나중에 지울 수 있다.
                 echo "<h3> $student - $problem</h3> - 허용되지 않는 문자가 있어 제출하지 못했습니다<br>  ";
                 echo " - 문자 인코딩 변환을 시도합니다 <br>  ";
                 $file_content=mb_convert_encoding($file_content, "utf8", "gbk");
@@ -285,7 +285,7 @@ else {
         }
       }
       
-      // 关闭 ZIP 文件
+      // ZIP 파일을 닫는다.
       $zip->close();
     } else {
       echo "ZIP 파일을 열 수 없습니다";

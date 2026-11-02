@@ -157,7 +157,7 @@ if (count($result) != 1) {
 }
 $flag = false;
 if (isset($OJ_NOIP_KEYWORD) && $OJ_NOIP_KEYWORD) {
-    //检查当前题目是不是在NOIP模式比赛中，如果是则不显示AC数量 2020.7.11 by ivan_zhou
+    // 현재 문제가 NOIP 모드 대회에 쓰이는지 확인하고, 쓰이면 정답 수를 표시하지 않는다. 2020.7.11 by ivan_zhou
     //$now =  date('Y-m-d H:i', time());
     $sql = "select 1 from `contest_problem` where (`problem_id`= ? ) and `contest_id` IN (select `contest_id` from `contest` where `start_time` < ? and `end_time` > ? and `title` like ?)";
     $rrs = pdo_query($sql, $id, $now, $now, "%$OJ_NOIP_KEYWORD%");
@@ -167,7 +167,7 @@ if ($flag || problem_locked($id, 28)) {
     $row['accepted'] = '<font color="red"> ? </font>';
     $row['submit'] = '<font color="red"> ? </font>';
 
-    // 使用$OJ_NOIP_TISHI 条件语句确定是否显示提示信息
+    // $OJ_NOIP_TISHI 조건으로 힌트 표시 여부를 정한다.
     if (isset($OJ_NOIP_HINT) && $OJ_NOIP_HINT) {
         //$row['hint'] = $MSG_NOIP_NOHINT;
     } else if (!(isset($_SESSION[$OJ_NAME . '_administrator']) || isset($_SESSION[$OJ_NAME . '_contest_creator']))) {
@@ -178,10 +178,10 @@ if ($flag || problem_locked($id, 28)) {
 $solution_file = "$OJ_DATA/$id/output.name";
 
 if (file_exists($solution_file)) {
-    // 读取文件内容
+    // 파일 내용을 읽는다.
     $content = file_get_contents($solution_file);
 
-    // 提取文件名部分（去掉扩展名）
+    // 확장자를 뺀 파일 이름을 추출한다.
     $filename = pathinfo($content, PATHINFO_FILENAME);
 
 }

@@ -32,7 +32,7 @@ function recursiveDelete($dir) {
     }
 }
 
-// 使用示例
+// 문제 삭제 처리
   $id=intval($_GET['id']);
   if($id>0&&strlen($OJ_DATA)>8){
         $basedir = "$OJ_DATA/$id";
