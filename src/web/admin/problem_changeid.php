@@ -34,6 +34,8 @@ function writable($path){
 			pdo_query($sql,$to,$from);
 			$sql="UPDATE `contest_problem` SET `problem_id`=? WHERE `problem_id`=?";
 			pdo_query($sql,$to,$from);
+			$sql="UPDATE `assessment_problem` SET `problem_id`=? WHERE `problem_id`=?";
+			pdo_query($sql,$to,$from);
 			$sql="UPDATE `topic` SET `pid`=? WHERE `pid`=?";
 			pdo_query($sql,$to,$from);
 			
