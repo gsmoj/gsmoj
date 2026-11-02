@@ -627,10 +627,10 @@ body:not(.admin-menu-frame) button {
     font-weight: 600;
     cursor: pointer;
 }
-body:not(.admin-menu-frame) input[type="submit"]:hover,
-body:not(.admin-menu-frame) input[type="reset"]:hover,
-body:not(.admin-menu-frame) input[type="button"]:hover,
-body:not(.admin-menu-frame) button:hover { border-color: #94a3b8; background-color: #f1f5f9; }
+/* 밝은 hover 배경은 색이 없는 기본 버튼에만 준다. 색상 버튼·제출 버튼에 주면 흰 글자가 묻힌다. */
+body:not(.admin-menu-frame) input[type="reset"]:not(.btn-primary):not(.btn-info):not(.btn-success):not(.btn-danger):not(.btn-warning):hover,
+body:not(.admin-menu-frame) input[type="button"]:not(.btn-primary):not(.btn-info):not(.btn-success):not(.btn-danger):not(.btn-warning):hover,
+body:not(.admin-menu-frame) button:not(.btn-primary):not(.btn-info):not(.btn-success):not(.btn-danger):not(.btn-warning):hover { border-color: #94a3b8; background-color: #f1f5f9; }
 body:not(.admin-menu-frame) .btn-primary,
 body:not(.admin-menu-frame) .btn-info,
 body:not(.admin-menu-frame) input[type="submit"] {
@@ -661,6 +661,36 @@ body:not(.admin-menu-frame) input[type="reset"].btn-danger:hover { border-color:
 body:not(.admin-menu-frame) input[type="button"]:disabled,
 body:not(.admin-menu-frame) input[type="reset"]:disabled { cursor: wait; opacity: .7; }
 body:not(.admin-menu-frame) input[type="file"] { height: 40px; min-height: 40px; padding: 7px 10px; }
+
+/* 색상 버튼의 hover·focus·active 상태: 같은 색 계열로 조금 진하게만 바꾸고 글자는 흰색을 유지한다. */
+body:not(.admin-menu-frame) .btn-primary:hover,
+body:not(.admin-menu-frame) .btn-primary:focus,
+body:not(.admin-menu-frame) .btn-primary:active,
+body:not(.admin-menu-frame) .btn-info:hover,
+body:not(.admin-menu-frame) .btn-info:focus,
+body:not(.admin-menu-frame) .btn-info:active,
+body:not(.admin-menu-frame) input[type="submit"]:hover,
+body:not(.admin-menu-frame) input[type="submit"]:focus,
+body:not(.admin-menu-frame) input[type="submit"]:active { color: #fff; border-color: var(--admin-primary-dark); background-color: var(--admin-primary-dark); }
+body:not(.admin-menu-frame) .btn-success:hover,
+body:not(.admin-menu-frame) .btn-success:focus,
+body:not(.admin-menu-frame) .btn-success:active { color: #fff; border-color: #15803d; background-color: #15803d; }
+body:not(.admin-menu-frame) .btn-danger:hover,
+body:not(.admin-menu-frame) .btn-danger:focus,
+body:not(.admin-menu-frame) .btn-danger:active { color: #fff; border-color: #b91c1c; background-color: #b91c1c; }
+body:not(.admin-menu-frame) .btn-warning:hover,
+body:not(.admin-menu-frame) .btn-warning:focus,
+body:not(.admin-menu-frame) .btn-warning:active { color: #422006; border-color: #d97706; background-color: #f59e0b; }
+/* 부트스트랩 그라데이션 배경 이미지가 남아 hover 색과 섞이지 않게 한다. */
+body:not(.admin-menu-frame) .btn-primary, body:not(.admin-menu-frame) .btn-info, body:not(.admin-menu-frame) .btn-success,
+body:not(.admin-menu-frame) .btn-danger, body:not(.admin-menu-frame) .btn-warning, body:not(.admin-menu-frame) input[type="submit"] { background-image: none; text-shadow: none; }
+/* 초록(btn-success) 제출 버튼은 평소·hover 모두 초록 계열로 둔다. */
+body:not(.admin-menu-frame) input[type="submit"].btn-success { color: #fff; border-color: #16a34a; background-color: #16a34a; }
+body:not(.admin-menu-frame) input[type="submit"].btn-success:hover,
+body:not(.admin-menu-frame) input[type="submit"].btn-success:focus,
+body:not(.admin-menu-frame) input[type="submit"].btn-success:active { border-color: #15803d; background-color: #15803d; }
+body:not(.admin-menu-frame) .btn:focus-visible, body:not(.admin-menu-frame) button:focus-visible, body:not(.admin-menu-frame) input[type="submit"]:focus-visible { outline: 2px solid #93c5fd; outline-offset: 2px; }
+body:not(.admin-menu-frame) .btn:disabled, body:not(.admin-menu-frame) button:disabled { opacity: .55; cursor: not-allowed; }
 
 body:not(.admin-menu-frame) .form-inline,
 body:not(.admin-menu-frame) .form-search {
