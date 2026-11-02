@@ -2,6 +2,8 @@
 $OJ_CACHE_SHARE = true;
 $cache_time = 3;
 require_once("./include/db_info.inc.php");
+$gs_guard_label = "통계";
+require_once("./include/assessment_rank_guard.php");  // 수행평가 통계 비공개(캐시보다 먼저 확인)
 require_once("./include/cache_start.php");
 require_once("./include/const.inc.php");
 require_once("./include/my_func.inc.php");
