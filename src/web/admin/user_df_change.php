@@ -5,15 +5,14 @@ $user_id=$_GET['cid'];
 //echo htmlentities($user_id,ENT_QUOTE,'UTF-8');
 if(!isset($_SESSION[$OJ_NAME.'_'.'administrator'])) exit();
 if($_SESSION[$OJ_NAME."_user_id"]==$user_id){
-        echo "Can't defunct yourself!";
+        echo "자기 자신의 계정은 비활성화할 수 없습니다!";
         exit(0);
 }
 $sql="select `defunct`,email FROM `users` WHERE `user_id`=?";
 $result=pdo_query($sql,$user_id);
 $num=count($result);
 if ($num<1){
-        echo "No Such User!";
-        require_once("../oj-footer.php");
+        echo "사용자가 없습니다!";
         exit(0);
 }
 $row=$result[0];
@@ -35,7 +34,7 @@ if ($row[0]=='N'){
 
         }
 ?>
-        <a href="user_list.php">Back</a>
+        <a href="user_list.php"><?php echo $MSG_BACK?></a>
 <?php
 }
 ?>
