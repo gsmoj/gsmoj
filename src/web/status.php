@@ -6,6 +6,7 @@ header("Expires: Sat, 26 Jul 1997 05:00:00 GMT"); // 과거의 특정 날짜로 
 //////////////////////////// 공통 헤더 및 환경 설정 부
 $cache_time = 2;
 $OJ_CACHE_SHARE = false;
+require_once('./include/assessment_access_guard.php');  // 수행평가 접근 제한(캐시보다 먼저 확인)
 require_once('./include/cache_start.php');
 require_once('./include/db_info.inc.php');
 require_once('./include/memcache.php');

@@ -36,6 +36,8 @@ if ($rows_cnt > 0) {
     $view_end_time = $row['end_time'];
     $subnet = $row['subnet'];
 }
+// 볼 권한이 없는 수행평가는 아래의 제목·안내문·시작 시간 화면을 거치지 않고 여기서 막는다.
+if ($is_assessment) require_once("include/assessment_access_guard.php");
 $contest_ok = true;
 $password = "";
 

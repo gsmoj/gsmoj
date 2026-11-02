@@ -53,6 +53,18 @@ if(isset($_POST['startdate'])){
   foreach($contest_types as $t){
     $contest_type |= 1<<$t;
   } 
+  // 수행평가는 지정한 반의 학생만 들어갈 수 있으므로 공개 범위·비밀번호·참가자 목록 대신 반을 받는다.
+  $assessment_group = "";
+  if($contest_type & 512){
+    $assessment_group = isset($_POST['group_name']) ? trim($_POST['group_name']) : "";
+    if($assessment_group === ""){
+      echo "반을 선택하세요.";
+      exit(1);
+    }
+    $private = 1;
+    $password = "";
+  }
+
   $sql = "INSERT INTO `contest`(`title`,`start_time`,`end_time`,`private`,`langmask`,`description`,`password`,subnet,contest_type,`user_id`)
           VALUES(?,?,?,?,?,?,?,?,?,?)";
 
@@ -63,6 +75,8 @@ if(isset($_POST['startdate'])){
  // echo $sql.$title.$starttime.$endtime.$private.$langmask.$description.$password,$user_id;
   $cid = pdo_query($sql,$title,$starttime,$endtime,$private,$langmask,$description,$password,$subnet,$contest_type,$user_id) ;
   echo "Add Contest ".$cid;
+  // 수행평가 관리 화면에 속하지 않는 회차는 assessment_id를 0으로 둔다.
+  if($contest_type & 512) pdo_query("INSERT INTO `assessment_session`(assessment_id,contest_id,group_name,created_at) VALUES(0,?,?,NOW())",$cid,$assessment_group);
 
   $sql = "DELETE FROM `contest_problem` WHERE `contest_id`=$cid";
   $plist = trim($_POST['cproblem']);
@@ -98,7 +112,7 @@ if(isset($_POST['startdate'])){
   pdo_query($sql,$_SESSION[$OJ_NAME.'_'.'user_id'],"m$cid");
 
   $_SESSION[$OJ_NAME.'_'."m$cid"] = true;
-  $pieces = explode("\n", trim($_POST['ulist']));
+  $pieces = explode("\n", trim(isset($_POST['ulist']) ? $_POST['ulist'] : ""));
 
   if(count($pieces)>0 && strlen($pieces[0])>0){
     $sql_1 = "INSERT INTO `privilege`(`user_id`,`rightstr`) VALUES (?,?)";
@@ -256,6 +270,14 @@ else{
             </p>
           </td>
           <td height="10px">
+            <?php if($contest_type & 512){ ?>
+            <p align=left>
+              대상 반: <?php assessment_group_select("")?>
+              <span class="admin-field-help">선택한 반의 학생만 이 <?php echo $MSG_CONTEST?>를 보고 들어갈 수 있습니다.</span>
+              <input type=hidden name=private value=1>
+              <input type=hidden name=password value="">
+            </p>
+            <?php } else { ?>
             <p align=left>
               <?php echo $MSG_CONTEST."-".$MSG_Public?>:
               <select name=private style="width:150px;">
@@ -265,10 +287,12 @@ else{
               <?php echo $MSG_CONTEST."-".$MSG_PASSWORD?>:
               <input type=text name=password style="width:150px;" value="">
             </p>
+            <?php } ?>
           </td>
         </tr>
         <tr>
           <td height="*">
+            <?php if(!($contest_type & 512)){ ?>
             <p align=left>
               <?php echo $MSG_CONTEST."-".$MSG_USER?>
               <span class="admin-field-help">비공개 <?php echo $MSG_CONTEST?>에 참여할 사용자 ID를 한 줄에 하나씩 입력하세요.</span>
@@ -297,6 +321,7 @@ else{
               <textarea id="ulist" name='ulist' rows='10' style='width:100%;' placeholder='user1<?php echo "\n"?>user2<?php echo "\n"?>user3<?php echo "\n"?>
               <?php echo $MSG_PRIVATE_USERS_ADD?><?php echo "\n"?>'><?php if(isset($ulist)){ echo $ulist;}?></textarea>
             </p>
+            <?php } ?>
           </td>
         </tr>
       </table>

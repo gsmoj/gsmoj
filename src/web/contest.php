@@ -150,12 +150,18 @@ if (isset($_GET['cid'])) {
     $gs_assessment_list = isset($GS_ASSESSMENT_LIST) && $GS_ASSESSMENT_LIST;
     $gs_type_cond = $gs_assessment_list ? " AND (contest_type & 512)<>0" : " AND (contest_type & 512)=0";
     $gs_list_page = $gs_assessment_list ? "assessment.php" : "contest.php";
-    $rows = pdo_query("select count(1) from contest where defunct='N' $gs_type_cond");
+    // 관리자가 아니면 수행평가는 들어갈 수 있는 회차만 보이므로 전체·내 수행평가 칩을 숨긴다.
+    $gs_filter_assessment = $gs_assessment_list && !isset($_SESSION[$OJ_NAME . '_administrator']);
+    $gs_hide_my_chip = $gs_filter_assessment;
+    $gs_visible_cond = "";
+    $gs_visible_args = array();
 
-    if ($rows)
-        $total = $rows[0][0];
+    if ($gs_filter_assessment && !isset($_SESSION[$OJ_NAME . '_user_id'])) {
+        $view_errors = "<a href=loginpage.php>$MSG_Login</a>";
+        require("template/" . $OJ_TEMPLATE . "/error.php");
+        exit(0);
+    }
 
-    $view_total_page = intval($total / $page_cnt) + 1;
     $keyword = "";
 
     if (isset($_POST['keyword'])) {
@@ -217,20 +223,33 @@ if (isset($_GET['cid'])) {
             $mycontests = substr($mycontests, 1);
         if (isset($_GET['my']) && $mycontests != "")
             if (isset($_GET['my'])) $wheremy = " and( contest_id in ($mycontests) or user_id='" . $_SESSION[$OJ_NAME . '_user_id'] . "')";
+
+        if ($gs_filter_assessment) {
+            list($gs_visible_cond, $gs_visible_args) = assessment_visible_cond($user_id);
+            $gs_visible_cond = " AND " . $gs_visible_cond;
+        }
     }
+
+    // 페이지 수도 목록과 같은 표시 조건으로 센다.
+    $rows = call_user_func_array("pdo_query", array_merge(array("select count(1) from contest where defunct='N' $gs_type_cond $gs_visible_cond"), $gs_visible_args));
+
+    if ($rows)
+        $total = $rows[0][0];
+
+    $view_total_page = max(1, intval(ceil($total / $page_cnt)));
 
     $sql = "SELECT * FROM `contest` WHERE `defunct`='N' ORDER BY `contest_id` DESC LIMIT 1000";
 
     if ($keyword) {
-        $sql = "SELECT *  FROM contest WHERE contest.defunct='N' AND contest.title LIKE ? $wheremy $gs_type_cond  ORDER BY contest_id DESC";
+        $sql = "SELECT *  FROM contest WHERE contest.defunct='N' AND contest.title LIKE ? $wheremy $gs_type_cond $gs_visible_cond  ORDER BY contest_id DESC";
         $sql .= " limit " . strval($pstart) . "," . strval($pend);
 
-        $result = pdo_query($sql, $keyword);
+        $result = call_user_func_array("pdo_query", array_merge(array($sql, $keyword), $gs_visible_args));
     } else {
-        $sql = "SELECT *  FROM contest WHERE contest.defunct='N' $wheremy $gs_type_cond  ORDER BY contest_id DESC";
+        $sql = "SELECT *  FROM contest WHERE contest.defunct='N' $wheremy $gs_type_cond $gs_visible_cond  ORDER BY contest_id DESC";
         $sql .= " limit " . strval($pstart) . "," . strval($pend);
         //echo $sql;
-        $result = mysql_query_cache($sql);
+        $result = call_user_func_array("mysql_query_cache", array_merge(array($sql), $gs_visible_args));
     }
 
     $view_contest = array();

@@ -73,6 +73,7 @@ foreach ($result as $row) {
     $i++;
 }
 $mycontests = $wheremy = "";
+$gs_visible_args = array();
 
 if (isset($_SESSION[$OJ_NAME . '_user_id'])) {
     $sql = "select distinct contest_id from solution where contest_id>0 and user_id=?";
@@ -115,12 +116,17 @@ if (isset($_SESSION[$OJ_NAME . '_user_id'])) {
         $mycontests = substr($mycontests, 1);
         $wheremy = " and  contest_id in ($mycontests) ";
     }
-    $wheremy .= " and start_time < now() and end_time > now() ";   //运行中的比赛
+    $wheremy .= " and start_time < now() and end_time > now() ";   //진행 중인 대회
+    // 수행평가는 들어갈 수 있는 회차만 보여 준다.
+    if (!isset($_SESSION[$OJ_NAME . '_administrator'])) {
+        list($gs_visible_cond, $gs_visible_args) = assessment_visible_cond($_SESSION[$OJ_NAME . '_user_id']);
+        $wheremy .= " and ((contest_type & 512)=0 or $gs_visible_cond) ";
+    }
 }
 
 $sql = "SELECT *  FROM contest WHERE contest.defunct='N' $wheremy  ORDER BY contest_id DESC";
 //echo htmlentities($sql);
-$result = pdo_query($sql);
+$result = call_user_func_array("pdo_query", array_merge(array($sql), $gs_visible_args));
 $view_contest = array();
 foreach ($result as $row) {
     $view_contest[$i][0] = $row['contest_id'];
