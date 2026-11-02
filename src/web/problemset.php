@@ -1,20 +1,20 @@
 <?php
 /**
- * 问题集页面处理脚本
+ * 문제 목록 페이지 처리 스크립트
  *
- * 该脚本负责处理在线评测系统的问题集页面，包括分页、搜索、权限控制等功能
- * 显示问题列表，记录用户访问页面，处理问题搜索和筛选
+ * 온라인 저지의 문제 목록 페이지를 처리한다. 쪽 나누기, 검색, 권한 제어를 포함한다.
+ * 문제 목록을 보여 주고 사용자가 본 쪽을 기억하며 문제 검색과 필터를 처리한다.
  */
 
 /**
- * 全局配置变量
+ * 전역 설정 변수
  */
-$OJ_CACHE_SHARE = false;  // 是否共享缓存
-$cache_time = 10;         // 缓存时间设置
+$OJ_CACHE_SHARE = false;  // 캐시 공유 여부
+$cache_time = 10;         // 캐시 시간
 
 /**
- * 引入必要的包含文件
- * 包括数据库连接、常量定义、缓存、cURL、Memcache、语言设置等功能模块
+ * 필요한 파일을 불러온다.
+ * 데이터베이스 연결, 상수 정의, 캐시, cURL, Memcache, 언어 설정 모듈을 포함한다.
  */
 require_once('./include/db_info.inc.php');
 require_once('./include/const.inc.php');
@@ -25,15 +25,15 @@ require_once('./include/setlang.php');
 require_once("./include/set_get_key.php");
 
 /**
- * 页面标题设置
+ * 페이지 제목 설정
  */
 $view_title = "Problem Set";
 
 /**
- * 记住用户访问页面功能
+ * 사용자가 본 쪽 기억 기능
  *
- * 根据GET参数或用户会话记录用户的当前页面位置
- * 管理员和普通用户有不同的页面记忆逻辑
+ * GET 인자나 세션을 바탕으로 현재 쪽 위치를 기록한다.
+ * 관리자와 일반 사용자는 쪽을 기억하는 방식이 다르다.
  */
 // 목록 필터(풀이 상태·분류·정렬) 입력값. 허용된 값만 사용한다.
 $view_filter = isset($_GET['filter']) ? $_GET['filter'] : "";
@@ -72,10 +72,10 @@ if (isset($_GET['page'])) {
 //end of remember page
 
 /**
- * 分页设置模块
+ * 쪽 나누기 설정
  *
- * 根据不同的请求参数（搜索、列表、普通浏览）设置不同的过滤条件和排序方式
- * 支持按标题和来源搜索、按指定问题列表显示、普通分页浏览
+ * 요청 인자(검색, 목록, 일반 탐색)에 따라 필터 조건과 정렬 방식을 정한다.
+ * 제목·출처 검색, 지정한 문제 목록 표시, 일반 쪽 탐색을 지원한다.
  */
 $page_cnt = 50;  //50 problems per page
 
@@ -106,19 +106,19 @@ if (isset($_GET['search']) && trim($_GET['search']) != "") {
             $pids .= ",$pid";
     }
     $filter_sql = " problem_id in ($pids) ";
-    $order_by = "order by FIELD(problem_id,$pids)"; // 如果希望按难度顺序改成 order by accepted desc ;
+    $order_by = "order by FIELD(problem_id,$pids)"; // 난이도순으로 보려면 order by accepted desc로 바꾼다.
     //$limit_sql = " LIMIT ".($page-1)*$page_cnt.",".$page_cnt;
-    $limit_sql = "";  // list 不翻页
+    $limit_sql = "";  // list는 쪽을 나누지 않는다.
 } else {
     $filter_sql = " problem_id > 0";
     $limit_sql = " LIMIT " . ($page - 1) * $page_cnt . "," . $page_cnt;
 }
 
 /**
- * 用户提交状态统计
+ * 사용자 제출 상태 집계
  *
- * 获取当前登录用户的提交记录，统计已提交和已通过的问题
- * 用于在问题列表中标记用户对该问题的完成状态
+ * 로그인한 사용자의 제출 기록에서 제출한 문제와 맞힌 문제를 집계한다.
+ * 문제 목록에 사용자의 풀이 상태를 표시하는 데 쓴다.
  */
 $sub_arr = array();
 $acc_arr = array();
@@ -156,13 +156,14 @@ if ($view_sort != "id")
     $postfix .= "&sort=" . $view_sort;
 
 /**
- * 问题页面导航权限控制
+ * 문제 목록 접근 권한 제어
  *
- * 根据用户权限（管理员、普通用户、自由练习模式）设置不同的问题过滤条件
- * 管理员可查看所有问题，普通用户不能查看竞赛期间的问题
+ * 사용자 권한(관리자, 일반 사용자, 자유 연습 모드)에 따라 문제 필터 조건을 정한다.
+ * 관리자는 모든 문제를 볼 수 있고, 일반 사용자는 대회 기간의 문제를 볼 수 없다.
  */
 //if($OJ_SAE) $first=1;
-if (isset($_SESSION[$OJ_NAME . '_' . 'administrator'])) {  //all problems
+if (isset($_SESSION[$OJ_NAME . '_' . 'administrator'])) {  // 수행평가 전용 문제를 뺀 모든 문제
+    $filter_sql .= " and defunct<>'A' ";
     //$limit = $limit_sql;
 } else if ($OJ_FREE_PRACTICE) {  // open free practice without limit of contest using
     $filter_sql .= " and defunct='N' ";
@@ -179,10 +180,10 @@ if (isset($_SESSION[$OJ_NAME . '_' . 'administrator'])) {  //all problems
 // End Page Setting
 
 /**
- * 数据库查询执行
+ * 데이터베이스 조회
  *
- * 执行问题列表查询，根据搜索条件使用不同的查询方式
- * 统计总页数，获取当前页的问题数据
+ * 검색 조건에 따라 다른 방식으로 문제 목록을 조회한다.
+ * 전체 쪽 수를 세고 현재 쪽의 문제를 가져온다.
  */
 pdo_query("SET sort_buffer_size = 1024*1024");   // Out of sort memory, consider increasing server sort buffer size
 $sql = "select `problem_id`,`title`,`source`,`submit`,`accepted`,defunct,coin FROM problem A WHERE $filter_sql $order_by $limit_sql ";
@@ -222,10 +223,10 @@ if (!isset($_GET['ajax'])) {
 }
 
 /**
- * 问题列表数据处理
+ * 문제 목록 데이터 처리
  *
- * 遍历查询结果，构建问题列表显示数据
- * 处理问题完成状态标记、问题来源分类、链接生成等
+ * 조회 결과를 순회해 화면에 보일 문제 목록을 만든다.
+ * 풀이 상태 표시, 출처 분류, 링크 생성을 처리한다.
  */
 $cnt = 0;
 $view_problemset = array();
@@ -275,10 +276,10 @@ foreach ($result as $row) {
 }
 
 /**
- * 模板渲染
+ * 템플릿 렌더링
  *
- * 根据请求类型（AJAX或普通请求）选择不同的模板文件
- * 输出最终的问题列表页面
+ * 요청 종류(AJAX 또는 일반 요청)에 따라 템플릿 파일을 고른다.
+ * 최종 문제 목록 페이지를 출력한다.
  */
 if (isset($_GET['ajax'])) {
     require("template/bs3/problemset.php");
@@ -287,9 +288,9 @@ if (isset($_GET['ajax'])) {
 }
 
 /**
- * 缓存结束处理
+ * 캐시 종료 처리
  *
- * 如果存在缓存结束文件则执行缓存处理
+ * 캐시 종료 파일이 있으면 캐시 처리를 실행한다.
  */
 if (file_exists('./include/cache_end.php'))
     require_once('./include/cache_end.php');

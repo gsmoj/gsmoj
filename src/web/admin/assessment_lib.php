@@ -50,21 +50,108 @@ function asm_group_members($group) {
     $r = pdo_query("select user_id from users where group_name=? and defunct='N'", $group);
     return empty($r) ? array() : array_map(function ($x) { return $x[0]; }, $r);
 }
-// 문제 번호 목록 문자열을 검사해 [유효한 번호들, 없는 번호들]을 돌려준다.
-function asm_parse_problems($text) {
-    $ok = array(); $missing = array();
-    foreach (preg_split('/[\s,]+/', trim($text)) as $p) {
-        if ($p === "") continue;
-        $pid = intval($p);
-        if ($pid <= 0 || in_array($pid, $ok)) continue;
-        $has = pdo_query("select count(*) from problem where problem_id=?", $pid);
-        if (!empty($has) && intval($has[0][0]) > 0) $ok[] = $pid; else $missing[] = $p;
-    }
-    return array($ok, $missing);
-}
 function asm_save_problems($id, $pids) {
     pdo_query("delete from assessment_problem where assessment_id=?", $id);
     foreach (array_values($pids) as $num => $pid) pdo_query("insert into assessment_problem(assessment_id,num,problem_id) values(?,?,?)", $id, $num, $pid);
+}
+// 수행평가 전용 문제는 problem.defunct='A'로 구분한다. 학생 화면은 defunct='N'만 보여 주므로 문제 목록에 나오지 않고,
+// 대회 경로(problem.php?cid=)는 defunct를 보지 않으므로 회차 안에서는 그대로 풀 수 있다.
+function asm_dedicated_ids($pids) {
+    $pids = array_filter(array_map("intval", $pids), function ($v) { return $v > 0; });
+    if (!$pids) return array();
+    $r = pdo_query("select problem_id from problem where defunct='A' and problem_id in (".implode(",", array_unique($pids)).")");
+    return empty($r) ? array() : array_map(function ($x) { return intval($x[0]); }, $r);
+}
+function asm_grant_problem($user, $pid) {
+    global $OJ_NAME;
+    $has = pdo_query("select count(*) from privilege where user_id=? and rightstr=?", $user, "p".$pid);
+    if (empty($has) || intval($has[0][0]) == 0) pdo_query("insert into privilege(user_id,rightstr) values(?,?)", $user, "p".$pid);
+    if ($user === asm_me()) $_SESSION[$OJ_NAME.'_'."p".$pid] = true;
+}
+// 새 문제를 전용 문제로 표시해 수행평가 끝에 붙인다. 관리자가 대신 추가해도 만든 교사가 관리할 수 있게 권한을 준다.
+function asm_attach_problem($a, $pid) {
+    $id = intval($a['assessment_id']);
+    pdo_query("update problem set defunct='A' where problem_id=?", $pid);
+    asm_grant_problem($a['owner'], $pid);
+    $pids = array_map(function ($r) { return intval($r['problem_id']); }, asm_problems($id));
+    $pids[] = intval($pid);
+    asm_save_problems($id, $pids);
+    return asm_sync_session_problems($id);
+}
+// 전용 문제가 속한 수행평가 번호. 수정·채점 데이터 화면에서 돌아갈 곳을 찾는 데 쓴다.
+function asm_of_problem($pid) {
+    $r = pdo_query("select ap.assessment_id from assessment_problem ap join problem p on p.problem_id=ap.problem_id where ap.problem_id=? and p.defunct='A' limit 1", $pid);
+    return empty($r) ? 0 : intval($r[0][0]);
+}
+// 문제를 뺄 수 없는 이유를 돌려준다. 뺄 수 있으면 빈 문자열.
+function asm_problem_lock($id, $p) {
+    $pid = intval($p['problem_id']);
+    $used = pdo_query("select count(*) from assessment_session s
+            join contest c on c.contest_id=s.contest_id
+            join contest_problem cp on cp.contest_id=s.contest_id and cp.problem_id=?
+        where s.assessment_id=? and c.start_time<=now()", $pid, $id);
+    if (!empty($used) && intval($used[0][0]) > 0) return "시작한 회차에 쓰인 문제";
+    if ($p['defunct'] === 'A') {
+        $n = pdo_query("select count(*) from solution where problem_id=?", $pid);
+        if (!empty($n) && intval($n[0][0]) > 0) return "제출이 있는 문제";
+    }
+    return "";
+}
+function asm_remove_dir($dir) {
+    if (!is_dir($dir) || is_link($dir)) return;
+    foreach (scandir($dir) as $name) {
+        if ($name === "." || $name === "..") continue;
+        $path = $dir."/".$name;
+        if (is_dir($path) && !is_link($path)) asm_remove_dir($path); else @unlink($path);
+    }
+    @rmdir($dir);
+}
+// 시작 전 회차에서 문제를 뺀다. 전용 문제는 문제 행과 채점 데이터까지 지우고, 기존 문제는 연결만 끊는다.
+function asm_remove_problem($a, $pid) {
+    global $OJ_DATA;
+    $id = intval($a['assessment_id']);
+    $pid = intval($pid);
+    $target = null;
+    $rest = array();
+    foreach (asm_problems($id) as $p) {
+        if (intval($p['problem_id']) === $pid) $target = $p; else $rest[] = intval($p['problem_id']);
+    }
+    if (!$target) return "문제를 찾을 수 없습니다.";
+    $lock = asm_problem_lock($id, $target);
+    if ($lock !== "") return $lock."는 삭제할 수 없습니다.";
+    asm_save_problems($id, $rest);
+    asm_sync_session_problems($id);
+    if ($target['defunct'] === 'A') {
+        pdo_query("delete from problem where problem_id=?", $pid);
+        pdo_query("delete from privilege where rightstr=?", "p".$pid);
+        if ($pid > 0 && strlen($OJ_DATA) > 8) asm_remove_dir(rtrim($OJ_DATA, "/")."/".$pid);
+    }
+    return "";
+}
+function asm_copy_dir($from, $to) {
+    if (!is_dir($from)) return true;   // 채점 데이터를 아직 넣지 않은 문제
+    if (!is_dir($to) && !@mkdir($to, 0775, true)) return false;
+    @chmod($to, fileperms($from) & 0777);
+    $ok = true;
+    foreach (scandir($from) as $name) {
+        if ($name === "." || $name === "..") continue;
+        $src = $from."/".$name;
+        $dst = $to."/".$name;
+        if (is_link($src)) continue;
+        if (is_dir($src)) $ok = asm_copy_dir($src, $dst) && $ok;
+        else if (@copy($src, $dst)) @chmod($dst, fileperms($src) & 0777);
+        else $ok = false;
+    }
+    return $ok;
+}
+// 문제 행과 채점 데이터를 복제해 전용 문제를 만든다. 제출 통계는 복제하지 않는다. [새 번호, 데이터 복사 성공 여부]를 돌려준다.
+function asm_clone_problem($pid, $owner) {
+    global $OJ_DATA;
+    $new = intval(pdo_query("insert into problem(title,description,input,output,sample_input,sample_output,spj,hint,source,in_date,time_limit,memory_limit,defunct,coin,remote_oj,remote_id)
+        select title,description,input,output,sample_input,sample_output,spj,hint,source,now(),time_limit,memory_limit,'A',coin,remote_oj,remote_id from problem where problem_id=?", $pid));
+    asm_grant_problem($owner, $new);
+    $data = rtrim($OJ_DATA, "/");
+    return array($new, asm_copy_dir($data."/".intval($pid), $data."/".$new));
 }
 // 아직 시작하지 않은 회차의 대회 문제를 수행평가 문제 목록과 맞춘다. 시작한 회차는 제출이 섞이므로 건드리지 않는다.
 function asm_sync_session_problems($id) {
