@@ -1,6 +1,9 @@
 <?php
 $cache_time = 90;
 $OJ_CACHE_SHARE = false;
+// 제출 소스를 HTML로 해석하지 않도록 평문으로 응답한다. 캐시 재생 경로도 포함하도록 cache_start 이전에 보낸다.
+header('Content-Type: text/plain; charset=UTF-8');
+header('X-Content-Type-Options: nosniff');
 require_once('./include/cache_start.php');
 require_once('./include/db_info.inc.php');
 require_once('./include/setlang.php');
@@ -9,6 +12,7 @@ $view_title = "Source Code";
 require_once("./include/const.inc.php");
 if (!isset($_GET['id'])) {
     $view_errors = "No such code!\n";
+    header('Content-Type: text/html; charset=UTF-8');
     require("template/" . $OJ_TEMPLATE . "/error.php");
     exit(0);
 }
