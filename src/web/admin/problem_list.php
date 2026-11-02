@@ -17,26 +17,15 @@ if(isset($OJ_LANG)){
 }
 ?>
 
-<title><?php echo $MSG_PROBLEM." ".$MSG_LIST?></title>
-<style>
-  .problem-list-toolbar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin: 0 0 18px; }
-  .problem-list-toolbar .admin-list-search { flex: 1 1 420px; margin: 0; }
-  .problem-list-toolbar .pagination { margin: 0; display: inline-flex; }
-  #pform .table th, #pform .table td { vertical-align: middle; text-align: center; white-space: nowrap; }
-  #pform .table th:nth-child(2), #pform .table td:nth-child(2) { min-width: 280px; text-align: left; }
-  .table-toolbar-row td { background: #f8fafc; }
-  .table-toolbar-row:hover td { background: #f8fafc !important; }
-  .table-toolbar-row .btn { display: inline-block; margin: 2px; white-space: nowrap; }
-  #pform .table { min-width: 1200px; }
-  #pform { display: block; max-width: none; margin: 0; }
-</style>
-<div class='padding admin-content-page'>
-<div class="admin-page-heading">
-  <div><h3><?php echo $MSG_PROBLEM." - ".$MSG_LIST?></h3><p><?php echo $MSG_HELP_PROBLEM_LIST?></p></div>
+<title>문제 목록</title>
+<script>document.body.classList.add('admin-form-page');</script>
+<div class='admin-form-shell pm-page'>
+<header class="admin-form-title">
+  <div><h3>문제 목록</h3><p><?php echo $MSG_HELP_PROBLEM_LIST?></p></div>
   <?php if (isset($_SESSION[$OJ_NAME.'_'.'administrator']) || isset($_SESSION[$OJ_NAME.'_'.'contest_creator']) || isset($_SESSION[$OJ_NAME.'_'.'problem_editor'])) { ?>
-  <a href="problem_add_page.php" class="btn btn-primary"><?php echo $MSG_PROBLEM." ".$MSG_ADD?></a>
+  <div class="pm-title-actions"><a href="problem_add_page.php" class="btn btn-primary"><?php echo $MSG_PROBLEM." ".$MSG_ADD?></a></div>
   <?php } ?>
-</div>
+</header>
 
 <?php
 $sql = "SELECT COUNT('problem_id') AS ids FROM `problem`";
@@ -71,92 +60,87 @@ if(isset($_GET['keyword']) && $_GET['keyword']!=""){
 }
 ?>
 
-<div class="problem-list-toolbar">
-<form action=problem_list.php class="form-search form-inline admin-list-search">
-  <input type="text" name=keyword value="<?php if(isset($_GET['keyword']))echo htmlentities($_GET['keyword'],ENT_QUOTES,"utf-8")?>" class="form-control search-query" placeholder="<?php echo $MSG_PROBLEM_ID.', '.$MSG_TITLE.', '.$MSG_Description.', '.$MSG_SOURCE?>">
-  <button type="submit" class="btn btn-primary"><?php echo $MSG_SEARCH?></button>
-</form>
-
 <?php
-if(!(isset($_GET['keyword']) && $_GET['keyword']!=""))
-{
-  echo "<div style='display:inline;'>";
-  echo "<nav class='center'>";
+$is_search = isset($_GET['keyword']) && $_GET['keyword']!="";
+// 쪽 이동 링크. 검색 결과는 한 번에 모두 보여 주므로 검색 중에는 표시하지 않는다.
+function pm_pagination($page, $spage, $epage, $pages, $extra_class = "") {
+  echo "<nav class='pm-pager $extra_class' aria-label='문제 목록 쪽 이동'>";
   echo "<ul class='pagination pagination-sm'>";
-  echo "<li class='page-item'><a href='problem_list.php?page=".(strval(1))."'>&lt;&lt;</a></li>";
-  echo "<li class='page-item'><a href='problem_list.php?page=".($page==1?strval(1):strval($page-1))."'>&lt;</a></li>";
+  echo "<li class='page-item'><a title='첫 쪽' href='problem_list.php?page=1'>&laquo;</a></li>";
+  echo "<li class='page-item'><a title='이전 쪽' href='problem_list.php?page=".($page==1?1:$page-1)."'>&lsaquo;</a></li>";
   for($i=$spage; $i<=$epage; $i++){
-    echo "<li class='".($page==$i?"active ":"")."page-item'><a title='go to page' href='problem_list.php?page=".$i."'>".$i."</a></li>";
+    echo "<li class='".($page==$i?"active ":"")."page-item'><a title='".$i."쪽으로 이동' href='problem_list.php?page=".$i."'>".$i."</a></li>";
   }
-  echo "<li class='page-item'><a href='problem_list.php?page=".($page==$pages?strval($page):strval($page+1))."'>&gt;</a></li>";
-  echo "<li class='page-item'><a href='problem_list.php?page=".(strval($pages))."'>&gt;&gt;</a></li>";
-  echo "</ul>";
-  echo "</nav>";
-  echo "</div>";
+  echo "<li class='page-item'><a title='다음 쪽' href='problem_list.php?page=".($page==$pages?$page:$page+1)."'>&rsaquo;</a></li>";
+  echo "<li class='page-item'><a title='마지막 쪽' href='problem_list.php?page=".$pages."'>&raquo;</a></li>";
+  echo "</ul></nav>";
 }
 ?>
-
+<div class="pm-toolbar">
+  <form action=problem_list.php class="pm-search" role="search">
+    <input type="text" name=keyword value="<?php if(isset($_GET['keyword']))echo htmlentities($_GET['keyword'],ENT_QUOTES,"utf-8")?>" class="form-control search-query" placeholder="<?php echo $MSG_PROBLEM_ID.', '.$MSG_TITLE.', '.$MSG_Description.', '.$MSG_SOURCE?>" aria-label="문제 검색">
+    <button type="submit" class="btn btn-primary"><?php echo $MSG_SEARCH?></button>
+    <?php if ($is_search) { ?><a class="pm-act" href="problem_list.php">검색 해제</a><?php } ?>
+  </form>
+  <span class="pm-count"><?php echo $is_search ? "검색 결과 <b>".count($result)."</b>개" : "전체 <b>".$ids."</b>문제 · ".$page." / ".max($pages,1)."쪽"?></span>
+  <?php if (!$is_search) pm_pagination($page, $spage, $epage, $pages); ?>
 </div>
 
 <?php
-/*
-echo "<select class='input-mini' onchange=\"location.href='problem_list.php?page='+this.value;\">";
-for ($i=1;$i<=$cnt;$i++){
-        if ($i>1) echo '&nbsp;';
-        if ($i==$page) echo "<option value='$i' selected>";
-        else  echo "<option value='$i'>";
-        echo $i+9;
-        echo "**</option>";
-}
-echo "</select>";
-*/
-?>
-
-<form id='pform' method=post action=contest_add.php>
-<input type="hidden" name=keyword value="<?php if(isset($_GET['keyword']))echo htmlentities($_GET['keyword'],ENT_QUOTES,"utf-8")?>">
-<input type="hidden" name=hlist value="" >
-<div class="admin-table-wrap">
-<table class="table" style="width:100%; text-align:center;">
-  <thead>
-    <tr>
-      <th style="width:60px"><?php echo $MSG_PROBLEM_ID?><input type=checkbox style='vertical-align:2px;' onchange='$("input[type=checkbox]").prop("checked", this.checked)'></th>
-      <th><?php echo $MSG_TITLE?></th>
-      <th><?php echo $MSG_AC?></th>
-      <th><?php echo $MSG_SAVED_DATE?></th>
-      <th><?php echo $MSG_SOURCE ?></th><!--분류-->
-      <?php
-      if(isset($_SESSION[$OJ_NAME.'_'.'administrator']) ||isset($_SESSION[$OJ_NAME.'_'.'problem_editor'])){
-        if(isset($_SESSION[$OJ_NAME.'_'.'administrator']) ||isset($_SESSION[$OJ_NAME.'_'.'problem_editor']))
-          echo "<th>$MSG_PROBLEM_STATUS</th>  <th>$MSG_COIN</th>  <th>$MSG_DELETE</th>";
-          echo "<th>$MSG_EDIT</th><th>$MSG_TESTDATA</th>";
-      }
-      ?>
-    </tr>
-  </thead>
-  <tbody>
-    <tr class="table-toolbar-row">
-        <td colspan=2 style="height:40px;"><?php echo "$MSG_CHECK_TO"?></td>
-      <td colspan=7>
+$pm_can_manage = isset($_SESSION[$OJ_NAME.'_'.'administrator']) || isset($_SESSION[$OJ_NAME.'_'.'problem_editor']);
+// 선택한 문제 일괄 작업 버튼. 표 위·아래에 같은 버튼을 둔다(기존 동작과 같음).
+function pm_bulkbar($with_ai, $extra_class = "") {
+  global $OJ_NAME, $MSG_CHECK_TO, $MSG_NEW_CONTEST, $MSG_AVAILABLE, $MSG_RESERVED, $MSG_NEW_PROBLEM_LIST;
+  ?>
+  <div class="pm-bulkbar <?php echo $extra_class?>">
+    <span class="pm-bulkbar-label"><?php echo $MSG_CHECK_TO?></span>
+    <div class="pm-bulkbar-actions">
       <input class="btn btn-default btn-sm" type=submit name='problem2contest' value='<?php echo $MSG_NEW_CONTEST?>'>
       <input class="btn btn-default btn-sm" type=submit name='enable' value='<?php echo $MSG_AVAILABLE ?>' onclick='$("form").attr("action","problem_df_change.php")'>
       <input class="btn btn-default btn-sm" type=submit name='disable' value='<?php echo $MSG_RESERVED ?>' onclick='$("form").attr("action","problem_df_change.php")'>
       <input class="btn btn-default btn-sm" type=submit name='plist' value='<?php echo $MSG_NEW_PROBLEM_LIST?>' onclick='$("form").attr("action","news_add_page.php")'>
-      <?php if (isset($_SESSION[$OJ_NAME."_administrator"])) { ?><span class='btn btn-primary btn-sm' onclick='$(".ai.label.label-primary").click();'>AI-category</span> <?php } ?>
-      </td>
+      <?php if ($with_ai && isset($_SESSION[$OJ_NAME."_administrator"])) { ?><span class='btn btn-primary btn-sm' onclick='$(".ai.label.label-primary").click();'>AI-category</span><?php } ?>
+    </div>
+  </div>
+  <?php
+}
+?>
+<form id='pform' class="pm-list-form" method=post action=contest_add.php>
+<input type="hidden" name=keyword value="<?php if(isset($_GET['keyword']))echo htmlentities($_GET['keyword'],ENT_QUOTES,"utf-8")?>">
+<input type="hidden" name=hlist value="" >
+<?php pm_bulkbar(true); ?>
+<div class="pm-table-wrap">
+<table class="table">
+  <thead>
+    <tr>
+      <th style="width:96px"><label class="pm-id" title="이 쪽의 문제 모두 선택"><input type=checkbox onchange='$("input[type=checkbox]").prop("checked", this.checked)'><?php echo $MSG_PROBLEM_ID?></label></th>
+      <th class="pm-col-title"><?php echo $MSG_TITLE?></th>
+      <th><?php echo $MSG_AC?></th>
+      <th><?php echo $MSG_SAVED_DATE?></th>
+      <th class="pm-col-title"><?php echo $MSG_SOURCE ?></th><!--분류-->
+      <?php if ($pm_can_manage) { ?>
+      <th><?php echo $MSG_PROBLEM_STATUS?></th>
+      <th><?php echo $MSG_COIN?></th>
+      <th>관리</th>
+      <?php } ?>
     </tr>
+  </thead>
+  <tbody>
     <?php
-
+    if (count($result) == 0) {
+      echo "<tr><td class='pm-empty' colspan='".($pm_can_manage ? 8 : 5)."'>".($is_search ? "검색 결과가 없습니다." : "등록된 문제가 없습니다.")."</td></tr>";
+    }
     foreach($result as $row){
 		$view = "";
         echo "<tr>";
-        echo "<td>".$row['problem_id']." <input type=checkbox style='vertical-align:2px;' name='pid[]' value='".$row['problem_id']."'></td>";
-        echo "<td><a href='../problem.php?id=".$row['problem_id']."'>".$row['title']."</a>";
-               if(!empty($row['remote_oj']))echo "&nbsp;<a href='".$row['source']."' target=_blank>  ".$row['remote_oj'].$row['remote_id']."</a>";   	
+        echo "<td><label class='pm-id'><input type=checkbox name='pid[]' value='".$row['problem_id']."'>".$row['problem_id']."</label></td>";
+        echo "<td class='pm-col-title'><a href='../problem.php?id=".$row['problem_id']."'>".$row['title']."</a>";
+               if(!empty($row['remote_oj']))echo "<a class='pm-remote' href='".$row['source']."' target=_blank>".$row['remote_oj'].$row['remote_id']."</a>";
         echo "</td>";
         echo "<td>".$row['accepted']."</td>";
-        echo "<td>".$row['in_date']."</td>";
-		echo "<td onDblClick='modify_source(".$row['problem_id'].")' style='cursor: pointer;' >";//분류
-		
+        echo "<td class='pm-date'>".$row['in_date']."</td>";
+		echo "<td class='pm-col-source' onDblClick='modify_source(".$row['problem_id'].")' style='cursor: pointer;' title='더블클릭하여 분류 수정'>";//분류
+
 		$category = array();
 	    $cate = explode(" ",$row['source']);
 	    foreach($cate as $cat){
@@ -174,47 +158,37 @@ echo "</select>";
 			$label_theme = $color_theme[$hash_num%count($color_theme)];
 
 			if ($label_theme=="") $label_theme = "default";
-			$view .= "<a title='".htmlentities($cat,ENT_QUOTES,'UTF-8')."' class='label label-$label_theme' style='display: inline-block;' href='problem_list.php?keyword=".htmlentities(urlencode($cat),ENT_QUOTES,'UTF-8')."'>".mb_substr($cat,0,10,'utf8')."</a>&nbsp;";
+			$view .= "<a title='".htmlentities($cat,ENT_QUOTES,'UTF-8')."' class='label label-$label_theme' style='display: inline-block;' href='problem_list.php?keyword=".htmlentities(urlencode($cat),ENT_QUOTES,'UTF-8')."'>".mb_substr($cat,0,10,'utf8')."</a>";
 		}
-		echo "<div id='source_".$row['problem_id']."' class=\"show_tag_controled\" style=\"float: right; \">";		
-    	echo $view;		
-	if(count(array_filter(array_map('trim', $cate))) < 3) echo "<span class='ai label label-primary' onclick=ai_gen(this,".$row['problem_id'].") > AI+ </span>";
+		echo "<div id='source_".$row['problem_id']."' class=\"show_tag_controled\">";
+    	echo $view;
+	if(count(array_filter(array_map('trim', $cate))) < 3) echo "<span class='ai label label-primary' title='AI로 분류 추천' onclick=ai_gen(this,".$row['problem_id'].") > AI+ </span>";
 		echo "</div></td>";
-		
-        if(isset($_SESSION[$OJ_NAME.'_'.'administrator'])||isset($_SESSION[$OJ_NAME.'_'.'problem_editor'])){
-          if(isset($_SESSION[$OJ_NAME.'_'.'administrator']) || isset($_SESSION[$OJ_NAME.'_'.'problem_editor'])){
+
+        if($pm_can_manage){
             echo "<td><a href=problem_df_change.php?id=".$row['problem_id']."&getkey=".htmlentities($_SESSION[$OJ_NAME.'_'.'getkey'], ENT_QUOTES, 'UTF-8').">".($row['defunct']=="N"?"<span title='눌러서 비공개로 전환' class='admin-badge admin-badge--on'>$MSG_AVAILABLE</span>":"<span class='admin-badge admin-badge--off' title='눌러서 공개로 전환'>$MSG_RESERVED</span>")."</a></td>";
-          echo "<td><span class='admin-inline-edit' title='더블클릭하여 수정' fd='coin' problem_id='" . $row['problem_id'] . "'>" . intval($row['coin']) . "</span></td>";
-		    if(isset($_SESSION[$OJ_NAME.'_'.'administrator']) || isset($_SESSION[$OJ_NAME.'_'."p".$row['problem_id']]) ){
-			    ?>
-			           <td>  <a href=# onclick='javascript:if(confirm(<?php echo json_encode($MSG_DELETE."[".htmlentities($row['title'],ENT_QUOTES,"UTF-8")."]?")?>)) 
-					     location.href="problem_del.php?id=<?php echo $row['problem_id']?>&getkey=<?php echo htmlentities($_SESSION[$OJ_NAME.'_'.'getkey'], ENT_QUOTES, 'UTF-8')?>"'>
-						<?php echo $MSG_DELETE ?>
-			              </a> </td>
-			        <?php
-		    }
-          }
-      if(isset($_SESSION[$OJ_NAME.'_'.'administrator']) || isset($_SESSION[$OJ_NAME.'_'."p".$row['problem_id']]) ){
-        echo "<td><a href=problem_edit.php?id=".$row['problem_id']."&getkey=".htmlentities($_SESSION[$OJ_NAME.'_'.'getkey'], ENT_QUOTES, 'UTF-8').">$MSG_EDIT</a></td>";
-        echo "<td><a href='javascript:phpfm(".$row['problem_id'].");'>$MSG_TEST_DATA</a></td>";
-      }
-    }
+            echo "<td><span class='admin-inline-edit' title='더블클릭하여 수정' fd='coin' problem_id='" . $row['problem_id'] . "'>" . intval($row['coin']) . "</span></td>";
+            // 수정·채점 데이터·삭제는 관리자 또는 이 문제의 작성자(pNNNN)만 할 수 있다.
+            echo "<td><div class='pm-actions'>";
+            if(isset($_SESSION[$OJ_NAME.'_'.'administrator']) || isset($_SESSION[$OJ_NAME.'_'."p".$row['problem_id']]) ){
+              echo "<a class='pm-act pm-act--primary' href=problem_edit.php?id=".$row['problem_id']."&getkey=".htmlentities($_SESSION[$OJ_NAME.'_'.'getkey'], ENT_QUOTES, 'UTF-8').">$MSG_EDIT</a>";
+              echo "<a class='pm-act' href='javascript:phpfm(".$row['problem_id'].");'>$MSG_TEST_DATA</a>";
+              ?>
+              <a class="pm-act pm-act--danger" href=# onclick='javascript:if(confirm(<?php echo json_encode($MSG_DELETE."[".htmlentities($row['title'],ENT_QUOTES,"UTF-8")."]?")?>))
+                 location.href="problem_del.php?id=<?php echo $row['problem_id']?>&getkey=<?php echo htmlentities($_SESSION[$OJ_NAME.'_'.'getkey'], ENT_QUOTES, 'UTF-8')?>"'><?php echo $MSG_DELETE ?></a>
+              <?php
+            }
+            echo "</div></td>";
+        }
     echo "</tr>";
   }
 ?>
-    <tr class="table-toolbar-row">
-      <td colspan=2 style="height:40px;"><?php echo "$MSG_CHECK_TO"?></td>
-      <td colspan=7>
-      <input class="btn btn-default btn-sm" type=submit name='problem2contest' value='<?php echo $MSG_NEW_CONTEST?>'>
-      <input class="btn btn-default btn-sm" type=submit name='enable' value='<?php echo $MSG_AVAILABLE ?>' onclick='$("form").attr("action","problem_df_change.php")'>
-      <input class="btn btn-default btn-sm" type=submit name='disable' value='<?php echo $MSG_RESERVED ?>' onclick='$("form").attr("action","problem_df_change.php")'>
-      <input class="btn btn-default btn-sm" type=submit name='plist' value='<?php echo $MSG_NEW_PROBLEM_LIST?>' onclick='$("form").attr("action","news_add_page.php")'>
-      </td>
-    </tr>
   </tbody>
 </table>
 </div>
+<?php pm_bulkbar(false, "pm-bulkbar--bottom"); ?>
 </form>
+<?php if (!$is_search) pm_pagination($page, $spage, $epage, $pages, "pm-pager--bottom"); ?>
 
 <script src='../template/bs3/jquery.min.js' ></script>
 
@@ -427,25 +401,4 @@ function modify_source(pid){
         });
 
 </script>
-</div>
-
-<?php
-if(!(isset($_GET['keyword']) && $_GET['keyword']!=""))
-{
-  echo "<div style='display:inline;'>";
-  echo "<nav class='center'>";
-  echo "<ul class='pagination pagination-sm'>";
-  echo "<li class='page-item'><a href='problem_list.php?page=".(strval(1))."'>&lt;&lt;</a></li>";
-  echo "<li class='page-item'><a href='problem_list.php?page=".($page==1?strval(1):strval($page-1))."'>&lt;</a></li>";
-  for($i=$spage; $i<=$epage; $i++){
-    echo "<li class='".($page==$i?"active ":"")."page-item'><a title='go to page' href='problem_list.php?page=".$i."'>".$i."</a></li>";
-  }
-  echo "<li class='page-item'><a href='problem_list.php?page=".($page==$pages?strval($page):strval($page+1))."'>&gt;</a></li>";
-  echo "<li class='page-item'><a href='problem_list.php?page=".(strval($pages))."'>&gt;&gt;</a></li>";
-  echo "</ul>";
-  echo "</nav>";
-  echo "</div>";
-}
-?>
-
 </div>
