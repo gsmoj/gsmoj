@@ -579,8 +579,9 @@
             <?php } ?>
             <div class="up-sub">
                 @<?php echo htmlspecialchars($user) ?>
-                <?php if ($group_name != "") { ?><span class="up-dot">·</span><?php echo $group_name?><?php } ?>
-                <?php if ($email != "") { ?><span class="up-dot">·</span><a href="mailto:<?php echo htmlspecialchars($email) ?>"><?php echo $email?></a><?php } ?>
+                <?php $show_private = $is_mine || isset($_SESSION[$OJ_NAME.'_'.'administrator']); ?>
+                <?php if ($show_private && $group_name != "") { ?><span class="up-dot">·</span><?php echo $group_name?><?php } ?>
+                <?php if ($show_private && $email != "") { ?><span class="up-dot">·</span><a href="mailto:<?php echo htmlspecialchars($email) ?>"><?php echo $email?></a><?php } ?>
             </div>
         </div>
         <div class="up-actions">
