@@ -56,7 +56,7 @@ if ($len > 100) {
 // 이메일은 DataGSM 계정 연동 기준이므로 사용자가 직접 바꿀 수 없다. 저장된 값을 그대로 유지한다.
 $stored_email = $row ? $row['email'] : '';
 if (isset($_POST['email']) && $email !== $stored_email) {
-    $err_str = $err_str . "이메일은 관리자만 변경할 수 있습니다.\\n";
+    $err_str = $err_str . "이메일은 바꿀 수 없습니다. 변경이 필요하면 관리자에게 문의하세요.\\n";
     $err_cnt++;
 }
 $email = $stored_email;
