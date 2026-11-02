@@ -18,8 +18,11 @@ if (isset($OJ_ON_SITE_CONTEST_ID)) {
 //NOIP赛制比赛时，本月之星，统计图不计入相关比赛提交
 $now = date('Y-m-d H:i', time());
 $noip_contests = "";
-$sql = "select contest_id from contest where start_time<'$now' and end_time>'$now' and ( title like '%$OJ_NOIP_KEYWORD%' or (contest_type & 20)>0 )  ";
-$rows = pdo_query($sql);
+// 진행 중인 수행평가(contest_type & 512)도 제외한다. 키워드가 비어 있으면 모든 대회와 일치하므로 제목 조건은 키워드가 있을 때만 붙인다.
+$noip_title_sql = (isset($OJ_NOIP_KEYWORD) && $OJ_NOIP_KEYWORD) ? "title like ? or " : "";
+$noip_params = $noip_title_sql ? array("%$OJ_NOIP_KEYWORD%") : array();
+$sql = "select contest_id from contest where start_time<'$now' and end_time>'$now' and ( $noip_title_sql(contest_type & (20|512))>0 )  ";
+$rows = pdo_query($sql, $noip_params);
 $NOIP_flag = 0;
 //  echo "->".$sql;
 if (!empty($rows)) {

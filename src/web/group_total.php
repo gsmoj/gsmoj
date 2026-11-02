@@ -78,13 +78,19 @@ if (!empty($bible)) {
 //NOIP赛制比赛时，移除相关题目
 
 $exceptions = array();
-if (isset($OJ_NOIP_KEYWORD) && $OJ_NOIP_KEYWORD && !isset($_SESSION[$OJ_NAME . "_administrator"])) {  // 管理员不受限
+$not_in_noip = "";
+if (!isset($_SESSION[$OJ_NAME . "_administrator"])) {  // 管理员不受限
+    // 진행 중인 수행평가(contest_type & 512)도 제외한다. 키워드가 비어 있으면 모든 대회와 일치하므로 제목 조건은 키워드가 있을 때만 붙인다.
+    $noip_title_sql = (isset($OJ_NOIP_KEYWORD) && $OJ_NOIP_KEYWORD) ? "c.title like ? or " : "";
+    $noip_params = $noip_title_sql ? array("%$OJ_NOIP_KEYWORD%") : array();
     $now = date('Y-m-d H:i', time());
-    $sql = "select contest_id from contest c where  c.start_time<'$now' and c.end_time>'$now' and ( c.title like '%$OJ_NOIP_KEYWORD%' or ( c.contest_type & 20 ) > 0 )";
-    $row = pdo_query($sql);
+    $sql = "select contest_id from contest c where  c.start_time<'$now' and c.end_time>'$now' and ( $noip_title_sql( c.contest_type & (20|512) ) > 0 )";
+    $row = pdo_query($sql, $noip_params);
     if (count($row) > 0) {
         $exceptions = array_column($row, 'contest_id');
         //      var_dump($exceptions);
+        // 템플릿의 제출 조회가 진행 중인 대회의 제출을 집계하지 않도록 조건을 만든다.
+        $not_in_noip = " and contest_id not in (" . implode(",", array_map('intval', $exceptions)) . ")";
     }
 }
 if (isset($_GET['group_name'])) $group_name = basename($_GET['group_name']);
