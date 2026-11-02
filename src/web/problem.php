@@ -27,7 +27,7 @@ if (isset($_GET['id'])) {
     $id = intval($_GET['id']);
     //require("oj-header.php");
 
-    $sql = "select c.contest_id,c.title from contest c inner join contest_problem cp on c.contest_id=cp.contest_id and cp.problem_id=?  WHERE ( c.`end_time`>'$now' and c.defunct='N' ) or c.`private`='1' ";
+    $sql = "select c.contest_id,c.title,c.contest_type from contest c inner join contest_problem cp on c.contest_id=cp.contest_id and cp.problem_id=?  WHERE ( c.`end_time`>'$now' and c.defunct='N' ) or c.`private`='1' ";
     $used_in_contests = pdo_query($sql, $id);
 
     if (isset($_SESSION[$OJ_NAME . '_' . 'administrator']) || isset($_SESSION[$OJ_NAME . '_' . 'problem_verifiter']) || isset($_SESSION[$OJ_NAME . '_' . 'contest_creator']) || isset($_SESSION[$OJ_NAME . '_' . 'problem_editor']))
@@ -123,7 +123,14 @@ if (count($result) != 1) {
         if (count($used_in_contests) > 0) {
 
             if (!(isset($OJ_EXAM_CONTEST_ID) || isset($OJ_ON_SITE_CONTEST_ID))) {
-                $view_errors .= "<hr><br>$MSG_PROBLEM_USED_IN:";
+                // 수행평가에 쓰인 문제는 대회가 아니라 수행평가로 안내한다.
+                $gs_used_assessment = 0;
+                foreach ($used_in_contests as $contests) {
+                    if ((intval($contests[2]) & 512) != 0) $gs_used_assessment++;
+                }
+                $gs_assessment_word = isset($MSG_ASSESSMENT) ? $MSG_ASSESSMENT : "수행평가";
+                $gs_used_label = $gs_used_assessment == 0 ? "" : ($gs_used_assessment == count($used_in_contests) ? $gs_assessment_word : $MSG_CONTEST . "·" . $gs_assessment_word);
+                $view_errors .= "<hr><br>" . ($gs_used_label == "" ? $MSG_PROBLEM_USED_IN : str_replace($MSG_CONTEST, $gs_used_label, $MSG_PROBLEM_USED_IN)) . ":";
                 foreach ($used_in_contests as $contests) {
                     $view_errors .= "<a class='label label-warning' href='contest.php?cid=" . $contests[0] . "'>" . $contests[1] . " </a><br>";
 

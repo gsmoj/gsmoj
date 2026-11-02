@@ -497,7 +497,7 @@
         $gs_active_group = 0;
         if ($gs_in_admin) {
             if ($gs_is_admin) {
-                $gs_running = mysql_query_cache("select count(*) from contest where defunct='N' and start_time<=now() and end_time>now()");
+                $gs_running = mysql_query_cache("select count(*) from contest where defunct='N' and start_time<=now() and end_time>now() and (contest_type & 512)=0");
                 $gs_waiting = mysql_query_cache("select count(*) from solution where problem_id>0 and result in (0,1,2,3)");
                 $gs_running = empty($gs_running) ? 0 : intval($gs_running[0][0]);
                 $gs_waiting = empty($gs_waiting) ? 0 : intval($gs_waiting[0][0]);
@@ -567,7 +567,7 @@
           ?>
             <a class="item <?php if ($url=="problemset.php" || $url=="problem.php" || $url=="category.php") echo "active";?>"
                 href="<?php echo $path_fix?>problemset.php"><?php echo $MSG_PROBLEMS?></a>
-            <a class="item <?php if ($url=="contest.php") echo "active";?>" href="<?php echo $path_fix?>contest.php<?php if(isset($_SESSION[$OJ_NAME."_user_id"])) echo "?my" ?>"><?php echo $MSG_CONTEST?></a>
+            <a class="item <?php if ($url=="contest.php") echo "active";?>" href="<?php echo $path_fix?>contest.php<?php if(isset($_SESSION[$OJ_NAME."_user_id"])) echo "?my" ?>"><?php echo $MSG_CONTEST_MENU?></a>
             <a class="item <?php if ($url=="assessment.php") echo "active";?>" href="<?php echo $path_fix?>assessment.php<?php if(isset($_SESSION[$OJ_NAME."_user_id"])) echo "?my" ?>"><?php echo isset($MSG_ASSESSMENT) ? $MSG_ASSESSMENT : "수행평가"?></a>
             <a class="item <?php if ($url=="status.php" || $url=="showsource.php") echo "active";?>" href="<?php echo $path_fix?>status.php"><?php echo $MSG_STATUS?></a>
             <a class="item <?php if ($url=="ranklist.php") echo "active";?>"
