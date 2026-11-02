@@ -117,16 +117,16 @@
         </section>
         <section class="problem-form-section">
           <?php echo "<h4>".$MSG_Description."(<64kB)</h4>"?>
-	  <textarea class="kindeditor" rows=33 name=description cols=80 placeholder="<?php echo problem_placeholder_attr($problem_form_placeholders['description'])?>" data-placeholder="<?php echo problem_placeholder_attr($problem_form_placeholders['description'])?>"></textarea><br>
+	  <textarea class="problem-md-editor" rows=33 name=description cols=80 placeholder="<?php echo problem_placeholder_attr($problem_form_placeholders['description'])?>" data-placeholder="<?php echo problem_placeholder_attr($problem_form_placeholders['description'])?>"></textarea><br>
         </section>
 	<div class="full">
         <section class="problem-form-section">
           <?php echo "<h4>".$MSG_Input."(<64kB)</h4>"?>
-          <textarea class="kindeditor" rows=13 name=input cols=80 placeholder="<?php echo problem_placeholder_attr($problem_form_placeholders['input'])?>" data-placeholder="<?php echo problem_placeholder_attr($problem_form_placeholders['input'])?>"></textarea><br>
+          <textarea class="problem-md-editor" rows=13 name=input cols=80 placeholder="<?php echo problem_placeholder_attr($problem_form_placeholders['input'])?>" data-placeholder="<?php echo problem_placeholder_attr($problem_form_placeholders['input'])?>"></textarea><br>
         </section>
         <section class="problem-form-section">
           <?php echo "<h4>".$MSG_Output."(<64kB)</h4>"?>
-          <textarea class="kindeditor" rows=13 name=output cols=80 placeholder="<?php echo problem_placeholder_attr($problem_form_placeholders['output'])?>" data-placeholder="<?php echo problem_placeholder_attr($problem_form_placeholders['output'])?>"></textarea><br>
+          <textarea class="problem-md-editor" rows=13 name=output cols=80 placeholder="<?php echo problem_placeholder_attr($problem_form_placeholders['output'])?>" data-placeholder="<?php echo problem_placeholder_attr($problem_form_placeholders['output'])?>"></textarea><br>
         </section>
         <section class="problem-form-section">
           <?php echo "<h4>".$MSG_Sample_Input."(<64kB)</h4>"?>
@@ -148,7 +148,7 @@
         </section>
         <section class="problem-form-section">
           <?php echo "<h4>".$MSG_HINT."(<64kB)</h4>"?>
-          <textarea class="kindeditor" rows=13 name=hint cols=80 placeholder="<?php echo problem_placeholder_attr($problem_form_placeholders['hint'])?>" data-placeholder="<?php echo problem_placeholder_attr($problem_form_placeholders['hint'])?>"></textarea><br>
+          <textarea class="problem-md-editor" rows=13 name=hint cols=80 placeholder="<?php echo problem_placeholder_attr($problem_form_placeholders['hint'])?>" data-placeholder="<?php echo problem_placeholder_attr($problem_form_placeholders['hint'])?>"></textarea><br>
         </section>
 	</div>
         <section class="problem-form-section">
@@ -223,7 +223,7 @@
       </section>
     </div>
   </template>
-<?php include_once("kindeditor.php"); ?>
+<?php include_once("problem_md_editor.php"); ?>
 <script src="../template/bs3/marked.min.js"></script>
 <script>
   function transform(){

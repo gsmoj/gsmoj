@@ -51,7 +51,7 @@ function problem_editor_content($content) {
 </head>
   <?php
 $page_heading = $MSG_PROBLEM." - 수정";
-include_once("kindeditor.php") ;
+include_once("problem_md_editor.php");
 ?>
 
 
@@ -100,16 +100,16 @@ include_once("kindeditor.php") ;
         </section>
         <section class="problem-form-section">
           <?php echo "<h4>".$MSG_Description."</h4>"?>
-          <textarea class="kindeditor" rows=33 name=description cols=80><?php echo htmlentities(problem_editor_content($row['description']),ENT_QUOTES,"UTF-8")?></textarea>
+          <textarea class="problem-md-editor" rows=33 name=description cols=80><?php echo htmlentities(problem_editor_content($row['description']),ENT_QUOTES,"UTF-8")?></textarea>
         </section>
 	<div class="full">
         <section class="problem-form-section">
           <?php echo "<h4>".$MSG_Input."</h4>"?>
-          <textarea class="kindeditor" rows=13 name=input cols=80><?php echo htmlentities(problem_editor_content($row['input']),ENT_QUOTES,"UTF-8")?></textarea>
+          <textarea class="problem-md-editor" rows=13 name=input cols=80><?php echo htmlentities(problem_editor_content($row['input']),ENT_QUOTES,"UTF-8")?></textarea>
         </section>
         <section class="problem-form-section">
           <?php echo "<h4>".$MSG_Output."</h4>"?>
-          <textarea  class="kindeditor" rows=13 name=output cols=80><?php echo htmlentities(problem_editor_content($row['output']),ENT_QUOTES,"UTF-8")?></textarea>
+          <textarea class="problem-md-editor" rows=13 name=output cols=80><?php echo htmlentities(problem_editor_content($row['output']),ENT_QUOTES,"UTF-8")?></textarea>
         </section>
         <section class="problem-form-section">
           <?php echo "<h4>".$MSG_Sample_Input."</h4>"?>
@@ -121,7 +121,7 @@ include_once("kindeditor.php") ;
         </section>
         <section class="problem-form-section">
           <?php echo "<h4>".$MSG_HINT."</h4>"?>
-          <textarea class="kindeditor" rows=13 name=hint cols=80><?php echo htmlentities(problem_editor_content($row['hint']),ENT_QUOTES,"UTF-8")?></textarea>
+          <textarea class="problem-md-editor" rows=13 name=hint cols=80><?php echo htmlentities(problem_editor_content($row['hint']),ENT_QUOTES,"UTF-8")?></textarea>
         </section>
 	</div>
         <section class="problem-form-section">
@@ -168,7 +168,7 @@ function untransform() {
   
     // 미리보기 동기화 이벤트 제거
     $("input").off('keyup', sync);
-    $("textarea").off('keyup', sync);
+    $("textarea").off('keyup input', sync);
 }
   function transform(){
 	let submitURL="../problem.php?id=<?php echo $pid ?>";
@@ -181,7 +181,8 @@ function untransform() {
         $("#submit").remove();
         setTimeout('hide()',1500);	
 	$("input").keyup(sync);
-	$("textarea").keyup(sync);
+	// 서식 버튼·붙여넣기는 keyup이 생기지 않으므로 input 이벤트로도 미리보기를 갱신한다.
+	$("textarea").on('keyup input', sync);
   }
   function hide(){
 	let preview=$("#previewFrame").contents();
