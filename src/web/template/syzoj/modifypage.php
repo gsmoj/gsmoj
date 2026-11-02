@@ -35,8 +35,9 @@
                     <input name="school" placeholder="<?php echo $MSG_SCHOOL?>" type="text" value="<?php echo htmlentities($row['school'],ENT_QUOTES,"UTF-8")?>">
                 </div>
                 <div class="field">
-                    <label for="email"><?php echo $MSG_EMAIL?>*</label>
-                    <input name="email" placeholder="<?php echo $MSG_EMAIL?>" type="text" value="<?php echo htmlentities($row['email'],ENT_QUOTES,"UTF-8")?>">
+                    <label for="email"><?php echo $MSG_EMAIL?></label>
+                    <input name="email" placeholder="<?php echo $MSG_EMAIL?>" type="text" value="<?php echo htmlentities($row['email'],ENT_QUOTES,"UTF-8")?>" readonly>
+                    <small>이메일은 관리자만 변경할 수 있습니다.</small>
                 </div>
                 <?php if($OJ_VCODE){?>
                   <div class="field">
