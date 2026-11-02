@@ -9,6 +9,22 @@ require_once ("../include/db_info.inc.php");
 require_once ("../include/my_func.inc.php");
 require_once ("../include/problem.php");
 require_once ("problem_markdown.inc.php");
+require_once ("assessment_lib.php");
+
+// 수행평가 화면에서 들어오면 그 수행평가의 전용 문제로 저장한다. 교사는 일반 문제를 만들 수 없다.
+$assessment = null;
+$assessment_id = isset($_POST['assessment']) ? intval($_POST['assessment']) : 0;
+if ($assessment_id > 0) {
+  $assessment = asm_get($assessment_id);
+  if (!$assessment || !asm_can_manage($assessment)) {
+    echo "<div class='alert alert-danger'>만든 사람과 관리자만 이 수행평가에 문제를 추가할 수 있습니다.</div>";
+    exit(1);
+  }
+  unset($_POST['contest_id']);
+} else if (!(isset($_SESSION[$OJ_NAME.'_'.'administrator']) || isset($_SESSION[$OJ_NAME.'_'.'contest_creator']) || isset($_SESSION[$OJ_NAME.'_'.'problem_editor']))) {
+  echo "<div class='alert alert-danger'>수행평가 화면의 \"문제 추가\"에서 만들 수 있습니다.</div>";
+  exit(1);
+}
 
 // contest_id
 $title = $_POST['title'];
@@ -116,7 +132,8 @@ if(isset($_POST['remote_oj'])){
 $sql = "INSERT INTO `privilege` (`user_id`,`rightstr`) VALUES(?,?)";
 pdo_query($sql, $_SESSION[$OJ_NAME.'_'.'user_id'], "p$pid");
 $_SESSION[$OJ_NAME.'_'."p$pid"] = true;
-  
+if ($assessment) asm_attach_problem($assessment, $pid);
+
 echo "&nbsp;&nbsp;- <a href='javascript:phpfm($pid);'>$MSG_ADD $MSG_DATA</a>";
 /*  */
 ?>
