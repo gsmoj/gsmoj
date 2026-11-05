@@ -1,7 +1,8 @@
 <?php require_once("admin-header.php");
 require_once("../include/check_get_key.php");
-// 비활성화된 사용자의 계정 정보(users, privilege)를 완전히 지운다.
-// 지운 뒤에는 같은 ID로 다시 가입하거나 추가할 수 있다. 제출 기록(solution 등)은 남겨 둔다.
+// 비활성화된 사용자의 계정 정보(users, privilege, datagsm_user)를 완전히 지운다.
+// 지운 뒤에는 같은 ID로 다시 가입하거나 추가할 수 있고, DataGSM 사용자는 다시 로그인하면 새 계정이 만들어진다.
+// 제출 기록(solution 등)은 남겨 둔다.
 if(!isset($_SESSION[$OJ_NAME.'_'.'administrator'])) exit();
 $user_id=isset($_GET['cid'])?$_GET['cid']:"";
 if($user_id=="" || $_SESSION[$OJ_NAME."_user_id"]==$user_id){
@@ -20,6 +21,8 @@ if($result[0]['defunct']!='Y'){
 }
 pdo_query("DELETE FROM `privilege` WHERE `user_id`=?",$user_id);
 pdo_query("DELETE FROM `users` WHERE `user_id`=? AND `defunct`='Y'",$user_id);
+// DataGSM 연결이 남으면 다음 DataGSM 로그인이 지워진 계정을 찾다가 실패하므로 함께 지운다.
+pdo_query("DELETE FROM `datagsm_user` WHERE `user_id`=?",$user_id);
 ?>
 <script language=javascript>
         location.href="user_list.php?trash";
