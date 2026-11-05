@@ -112,7 +112,7 @@ function s_cmp($A, $B)
 }
 
 // 获取竞赛ID
-if (!isset($_GET['cid'])) die("No Such Contest!");
+if (!isset($_GET['cid'])) die($MSG_NO_SUCH_CONTEST);
 $cid = intval($_GET['cid']);
 if (isset($OJ_NO_CONTEST_WATCHER) && $OJ_NO_CONTEST_WATCHER) require_once("contest-check.php");
 
@@ -150,7 +150,7 @@ if ($rows_cnt > 0) {
 
 }
 if ($start_time == 0) {
-    $view_errors = "No Such Contest";
+    $view_errors = $MSG_NO_SUCH_CONTEST;
     require("template/" . $OJ_TEMPLATE . "/error.php");
     exit(0);
 }
@@ -186,7 +186,7 @@ $lock = $end_time - ($end_time - $start_time) * $OJ_RANK_LOCK_PERCENT;
 $view_lock_time = $start_time + ($end_time - $start_time) * (1 - $OJ_RANK_LOCK_PERCENT);
 $locked_msg = "";
 if (time() > $view_lock_time && time() < $end_time + $OJ_RANK_LOCK_DELAY) {
-    $locked_msg = "The board has been locked.";
+    $locked_msg = $MSG_BOARD_LOCKED;
 }
 
 // 获取竞赛题目总数

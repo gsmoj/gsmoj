@@ -28,7 +28,7 @@
 <?php
 $rank=1;
 ?>
-<center><h3>Contest Team RankList -- <?php echo $title?></h3>
+<center><h3>팀 <?php echo $MSG_CONTEST_RANKLIST?> -- <?php echo $title?></h3>
 <!-- <a href="contestrank.xls.php?cid=<?php echo $cid?>" >Download</a> -->
 <?php
 if($OJ_MEMCACHE)
@@ -36,7 +36,7 @@ if($OJ_MEMCACHE)
     if (isset($_SESSION[$OJ_NAME.'_'.'administrator'])) {
         echo ' | <a href="contestrank3.php?cid='.$cid.'">순위 공개</a>';
     }
-    echo '<a href="contestrank2.php?cid='.$cid.'">Replay</a>';
+    echo '<a href="contestrank2.php?cid='.$cid.'">순위 다시 보기</a>';
 }
  ?>
 </center>
@@ -174,7 +174,7 @@ if (isNaN(ac)) ac=parseInt(acc.textContent);
 if(cell.innerHTML!="*"&&ac>0){
 var r=parseInt(cell.innerHTML);
 if(r==1){
-cell.innerHTML="Winner";
+cell.innerHTML="1위";
 //cell.style.cssText="background-color:gold;color:red";
 cell.className="badge btn-warning";
 }

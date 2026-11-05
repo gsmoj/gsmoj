@@ -130,7 +130,7 @@ function s_cmp($A, $B)
 
 // 获取比赛开始时间
 if (!isset($_GET['cid']))
-    die("No Such Contest!");
+    die($MSG_NO_SUCH_CONTEST);
 
 $cid = intval($_GET['cid']);
 
@@ -174,7 +174,7 @@ if ($rows_cnt > 0) {
 
 if (!$OJ_MEMCACHE)
     if ($start_time == 0) {
-        $view_errors = "No Such Contest";
+        $view_errors = $MSG_NO_SUCH_CONTEST;
         require("template/" . $OJ_TEMPLATE . "/error.php");
         exit(0);
     }
@@ -211,7 +211,7 @@ $view_lock_time = $start_time + ($end_time - $start_time) * (1 - $OJ_RANK_LOCK_P
 $locked_msg = "";
 
 if (time() > $view_lock_time && time() < $end_time + $OJ_RANK_LOCK_DELAY) {
-    $locked_msg = "The board has been locked.";
+    $locked_msg = $MSG_BOARD_LOCKED;
 }
 
 // 获取比赛题目数量

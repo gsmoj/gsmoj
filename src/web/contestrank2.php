@@ -86,7 +86,7 @@ function s_cmp($A, $B)
 }
 
 // contest start time
-if (!isset($_GET['cid'])) die("No Such Contest!");
+if (!isset($_GET['cid'])) die($MSG_NO_SUCH_CONTEST);
 $cid = intval($_GET['cid']);
 
 // 查询比赛基本信息
@@ -111,7 +111,7 @@ if ($rows_cnt > 0) {
 }
 if (!$OJ_MEMCACHE)
     if ($start_time == 0) {
-        $view_errors = "No Such Contest";
+        $view_errors = $MSG_NO_SUCH_CONTEST;
         require("template/" . $OJ_TEMPLATE . "/error.php");
         exit(0);
     }
