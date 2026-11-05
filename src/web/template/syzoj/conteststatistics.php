@@ -177,7 +177,7 @@
 								$sql = "SELECT `problem_id` FROM `contest_problem` WHERE (`contest_id`=? AND `num`=?)";
 								$tresult = pdo_query($sql, $cid, $i);
 
-								$tpid = $tresult[0][0];
+								$tpid = isset($tresult[0][0]) ? $tresult[0][0] : 0;  // 문제 번호가 없으면 0으로 두어 경고를 막는다.
 								$sql = "SELECT `problem_id` FROM `problem` WHERE `problem_id`=? AND `problem_id` IN (
 									SELECT `problem_id` FROM `contest_problem` WHERE `contest_id` IN (
 										SELECT `contest_id` FROM `contest` WHERE (`defunct`='N' AND now()<`end_time`)
@@ -195,7 +195,7 @@
 							 //	if (!isset($R[$i][$j]))
 							 //		$R[$i][$j]="";
 								if ($j<11 || isset($R[$pid_cnt][$j]) )	
-									echo "<td class='text-center'>".$R[$i][$j]."</td>";
+									echo "<td class='text-center'>".(isset($R[$i][$j]) ? $R[$i][$j] : "")."</td>";
 							}
 							echo "</tr>";
 						}
@@ -208,7 +208,7 @@
 							//		$R[$i][$j]="";
 										
 								if ($j<11 || isset($R[$pid_cnt][$j]) )	
-									echo "<td class='text-center'>".$R[$i][$j]."</td>";
+									echo "<td class='text-center'>".(isset($R[$i][$j]) ? $R[$i][$j] : "")."</td>";
 								
 							}
 						echo "</tr>";

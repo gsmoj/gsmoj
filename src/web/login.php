@@ -52,7 +52,8 @@ if ($OJ_LONG_LOGIN && isset($_COOKIE[$OJ_NAME . "_user"]) && isset($_COOKIE[$OJ_
 $vcode = "";
 if (!$use_cookie) {
     if (isset($_POST['vcode'])) $vcode = trim($_POST['vcode']);
-    if ($OJ_VCODE && ($vcode != $_SESSION[$OJ_NAME . '_' . "vcode"] || $vcode == "" || $vcode == null)) {
+    $session_vcode = isset($_SESSION[$OJ_NAME . '_' . "vcode"]) ? $_SESSION[$OJ_NAME . '_' . "vcode"] : null;
+    if ($OJ_VCODE && ($vcode != $session_vcode || $vcode == "" || $vcode == null)) {
         $_SESSION[$OJ_NAME . '_' . "vfail"] = true;
         echo "<script language='javascript'>\n";
         echo "alert('Verify Code Wrong!');\n";
@@ -62,8 +63,8 @@ if (!$use_cookie) {
     }
     $view_errors = "";
     require_once("./include/login-" . $OJ_LOGIN_MOD . ".php");
-    $user_id = $_POST['user_id'];
-    $password = $_POST['password_hash'];
+    $user_id = isset($_POST['user_id']) ? $_POST['user_id'] : "";
+    $password = isset($_POST['password_hash']) ? $_POST['password_hash'] : "";
     $fiveMinutesAgo = date('Y-m-d H:i:s', strtotime("-5 minutes"));
     
     // IP 변수가 안전하게 매핑되어 정상 작동합니다.
@@ -77,23 +78,43 @@ if (!$use_cookie) {
         exit(0);
     }
 
-    // 🔴 [핵심 보정 블록] 로그인 체크 직전, 미인증 계정('Y') 상태인지 사전에 걸러냅니다.
-    $check_defunct_res = pdo_query("SELECT `defunct`, `email` FROM `users` WHERE `user_id`=?", $user_id);
-    if ($check_defunct_res && count($check_defunct_res) == 1) {
+    // 🔴 [핵심 보정 블록] 로그인 체크 직전, 비활성 계정('Y') 상태인지 사전에 걸러냅니다.
+    // 이메일 미인증(activecode 있음), 계정 통합(user_merge.php가 남긴 loginlog), 관리자 중지·승인 대기를 구분해 안내한다.
+    $check_defunct_res = pdo_query("SELECT `defunct`, `email`, `activecode` FROM `users` WHERE `user_id`=?", $user_id);
+    if (is_array($check_defunct_res) && count($check_defunct_res) == 1) {
         if ($check_defunct_res[0]['defunct'] == 'Y') {
-            
-            // 실패 로그를 쌓고 이메일 미인증 전용 에러창 출력
-            $sql = "INSERT INTO `loginlog`(user_id,password,ip,time) VALUES(?,'login fail (unverified email)',?,NOW())";
-            pdo_query($sql, $user_id, $ip);
-
             $mark = 0; // 에러 템플릿의 색상을 결정하는 변수 (0: 빨간색 혹은 안내 설정에 맞춰 작동)
             $MSG_ERROR_INFO = "안내"; // 상단 타이틀 바 텍스트 보정
-            
-            $view_errors = "
+
+            if ($check_defunct_res[0]['activecode'] != '') {
+                // 실패 로그를 쌓고 이메일 미인증 전용 에러창 출력
+                $sql = "INSERT INTO `loginlog`(user_id,password,ip,time) VALUES(?,'login fail (unverified email)',?,NOW())";
+                pdo_query($sql, $user_id, $ip);
+
+                $view_errors = "
             <span style='font-size: 18px; font-weight: bold;'>🔒 이메일 인증이 완료되지 않았습니다.</span><br><br>
             회원가입 시 입력하신 이메일(<strong>" . htmlspecialchars($check_defunct_res[0]['email']) . "</strong>) 주소로 계정 활성화 링크가 발송되었습니다.<br>
             메일함 혹은 스팸함을 확인하시고 <strong>인증 링크를 클릭</strong>하셔야 로그인이 가능합니다.";
-            
+            } else {
+                // user_merge.php는 통합을 마치면 대상 계정 이름으로 'merged from 원본아이디' 로그를 남긴다.
+                $merged_res = pdo_query("SELECT 1 FROM `loginlog` WHERE `password`=? LIMIT 1", substr('merged from ' . $user_id, 0, 40));
+                if (is_array($merged_res) && count($merged_res) > 0) {
+                    $sql = "INSERT INTO `loginlog`(user_id,password,ip,time) VALUES(?,'login fail (merged account)',?,NOW())";
+                    pdo_query($sql, $user_id, $ip);
+                    $view_errors = "
+            <span style='font-size: 18px; font-weight: bold;'>🔒 다른 계정으로 통합된 계정입니다.</span><br><br>
+            이 아이디는 계정 통합으로 비활성화되어 더 이상 로그인할 수 없습니다.<br>
+            통합된 계정으로 로그인해 주세요. 어느 계정으로 통합되었는지 모르면 관리자에게 문의해 주세요.";
+                } else {
+                    $sql = "INSERT INTO `loginlog`(user_id,password,ip,time) VALUES(?,'login fail (disabled)',?,NOW())";
+                    pdo_query($sql, $user_id, $ip);
+                    $view_errors = "
+            <span style='font-size: 18px; font-weight: bold;'>🔒 사용할 수 없는 계정입니다.</span><br><br>
+            관리자가 이 계정의 사용을 중지했거나 가입 승인을 기다리는 중입니다.<br>
+            로그인이 필요하면 관리자에게 문의해 주세요.";
+                }
+            }
+
             require("template/" . $OJ_TEMPLATE . "/error.php");
             exit(0);
         }
@@ -102,6 +123,9 @@ if (!$use_cookie) {
     // 기존 로그인 인증 처리 함수 호출
     $login = check_login($user_id, $password);
 }
+
+if (!isset($user_id)) $user_id = isset($C_user) ? $C_user : "";  // 쿠키 로그인 실패 시 로그에 남길 아이디
+if (!isset($view_errors)) $view_errors = "";
 
 if ($login) {
     login_complete($login, $ip);

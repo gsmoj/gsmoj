@@ -19,6 +19,7 @@
                 <div class="field">
                     <label class="ui header"><?php echo $MSG_PASSWORD?>*</label>
                       <input name="opassword" placeholder="<?php echo $MSG_Input.$MSG_PASSWORD?>" type="password">
+                      <?php if (!empty($datagsm_linked)) { ?><small>DataGSM으로 로그인하는 계정은 비밀번호를 바꾸지 않을 때 비워 두고 저장할 수 있습니다.</small><?php } ?>
                     </div>
                 <div class="two fields">
                     <div class="field">

@@ -636,6 +636,8 @@
                 <?php if($gs_logged_in) {
                         $gs_user_id = $_SESSION[$OJ_NAME.'_'.'user_id'];
                         $gs_user_name = !empty($_SESSION[$OJ_NAME.'_nick']) ? $_SESSION[$OJ_NAME.'_nick'] : $gs_user_id;
+                        // 닉네임은 이스케이프된 채 저장되므로 한 번 풀어 두고, 출력할 때 한 번만 이스케이프한다.
+                        $gs_user_name = html_entity_decode($gs_user_name, ENT_QUOTES, 'UTF-8');
                 ?>
                 <?php if($gs_mail_html){ ?>
                 <a class="gs-bell" href="<?php echo $path_fix?>mail.php" aria-label="<?php echo htmlentities($MSG_MAIL, ENT_QUOTES, 'UTF-8');?>" title="<?php echo htmlentities($MSG_MAIL, ENT_QUOTES, 'UTF-8');?>">
