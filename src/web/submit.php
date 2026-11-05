@@ -260,9 +260,9 @@ if ($test_run) {
     $id = 0;
 }
 
-if ($language != 23) $len = strlen($source); else $len = $_FILES['answer']['size'];
+if ($language != 23) $len = strlen($source); else $len = isset($_FILES['answer']['size']) ? $_FILES['answer']['size'] : 0;  // 파일 없이 보내면 너무 짧은 제출로 처리한다.
 if ($len < 2) {
-    $view_errors = $MSG_TOO_SHORT . $tempfile . "<br>";
+    $view_errors = $MSG_TOO_SHORT . (isset($tempfile) ? $tempfile : "") . "<br>";
     require "template/" . $OJ_TEMPLATE . "/error.php";
     exit(0);
 }

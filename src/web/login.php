@@ -52,7 +52,8 @@ if ($OJ_LONG_LOGIN && isset($_COOKIE[$OJ_NAME . "_user"]) && isset($_COOKIE[$OJ_
 $vcode = "";
 if (!$use_cookie) {
     if (isset($_POST['vcode'])) $vcode = trim($_POST['vcode']);
-    if ($OJ_VCODE && ($vcode != $_SESSION[$OJ_NAME . '_' . "vcode"] || $vcode == "" || $vcode == null)) {
+    $session_vcode = isset($_SESSION[$OJ_NAME . '_' . "vcode"]) ? $_SESSION[$OJ_NAME . '_' . "vcode"] : null;
+    if ($OJ_VCODE && ($vcode != $session_vcode || $vcode == "" || $vcode == null)) {
         $_SESSION[$OJ_NAME . '_' . "vfail"] = true;
         echo "<script language='javascript'>\n";
         echo "alert('Verify Code Wrong!');\n";
@@ -62,8 +63,8 @@ if (!$use_cookie) {
     }
     $view_errors = "";
     require_once("./include/login-" . $OJ_LOGIN_MOD . ".php");
-    $user_id = $_POST['user_id'];
-    $password = $_POST['password_hash'];
+    $user_id = isset($_POST['user_id']) ? $_POST['user_id'] : "";
+    $password = isset($_POST['password_hash']) ? $_POST['password_hash'] : "";
     $fiveMinutesAgo = date('Y-m-d H:i:s', strtotime("-5 minutes"));
     
     // IP 변수가 안전하게 매핑되어 정상 작동합니다.
@@ -102,6 +103,9 @@ if (!$use_cookie) {
     // 기존 로그인 인증 처리 함수 호출
     $login = check_login($user_id, $password);
 }
+
+if (!isset($user_id)) $user_id = isset($C_user) ? $C_user : "";  // 쿠키 로그인 실패 시 로그에 남길 아이디
+if (!isset($view_errors)) $view_errors = "";
 
 if ($login) {
     login_complete($login, $ip);

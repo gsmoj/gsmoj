@@ -32,7 +32,7 @@ $ids = intval($row['ids']);
 $idsperpage = 25;
 $pages = intval(ceil($ids/$idsperpage));
 if(isset($_GET['page'])){ 
-  $page = intval($_GET['page']);
+  $page = max(1, intval($_GET['page']));  // 0이나 음수 페이지는 LIMIT 오류가 나므로 1로 맞춘다.
 }else{ 
   $page = 1;
 }

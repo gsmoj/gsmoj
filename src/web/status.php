@@ -63,9 +63,9 @@ if (isset($_GET['cid'])) {
         // 실시간 소스 열람 차단(NOIP 모드) 시 예외 처리 화면 표출 후 스크립트 종료
         if ($noip) {
             $view_errors = "<h2> $MSG_NOIP_WARNING <a href=\"contest.php?cid=$cid\">$MSG_RETURN_CONTEST</a></h2>";
-            $refererUrl = parse_url($_SERVER['HTTP_REFERER']);
-            $top = intval($_GET['top']);
-            if ($refererUrl['path'] == "/submitpage.php") {
+            $refererUrl = parse_url(isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : "");
+            $top = isset($_GET['top']) ? intval($_GET['top']) : 0;
+            if (isset($refererUrl['path']) && $refererUrl['path'] == "/submitpage.php") {
                 $view_errors = "<h2>$MSG_SUBMIT $MSG_SUCCESS! $top </h2><a href=\"contest.php?cid=$cid\">$MSG_RETURN_CONTEST</a></h2>";
             }
             require("template/" . $OJ_TEMPLATE . "/error.php");
@@ -398,7 +398,7 @@ for ($i = 0; $i < $rows_cnt; $i++) {
         $view_status[$i][3] .= "<a href=reinfo.php?sid=" . $row['solution_id'] . " class='" . $judge_color[$row['result']] . "' title='$MSG_Tips'>" . $judge_result[$row['result']] . $mark . "</a>";
     } else {
         // 대회 종료 전 얼려진(Lock) 시점이거나 타인의 코드인 경우 마스킹('----') 처리 분기
-        if (!$lock || $lock_time > $row['in_date'] || $row['user_id'] == $_SESSION[$OJ_NAME . '_' . 'user_id']) {
+        if (!$lock || $lock_time > $row['in_date'] || (isset($_SESSION[$OJ_NAME . '_' . 'user_id']) && $row['user_id'] == $_SESSION[$OJ_NAME . '_' . 'user_id'])) {
             // 소스코드 표절(SIM) 수치가 기준치를 넘었을 때의 경고 마크 주입 부
             if ($OJ_SIM && isset($row['sim']) && $row['sim'] > 80 && $row['sim_s_id'] != $row['s_id']) {
                 $view_status[$i][3] .= "<a href=reinfo.php?sid=" . $row['solution_id'] . " class='" . $judge_color[$row['result']] . "' title='$MSG_Tips'>*" . $judge_result[$row['result']];

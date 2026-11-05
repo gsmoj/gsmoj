@@ -109,7 +109,8 @@ $insert_result = pdo_query(
     $active_code
 );
 
-if ($insert_result === false || (is_array($insert_result) && count($insert_result) === 0)) {
+// pdo_query는 SQL 오류가 나면 -1을 돌려주므로 함께 실패로 본다.
+if ($insert_result === false || $insert_result === -1 || (is_array($insert_result) && count($insert_result) === 0)) {
     if ($needs_email_confirmation) pdo_query('ROLLBACK');
     echo '<h2>[DB 에러] 유저 생성(INSERT) 쿼리가 반영되지 않았습니다.</h2>';
     echo '아이디: ' . htmlspecialchars($user_id, ENT_QUOTES, 'UTF-8') . '<br>';

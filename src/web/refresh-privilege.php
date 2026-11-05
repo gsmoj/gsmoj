@@ -3,7 +3,7 @@ require_once("./include/db_info.inc.php");
 require_once('./include/setlang.php');
 
 // 当前user_id
-$user_id = $_SESSION[$OJ_NAME . '_' . 'user_id'];
+$user_id = isset($_SESSION[$OJ_NAME . '_' . 'user_id']) ? $_SESSION[$OJ_NAME . '_' . 'user_id'] : "";
 
 if (!empty($user_id)) {
     // 已登录的
