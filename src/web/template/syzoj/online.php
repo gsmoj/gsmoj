@@ -11,18 +11,15 @@
       <button class="ui mini button" type="submit"><?php echo $MSG_SEARCH ?></button>
     </div>
   </form>
-	<?php
-		}
-	?>
 
 	    <table class="ui very basic center aligned table" style="table-layout: fixed; ">
 	        <thead>
 	        <tr>
-			<th>ip</th>
-			<th>uri</th>
-			<th>refer</th>
-			<th>stay time</th>
-			<th>UA</th>
+			<th>IP</th>
+			<th>접속 주소</th>
+			<th>이전 페이지</th>
+			<th>접속 시간</th>
+			<th>브라우저 정보</th>
 	        </tr>
 	        </thead>
 	        <tbody>
@@ -56,9 +53,9 @@
 	        <thead>
 	        <tr>
          		<th><?php echo $MSG_USER ?></th>
-			<th>Password</th>
+			<th>로그인 결과</th>
 			<th>IP</th>
-			<th>Time</th>
+			<th><?php echo $MSG_TIME ?></th>
 	        </tr>
 	        </thead>
 	        <tbody>
@@ -82,6 +79,15 @@
 
 	        </tbody>
 	    </table>
+	<?php
+		} else {
+			// 관리자가 아니면 IP·접속 주소·로그인 기록 없이 접속자 수만 보여 준다.
+			$online_count = count(array_filter($users));
+	?>
+	    <p><?php echo $MSG_HELP_ONLINE ?>: <?php echo $online_count ?>명</p>
+	<?php
+		}
+	?>
 
 
 </div>
