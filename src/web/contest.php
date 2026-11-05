@@ -122,9 +122,9 @@ if (isset($_GET['cid'])) {
 
         /**
          * NOIP 또는 숨김 설정에 따라 정답 수와 제출 수 표시 여부를 정한다.
-         * 관리자는 제한을 받지 않는다.
+         * 관리자와 회차 관리 교사(mNNNN)는 제한을 받지 않는다.
          */
-        if (($noip || $hide_others) && !(isset($_SESSION[$OJ_NAME . 'm' . $cid]) || isset($_SESSION[$OJ_NAME . '_administrator']))) {
+        if (($noip || $hide_others) && !(isset($_SESSION[$OJ_NAME . '_' . 'm' . $cid]) || isset($_SESSION[$OJ_NAME . '_administrator']))) {
             $view_problemset[$cnt][3] = "<span class=red>?</span>";
             $view_problemset[$cnt][4] = "<span class=red>?</span>";
         } else {
