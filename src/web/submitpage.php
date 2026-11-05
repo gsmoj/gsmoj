@@ -59,7 +59,7 @@ if (isset($_GET['id'])) {
             $sql = "SELECT `problem_id` FROM `problem` WHERE `problem_id`=? AND `defunct`='N' AND NOT EXISTS (
             SELECT 1 FROM `contest_problem` cp
             INNER JOIN `contest` c ON cp.contest_id=c.contest_id
-            WHERE cp.problem_id=? AND (c.end_time>? AND c.defunct='N' OR c.private='1')
+            WHERE cp.problem_id=? AND (c.end_time>? AND c.defunct='N' OR c.private='1' AND NOT EXISTS (SELECT 1 FROM `assessment_session` gs INNER JOIN `assessment` ga ON ga.assessment_id=gs.assessment_id WHERE gs.contest_id=c.contest_id AND ga.published_at IS NOT NULL))
         )";
             $gs_practice = pdo_query($sql, $id, $id, $gs_now);
         }

@@ -91,14 +91,16 @@ function pm_pagination($page, $spage, $epage, $pages, $extra_class = "") {
 $pm_can_manage = isset($_SESSION[$OJ_NAME.'_'.'administrator']) || isset($_SESSION[$OJ_NAME.'_'.'problem_editor']);
 // 선택한 문제 일괄 작업 버튼. 표 위·아래에 같은 버튼을 둔다(기존 동작과 같음).
 function pm_bulkbar($with_ai, $extra_class = "") {
-  global $OJ_NAME, $MSG_CHECK_TO, $MSG_NEW_CONTEST, $MSG_AVAILABLE, $MSG_RESERVED, $MSG_NEW_PROBLEM_LIST;
+  global $OJ_NAME, $MSG_CHECK_TO, $MSG_NEW_CONTEST, $MSG_AVAILABLE, $MSG_RESERVED, $MSG_NEW_PROBLEM_LIST, $pm_can_manage;
   ?>
   <div class="pm-bulkbar <?php echo $extra_class?>">
     <span class="pm-bulkbar-label"><?php echo $MSG_CHECK_TO?></span>
     <div class="pm-bulkbar-actions">
       <input class="btn btn-default btn-sm" type=submit name='problem2contest' value='<?php echo $MSG_NEW_CONTEST?>'>
+      <?php if ($pm_can_manage) { // problem_df_change.php는 관리자와 problem_editor만 허용하므로 공개/비공개 일괄 버튼도 그 권한에만 보인다. ?>
       <input class="btn btn-default btn-sm" type=submit name='enable' value='<?php echo $MSG_AVAILABLE ?>' onclick='$("form").attr("action","problem_df_change.php")'>
       <input class="btn btn-default btn-sm" type=submit name='disable' value='<?php echo $MSG_RESERVED ?>' onclick='$("form").attr("action","problem_df_change.php")'>
+      <?php } ?>
       <input class="btn btn-default btn-sm" type=submit name='plist' value='<?php echo $MSG_NEW_PROBLEM_LIST?>' onclick='$("form").attr("action","news_add_page.php")'>
       <?php if ($with_ai && isset($_SESSION[$OJ_NAME."_administrator"])) { ?><span class='btn btn-primary btn-sm' onclick='$(".ai.label.label-primary").click();'>AI-category</span><?php } ?>
     </div>

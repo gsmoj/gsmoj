@@ -37,7 +37,7 @@ $MON_WAITING = array(0, 1, 2, 3, 15, 16, 17);
 $MON_STUCK_WARN = 60;     // 이 시간(초) 넘게 기다리면 경고
 $MON_STUCK_DANGER = 180;  // 이 시간(초) 넘게 기다리면 위험
 
-// 시각 기준: 웹의 DB 연결은 init.php에서 time_zone을 PHP 시간대(+8:00)로 맞춘다.
+// 시각 기준: 웹의 DB 연결은 init.php에서 time_zone을 PHP 시간대(Asia/Seoul, +9:00)로 맞춘다.
 // in_date(DATETIME)·loginlog·NOW()는 이 기준으로 기록되고, judgetime(TIMESTAMP)은 UTC로 저장되지만
 // 읽을 때 연결 시간대로 바뀌므로 웹 연결 안에서는 모두 같은 기준으로 바로 비교할 수 있다.
 function mon_now() {

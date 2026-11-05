@@ -96,7 +96,8 @@ if(isset($_GET['keyword']) && $_GET['keyword']!=""){
         echo "<td><a href=contest_df_change.php?cid=".$row['contest_id']."&getkey=".htmlentities($_SESSION[$OJ_NAME.'_'.'getkey'], ENT_QUOTES, 'UTF-8').">".($row['defunct']=="N"?"<span class=green>$MSG_AVAILABLE </span>":"<span class=red>$MSG_RESERVED </span>")."</a></td>";
         echo "<td><a href=contest_edit.php?cid=".$row['contest_id'].">$MSG_EDIT</a></td>";
         echo "<td><a href=contest_add.php?cid=".$row['contest_id'].">$MSG_COPY</a></td>";
-        if(isset($_SESSION[$OJ_NAME.'_'.'administrator']) || isset($_SESSION[$OJ_NAME.'_'.'contest_creator'])){
+        // problem_export_xml.php는 채점 데이터까지 내보내므로 관리자와 problem_importer만 허용한다. 버튼도 같은 권한에만 보인다.
+        if(isset($_SESSION[$OJ_NAME.'_'.'administrator']) || isset($_SESSION[$OJ_NAME.'_'.'problem_importer'])){
           echo "<td><a href=\"problem_export_xml.php?cid=".$row['contest_id']."&getkey=".htmlentities($_SESSION[$OJ_NAME.'_'.'getkey'], ENT_QUOTES, 'UTF-8')."\">$MSG_EXPORT</a></td>";
         }else{
           echo "<td></td>";

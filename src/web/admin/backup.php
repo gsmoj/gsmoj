@@ -52,7 +52,11 @@ if (!$bak->backup()) {
  */
 function addDirToZip($path, $zip) {
     global $OJ_DATA;
-    if ($path == "data/0") return;
+    // 재귀 호출은 절대경로를 넘기므로 "data/0" 문자열 비교로는 걸러지지 않는다.
+    // 실제 경로로 비교해 이전 백업(zip·sql)이 쌓인 data/0을 확실히 제외한다.
+    $real = realpath($path);
+    $backup_dir = realpath($OJ_DATA."/0");
+    if ($real === false || ($backup_dir !== false && $real === $backup_dir)) return;
     $handler = opendir($path);
     if(!$handler) return;
 

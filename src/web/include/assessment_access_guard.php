@@ -7,6 +7,12 @@ require_once(dirname(__FILE__)."/my_func.inc.php");
 $gs_access_cid = isset($_GET['cid']) ? abs(intval($_GET['cid'])) : 0;
 $gs_access_row = $gs_access_cid > 0 ? pdo_query("SELECT contest_type, user_id FROM contest WHERE contest_id=?", $gs_access_cid) : array();
 if (!empty($gs_access_row) && (intval($gs_access_row[0]['contest_type']) & 512) != 0) {
+	// 관리자와 회차 관리자(교사, mNNNN)는 미리 보기만 하므로 참가 세션(cNNNN)을 넣지 않는다. 참가자·순위에 섞이지 않게 한다.
+	if (isset($_SESSION[$OJ_NAME.'_'.'administrator'])) return;
+	if (isset($_SESSION[$OJ_NAME.'_'.'m'.$gs_access_cid])) {
+		unset($_SESSION[$OJ_NAME.'_'.'c'.$gs_access_cid]);
+		return;
+	}
 	if (can_access_assessment($gs_access_cid, $gs_access_row[0]['user_id'])) {
 		$_SESSION[$OJ_NAME.'_'.'c'.$gs_access_cid] = true;
 		return;
