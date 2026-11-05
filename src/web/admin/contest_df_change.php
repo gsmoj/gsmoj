@@ -7,8 +7,7 @@ $result=pdo_query($sql,$cid);
 $num=count($result);
 if ($num<1){
 	
-	echo "No Such Contest!";
-	require_once("../oj-footer.php");
+	echo "대회가 없습니다.";
 	exit(0);
 }
 $row=$result[0];
