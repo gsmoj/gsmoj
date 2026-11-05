@@ -15,9 +15,13 @@ if (isset($OJ_ON_SITE_CONTEST_ID)) {
 ///////////////////////////MAIN	
 //NOIP赛制比赛时，移除相关题目
 $exceptions = array();
-if (isset($OJ_NOIP_KEYWORD) && $OJ_NOIP_KEYWORD && !isset($_SESSION[$OJ_NAME . "_administrator"])) {  // 管理员不受限
+// 진행 중인 수행평가(contest_type 9번 비트, 512)는 NOIP 키워드 설정과 관계없이 제외한다.
+if (!isset($_SESSION[$OJ_NAME . "_administrator"])) {  // 管理员不受限
     $now = date('Y-m-d H:i', time());
-    $sql = "select contest_id from contest c where  c.start_time<'$now' and c.end_time>'$now' and (c.title like '%$OJ_NOIP_KEYWORD%' or (c.contest_type & 20 )> 0 )";
+    if (isset($OJ_NOIP_KEYWORD) && $OJ_NOIP_KEYWORD)
+        $sql = "select contest_id from contest c where  c.start_time<'$now' and c.end_time>'$now' and (c.title like '%$OJ_NOIP_KEYWORD%' or (c.contest_type & (20|512) )> 0 )";
+    else
+        $sql = "select contest_id from contest c where  c.start_time<'$now' and c.end_time>'$now' and (c.contest_type & 512) > 0";
     $row = pdo_query($sql);
     if (count($row) > 0) {
         $exceptions = array_column($row, 'contest_id');

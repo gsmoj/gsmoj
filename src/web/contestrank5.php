@@ -122,6 +122,10 @@ $result = mysql_query_cache("select num,problem_id from contest_problem where co
 foreach ($result as $row) {
     $pida[$row['num']] = $row['problem_id'];
 }
+// 다른 수행평가(contest_type 9번 비트, 512)에서 낸 제출은 결과가 드러나지 않도록 집계에서 뺀다. 이 회차(cid)의 제출은 그대로 둔다.
+// 문제가 없으면 0을 넣어 빈 in () 문법 오류를 막는다.
+$gs_pids = empty($pida) ? "0" : implode(",", $pida);
+$gs_not_assessment = " and not exists (select 1 from contest gc where gc.contest_id=solution.contest_id and (gc.contest_type & 512)<>0 and gc.contest_id<>$cid)";
 
 // 获取竞赛基本信息
 $sql = "SELECT `start_time`,`title`,`end_time` FROM `contest` WHERE `contest_id`=?";
@@ -204,7 +208,7 @@ if (!isset($OJ_RANK_HIDDEN)) $OJ_RANK_HIDDEN = "'admin','zhblue'";
 $sql = "SELECT
         user_id,nick,solution.result,solution.num,solution.in_date,solution.pass_rate,solution.problem_id
                 FROM
-                   solution where unix_timestamp(in_date)>=" . $start_time . " and  problem_id in (" . implode(",", $pida) . ")  and user_id not in ( $OJ_RANK_HIDDEN )
+                   solution where unix_timestamp(in_date)>=" . $start_time . " and  problem_id in (" . $gs_pids . ")  and user_id not in ( $OJ_RANK_HIDDEN )$gs_not_assessment
         ORDER BY user_id,solution_id";
 
 $result = mysql_query_cache($sql);
@@ -248,7 +252,7 @@ for ($i = 0; $i < $pid_cnt; $i++) {
 }
 
 $sql = "select s.problem_id,s.user_id from solution s ,
-(select problem_id,min(solution_id) minId from solution where  unix_timestamp(in_date)>=" . $start_time . " and  problem_id in (" . implode(",", $pida) . ")  and user_id not in ( $OJ_RANK_HIDDEN ) and result=4 GROUP BY problem_id ) c where s.solution_id = c.minId";
+(select problem_id,min(solution_id) minId from solution where  unix_timestamp(in_date)>=" . $start_time . " and  problem_id in (" . $gs_pids . ")  and user_id not in ( $OJ_RANK_HIDDEN )$gs_not_assessment and result=4 GROUP BY problem_id ) c where s.solution_id = c.minId";
 $fb = mysql_query_cache($sql);
 if ($fb) $rows_cnt = count($fb);
 else $rows_cnt = 0;

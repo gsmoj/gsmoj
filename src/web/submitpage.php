@@ -49,6 +49,26 @@ if (isset($_GET['id'])) {
         require("template/" . $OJ_TEMPLATE . "/error.php");
         exit(0);
     }
+    // 연습 경로는 problem.php의 id 경로와 같은 조건으로 연다. 비활성 문제와 진행 중이거나 시작 전인 대회·수행평가, 비공개 대회에 쓰인 문제는 열지 않는다.
+    // 관리자·문제 검수자·대회 출제자·문제 편집자·문제 작성자(pNNNN)는 제한하지 않는다.
+    if ($id > 0 && !(isset($_SESSION[$OJ_NAME . '_' . 'administrator']) || isset($_SESSION[$OJ_NAME . '_' . 'problem_verifiter']) || isset($_SESSION[$OJ_NAME . '_' . 'contest_creator']) || isset($_SESSION[$OJ_NAME . '_' . 'problem_editor']) || isset($_SESSION[$OJ_NAME . '_' . 'p' . $id]))) {
+        $gs_now = date('Y-m-d H:i', time());
+        if (isset($OJ_FREE_PRACTICE) && $OJ_FREE_PRACTICE) {
+            $gs_practice = pdo_query("SELECT `problem_id` FROM `problem` WHERE `defunct`='N' AND `problem_id`=?", $id);
+        } else {
+            $sql = "SELECT `problem_id` FROM `problem` WHERE `problem_id`=? AND `defunct`='N' AND NOT EXISTS (
+            SELECT 1 FROM `contest_problem` cp
+            INNER JOIN `contest` c ON cp.contest_id=c.contest_id
+            WHERE cp.problem_id=? AND (c.end_time>? AND c.defunct='N' OR c.private='1')
+        )";
+            $gs_practice = pdo_query($sql, $id, $id, $gs_now);
+        }
+        if (empty($gs_practice)) {
+            $view_errors = "<h2>$MSG_NO_SUCH_PROBLEM</h2>";
+            require("template/" . $OJ_TEMPLATE . "/error.php");
+            exit(0);
+        }
+    }
 } else if (isset($_GET['cid']) && isset($_GET['pid'])) {
     $cid = intval($_GET['cid']);
     $pid = intval($_GET['pid']);
