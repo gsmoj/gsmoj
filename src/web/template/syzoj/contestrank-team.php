@@ -41,7 +41,7 @@ if($OJ_MEMCACHE)
  ?>
 </center>
 <div style="overflow: auto">
-<table id=rank><thead><tr class=toprow align=center><td class="{sorter:'false'}" width=5%>Rank<th width=10%>Team</th><th width=5%>Num</th><th width=5%>Solved</th><th width=5%>Average</th><th width=5%>Penalty</th>
+<table id=rank><thead><tr class=toprow align=center><td class="{sorter:'false'}" width=5%><?php echo $MSG_Number?><th width=10%>팀</th><th width=5%>인원</th><th width=5%><?php echo $MSG_SOVLED?></th><th width=5%>평균</th><th width=5%><?php echo $MSG_CONTEST_PENALTY?></th>
 <?php
 for ($i=0;$i<$pid_cnt;$i++)
 echo "<td><a href=problem.php?cid=$cid&pid=$i>$PID[$i]</a></td>";

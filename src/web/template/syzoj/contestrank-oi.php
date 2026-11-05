@@ -9,7 +9,7 @@
 </style>
 <div class="padding" >
 	<h1 style="text-align:left;" ><?php echo $MSG_CONTEST?> <?php echo $cid ?> -- <?php echo $title ?>
-	<a class='ui small blue button' href="contestrank-oi.php?spa&down&cid=<?php echo $cid ?>" >Download</a> 
+	<a class='ui small blue button' href="contestrank-oi.php?spa&down&cid=<?php echo $cid ?>" ><?php echo $MSG_DOWNLOAD?></a> 
 	<a class='ui small green button' href="contestrank5.php?cid=<?php echo $cid?>" ><?php echo $MSG_REVIEW_CONTESTRANK ?></a>
  	<button  class='ui small yellow button' onclick='$("tr[class!=active]").toggle();'>Show/Hide</button>
 	</h1>
