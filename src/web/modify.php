@@ -4,7 +4,7 @@ $OJ_CACHE_SHARE = false;
 //require_once('./include/cache_start.php');
 require_once('./include/db_info.inc.php');
 require_once('./include/setlang.php');
-$view_title = "Modify Userinfo";
+$view_title = $MSG_MODIFY_USERINFO;
 //require_once("./include/check_post_key.php");
 require_once("./include/my_func.inc.php");
 if (
@@ -32,7 +32,7 @@ $npassword = isset($_POST['npassword']) ? $_POST['npassword'] : "";
 $rptpassword = isset($_POST['rptpassword']) ? $_POST['rptpassword'] : "";
 $len = strlen($nick);
 if ($len > 100) {
-    $err_str = $err_str . "$MSG_NICK $MSG_TOO_LONG !";
+    $err_str = $err_str . "$MSG_NICK: $MSG_TOO_LONG ";
     $err_cnt++;
 } else if ($len == 0) $nick = $user_id;
 $password = $opassword;
@@ -55,7 +55,7 @@ if ($skip_password_check) {
 else $rows_cnt = 0;
 
 if ($rows_cnt == 0) {
-    $err_str = $err_str . "$MSG_OLD $MSG_PASSWORD $MSG_WRONG";
+    $err_str = $err_str . "$MSG_OLD $MSG_PASSWORD: $MSG_WRONG ";
     $err_cnt++;
 }
 $len = strlen($npassword);
@@ -70,7 +70,7 @@ if ($len > 0) {
 }
 $len = strlen($school);
 if ($len > 100) {
-    $err_str = $err_str . "$MSG_SCHOOL $MSG_TOO_LONG!";
+    $err_str = $err_str . "$MSG_SCHOOL: $MSG_TOO_LONG ";
     $err_cnt++;
 }
 // 이메일은 DataGSM 계정 연동 기준이므로 사용자가 직접 바꿀 수 없다. 저장된 값을 그대로 유지한다.

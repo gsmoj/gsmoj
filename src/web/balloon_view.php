@@ -4,13 +4,13 @@ $OJ_CACHE_SHARE = false;
 require_once('./include/cache_start.php');
 require_once('./include/db_info.inc.php');
 require_once('./include/setlang.php');
-$view_title = "Source Code";
+$view_title = $MSG_BALLOON;
 
 require_once("./include/const.inc.php");
 
 // 检查是否提供了ID参数，如果没有则显示错误信息并退出
 if (!isset($_GET['id'])) {
-    $view_errors = "No such code!\n";
+    $view_errors = $MSG_NO_SUCH_CODE;
     require("template/" . $OJ_TEMPLATE . "/error.php");
     exit(0);
 }
@@ -18,7 +18,7 @@ if (!isset($_GET['id'])) {
 // 检查用户是否有查看权限，如果没有则显示权限错误并退出
 if (!isset($_SESSION[$OJ_NAME . '_' . 'balloon'])) {
 
-    $view_errors = "Not privileged!\n";
+    $view_errors = $MSG_WARNING_ACCESS_DENIED;
     require("template/" . $OJ_TEMPLATE . "/error.php");
     exit(0);
 

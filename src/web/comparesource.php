@@ -10,7 +10,7 @@ require_once("./include/const.inc.php");
 
 // 检查是否提供了left参数，如果没有则显示错误信息并退出
 if (!isset($_GET['left'])) {
-    $view_errors = "No such code!\n";
+    $view_errors = $MSG_NO_SUCH_CODE;
     require("template/" . $OJ_TEMPLATE . "/error.php");
     exit(0);
 }

@@ -11,7 +11,7 @@ require_once("include/iplocation.php");
 // check user
 $user = $_GET['user'];
 if (!is_valid_user_name($user)) {
-    echo "No such User!";
+    echo $MSG_NO_SUCH_USER;
     exit(0);
 }
 $iplocation = new IpLocation();
@@ -108,7 +108,7 @@ else
 $result = mysql_query_cache($sql, $user);
 $row_cnt = count($result);
 if ($row_cnt == 0) {
-    $view_errors = "No such User!";
+    $view_errors = $MSG_NO_SUCH_USER;
     require("template/" . $OJ_TEMPLATE . "/error.php");
     exit(0);
 }

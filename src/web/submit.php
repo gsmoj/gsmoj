@@ -206,7 +206,7 @@ if (!empty($_FILES)) {
 if (isset($tempfile) && $tempfile != "") {
     if ($language != 23) {
         if ($len > 65536) {
-            $view_errors = $MSG_TOO_LONG . "<br>";
+            $view_errors = $MSG_CODE_TOO_LONG . "<br>";
             require "template/" . $OJ_TEMPLATE . "/error.php";
             exit(0);
         }
@@ -262,12 +262,12 @@ if ($test_run) {
 
 if ($language != 23) $len = strlen($source); else $len = isset($_FILES['answer']['size']) ? $_FILES['answer']['size'] : 0;  // 파일 없이 보내면 너무 짧은 제출로 처리한다.
 if ($len < 2) {
-    $view_errors = $MSG_TOO_SHORT . (isset($tempfile) ? $tempfile : "") . "<br>";
+    $view_errors = $MSG_CODE_TOO_SHORT . (isset($tempfile) ? $tempfile : "") . "<br>";
     require "template/" . $OJ_TEMPLATE . "/error.php";
     exit(0);
 }
 if ($len > 65536) {
-    $view_errors = $MSG_TOO_LONG . "<br>";
+    $view_errors = $MSG_CODE_TOO_LONG . "<br>";
     require "template/" . $OJ_TEMPLATE . "/error.php";
     exit(0);
 }

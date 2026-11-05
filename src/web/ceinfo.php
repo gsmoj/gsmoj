@@ -15,7 +15,7 @@ require_once("./include/const.inc.php");
 
 // 检查是否提供了解决方案ID参数
 if (!isset($_GET['sid'])) {
-    $view_errors = "No such code!\n";
+    $view_errors = $MSG_NO_SUCH_CODE;
     require("template/" . $OJ_TEMPLATE . "/error.php");
     exit(0);
 
@@ -67,7 +67,7 @@ $view_reinfo = "";
 // 如果用户有权限查看编译错误信息
 if ($ok == true) {
     if ($row['user_id'] != $_SESSION[$OJ_NAME . '_' . 'user_id'])
-        $view_mail_link = "<a href='mail.php?to_user={$row['user_id']}&title=$MSG_SUBMIT $id'>Mail the auther</a>";
+        $view_mail_link = "<a href='mail.php?to_user={$row['user_id']}&title=$MSG_SUBMIT $id'>$MSG_MAIL_AUTHOR</a>";
 
     // 获取编译错误信息
     $sql = "SELECT `error` FROM `compileinfo` WHERE `solution_id`=?";

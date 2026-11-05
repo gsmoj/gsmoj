@@ -67,7 +67,7 @@ if (isset($_GET['id'])) {
     $result = pdo_query($sql, $cid);
     $rows_cnt = empty($result) ? 0 : count($result);
     if (empty($result) && !$OJ_FREE_PRACTICE && !isset($_SESSION[$OJ_NAME . '_administrator']) && !isset($_SESSION[$OJ_NAME . "_c" . $cid])) {
-        $view_errors = "<title>$MSG_CONTEST</title><h2>No such Contest!</h2>";
+        $view_errors = "<title>$MSG_CONTEST</title><h2>$MSG_NO_SUCH_CONTEST</h2>";
         require("template/" . $OJ_TEMPLATE . "/error.php");
         exit(0);
     }
@@ -89,7 +89,7 @@ if (isset($_GET['id'])) {
 
     if (!$contest_ok) {
         //not started
-        $view_errors = "No such Contest!";
+        $view_errors = $MSG_NO_SUCH_CONTEST;
         require("template/" . $OJ_TEMPLATE . "/error.php");
         exit(0);
     } else {
@@ -106,7 +106,7 @@ if (isset($_GET['id'])) {
 
     //public
     if (!$contest_ok) {
-        $view_errors = "Not Invited!";
+        $view_errors = $MSG_NOT_INVITED;
         require("template/" . $OJ_TEMPLATE . "/error.php");
         exit(0);
     }

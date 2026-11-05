@@ -12,7 +12,7 @@ if (!isset($_SESSION[$OJ_NAME . '_' . 'user_id'])) {
 }
 require_once("./include/const.inc.php");
 if (!isset($_GET['sid'])) {
-    $view_errors = "No such code!\n";  // 없는 oj-footer.php 대신 오류 화면으로 끝낸다.
+    $view_errors = $MSG_NO_SUCH_CODE;  // 없는 oj-footer.php 대신 오류 화면으로 끝낸다.
     require("template/" . $OJ_TEMPLATE . "/error.php");
     exit(0);
 }
@@ -45,7 +45,7 @@ $sql = "SELECT * FROM `solution` WHERE `solution_id`=?";
 $result = pdo_query($sql, $id);
 // 없는 제출 번호면 정의되지 않은 값으로 진행하지 않고 오류 화면을 보여준다.
 if (!is_array($result) || count($result) == 0) {
-    $view_errors = "No such code!\n";
+    $view_errors = $MSG_NO_SUCH_CODE;
     require("template/" . $OJ_TEMPLATE . "/error.php");
     exit(0);
 }
@@ -80,7 +80,7 @@ if (($ok && $OJ_FRIENDLY_LEVEL > 2) ||
 ) {
 
     if ($row['user_id'] != $_SESSION[$OJ_NAME . '_' . 'user_id']) {
-        $view_mail_link = "<a href='mail.php?to_user=" . htmlentities($row['user_id'], ENT_QUOTES, "UTF-8") . "&title=$MSG_SUBMIT $id'>Mail the auther</a>";
+        $view_mail_link = "<a href='mail.php?to_user=" . htmlentities($row['user_id'], ENT_QUOTES, "UTF-8") . "&title=$MSG_SUBMIT $id'>$MSG_MAIL_AUTHOR</a>";
     }
 
     $sql = "SELECT `error` FROM `runtimeinfo` WHERE `solution_id`=?";
@@ -94,8 +94,8 @@ if (($ok && $OJ_FRIENDLY_LEVEL > 2) ||
     }
 
     if ($error_info !== null && strpos($error_info, "judge/") !== false && !isset($_SESSION[$OJ_NAME . "_administrator"])) $view_reinfo = "배열이나 포인터가 범위를 넘었을 수 있습니다. 코드를 확인하세요.";
-    else if ($error_info !== null && strpos($error_info, "php") !== false) $view_reinfo = "error2";
-    else if ($error_info !== null && strpos($error_info, "PASS") !== false) $view_reinfo = "error3";
+    else if ($error_info !== null && strpos($error_info, "php") !== false) $view_reinfo = $MSG_ERROR_INFO_HIDDEN . " (2)";
+    else if ($error_info !== null && strpos($error_info, "PASS") !== false) $view_reinfo = $MSG_ERROR_INFO_HIDDEN . " (3)";
     else if ($OJ_SHOW_DIFF && $row && ($ok || $isRE) && ($OJ_TEST_RUN || is_valid($error_info) || $ok)) {
         $view_reinfo = htmlentities(str_replace("\n\r", "\n", $error_info ?? ""), ENT_QUOTES, "UTF-8");
 
