@@ -28,7 +28,7 @@ if ($len > 100) {
     $err_cnt++;
 } else if ($len == 0) $nick = $user_id;
 $password = $_POST['opassword'];
-$sql = "SELECT `user_id`,`password` FROM `users` WHERE `user_id`=?";
+$sql = "SELECT `user_id`,`password`,`email` FROM `users` WHERE `user_id`=?";
 $result = pdo_query($sql, $user_id);
 $row = $result[0];
 if ($row && pwCheck($password, $row['password'])) $rows_cnt = 1;
@@ -53,14 +53,13 @@ if ($len > 100) {
     $err_str = $err_str . "$MSG_SCHOOL $MSG_TOO_LONG!";
     $err_cnt++;
 }
-$len = strlen($_POST['email']);
-if ($len > 100) {
-    $err_str = $err_str . "$MSG_EMAIL $MSG_TOO_LONG!";
-    $err_cnt++;
-} else if (email_in_use(htmlentities($email, ENT_QUOTES, "UTF-8"), $user_id)) {
-    $err_str = $err_str . (isset($MSG_EMAIL_IN_USE) ? $MSG_EMAIL_IN_USE : "Email already in use!") . "\\n";
+// 이메일은 DataGSM 계정 연동 기준이므로 사용자가 직접 바꿀 수 없다. 저장된 값을 그대로 유지한다.
+$stored_email = $row ? $row['email'] : '';
+if (isset($_POST['email']) && $email !== $stored_email) {
+    $err_str = $err_str . "이메일은 바꿀 수 없습니다. 변경이 필요하면 관리자에게 문의하세요.\\n";
     $err_cnt++;
 }
+$email = $stored_email;
 
 if (has_bad_words($user_id)) {
     $err_str = $err_str . $MSG_USER_ID . " $MSG_TOO_BAD!\\n";
@@ -85,7 +84,6 @@ if (strlen($_POST['npassword']) == 0) $password = pwGen($_POST['opassword']);
 else $password = pwGen($_POST['npassword']);
 $nick = htmlentities($nick, ENT_QUOTES, "UTF-8");
 $school = (htmlentities($school, ENT_QUOTES, "UTF-8"));
-$email = (htmlentities($email, ENT_QUOTES, "UTF-8"));
 if(isset($OJ_NICK_IMMUTABLE)&&$OJ_NICK_IMMUTABLE){
     $sql = "UPDATE `users` SET `password`=?,`school`=?,`email`=? WHERE `user_id`=?";
     pdo_query($sql, $password , $school, $email, $user_id);
