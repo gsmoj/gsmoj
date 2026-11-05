@@ -38,7 +38,12 @@ function writable($path){
 			pdo_query($sql,$to,$from);
 			$sql="UPDATE `topic` SET `pid`=? WHERE `pid`=?";
 			pdo_query($sql,$to,$from);
-			
+			// 출제자 권한(p번호)도 새 번호로 옮긴다. 새 번호에 남아 있던 예전 권한은 지금 문제와 관계없는 사람이므로 먼저 지운다.
+			$sql="DELETE FROM `privilege` WHERE `rightstr`=?";
+			pdo_query($sql,"p$to");
+			$sql="UPDATE `privilege` SET `rightstr`=? WHERE `rightstr`=?";
+			pdo_query($sql,"p$to","p$from");
+
 			$sql="select max(problem_id) from problem";
 			if($result=pdo_query($sql)){
 				$f=$result[0];
@@ -74,7 +79,7 @@ function writable($path){
 <div class="admin-form-shell">
 <header class="admin-form-title">
   <h3>문제 번호 변경</h3>
-  <p>문제 번호를 바꾸면 채점 기록, 대회 문제, 토론 글의 문제 번호도 함께 바뀝니다.</p>
+  <p>문제 번호를 바꾸면 채점 기록, 대회 문제, 토론 글, 출제자 권한의 문제 번호도 함께 바뀝니다.</p>
 </header>
 <div class="changeid-card">
 <?php if(!$show_form){ ?>
@@ -86,7 +91,7 @@ function writable($path){
   </div>
 <?php }else{ ?>
   <p class="changeid-warning">주의: 문제 번호를 바꾸면 되돌리기 어렵습니다. 신중히 진행하세요.</p>
-  <form action='problem_changeid.php' method=post class="changeid-form">
+  <form action='problem_changeid.php' method=post class="changeid-form" onsubmit="return confirm(this.from.value + '번 문제를 ' + this.to.value + '번으로 바꿉니다.\n채점 기록, 대회 문제, 토론 글, 출제자 권한의 번호도 함께 바뀌며 되돌리기 어렵습니다.\n계속하시겠습니까?');">
     <label class="admin-field-label" for="changeid-from" style="margin:0">현재 번호</label>
     <input class="form-control" id="changeid-from" type=text name='from' placeholder="1001">
     <span aria-hidden="true">&rarr;</span>

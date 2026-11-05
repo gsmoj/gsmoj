@@ -23,13 +23,13 @@ if (!(isset($_SESSION[$OJ_NAME.'_'.'administrator']))){
 </header>
 <form action='source_give.php' method=post class="admin-grid-form admin-card">
 	<label class="admin-field-label" for="give-from">보내는 사용자ID</label>
-	<input class="form-control" id="give-from" type=text size=10 name="from" value="zhblue">
+	<input class="form-control" id="give-from" type=text size=10 name="from" value="" required>
 	<label class="admin-field-label" for="give-to">받는 사용자ID</label>
-	<input class="form-control" id="give-to" type=text size=10 name="to" value="standard">
+	<input class="form-control" id="give-to" type=text size=10 name="to" value="" required>
 	<label class="admin-field-label" for="give-start">시작 <?php echo $MSG_PROBLEM_ID?></label>
-	<input class="form-control" id="give-start" type=text size=10 name="start">
+	<input class="form-control" id="give-start" type=text size=10 name="start" required>
 	<label class="admin-field-label" for="give-end">끝 <?php echo $MSG_PROBLEM_ID?></label>
-	<input class="form-control" id="give-end" type=text size=10 name="end">
+	<input class="form-control" id="give-end" type=text size=10 name="end" required>
 	<input type='hidden' name='do' value='do'>
 	
 	<?php require_once("../include/set_post_key.php");?>
