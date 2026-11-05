@@ -101,20 +101,16 @@ $tsql[13]="ALTER TABLE $DB_NAME.`mail` MODIFY COLUMN `to_user` varchar(48) NOT N
 $csql[14]="";
 $tsql[14]="ALTER TABLE $DB_NAME.`reply` MODIFY COLUMN `author_id` varchar(48) NOT NULL DEFAULT ''  COMMENT 'user_id';";
 
-$csql[15]="";
-$tsql[15]="ALTER TABLE $DB_NAME.`privilege` MODIFY COLUMN `user_id` varchar(48) NOT NULL DEFAULT ''  COMMENT 'user_id';";
+// 같은 번호에 여러 번 대입하면 마지막 문장만 실행된다. 각 번호의 tsql·csql이 모두 실행되므로 빈 csql 자리에 나눠 담는다.
+// privilege.user_id는 설치 스키마(install/db.sql)와 같은 char(48)로 맞춰, 이미 최신인 DB에서는 바뀌는 것이 없게 한다.
+$tsql[15]="ALTER TABLE $DB_NAME.`privilege` MODIFY COLUMN `user_id` char(48) NOT NULL DEFAULT '';";
+$csql[15]="ALTER TABLE $DB_NAME.`loginlog` MODIFY COLUMN `user_id` varchar(48) NOT NULL DEFAULT ''  COMMENT 'user_id';";
 
-$csql[15]="";
-$tsql[15]="ALTER TABLE $DB_NAME.`loginlog` MODIFY COLUMN `user_id` varchar(48) NOT NULL DEFAULT ''  COMMENT 'user_id';";
-
-$csql[15]="";
-$tsql[15]="ALTER TABLE $DB_NAME.`news` MODIFY COLUMN `user_id` varchar(48) NOT NULL DEFAULT ''  COMMENT 'user_id';";
-$tsql[16]="ALTER TABLE $DB_NAME.`sim` ADD INDEX `Index_sim_id`(`sim_s_id`);";
-$csql[16]="";
+$tsql[16]="ALTER TABLE $DB_NAME.`news` MODIFY COLUMN `user_id` varchar(48) NOT NULL DEFAULT ''  COMMENT 'user_id';";
+$csql[16]="ALTER TABLE $DB_NAME.`sim` ADD INDEX `Index_sim_id`(`sim_s_id`);";
+// 인덱스가 이미 있으면 오류가 나고 건너뛴다(pdo_query가 예외를 잡는다).
 $tsql[17]="ALTER TABLE $DB_NAME.`contest_problem` ADD INDEX `Index_contest_id`(`contest_id`);";
-$csql[17]="";
-$tsql[18]="ALTER TABLE $DB_NAME.`contest_problem` ADD INDEX `Index_problem_id`(`problem_id`);";
-$csql[18]="";
+$csql[17]="ALTER TABLE $DB_NAME.`contest_problem` ADD INDEX `Index_problem_id`(`problem_id`);";
 
 $tsql[18]="select 1 from $DB_NAME.custominput limit 1;";
 $csql[18]="CREATE TABLE $DB_NAME. `custominput` (  `solution_id` int(11) NOT NULL DEFAULT '0',  `input_text` text,  PRIMARY KEY (`solution_id`)) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;";
@@ -374,7 +370,15 @@ if(isset($_POST['do'])){
 		<li>새 테이블을 만들고 필요 없는 열을 정리합니다.</li>
 		<li>표절 검사 기능을 쓰려면 반드시 실행해야 합니다.</li>
 	</ul>
-	<form action='update_db.php' method=post class="admin-card">
+	<div class="alert alert-warning" role="alert">
+		<b>실행하면 다음 기록이 삭제되며 되돌릴 수 없습니다.</b> 먼저 <a href="backup.php">데이터베이스 백업</a>을 하세요.
+		<ul>
+			<li>6개월이 지난 로그인 기록(loginlog)</li>
+			<li>문제 번호 없이 실행한 테스트 제출(problem_id=0) 가운데 정답이 아닌 제출과 그 소스 코드·컴파일 오류·런타임 오류 정보</li>
+			<li>제출 기록이 없는 컴파일 오류·런타임 오류 정보</li>
+		</ul>
+	</div>
+	<form action='update_db.php' method=post class="admin-card" onsubmit="return confirm('데이터베이스를 업데이트합니다.\n6개월이 지난 로그인 기록과 정답이 아닌 테스트 제출 기록이 삭제되며 되돌릴 수 없습니다.\n계속하시겠습니까?');">
 		<?php require_once("../include/set_post_key.php");?>
 		<input type='hidden' name='do' value='do'>
 		<div class="admin-form-actions">

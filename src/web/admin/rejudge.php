@@ -67,7 +67,7 @@ if (!(isset($_SESSION[$OJ_NAME.'_'.'administrator']))){
            $redis = new Redis();
            $redis->connect($OJ_REDISSERVER, $OJ_REDISPORT);
            if(isset($OJ_REDISAUTH)) $redis->auth($OJ_REDISAUTH);
-                $sql="select solution_id from solution where result=1,pass_rate=0 and problem_id>0";
+                $sql="select solution_id from solution where result=1 and pass_rate=0 and problem_id>0";
                  $result=pdo_query($sql);
                  foreach($result as $row){
                         echo $row['solution_id']."\n";
@@ -89,7 +89,7 @@ if (!(isset($_SESSION[$OJ_NAME.'_'.'administrator']))){
 </header>
         <section class="admin-tool-card">
         <h4>1) <?php echo $MSG_PROBLEM?> <?php echo $MSG_REJUDGE?></h4>
-        <form action='rejudge.php' method=post class="admin-tool-form">
+        <form action='rejudge.php' method=post class="admin-tool-form" onsubmit="return confirm(this.rjpid.value + '번 문제의 모든 제출을 다시 채점합니다. 계속하시겠습니까?');">
                 <input type=text class="form-control" name='rjpid' placeholder="<?php echo $MSG_PROBLEM_ID?> (예: 1001)" aria-label="<?php echo $MSG_PROBLEM_ID?>">      <input type='hidden' name='do' value='do'>
                 <input type=submit class="btn btn-primary" value='<?php echo $MSG_REJUDGE?>'>
                 <?php require_once("../include/set_post_key.php");?>
@@ -97,7 +97,7 @@ if (!(isset($_SESSION[$OJ_NAME.'_'.'administrator']))){
         </section>
         <section class="admin-tool-card">
         <h4>2) <?php echo $MSG_SUBMIT?> <?php echo $MSG_REJUDGE?></h4>
-        <form action='rejudge.php' method=post class="admin-tool-form">
+        <form action='rejudge.php' method=post class="admin-tool-form" onsubmit="return confirm(this.rjsid.value + '번 제출을 다시 채점합니다. 계속하시겠습니까?');">
                 <input type=text class="form-control" name='rjsid' placeholder="<?php echo $MSG_RUNID?> (예: 1002)" aria-label="<?php echo $MSG_RUNID?>">      <input type='hidden' name='do' value='do'>
                 <input type=hidden name="postkey" value="<?php echo htmlentities($_SESSION[$OJ_NAME.'_'.'postkey'], ENT_QUOTES, 'UTF-8')?>">
                 <input type=submit class="btn btn-primary" value='<?php echo $MSG_REJUDGE?>'>
@@ -106,7 +106,7 @@ if (!(isset($_SESSION[$OJ_NAME.'_'.'administrator']))){
         <section class="admin-tool-card">
         <h4>3) <?php echo "$MSG_Manual"?></h4>
         <p class="admin-field-help">선택한 결과의 제출을 모두 다른 결과로 바꿉니다.</p>
-        <form action='rejudge.php' method=post class="admin-tool-form">
+        <form action='rejudge.php' method=post class="admin-tool-form" onsubmit="return confirm('결과가 [' + this.result.options[this.result.selectedIndex].text + ']인 모든 제출을 [' + this.to.options[this.to.selectedIndex].text + '](으)로 바꿉니다. 계속하시겠습니까?');">
 		<select name='result' class="form-control" aria-label="변경 전 결과">      
 			<?php
 				for($i=0;$i<4;$i++){
@@ -136,12 +136,12 @@ if (!(isset($_SESSION[$OJ_NAME.'_'.'administrator']))){
         <section class="admin-tool-card">
         <h4>4) <?php echo $MSG_CONTEST?> <?php echo $MSG_REJUDGE?></h4>
         <p class="admin-field-help">대회 전체 또는 대회의 특정 문제만 다시 채점합니다.</p>
-        <form action='rejudge.php' method=post class="admin-tool-form">
-                <input type=text class="form-control" name='rjcid' placeholder="1003" value='1003' aria-label="<?php echo $MSG_CONTEST_ID?>"> <input type='hidden' name='do' value='do'>
+        <form action='rejudge.php' method=post class="admin-tool-form" onsubmit="return confirm(this.rjcid.value + '번 대회의 모든 제출을 다시 채점합니다. 계속하시겠습니까?');">
+                <input type=text class="form-control" name='rjcid' placeholder="<?php echo $MSG_CONTEST_ID?> (예: 1003)" aria-label="<?php echo $MSG_CONTEST_ID?>"> <input type='hidden' name='do' value='do'>
                 <input type=hidden name="postkey" value="<?php echo htmlentities($_SESSION[$OJ_NAME.'_'.'postkey'], ENT_QUOTES, 'UTF-8')?>">
                 <input type=submit class="btn btn-primary" value='<?php echo $MSG_CONTEST?> 전체 <?php echo $MSG_REJUDGE?>'>
         </form>
-        <form action='rejudge.php' method=post class="admin-tool-form">
+        <form action='rejudge.php' method=post class="admin-tool-form" onsubmit="return confirm(this.rjcid.value + '번 대회의 ' + this.pid.options[this.pid.selectedIndex].text + ' 문제 제출을 다시 채점합니다. 계속하시겠습니까?');">
                 <input type=text class="form-control" name='rjcid' placeholder="<?php echo $MSG_CONTEST_ID?> (예: 1004)" aria-label="<?php echo $MSG_CONTEST_ID?>">
                 <select name=pid class="form-control" aria-label="<?php echo $MSG_PROBLEM?>">
 <?php

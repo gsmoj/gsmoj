@@ -101,7 +101,7 @@ $delay=pdo_query($sql);
       <td><p><?php echo $MSG_HELP_USER_ADD?></p></td>
     </tr>
   <?php }?>
-  <?php if (isset($_SESSION[$OJ_NAME.'_'.'administrator']) || isset($_SESSION[$OJ_NAME.'_'.'user_adder'])){?>
+  <?php if (isset($_SESSION[$OJ_NAME.'_'.'administrator']) || isset($_SESSION[$OJ_NAME.'_'.'problem_importer'])){ // user_import.php와 같은 권한 ?>
     <tr>
       <td><center><a class='btn btn-primary btn-sm' href="user_import.php" target="main"><b><?php echo $MSG_USER."-".$MSG_IMPORT?></b></a></center></td>
       <td><p><?php echo $MSG_HELP_USER_IMPORT?></p></td>
@@ -134,6 +134,8 @@ $delay=pdo_query($sql);
       <td><center><a class='btn btn-success btn-sm' href="problem_add_page.php" target="main"><b><?php echo $MSG_PROBLEM."-".$MSG_ADD?></b></a></center></td>
       <td><p><?php echo $MSG_HELP_ADD_PROBLEM?></p></td>
     </tr>
+  <?php }?>
+  <?php if (isset($_SESSION[$OJ_NAME.'_'.'administrator'])||isset($_SESSION[$OJ_NAME.'_'.'problem_importer'])){ // problem_import.php·problem_export.php와 같은 권한 ?>
     <tr>
       <td><center><a class='btn btn-success btn-sm' href="problem_import.php" target="main"><b><?php echo $MSG_PROBLEM."-".$MSG_IMPORT?></b></a></center></td>
       <td><p><?php echo $MSG_HELP_IMPORT_PROBLEM?></p></td>

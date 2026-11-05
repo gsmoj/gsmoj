@@ -20,7 +20,7 @@ if(isset($OJ_LANG)){
 </div>
 
 <?php
-$sql = "SELECT COUNT(*) AS ids FROM privilege WHERE rightstr IN ('administrator','source_browser','contest_creator','user_adder','http_judge','problem_editor','tag_adder','problem_importer','problem_verifiter','password_setter','printer','balloon','vip','problem_start','problem_end','service_port') ORDER BY user_id, rightstr";
+$sql = "SELECT COUNT(*) AS ids FROM privilege WHERE rightstr IN ('administrator','teacher','source_browser','contest_creator','user_adder','http_judge','problem_editor','tag_adder','problem_importer','problem_verifiter','password_setter','printer','balloon','vip','problem_start','problem_end','service_port') ORDER BY user_id, rightstr";
 $result = pdo_query($sql);
 $row = $result[0];
 
@@ -47,7 +47,7 @@ if(isset($_GET['keyword']) && $_GET['keyword']!=""){
   $sql = "SELECT * FROM privilege WHERE (user_id LIKE ?) OR (rightstr LIKE ?) ORDER BY user_id, rightstr";
   $result = pdo_query($sql,$keyword,$keyword);
 }else{
-  $sql = "SELECT * FROM privilege WHERE rightstr IN ('administrator','source_browser','contest_creator','user_adder','http_judge','problem_editor','tag_adder','problem_importer','password_setter','printer','balloon','vip','problem_start','problem_end','service_port') ORDER BY user_id, rightstr LIMIT $sid, $idsperpage";
+  $sql = "SELECT * FROM privilege WHERE rightstr IN ('administrator','teacher','source_browser','contest_creator','user_adder','http_judge','problem_editor','tag_adder','problem_importer','problem_verifiter','password_setter','printer','balloon','vip','problem_start','problem_end','service_port') ORDER BY user_id, rightstr LIMIT $sid, $idsperpage";
   $result = pdo_query($sql);
 }
 ?>

@@ -2,7 +2,8 @@
   require_once("../include/db_info.inc.php");
   require_once("admin-header.php");
 
-  if (!(isset($_SESSION[$OJ_NAME.'_'.'administrator']) || isset($_SESSION[$OJ_NAME.'_'.'contest_creator']) || isset($_SESSION[$OJ_NAME.'_problem_importer']))) {
+  // 실제 업로드를 처리하는 problem_import_*.php가 관리자와 problem_importer만 허용하므로 화면도 같은 권한으로 맞춘다.
+  if (!(isset($_SESSION[$OJ_NAME.'_'.'administrator']) || isset($_SESSION[$OJ_NAME.'_problem_importer']))) {
     exit(1);
   }
 
