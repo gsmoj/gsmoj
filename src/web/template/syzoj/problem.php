@@ -32,12 +32,15 @@ div[class*=ace_br] {
 
 /* 문제 정보 라벨·태그·버튼이 줄바꿈될 때 서로 붙지 않도록 간격을 둔다. */
 .problem-meta-row { gap:6px; }
+/* 공통 레이아웃(gs-page.css)의 행 간격 대신 정보 라벨 줄 사이를 8px로 고정하고, 라벨과 버튼 줄 사이를 띄운다. */
+#main .padding .ui.grid > .row + .row.problem-meta-row { margin-top:0; padding-top:8px; }
+#main .padding .ui.grid > .row#submit-buttons { padding-top:18px; }
 .problem-meta-row > .ui.label { margin:0; }
 #show_tag_div { display:flex; flex-wrap:wrap; gap:8px; }
 #show_tag_div > .ui.label { margin:0; }
 .problem-actions { display:flex; flex-wrap:wrap; align-items:center; gap:8px; }
 .problem-actions > .ui.button { margin:0; }
-.problem-actions-row { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px; }
+.ui.grid > .row > .column.problem-actions-row { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px; width:100%; }
 
 <?php if (isset($_GET['spa'])) { ?>
 html, body { margin:0 !important; background:#fff !important; }
@@ -79,7 +82,7 @@ html, body { margin:0 !important; background:#fff !important; }
         ?>
       </h1>
     </div>
-      <div class="row problem-meta-row" style="margin-top: -15px">
+      <div class="row problem-meta-row">
            <span class="ui label"><?php echo "파일 제출" ?>: <?php 
 if(file_exists($solution_file)){
     echo("<span class='red-bold'>파일명: $filename</span>");
@@ -99,12 +102,12 @@ if(file_exists($solution_file)){
           <span class="ui label" problem_id="<?php echo $id?>" ><?php echo $MSG_Time_Limit ?>：<span tb="problem" fd="time_limit"><?php echo $row['time_limit']; ?></span> S</span>
          <!-- <span class="ui label">표준 입출력</span> -->
       </div>
-      <div class="row problem-meta-row" style="margin-top: -23px">
+      <div class="row problem-meta-row">
         <!--   <span class="ui label">문제 유형: 전통형</span> -->
           <span class="ui label"><?php echo $MSG_JUDGE_STYLE ?>：<?php echo array($MSG_NJ,$MSG_SPJ,$MSG_RTJ,$MSG_INTERACT)[$row['spj']] ; ?> </span>
           <span class="ui label"><?php echo $MSG_Creator ?>：<span id='creator'></span></span>
       </div>
-      <div class="row problem-meta-row" style="margin-top: -23px">
+      <div class="row problem-meta-row">
           <span class="ui label"><?php echo $MSG_SUBMIT ?>：<?php echo $row['submit']; ?></span>
           <span class="ui label"><?php echo $MSG_SOVLED ?>：<?php echo $row['accepted']; ?></span>
       </div>
