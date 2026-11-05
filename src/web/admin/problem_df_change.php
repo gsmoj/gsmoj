@@ -6,7 +6,7 @@ if(!(isset($_SESSION[$OJ_NAME.'_'.'administrator']) || isset($_SESSION[$OJ_NAME.
 }
 
 if($_SERVER['REQUEST_METHOD']=="POST"){
-  //require_once("../include/check_post_key.php");
+  require_once("../include/check_post_key.php");
 }else{
   require_once("../include/check_get_key.php");
 }
@@ -36,6 +36,15 @@ if(isset($_POST['pid'])&&!empty($_POST['pid'])) {
     $intPieces = array_values($intPieces);
     $plist = $intPieces ? implode(",", $intPieces) : "";
   }
+
+// 보안 수정: 관리자가 아니면 자신이 권한을 가진 문제만 일괄 전환한다.
+if($plist && !isset($_SESSION[$OJ_NAME.'_'.'administrator'])){
+  $ownPieces = array();
+  foreach(explode(",", $plist) as $i){
+    if(isset($_SESSION[$OJ_NAME.'_'."p".intval($i)])) $ownPieces[] = intval($i);
+  }
+  $plist = implode(",", $ownPieces);
+}
 
 if(isset($_POST['enable'])&&$plist){
   $sql = "UPDATE `problem` SET defunct='N' WHERE `problem_id` IN ($plist) AND defunct<>'A'";
