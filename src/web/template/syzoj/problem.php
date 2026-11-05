@@ -30,6 +30,15 @@ div[class*=ace_br] {
     border-radius: 0 !important;
 }
 
+/* 문제 정보 라벨·태그·버튼이 줄바꿈될 때 서로 붙지 않도록 간격을 둔다. */
+.problem-meta-row { gap:6px; }
+.problem-meta-row > .ui.label { margin:0; }
+#show_tag_div { display:flex; flex-wrap:wrap; gap:8px; }
+#show_tag_div > .ui.label { margin:0; }
+.problem-actions { display:flex; flex-wrap:wrap; align-items:center; gap:8px; }
+.problem-actions > .ui.button { margin:0; }
+.problem-actions-row { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px; }
+
 <?php if (isset($_GET['spa'])) { ?>
 html, body { margin:0 !important; background:#fff !important; }
 .padding {
@@ -70,7 +79,7 @@ html, body { margin:0 !important; background:#fff !important; }
         ?>
       </h1>
     </div>
-      <div class="row" style="margin-top: -15px">
+      <div class="row problem-meta-row" style="margin-top: -15px">
            <span class="ui label"><?php echo "파일 제출" ?>: <?php 
 if(file_exists($solution_file)){
     echo("<span class='red-bold'>파일명: $filename</span>");
@@ -90,20 +99,20 @@ if(file_exists($solution_file)){
           <span class="ui label" problem_id="<?php echo $id?>" ><?php echo $MSG_Time_Limit ?>：<span tb="problem" fd="time_limit"><?php echo $row['time_limit']; ?></span> S</span>
          <!-- <span class="ui label">표준 입출력</span> -->
       </div>
-      <div class="row" style="margin-top: -23px">
+      <div class="row problem-meta-row" style="margin-top: -23px">
         <!--   <span class="ui label">문제 유형: 전통형</span> -->
           <span class="ui label"><?php echo $MSG_JUDGE_STYLE ?>：<?php echo array($MSG_NJ,$MSG_SPJ,$MSG_RTJ,$MSG_INTERACT)[$row['spj']] ; ?> </span>
           <span class="ui label"><?php echo $MSG_Creator ?>：<span id='creator'></span></span>
       </div>
-      <div class="row" style="margin-top: -23px">
+      <div class="row problem-meta-row" style="margin-top: -23px">
           <span class="ui label"><?php echo $MSG_SUBMIT ?>：<?php echo $row['submit']; ?></span>
           <span class="ui label"><?php echo $MSG_SOVLED ?>：<?php echo $row['accepted']; ?></span>
       </div>
 </div>  
 <div class="ui grid">
   <div class="row" id="submit-buttons"> 
-    <div class="column">
-      <div class="ui buttons">
+    <div class="column problem-actions-row">
+      <div class="problem-actions">
 		  
           <?php
             if($pr_flag){
@@ -112,7 +121,7 @@ if(file_exists($solution_file)){
               echo "<a class=\"small ui orange button\" href=\"problemstatus.php?id=$id\">$MSG_STATISTICS</a>";
               if($OJ_BBS)echo "<a class=\"small ui red button\" href=\"discuss.php?pid=$id\">$MSG_BBS</a>";
             }else{
-              echo "<a href=\"contest.php?cid=$cid\" class=\"ui orange button\">$gs_return_contest</a>";
+              echo "<a href=\"contest.php?cid=$cid\" class=\"small ui orange button\">$gs_return_contest</a>";
               if($contest_is_over)
                       echo "<a id='submit'  class=\"small ui primary button\" href=\"submitpage.php?id=$id\">$MSG_SUBMIT</a>";
               else
@@ -134,7 +143,7 @@ if(file_exists($solution_file)){
         require_once("include/set_get_key.php");
       ?>
       
-        <div class="ui buttons right floated">
+        <div class="problem-actions">
             <a class="small ui button" href="admin/problem_edit.php?id=<?php echo $id?>&getkey=<?php echo htmlentities($_SESSION[$OJ_NAME.'_'.'getkey'])?>"><?php echo $MSG_EDIT.$MSG_PROBLEM?></a>
             <a class="small ui button" href='javascript:phpfm(<?php echo $row['problem_id'];?>)'><?php echo $MSG_TEST_DATA?></a>
         </div>
@@ -287,7 +296,9 @@ document.addEventListener('keydown', function(e) {
     </div>
   <?php } ?>
   
-     <div class="ui buttons">
+  <div class="row">
+    <div class="column">
+     <div class="problem-actions">
 
           <?php
             if($pr_flag){
@@ -296,7 +307,7 @@ document.addEventListener('keydown', function(e) {
               echo "<a class=\"small ui orange button\" href=\"problemstatus.php?id=$id\">$MSG_STATISTICS</a>";
 	      if($OJ_BBS)echo "<a class=\"small ui red button\" href=\"discuss.php?pid=$id\">$MSG_BBS</a>";
             }else{
-              echo "<a href=\"contest.php?cid=$cid\" class=\"ui orange button\">$gs_return_contest</a>"; 
+              echo "<a href=\"contest.php?cid=$cid\" class=\"small ui orange button\">$gs_return_contest</a>"; 
               if($contest_is_over)
                         echo "<a id='submit'  class=\"small ui primary button\" href=\"submitpage.php?id=$id\">$MSG_SUBMIT</a>";
               else
@@ -306,6 +317,8 @@ document.addEventListener('keydown', function(e) {
           ?>
           
       </div>
+    </div>
+  </div>
 </div>
 <style>
     #dragButton {
