@@ -14,6 +14,9 @@ if (!isset($_SESSION[$OJ_NAME . '_' . 'user_id'])) {
 $sql = "SELECT `school`,`nick`,`email` FROM `users` WHERE `user_id`=?";
 $result = pdo_query($sql, $_SESSION[$OJ_NAME . '_' . 'user_id']);
 $row = $result[0];
+// DataGSM에 연결된 계정은 비밀번호를 바꾸지 않을 때 기존 비밀번호 없이 저장할 수 있다(modify.php).
+$linked = pdo_query("SELECT 1 FROM `datagsm_user` WHERE `user_id`=?", $_SESSION[$OJ_NAME . '_' . 'user_id']);
+$datagsm_linked = is_array($linked) && count($linked) > 0;
 $show_title=$MSG_REG_INFO."[".$_SESSION[$OJ_NAME.'_user_id']."]";
 
 /////////////////////////Template
