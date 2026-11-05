@@ -65,6 +65,23 @@ if ($_SERVER['REQUEST_METHOD'] === "POST" && isset($_POST['action'])) {
         return empty($r) ? null : $r[0][0];
     };
 
+    // 모든 회차가 끝난 뒤 만든 사람이나 관리자가 공개한다. 전용 문제(defunct='A')를 뺀 비공개 문제(defunct='Y')를 문제 목록에 공개하고
+    // 공개 시각(published_at)을 기록한다. 순위와 다른 학생의 코드는 공개하지 않는다.
+    if ($action === "publish") {
+        if ($a['published_at']) asm_back($id, false, "이미 공개한 ".$MSG_ASSESSMENT."입니다.");
+        $all = asm_sessions($id);
+        if (!$all) asm_back($id, false, "회차가 없는 ".$MSG_ASSESSMENT."는 공개할 수 없습니다.");
+        foreach ($all as $s) if ($s['state'] !== 'ended') asm_back($id, false, "모든 회차가 끝난 뒤에 공개할 수 있습니다. '".$s['group_name']."' 회차가 아직 끝나지 않았습니다.");
+        $opened = 0;
+        foreach (asm_problems($id) as $p) {
+            if ($p['defunct'] !== 'Y') continue;
+            pdo_query("update problem set defunct='N' where problem_id=? and defunct='Y'", $p['problem_id']);
+            $opened++;
+        }
+        pdo_query("update assessment set published_at=now() where assessment_id=? and published_at is null", $id);
+        asm_back($id, true, "공개했습니다. 비공개 문제 ".$opened."개를 문제 목록에 공개했습니다. 전용 문제는 공개하지 않습니다.");
+    }
+
     if ($action === "move_problem") {
         $pids = array_map(function ($r) { return intval($r['problem_id']); }, asm_problems($id));
         $i = array_search(isset($_POST['pid']) ? intval($_POST['pid']) : 0, $pids, true);
@@ -81,6 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] === "POST" && isset($_POST['action'])) {
     }
 
     if ($action === "add_session") {
+        if ($a['published_at']) asm_back($id, false, "공개한 ".$MSG_ASSESSMENT."에는 회차를 추가할 수 없습니다. 복사해서 새로 만드세요.");
         $group = trim(isset($_POST['group']) ? $_POST['group'] : "");
         $start = asm_valid_datetime(isset($_POST['start']) ? $_POST['start'] : "");
         $end = asm_valid_datetime(isset($_POST['end']) ? $_POST['end'] : "");
@@ -93,6 +111,7 @@ if ($_SERVER['REQUEST_METHOD'] === "POST" && isset($_POST['action'])) {
         asm_back($id, true, "'".$group."' 회차(".$MSG_ASSESSMENT." ".$new_cid.")를 만들고 학생 ".$added."명을 참가자로 지정했습니다.");
     }
     if ($action === "update_time") {
+        if ($a['published_at']) asm_back($id, false, "공개한 ".$MSG_ASSESSMENT."의 회차 시간은 바꿀 수 없습니다.");
         $group = $own_session($cid);
         if ($group === null) asm_back($id, false, "회차를 찾을 수 없습니다.");
         $start = asm_valid_datetime(isset($_POST['start']) ? $_POST['start'] : "");
@@ -314,6 +333,7 @@ function asm_dt($v) { return str_replace(" ", "T", substr((string)$v, 0, 16)); }
               <a href="../contest.php?cid=<?php echo $cid?>" target="_blank">회차 화면</a> ·
               <a href="../status.php?cid=<?php echo $cid?>" target="_blank">채점 현황</a> ·
               <a href="../contestrank.php?cid=<?php echo $cid?>" target="_blank">순위</a>
+              <?php if (asm_is_admin() || isset($_SESSION[$OJ_NAME.'_'."m".$cid])) { ?> · <a href="assessment_event_list.php?cid=<?php echo $cid?>">감지 기록</a><?php } ?>
               <?php if (asm_is_admin()) { ?> · <a href="monitor.php?cid=<?php echo $cid?>#contest">모니터링</a><?php } ?>
             </td>
             <?php if ($can) { ?>
@@ -335,7 +355,7 @@ function asm_dt($v) { return str_replace(" ", "T", substr((string)$v, 0, 16)); }
         </tbody>
       </table>
     </div>
-    <?php if ($can) { ?>
+    <?php if ($can && !$a['published_at']) { ?>
     <form method="post" action="assessment_edit.php?id=<?php echo $id?>" class="asm-add">
       <?php require("../include/set_post_key.php"); ?>
       <input type="hidden" name="action" value="add_session">
@@ -351,6 +371,25 @@ function asm_dt($v) { return str_replace(" ", "T", substr((string)$v, 0, 16)); }
       <label>끝 <input type="datetime-local" name="end" required></label>
       <button type="submit" class="btn btn-primary">회차 추가</button>
       <span class="admin-field-help"><?php echo $MSG_CLASS?>이 없으면 <a href="user_group.php">사용자 → <?php echo $MSG_CLASS?> 지정</a>에서 먼저 학생을 묶으세요. 회차마다 비공개 <?php echo $MSG_ASSESSMENT?>가 하나씩 만들어지고, 그 <?php echo $MSG_CLASS?> 학생만 참가할 수 있습니다.</span>
+    </form>
+    <?php } ?>
+  </section>
+
+  <?php
+    $ended_all = $sessions && !array_filter($sessions, function ($s) { return $s['state'] !== 'ended'; });
+    $to_open = count(array_filter($problems, function ($p) { return $p['defunct'] === 'Y'; }));
+  ?>
+  <section class="admin-card" style="margin-top:16px">
+    <div class="asm-card-head">
+      <div class="admin-card-title">문제 공개</div>
+      <?php if ($a['published_at']) { ?><span class="admin-badge admin-badge--on">공개됨 · <?php echo asm_h($a['published_at'])?></span><?php } ?>
+    </div>
+    <p class="admin-field-help" style="margin:0 0 10px">모든 회차가 끝난 뒤 공개하면 전용 문제를 뺀 비공개 문제가 문제 목록에 공개되고 공개 시각이 기록됩니다. 전용 문제, 순위, 다른 학생의 코드는 공개하지 않습니다. 공개한 뒤에는 회차를 추가하거나 회차 시간을 바꿀 수 없습니다.</p>
+    <?php if ($can && !$a['published_at']) { ?>
+    <form method="post" action="assessment_edit.php?id=<?php echo $id?>" style="display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:0" onsubmit="return confirm('모든 회차가 끝났습니다. 이 <?php echo $MSG_ASSESSMENT?>를 공개할까요? 비공개 문제 <?php echo $to_open?>개가 문제 목록에 공개되며 되돌릴 수 없습니다.')">
+      <?php require("../include/set_post_key.php"); ?><input type="hidden" name="action" value="publish">
+      <button type="submit" class="btn btn-primary" <?php if (!$ended_all) echo "disabled"?>>문제 공개</button>
+      <?php if (!$ended_all) { ?><span class="admin-field-help"><?php echo $sessions ? "진행 중이거나 예정된 회차가 있어 아직 공개할 수 없습니다." : "회차가 없어 공개할 수 없습니다."?></span><?php } ?>
     </form>
     <?php } ?>
   </section>

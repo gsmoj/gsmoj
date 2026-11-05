@@ -129,8 +129,11 @@ if(isset($_POST['startdate'])){
       }
     }
 
-    $sql = "update `problem` set defunct='N' where `problem_id` in ($plist) and defunct<>'A'";
-    pdo_query($sql) ;
+    // 수행평가에 넣은 문제는 공개 상태를 바꾸지 않는다. 모든 회차가 끝난 뒤 수행평가 화면의 "문제 공개"로 공개한다.
+    if(!($contest_type & 512)){
+      $sql = "update `problem` set defunct='N' where `problem_id` in ($plist) and defunct<>'A'";
+      pdo_query($sql) ;
+    }
   }
 
   // 수행평가의 참가 권한은 수정 화면에서 받지 않으므로 그대로 둔다.
