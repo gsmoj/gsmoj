@@ -53,7 +53,7 @@
 - `assessment_problem` (신규): `assessment_id, problem_id, num` — 회차들이 공유하는 문제 목록
 - `assessment_session` (신규): `assessment_id, contest_id, group_name` — 반별 회차와 실제 대회의 연결
 - 회차 대회: `contest_type |= 1<<9`, `private=1`, 참가자 = 해당 반 학생(`privilege cNNNN`), 관리자 = 교사(`privilege mNNNN`), 제목 "평가명 - 반"
-- 시각: 웹의 DB 연결은 `include/init.php`에서 `SET time_zone='+8:00'`을 실행하므로 `in_date`(DATETIME)·`loginlog.time`·`NOW()`는 같은 기준이다. `judgetime`은 TIMESTAMP라 UTC로 저장되지만 읽을 때 연결 시간대로 바뀌므로 웹 연결 안에서는 보정 없이 비교한다. (DB 콘솔은 시간대를 맞추지 않으므로 값이 8시간 다르게 보인다)
+- 시각: `include/init.php`는 `$OJ_FRIENDLY_LEVEL`이 1 이상(기본값 1)일 때 PHP 시간대를 `Asia/Seoul`로 두고 웹의 DB 연결에서 `SET time_zone='+9:00'`을 실행한다. 따라서 `in_date`(DATETIME)·`loginlog.time`·`NOW()`는 한국 표준시(KST) 기준으로 같다. `judgetime`은 TIMESTAMP라 UTC로 저장되지만 읽을 때 연결 시간대로 바뀌므로 웹 연결 안에서는 보정 없이 비교한다. (DB 콘솔은 시간대를 맞추지 않으므로 서버 기본 시간대에 따라 값이 다르게 보일 수 있다) 서버 모니터링 그래프(`admin/watch.php`)도 같은 `Asia/Seoul`을 쓴다.
 
 ## 변경 대상 파일
 | 단계 | 파일 | 내용 |
@@ -95,9 +95,9 @@
 - **문제 기본 비공개**: 기존 대회 문제의 공개 상태는 바꾸지 않고, 이후 새로 넣는 문제부터 적용한다.
 - **결과 숨김**: 화면 표시만 바꾸고 채점 결과(`solution.result`)는 그대로 저장한다. 표시 누락 경로가 있으면 결과가 노출될 수 있으므로 ⑤에서 결과가 보이는 모든 화면을 점검한다.
 - **감지 오탐**: 브라우저 확장, 화면 잠금, IME 입력 등으로 의심 기록이 생길 수 있다. 기록은 판단 자료로만 쓰고 자동 제재하지 않는다.
-- **시간대**: 사이트 PHP 시간대가 `Asia/Shanghai`(+8)로 설정되어 있어 한국 시각(+9)과 1시간 차이가 난다. 이 계획에서는 바꾸지 않는다(열린 질문 참고).
+- **시간대**: 사이트 PHP·DB 연결 시간대는 `Asia/Seoul`(+9:00)로 변경되었다(커밋 `1685f1d`). 변경 전에 저장된 `DATETIME` 값(`in_date` 등)은 +8 기준이므로 1시간 이르게 보일 수 있다.
 
 ## 열린 질문
-- 사이트 시간대를 `Asia/Seoul`로 바꿀지(바꾸면 기존 제출 시각 표시가 1시간씩 밀림, 별도 작업 권장).
+- ~~사이트 시간대를 `Asia/Seoul`로 바꿀지~~ → 변경 완료(`include/init.php`). 기존 제출 시각 보정 여부는 별도로 결정한다.
 - 반 이름 형식(예: `2-1`, `2학년 1반`) 통일 규칙.
 - 교사가 만든 문제를 수행평가 없이 일반 문제 목록에 바로 공개할 수 있는지(현재 계획: 관리자만 가능).
