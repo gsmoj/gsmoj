@@ -22,10 +22,9 @@ function gs_admin_menu() {
         $items[] = array("user_group.php", "반 지정");
         $items[] = array("user_merge.php", "계정 통합");
     }
-    if ($admin || $has('user_adder')) {
-        $items[] = array("user_add.php", "사용자 추가");
-        $items[] = array("user_import.php", "사용자 가져오기");
-    }
+    if ($admin || $has('user_adder')) $items[] = array("user_add.php", "사용자 추가");
+    // user_import.php는 관리자와 문제 가져오기 권한(problem_importer)만 허용한다. 페이지 권한은 넓히지 않고 메뉴를 맞춘다.
+    if ($admin || $has('problem_importer')) $items[] = array("user_import.php", "사용자 가져오기");
     if ($admin || $has('password_setter')) $items[] = array("changepass.php", "비밀번호 설정");
     if ($admin) {
         $items[] = array("privilege_list.php", "권한 목록");
@@ -49,8 +48,9 @@ function gs_admin_menu() {
         $items[] = array("user_set_ip.php", "로그인 IP 지정");
         $items[] = array("team_generate.php", "팀 계정 생성");
         $items[] = array("team_generate2.php", "팀 계정 생성 2");
-        $items[] = array("offline_import.php", "오프라인 대회 가져오기");
     }
+    // offline_import.php는 문제와 채점 데이터를 만들므로 관리자와 문제 편집자(problem_editor)만 허용한다.
+    if ($admin || $has('problem_editor')) $items[] = array("offline_import.php", "오프라인 대회 가져오기");
     $groups[] = array("대회", $items);
 
     $items = array();
