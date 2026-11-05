@@ -179,7 +179,8 @@ function asm_sync_participants($cid, $group) {
 }
 function asm_create_session($a, $group, $start, $end) {
     global $ASM_CONTEST_TYPE, $OJ_NAME;
-    $title = $a['title']." - ".$group;
+    // 대회 화면들은 contest.title을 이스케이프 없이 출력하므로 교사가 입력한 제목을 저장 시 이스케이프한다.
+    $title = htmlspecialchars($a['title']." - ".$group, ENT_QUOTES, 'UTF-8', false);
     $cid = pdo_query("insert into contest(title,start_time,end_time,private,langmask,description,password,subnet,contest_type,user_id,defunct) values(?,?,?,1,0,?,'','',?,?,'N')",
         $title, $start, $end, (string)$a['description'], $ASM_CONTEST_TYPE, $a['owner']);
     $cid = intval($cid);

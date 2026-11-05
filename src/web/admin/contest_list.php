@@ -87,7 +87,7 @@ if(isset($_GET['keyword']) && $_GET['keyword']!=""){
     foreach($result as $row){
       echo "<tr>";
       echo "<td>".$row['contest_id']."</td>";
-      echo "<td><a href='../contest.php?cid=".$row['contest_id']."'>".$row['title']."</a></td>";
+      echo "<td><a href='../contest.php?cid=".$row['contest_id']."'>".htmlspecialchars($row['title'], ENT_QUOTES, 'UTF-8', false)."</a></td>";
       echo "<td>".$row['start_time']."</td>";
       echo "<td>".$row['end_time']."</td>";
       $cid = $row['contest_id'];
