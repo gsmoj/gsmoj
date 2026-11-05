@@ -28,6 +28,13 @@ if (!(isset($_SESSION[$OJ_NAME.'_'.'administrator']) || isset($_SESSION[$OJ_NAME
 				$nick="your_own_nick";
 			if($teamnumber==1) $user_id=$prefix;
 
+			// 관리자·교사 등 권한이 있는 계정은 덮어쓰지 않는다(대회 참가 권한 c번호는 제외).
+			$priv=pdo_query("SELECT `rightstr` FROM `privilege` WHERE `user_id`=? AND `rightstr` NOT REGEXP '^c[0-9]+$' LIMIT 1",$user_id);
+			if(!empty($priv)){
+				echo "<tr><td colspan=3>".htmlentities($user_id,ENT_QUOTES,"UTF-8")." : 권한이 있는 계정이라 덮어쓰지 않고 건너뛰었습니다.</td></tr>";
+				continue;
+			}
+
 			echo "<tr><td>$nick<td>$user_id</td><td>$password</td></tr>";
 			
 			$password=pwGen($password);
@@ -71,6 +78,6 @@ if (!(isset($_SESSION[$OJ_NAME.'_'.'administrator']) || isset($_SESSION[$OJ_NAME
 		<?php require_once("../include/set_post_key.php");?>
 		<input class="btn btn-primary" type=submit value="팀 계정 생성"><br>
 	</form>
-	<p class="text-danger"><strong>같은 접두어로 다시 생성하면 기존 계정의 팀 이름과 비밀번호가 바뀝니다.</strong></p>
+	<p class="text-danger"><strong>같은 접두어로 다시 생성하면 기존 계정의 팀 이름과 비밀번호가 바뀝니다.</strong> 관리자·교사 등 권한이 있는 계정은 건너뜁니다.</p>
 
 </div>

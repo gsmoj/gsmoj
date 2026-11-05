@@ -2,13 +2,19 @@
 //a:9:{s:4:"lang";s:2:"en";s:9:"auth_pass";s:32:"d41d8cd98f00b204e9800998ecf8427e";s:8:"quota_mb";i:0;s:17:"upload_ext_filter";a:0:{}s:19:"download_ext_filter";a:0:{}s:15:"error_reporting";i:1;s:7:"fm_root";s:0:"";s:17:"cookie_cache_time";i:2592000;s:7:"version";s:5:"0.9.8";}
 require_once("../include/db_info.inc.php");
 require_once("../include/my_func.inc.php");
-if (!(isset($_SESSION[$OJ_NAME.'_'.'administrator'])
-      ||isset($_SESSION[$OJ_NAME.'_'.'problem_editor'])
-     )){
-	echo htmlentities($_SESSION[$OJ_NAME.'_'.'administrator'], ENT_QUOTES, 'UTF-8');
+// 범용 파일 관리자이므로 관리자만 사용한다. 문제 편집자는 testdata.php로 채점 데이터를 관리한다.
+if (!isset($_SESSION[$OJ_NAME.'_'.'administrator'])){
+	echo "권한이 없습니다.<br>파일 관리자는 관리자만 사용할 수 있습니다.";
 	exit(1);
 }
-// this is not a webshell , and it need administrator / problem editor  membership to use, 
+// 이름 변경·삭제 대상은 현재 폴더 안의 이름만 허용한다(경로 구분자, '..' 금지).
+function phpfm_is_plain_name($name){
+	$name = (string)$name;
+	if ($name === '' || $name === '.' || $name === '..') return false;
+	if (strpos($name,'/') !== false || strpos($name,'\\') !== false || strpos($name,'..') !== false) return false;
+	return basename($name) === $name;
+}
+// this is not a webshell , and it need administrator membership to use, 
 // if aliyun warn you about this file , don't panic   
 // 这不是后门(Webshell)文件，不要理会阿里云的误报。
     $charset = "UTF-8";
@@ -123,10 +129,12 @@ if (!(isset($_SESSION[$OJ_NAME.'_'.'administrator'])
     $fm_self = $doc_root.$_SERVER["PHP_SELF"];
     $path_info = pathinfo($fm_self);
 	// Register Globals
-	$blockKeys = array('_SERVER','_SESSION','_GET','_POST','_COOKIE','charset','ip','islinux','url','url_info','doc_root','fm_self','path_info');
-    foreach ($_GET as $key => $val) if (array_search($key,$blockKeys) === false) $$key=$val;
-    foreach ($_POST as $key => $val) if (array_search($key,$blockKeys) === false) $$key=$val;
-    foreach ($_COOKIE as $key => $val) if (array_search($key,$blockKeys) === false) $$key=$val;
+	$blockKeys = array('_SERVER','_SESSION','_GET','_POST','_COOKIE','_FILES','_REQUEST','_ENV','GLOBALS','charset','ip','islinux','url','url_info','doc_root','fm_self','path_info','OJ_DATA','OJ_NAME','dbh','cfg','blockKeys');
+	// db_info.inc.php의 설정 변수(OJ_*, DB_*, SMTP_*)와 문구 변수(MSG_*)는 요청 값으로 덮어쓰지 않는다.
+	$blockPattern = '/^(OJ_|DB_|SMTP_|MSG_)/';
+    foreach ($_GET as $key => $val) if (array_search($key,$blockKeys) === false && !preg_match($blockPattern,$key)) $$key=$val;
+    foreach ($_POST as $key => $val) if (array_search($key,$blockKeys) === false && !preg_match($blockPattern,$key)) $$key=$val;
+    foreach ($_COOKIE as $key => $val) if (array_search($key,$blockKeys) === false && !preg_match($blockPattern,$key)) $$key=$val;
 // +--------------------------------------------------
 // | Config
 // +--------------------------------------------------
@@ -146,8 +154,8 @@ if (!(isset($_SESSION[$OJ_NAME.'_'.'administrator'])
         if($pid==0) $pid=intval(basename($dir_dest));
     }
     $current_dir="$OJ_DATA/$pid/";
-    if(! (isset($_SESSION[$OJ_NAME.'_'.'administrator']) || isset($_SESSION[$OJ_NAME.'_'."p".$pid])) ){
-        echo "권한이 없습니다.<br>관리자이거나 이 문제의 출제자여야 데이터를 관리할 수 있습니다.";
+    if(!isset($_SESSION[$OJ_NAME.'_'.'administrator'])){
+        echo "권한이 없습니다.<br>파일 관리자는 관리자만 사용할 수 있습니다.";
         exit(0)    ;
     }
 
@@ -4887,7 +4895,7 @@ function frame3(){
             }
             break;
             case 3: // rename arq ou dir
-            if ((strlen($old_name))&&(strlen($new_name))){
+            if ((strlen($old_name))&&(strlen($new_name))&&phpfm_is_plain_name($old_name)&&phpfm_is_plain_name($new_name)){
                 rename($current_dir.$old_name,$current_dir.$new_name);
                 if (is_dir($current_dir.$new_name)) reloadframe("parent",2);
             }
@@ -4899,7 +4907,7 @@ function frame3(){
                     if (count($selected_file_list)) {
                         for($x=0;$x<count($selected_file_list);$x++) {
                             $selected_file_list[$x] = trim($selected_file_list[$x]);
-                            if (strlen($selected_file_list[$x])) total_delete($current_dir.$selected_file_list[$x],$dir_dest.$selected_file_list[$x]);
+                            if (strlen($selected_file_list[$x])&&phpfm_is_plain_name($selected_file_list[$x])) total_delete($current_dir.$selected_file_list[$x],$dir_dest.$selected_file_list[$x]);
                         }
                     }
                 }
@@ -4908,7 +4916,7 @@ function frame3(){
                     if (count($selected_dir_list)) {
                         for($x=0;$x<count($selected_dir_list);$x++) {
                             $selected_dir_list[$x] = trim($selected_dir_list[$x]);
-                            if (strlen($selected_dir_list[$x])) total_delete($current_dir.$selected_dir_list[$x],$dir_dest.$selected_dir_list[$x]);
+                            if (strlen($selected_dir_list[$x])&&phpfm_is_plain_name($selected_dir_list[$x])) total_delete($current_dir.$selected_dir_list[$x],$dir_dest.$selected_dir_list[$x]);
                         }
                         reloadframe("parent",2);
                     }
@@ -5022,7 +5030,7 @@ function frame3(){
             }
             break;
             case 8: // delete arq/dir
-            if (strlen($cmd_arg)){
+            if (strlen($cmd_arg)&&phpfm_is_plain_name($cmd_arg)){
                 if (file_exists($current_dir.$cmd_arg)) total_delete($current_dir.$cmd_arg);
                 if (is_dir($current_dir.$cmd_arg)) reloadframe("parent",2);
             }

@@ -72,6 +72,10 @@ function import_user($filename) {
                             $expiry_date=iconv("gbk","utf-8",$expiry_date);
                     }
 		    if (!is_date($expiry_date)&&is_numeric($expiry_date)) $expiry_date=add_days($expiry_date);
+                    // register.php와 같이 화면에 출력되는 값은 이스케이프해 저장한다.
+                    $nick = htmlentities($nick, ENT_QUOTES, 'UTF-8');
+                    $school = htmlentities($school, ENT_QUOTES, 'UTF-8');
+                    $group_name = htmlentities($group_name, ENT_QUOTES, 'UTF-8');
                     if (mb_strlen($nick, 'utf-8') > 20) {
                         $new_len = mb_strlen($nick, 'utf-8');
                         if ($new_len > $max_length) {
@@ -86,10 +90,16 @@ function import_user($filename) {
                         echo htmlentities($user_id, ENT_QUOTES, 'UTF-8') . " : " . htmlentities($email, ENT_QUOTES, 'UTF-8') . " 은(는) 이미 다른 계정에서 사용 중인 이메일이라 비워 두었습니다.<br>\n";
                         $email = "";
                     }
+                    // 관리자·교사 등 권한이 있는 계정은 비밀번호를 덮어쓰지 않는다(대회 참가 권한 c번호는 제외).
+                    $priv = pdo_query("SELECT `rightstr` FROM `privilege` WHERE `user_id`=? AND `rightstr` NOT REGEXP '^c[0-9]+$' LIMIT 1", $user_id);
+                    if (!empty($priv)) {
+                        echo htmlentities($user_id, ENT_QUOTES, 'UTF-8') . " : 권한이 있는 계정이라 덮어쓰지 않고 건너뛰었습니다.<br>\n";
+                        continue;
+                    }
                     $ip = "127.0.0.1";
                     $sql = "INSERT INTO `users`(" . "`user_id`,`email`,`ip`,`accesstime`,`password`,`reg_time`,`nick`,`school`,`group_name`,`expiry_date`)" . "VALUES(?,?,?,NOW(),?,NOW(),?,?,?,?)on DUPLICATE KEY UPDATE `email`=?,`ip`=?,`accesstime`=NOW(),`password`=?,`reg_time`=now(),nick=?,`school`=?,`group_name`=?,expiry_date=?";
                     $ret=pdo_query($sql, $user_id, $email, $ip, $password, $nick, $school,$group_name,$expiry_date, $email, $ip, $password, $nick, $school,$group_name,$expiry_date);
-                    echo "$user_id : $expiry_date : $ret <br>\n";
+                    echo htmlentities($user_id, ENT_QUOTES, 'UTF-8') . " : " . htmlentities($expiry_date, ENT_QUOTES, 'UTF-8') . " : $ret <br>\n";
 
             }else{
                 echo "<div class='alert alert-warning' role='alert'>다운로드한 양식을 작성한 뒤 UTF-8 인코딩으로 저장하세요.</div>";
@@ -102,6 +112,7 @@ function import_user($filename) {
 }
 
 if (isset($_FILES["fps"])) {
+    require_once("../include/check_post_key.php");
     echo "<div class='admin-result-log'>";
     if ($_FILES["fps"]["error"] > 0) {
         echo "&nbsp;&nbsp;- Error: " . $_FILES["fps"]["error"] . "File size is too big, change in PHP.ini<br />";

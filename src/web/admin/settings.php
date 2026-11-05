@@ -24,13 +24,19 @@ if (isset($OJ_LANG) && file_exists("../lang/$OJ_LANG.php")) {
 
 $config_file = dirname(dirname(__FILE__)) . "/include/db_info.inc.php";
 
+// 설정 값 부분: 따옴표 문자열(안의 ';'와 이스케이프 포함) 또는 ';' 앞까지의 값
+function cfg_value_regex() {
+    return '("(?:[^"\\\\]|\\\\.)*"|\'(?:[^\'\\\\]|\\\\.)*\'|[^;]+)';
+}
+
 function get_config_value($file, $var) {
-    $pattern = '/\$' . preg_quote($var, '/') . '\s*=\s*([^;]+);/';
+    $pattern = '/\$' . preg_quote($var, '/') . '\s*=\s*' . cfg_value_regex() . '\s*;/';
     if (preg_match($pattern, file_get_contents($file), $m)) {
         $val = trim($m[1]);
-        if ((strpos($val, '"') === 0 && strrpos($val, '"') === strlen($val) - 1) ||
-            (strpos($val, "'") === 0 && strrpos($val, "'") === strlen($val) - 1)) {
-            $val = substr($val, 1, -1);
+        if (strlen($val) >= 2 && $val[0] === '"' && substr($val, -1) === '"') {
+            $val = strtr(substr($val, 1, -1), ['\\\\' => '\\', '\\"' => '"', '\\$' => '$']);
+        } elseif (strlen($val) >= 2 && $val[0] === "'" && substr($val, -1) === "'") {
+            $val = strtr(substr($val, 1, -1), ['\\\\' => '\\', "\\'" => "'"]);
         }
         return $val;
     }
@@ -55,9 +61,10 @@ function cfg_chk($var) {
 
 $save_msg = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // CSRF check (use admin-header.php on other admin pages for this)
+    // CSRF 검사: 다른 관리자 화면과 같은 postkey 방식
+    require_once("../include/check_post_key.php");
     $protected = [
-        'DB_HOST','DB_NAME','DB_USER','DB_PASS',
+        'DB_HOST','DB_NAME','DB_USER','DB_PASS','SMTP_PASS',
         'OJ_DATA','OJ_ADMIN','OJ_RANK_HIDDEN',
         'OJ_LOGIN_MOD','OJ_UDPSERVER','OJ_MEMPORT','OJ_REDISPORT',
         'OJ_MEMSERVER','OJ_REDISSERVER','OJ_REDISQNAME',
@@ -71,6 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $saved = 0;
     $errors = [];
+    $skipped = 0;
     $content = file_get_contents($config_file);
     $bool_vars = [
         'OJ_REGISTER','OJ_REG_NEED_CONFIRM','OJ_EMAIL_CONFIRM',
@@ -109,8 +117,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     foreach ($_POST as $key => $raw_val) {
         if (strpos($key, 'cfg_') !== 0) continue;
         $var = substr($key, 4);
+        if (!preg_match('/^[A-Z_][A-Z0-9_]*$/', $var) || is_array($raw_val)) {
+            $errors[] = "올바르지 않은 설정 항목이 전달되어 저장하지 않았습니다.";
+            continue;
+        }
         if (in_array($var, $protected)) {
             $errors[] = "변수 \${$var}은(는) 보호되어 있어 이 화면에서 수정할 수 없습니다.";
+            continue;
+        }
+        // 설정 파일에 이미 있는 변수만 수정한다(새 변수 추가 금지).
+        if (!preg_match('/^\s*(static\s+)?\$' . $var . '\s*=/m', $content)) {
+            $skipped++;
             continue;
         }
         $orig_val = get_config_value($config_file, $var);
@@ -126,8 +143,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } elseif (is_numeric($val) && !preg_match('/[a-zA-Z]/', $val)) {
             $new_line = "static \${$var}={$val};";
         } else {
-            $val = str_replace('\\', '\\\\', $val);
-            $new_line = "static \${$var}=\"{$val}\";";
+            // PHP 큰따옴표 문자열에서 의미가 있는 \ " $ 와 제어 문자를 이스케이프한다.
+            $new_line = "static \${$var}=\"" . addcslashes($val, "\\\"\$\0..\37") . "\";";
         }
 
         // 构建用于比较的 new_val（去掉引号，与 get_config_value 格式一致）
@@ -148,14 +165,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         $count = 0;
-        $pat2 = '/^(\s*)(static\s+)?' . '\\' . "\$" . $var . '\s*=[^;]+;/m';
-        $content = preg_replace($pat2, '$1' . $new_line, $content, 1, $count);
+        $pat2 = '/^(\s*)(static\s+)?' . '\\' . "\$" . $var . '\s*=\s*' . cfg_value_regex() . '\s*;/m';
+        // 값 안의 $1, \ 등이 치환 참조로 해석되지 않도록 콜백으로 바꾼다.
+        $content = preg_replace_callback($pat2, function ($m) use ($new_line) {
+            return $m[1] . $new_line;
+        }, $content, 1, $count);
         if ($count > 0) {
             $saved++;
         } else {
-            // 变量在文件中不存在，追加到末尾
-            $content .= "\n" . $new_line;
-            $saved++;
+            $skipped++;
         }
     }
 
@@ -163,9 +181,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $save_msg = '<div class="alert alert-warning">' . implode('<br>', $errors) . '</div>';
     } elseif ($saved > 0) {
         file_put_contents($config_file, $content);
-        $save_msg = '<div class="alert alert-success">저장했습니다. ' . $saved . '개 설정을 업데이트했으며, 새로고침 후 적용됩니다.</div>';
+        $save_msg = '<div class="alert alert-success">저장했습니다. ' . $saved . '개 설정을 업데이트했으며, 새로고침 후 적용됩니다.'
+            . ($skipped > 0 ? '<br>설정 파일에 없는 항목 ' . $skipped . '개는 건너뛰었습니다.' : '') . '</div>';
     } else {
-        $save_msg = '<div class="alert alert-info">저장할 변경 사항이 없습니다.</div>';
+        $save_msg = '<div class="alert alert-info">저장할 변경 사항이 없습니다.'
+            . ($skipped > 0 ? ' 설정 파일에 없는 항목 ' . $skipped . '개는 건너뛰었습니다.' : '') . '</div>';
     }
 }
 ?>
@@ -259,6 +279,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 
     <form method="post" id="settings-form">
+        <?php require_once("../include/set_post_key.php"); ?>
         <ul class="tab-nav">
             <li><a href="#" class="active" data-tab="tab-system">📋 시스템</a></li>
             <li><a href="#" data-tab="tab-ui">🎨 화면</a></li>
@@ -386,20 +407,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             echo '</div></div>';
         }
 
-        // SMTP_PASS: 仅在 SaaS 关闭时可见可改
-        $saas_now = in_array(cfg('OJ_SaaS_ENABLE'), ['true', '1', 'on']);
-        if (!$saas_now) {
-            echo '<div class="row">';
-            echo '<div class="label"><code>$SMTP_PASS</code><span class="label-desc">SMTP 인증 비밀번호(기관 메일 사용 권장)</span></div>';
-            echo '<div class="control">';
-            echo '<input type="password" name="cfg_SMTP_PASS" value="' . cfg('SMTP_PASS') . '" autocomplete="new-password">';
-            echo '</div></div>';
-        } else {
-            echo '<div class="row">';
-            echo '<div class="label"><code>$SMTP_PASS</code><span class="label-desc">SaaS 모드가 켜져 있어 보호됩니다</span></div>';
-            echo '<div class="control"><span class="label-desc" style="color:#999">(보호됨: 이 페이지에서 수정할 수 없음)</span></div>';
-            echo '</div>';
-        }
+        // SMTP_PASS: 비밀값이므로 화면에 출력하거나 수정하지 않는다(SSH로 직접 수정).
+        echo '<div class="row">';
+        echo '<div class="label"><code>$SMTP_PASS</code><span class="label-desc">SMTP 인증 비밀번호는 보안을 위해 보호됩니다</span></div>';
+        echo '<div class="control"><span class="label-desc" style="color:#999">(보호됨: 이 페이지에서 수정할 수 없음)</span></div>';
+        echo '</div>';
 
         $bool_mail = [
             ['OJ_MAIL', '사이트 내 메일 사용'],

@@ -215,8 +215,9 @@ function import_fps($tempfile) {
 
       foreach ($testinputs as $testNode) {
         //if($testNode->nodeValue)
-	$name=$testNode['name'];
-	if($name != ""){
+	// 데이터 폴더 밖으로 벗어나지 않도록 파일 이름만 사용한다.
+	$name=basename(str_replace("\\","/",(string)$testNode['name']));
+	if($name != "" && $name != "." && $name != ".."){
         		mkdata($pid,$name.".in",$testNode,$OJ_DATA);
 
 	}else{
@@ -231,8 +232,8 @@ function import_fps($tempfile) {
   
       foreach ($testinputs as $testNode) {
         //if($testNode->nodeValue)
-	$name=$testNode['name'];
-	if($name != ""){
+	$name=basename(str_replace("\\","/",(string)$testNode['name']));
+	if($name != "" && $name != "." && $name != ".."){
         		mkdata($pid,$name.".out",$testNode,$OJ_DATA);
 
 	}else{
