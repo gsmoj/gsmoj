@@ -142,6 +142,18 @@ if ((isset($OJ_ON_SITE_CONTEST_ID) && $OJ_ON_SITE_CONTEST_ID > 0 && !isset($_SES
         $_GET['user_id'] = $_SESSION[$OJ_NAME . '_' . 'user_id'];
 }
 
+// 수행평가(contest_type 9번 비트, 512)는 순위처럼 다른 학생의 제출 현황도 공개하지 않는다.
+// 관리자, 소스 열람 권한자, 그 회차의 관리자(교사, mNNNN)만 전체 제출을 볼 수 있다.
+if (isset($cid) && isset($contest_type) && ($contest_type & 512) > 0
+        && !isset($_SESSION[$OJ_NAME . '_' . 'administrator'])
+        && !isset($_SESSION[$OJ_NAME . '_' . 'source_browser'])
+        && !isset($_SESSION[$OJ_NAME . '_' . "m$cid"])) {
+    if (!isset($_SESSION[$OJ_NAME . '_' . 'user_id']))
+        $_GET['user_id'] = 'Guest';
+    else
+        $_GET['user_id'] = $_SESSION[$OJ_NAME . '_' . 'user_id'];
+}
+
 // 특정 유저 아이디(user_id) 검색용 바인딩 파라미터 적재
 if (isset($_GET['user_id'])) {
     $user_id = trim($_GET['user_id']);
