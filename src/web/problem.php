@@ -38,10 +38,14 @@ if (isset($_GET['id'])) {
         $sql = "SELECT * FROM `problem` WHERE defunct='N' and `problem_id`=?";
 		$result = pdo_query($sql, $id);
 	}else{
+        // 공개(published_at)한 수행평가의 회차는 비공개 대회여도 문제를 가리지 않는다.
         $sql = "SELECT * FROM `problem` WHERE `problem_id`=? AND `defunct`='N' AND NOT EXISTS (
             SELECT 1 FROM `contest_problem` cp
             INNER JOIN `contest` c ON cp.contest_id=c.contest_id
-            WHERE cp.problem_id=? AND (c.end_time>'$now' AND c.defunct='N' OR c.private='1')
+            WHERE cp.problem_id=? AND (c.end_time>'$now' AND c.defunct='N' OR c.private='1' AND NOT EXISTS (
+                SELECT 1 FROM `assessment_session` gs INNER JOIN `assessment` ga ON ga.assessment_id=gs.assessment_id
+                WHERE gs.contest_id=c.contest_id AND ga.published_at IS NOT NULL
+            ))
         )";        //////////  people should not see the problem used in contest before they end by modifying url in browser address bar
     /////////   if you give students opportunities to test their result out side the contest ,they can bypass the penalty time of 20 mins for
     /////////   each non-AC sumbission in contest. if you give them opportunities to view problems before exam ,they will ask classmates to write
@@ -55,7 +59,7 @@ if (isset($_GET['id'])) {
     $cid = intval($_GET['cid']);
     $pid = intval($_GET['pid']);
     require_once("contest-check.php");
-    if (isset($_SESSION[$OJ_NAME . '_' . 'administrator']) || isset($_SESSION[$OJ_NAME . '_' . 'contest_creator']) || isset($_SESSION[$OJ_NAME . '_' . 'problem_editor']))
+    if (isset($_SESSION[$OJ_NAME . '_' . 'administrator']) || isset($_SESSION[$OJ_NAME . '_' . 'contest_creator']) || isset($_SESSION[$OJ_NAME . '_' . 'problem_editor']) || $gs_assessment_preview)  // 회차 관리자(교사)의 수행평가 미리 보기
         $sql = "SELECT langmask,private,defunct FROM `contest` WHERE `contest_id`=?";
     else
         $sql = "SELECT langmask,private,defunct FROM `contest` WHERE `defunct`='N' AND `contest_id`=? AND (`start_time`<='$now' AND ('$now'<`end_time` or private='N') )";
@@ -71,7 +75,7 @@ if (isset($_GET['id'])) {
     $row = ($result[0]);
     $contest_ok = true;
 
-    if ($row[1] && !isset($_SESSION[$OJ_NAME . '_' . 'c' . $cid]))
+    if ($row[1] && !isset($_SESSION[$OJ_NAME . '_' . 'c' . $cid]) && !$gs_assessment_preview)
         $contest_ok = false;
 
     if ($row[2] == 'Y')

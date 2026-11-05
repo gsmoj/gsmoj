@@ -38,6 +38,8 @@ if ($rows_cnt > 0) {
 }
 // 볼 권한이 없는 수행평가는 아래의 제목·안내문·시작 시간 화면을 거치지 않고 여기서 막는다.
 if ($is_assessment) require_once("include/assessment_access_guard.php");
+// 회차 관리자(교사, mNNNN)는 참가 권한(cNNNN) 없이 수행평가 회차 화면과 문제를 미리 볼 수 있다(시작 전 포함).
+$gs_assessment_preview = $is_assessment && isset($_SESSION[$OJ_NAME . '_' . 'm' . $cid]);
 $contest_ok = true;
 $password = "";
 
@@ -62,7 +64,7 @@ if ($rows_cnt == 0 || ($row['defunct'] == 'Y' && !isset($_SESSION[$OJ_NAME . '_a
         $_SESSION[$OJ_NAME . '_' . 'c' . $cid] = true;
 
     // 비공개 대회 권한을 확인한다.
-    if ($row['private'] && !isset($_SESSION[$OJ_NAME . '_' . 'c' . $cid])) {
+    if ($row['private'] && !isset($_SESSION[$OJ_NAME . '_' . 'c' . $cid]) && !$gs_assessment_preview) {
 
         $sql = "SELECT count(*) FROM `privilege` WHERE `user_id`=? AND `rightstr`=?";
         $result = mysql_query_cache($sql, $user_id, "c$cid");
@@ -87,7 +89,7 @@ if ($rows_cnt == 0 || ($row['defunct'] == 'Y' && !isset($_SESSION[$OJ_NAME . '_a
     else $contest_is_over = false;
 
     // 대회가 시작 전이면 오류 페이지를 보여 준다.
-    if (!isset($_SESSION[$OJ_NAME . '_' . 'administrator']) && $unixnow < $start_time) {
+    if (!isset($_SESSION[$OJ_NAME . '_' . 'administrator']) && !$gs_assessment_preview && $unixnow < $start_time) {
         $view_errors = "<center>";
         $view_errors .= "<h3>$MSG_CONTEST_ID : $view_cid - $view_title</h3>";
         $view_errors .= "<p>$view_description</p>";
