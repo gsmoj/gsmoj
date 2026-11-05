@@ -9,7 +9,13 @@ if (!isset($_SESSION[$OJ_NAME . '_' . 'user_id'])) {
     exit(0);
 }
 $contest_id = intval($_GET['cid']);
-if (!(isset($_SESSION[$OJ_NAME . '_' . 'm' . $contest_id]) || isset($_SESSION[$OJ_NAME . '_' . 'administrator']) || isset($_SESSION[$OJ_NAME . '_' . 'contest_creator']))) {
+// 수행평가 회차의 코드는 회차를 만든 사람(mNNNN)과 관리자만 내려받는다. 대회 생성자는 일반 대회만 가능하다.
+$can_export = isset($_SESSION[$OJ_NAME . '_' . 'm' . $contest_id]) || isset($_SESSION[$OJ_NAME . '_' . 'administrator']);
+if (!$can_export && isset($_SESSION[$OJ_NAME . '_' . 'contest_creator'])) {
+    $ct = pdo_query("select contest_type from contest where contest_id=?", $contest_id);
+    $can_export = !empty($ct) && !(intval($ct[0][0]) & 512);
+}
+if (!$can_export) {
     $view_errors = "<a href=./loginpage.php>No privileges!</a>";
     require_once("template/" . $OJ_TEMPLATE . "/error.php");
     exit(0);
