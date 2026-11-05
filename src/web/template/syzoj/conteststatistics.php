@@ -66,7 +66,7 @@
 				<br>
 				
 				<?php if (isset($OJ_RANK_LOCK_PERCENT)&&$OJ_RANK_LOCK_PERCENT!=0) { ?>
-				Lock Board Time: <?php echo date("Y-m-d H:i:s", $view_lock_time) ?><br/>
+				<?php echo $MSG_LOCK_BOARD_TIME?>: <?php echo date("Y-m-d H:i:s", $view_lock_time) ?><br/>
 				<?php } ?>
 				
 				<?php if ($now>$end_time) {
@@ -134,17 +134,17 @@
 					<thead>
 						<tr class=toprow>
 							<th class='text-center'></th>
-							<th class='text-center'>AC</th>
-							<th class='text-center'>PE</th>
-							<th class='text-center'>WA</th>
-							<th class='text-center'>TLE</th>
-							<th class='text-center'>MLE</th>
-							<th class='text-center'>OLE</th>
-							<th class='text-center'>RE</th>
-							<th class='text-center'>CE</th>
-							<th class='text-center'>TR</th>
+							<th class='text-center'><?php echo $MSG_AC?></th>
+							<th class='text-center'><?php echo $MSG_PE?></th>
+							<th class='text-center'><?php echo $MSG_WA?></th>
+							<th class='text-center'><?php echo $MSG_TLE?></th>
+							<th class='text-center'><?php echo $MSG_MLE?></th>
+							<th class='text-center'><?php echo $MSG_OLE?></th>
+							<th class='text-center'><?php echo $MSG_RE?></th>
+							<th class='text-center'><?php echo $MSG_CE?></th>
+							<th class='text-center'><?php echo $MSG_TR?></th>
 							<th class='text-center'>|</th>
-							<th class='text-center'>Total</th>
+							<th class='text-center'>합계</th>
 							<?php 
 							$i = 0;
 							foreach ($language_name as $lang) {
@@ -201,7 +201,7 @@
 						}
 
 						echo "<tr class='evenrow'>";
-							echo "<td class='text-center'>Total</td>";
+							echo "<td class='text-center'>합계</td>";
 
 							for ($j=0 ; $j<count($language_name)+ 11; $j++) {
 							//	if(!isset($R[$i][$j]))

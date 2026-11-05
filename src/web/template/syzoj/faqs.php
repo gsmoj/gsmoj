@@ -46,16 +46,16 @@ cin.tie(0);</pre>
         <h2 class="ui header">채점 결과 안내<br></h2>
         <div class="ques-view">
             <p>제출하신 코드는 채점 시스템에 의해 즉시 채점되며, 매 제출마다 결과가 바로 안내됩니다. 시스템의 주요 반환 메시지는 다음과 같습니다:</p>
-            <li>Wait: 채점 시스템이 아직 이 제출을 처리하지 못했습니다. 잠시만 기다려주세요.</li>
-            <li>Judging: 채점 시스템이 코드를 채점하는 중입니다. 잠시 후 결과가 나옵니다.</li>
-            <li>Compile Error: 제출한 코드가 컴파일에 실패했습니다. "Compile Error" 링크를 클릭하면 컴파일러가 출력한 에러 메시지를 볼 수 있습니다.</li>
-            <li>Accepted: 축하합니다! 정답입니다.</li>
-            <li>Presentation Error: 프로그램이 출력한 정답은 맞으나, 출력 형식이 맞지 않습니다 (예: 공백이나 줄바꿈이 요구사항과 다름).</li>
-            <li>Wrong Answer: 프로그램이 채점 시스템의 테스트 데이터에 대해 잘못된 결과를 반환했습니다.</li>
-            <li>Time Limit Exceeded: 프로그램이 제한된 시간 내에 실행을 끝내지 못했습니다.</li>
-            <li>Memory Limit Exceeded: 프로그램이 제한된 메모리양을 초과하여 사용했습니다.</li>
-            <li>Runtime Error: 프로그램 실행 중에 세그멘테이션 폴트(Segmentation Fault), 런타임 에러, 부동 소수점 예외 등으로 인해 프로그램이 크래시(종료)되었습니다.</li>
-            <li>Output Limit Exceeded: 프로그램이 너무 많은 내용을 출력했습니다. 주로 무한 루프에 빠져 출력을 반복할 때 발생합니다.</li>
+            <li><?php echo $MSG_Pending?> (Pending): 채점 시스템이 아직 이 제출을 처리하지 못했습니다. 잠시만 기다려주세요.</li>
+            <li><?php echo $MSG_Running_Judging?> (Judging): 채점 시스템이 코드를 채점하는 중입니다. 잠시 후 결과가 나옵니다.</li>
+            <li><?php echo $MSG_Compile_Error?> (Compile Error): 제출한 코드가 컴파일에 실패했습니다. 채점 현황의 "<?php echo $MSG_Compile_Error?>" 링크를 클릭하면 컴파일러가 출력한 오류 메시지를 볼 수 있습니다.</li>
+            <li><?php echo $MSG_Accepted?> (Accepted): 축하합니다! 정답입니다.</li>
+            <li><?php echo $MSG_Presentation_Error?> (Presentation Error): 프로그램이 출력한 정답은 맞으나, 출력 형식이 맞지 않습니다 (예: 공백이나 줄바꿈이 요구사항과 다름).</li>
+            <li><?php echo $MSG_Wrong_Answer?> (Wrong Answer): 프로그램이 채점 시스템의 테스트 데이터에 대해 잘못된 결과를 반환했습니다.</li>
+            <li><?php echo $MSG_Time_Limit_Exceed?> (Time Limit Exceeded): 프로그램이 제한된 시간 내에 실행을 끝내지 못했습니다.</li>
+            <li><?php echo $MSG_Memory_Limit_Exceed?> (Memory Limit Exceeded): 프로그램이 제한된 메모리양을 초과하여 사용했습니다.</li>
+            <li><?php echo $MSG_Runtime_Error?> (Runtime Error): 프로그램 실행 중에 세그멘테이션 폴트(Segmentation Fault), 0으로 나누기, 부동 소수점 예외 등으로 인해 프로그램이 크래시(종료)되었습니다.</li>
+            <li><?php echo $MSG_Output_Limit_Exceed?> (Output Limit Exceeded): 프로그램이 너무 많은 내용을 출력했습니다. 주로 무한 루프에 빠져 출력을 반복할 때 발생합니다.</li>
         </div>
 
 

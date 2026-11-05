@@ -80,7 +80,7 @@ function gs_admin_menu() {
         $items[] = array("solution_statistics.php", "채점 통계 리포트");
         $items[] = array("problem_copy.php", "문제 복사");
         // 문제 번호를 실제로 바꾸는 기능이라 되돌리기 어렵다. 색으로 구분해 둔다.
-        $items[] = array("problem_changeid.php", "문제 번호 재정렬", "danger");
+        $items[] = array("problem_changeid.php", "문제 번호 변경", "danger");
     }
     $groups[] = array("고급 도구", $items);
 

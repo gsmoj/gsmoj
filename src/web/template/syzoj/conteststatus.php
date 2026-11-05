@@ -3,7 +3,7 @@
 <script src="<?php echo $OJ_CDN_URL?>template/<?php echo $OJ_TEMPLATE?>/js/textFit.min.js"></script>
 <div class="padding">
 
-    <h1>Contest<?php echo $view_cid?> - <?php echo $view_title ?></h1>
+    <h1><?php echo $MSG_CONTEST?> <?php echo $view_cid?> - <?php echo $view_title ?></h1>
   <!-- <form action="" class="ui mini form" method="get" role="form" id="form"> -->
   <form id=simform class="ui mini form" action="status.php" method="get">
 
@@ -16,7 +16,7 @@
 
         <label style="font-size: 1.2em; margin-right: 1px; "><?php echo $MSG_LANG ?>：</label>
         <select class="form-control" size="1" name="language" style="width: 110px;font-size: 1em ">
-          <option value="-1">All</option>
+          <option value="-1">전체</option>
           <?php
           if(isset($_GET['language'])){
             $selectedLang=intval($_GET['language']);
@@ -39,8 +39,8 @@
           <?php if (isset($_GET['jresult'])) $jresult_get=intval($_GET['jresult']);
           else $jresult_get=-1;
           if ($jresult_get>=12||$jresult_get<0) $jresult_get=-1;
-          if ($jresult_get==-1) echo "<option value='-1' selected>All</option>";
-          else echo "<option value='-1'>All</option>";
+          if ($jresult_get==-1) echo "<option value='-1' selected>전체</option>";
+          else echo "<option value='-1'>전체</option>";
           for ($j=0;$j<12;$j++){
           $i=($j+4)%12;
           if ($i==$jresult_get) echo "<option value='".strval($jresult_get)."' selected>".$jresult[$i]."</option>";
@@ -56,7 +56,7 @@
             echo "<label style=\"font-size: 1.2em; margin-right: 1px;margin-left: 10px; \">유사도:</label>";
           echo "
           <select id=\"appendedInputButton\" class=\"form-control\" name=showsim onchange=\"document.getElementById('simform').submit();\" style=\"width: 110px;\">
-          <option value=0 ".($showsim==0?'selected':'').">All</option>
+          <option value=0 ".($showsim==0?'selected':'').">전체</option>
           <option value=50 ".($showsim==50?'selected':'').">50</option>
           <option value=60 ".($showsim==60?'selected':'').">60</option>
           <option value=70 ".($showsim==70?'selected':'').">70</option>

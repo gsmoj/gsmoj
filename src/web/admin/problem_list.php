@@ -102,7 +102,7 @@ function pm_bulkbar($with_ai, $extra_class = "") {
       <input class="btn btn-default btn-sm" type=submit name='disable' value='<?php echo $MSG_RESERVED ?>' onclick='$("form").attr("action","problem_df_change.php")'>
       <?php } ?>
       <input class="btn btn-default btn-sm" type=submit name='plist' value='<?php echo $MSG_NEW_PROBLEM_LIST?>' onclick='$("form").attr("action","news_add_page.php")'>
-      <?php if ($with_ai && isset($_SESSION[$OJ_NAME."_administrator"])) { ?><span class='btn btn-primary btn-sm' onclick='$(".ai.label.label-primary").click();'>AI-category</span><?php } ?>
+      <?php if ($with_ai && isset($_SESSION[$OJ_NAME."_administrator"])) { ?><span class='btn btn-primary btn-sm' onclick='$(".ai.label.label-primary").click();'>AI 분류</span><?php } ?>
     </div>
   </div>
   <?php

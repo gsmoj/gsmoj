@@ -93,9 +93,9 @@ if (isset($_POST['to_user'])) {
 						values(?,?,?,?,now())";
 
         if (!pdo_query($sql, $to_user, $from_user, $title, $content)) {
-            $view_title = "Not Mailed!";
+            $view_title = $MSG_MAIL_NOT_SENT;
         } else {
-            $view_title = "Mailed!";
+            $view_title = $MSG_MAIL_SENT;
         }
     }
 }
@@ -107,7 +107,7 @@ $view_mail = array();
 $i = 0;
 foreach ($result as $row) {
     $view_mail[$i][0] = $row['mail_id'];
-    if ($row['new_mail']) $view_mail[$i][0] .= "<span class=red>New</span>";
+    if ($row['new_mail']) $view_mail[$i][0] .= "<span class=red>$MSG_MAIL_NEW</span>";
     $view_mail[$i][1] = "<a href='mail.php?vid=" . $row['mail_id'] . "'>" .
         $row['from_user'] . ":" . $row['title'] . "</a>";
     $view_mail[$i][2] = $row['in_date'];

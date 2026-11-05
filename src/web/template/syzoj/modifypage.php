@@ -52,7 +52,7 @@
             </form>
 </div>
 <?php if ($OJ_SaaS_ENABLE && $domain==$DOMAIN){ ?>
-  <div class="center"> <a name='MyOJ'>&nbsp;</a> <label >My OJ:</label>
+  <div class="center"> <a name='MyOJ'>&nbsp;</a> <label >내 OJ:</label>
           <form action="saasinit.php" method="post" role="form" class="ui form">
                 <div class="field">
                     <label for="template"><?php echo $MSG_TEMPLATE ?></label>

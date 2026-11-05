@@ -43,23 +43,23 @@ if (isset($OJ_VCODE) && $OJ_VCODE) {
     $_SESSION[$OJ_NAME . '_vcode'] = null;
     if ($vcode === '' || $session_vcode === null || $session_vcode === '' || $vcode != $session_vcode) {
         $_SESSION[$OJ_NAME . '_vfail'] = true;
-        registration_error($errors, 'Verification Code Wrong!');
+        registration_error($errors, $MSG_VCODE_WRONG);
     }
 }
 if ($OJ_LOGIN_MOD !== 'hustoj') registration_error($errors, "$MSG_SYSTEM $MSG_DISABLE $MSG_REGISTER");
 
 $user_id_length = mb_strlen($user_id);
-if ($user_id_length > 48) registration_error($errors, "$MSG_USER_ID $MSG_TOO_LONG !");
+if ($user_id_length > 48) registration_error($errors, "$MSG_USER_ID: $MSG_TOO_LONG");
 elseif ($user_id_length < 3) registration_error($errors, $MSG_WARNING_USER_ID_SHORT);
-if (!is_valid_user_name($user_id)) registration_error($errors, "$MSG_USER_ID $MSG_WRONG !");
+if (!is_valid_user_name($user_id)) registration_error($errors, "$MSG_USER_ID: $MSG_WRONG_FORMAT");
 
-if (mb_strlen($nick) > 20) registration_error($errors, "$MSG_NICK $MSG_TOO_LONG !");
+if (mb_strlen($nick) > 20) registration_error($errors, "$MSG_NICK: $MSG_TOO_LONG");
 elseif ($nick === '') $nick = $user_id;
 
 if (has_bad_words($user_id) || has_bad_words($school) || has_bad_words($nick)) {
     registration_error($errors, '비속어 또는 금지 단어가 포함되어 있습니다.');
 }
-if (mb_strlen($email) > 100) registration_error($errors, "$MSG_EMAIL $MSG_TOO_LONG !");
+if (mb_strlen($email) > 100) registration_error($errors, "$MSG_EMAIL: $MSG_TOO_LONG");
 elseif (filter_var($email, FILTER_VALIDATE_EMAIL) === false) registration_error($errors, '이메일 형식이 올바르지 않습니다.');
 elseif (substr($email, -10) !== '@gsm.hs.kr') registration_error($errors, 'gsm.hs.kr 도메인의 학교 이메일만 가입 가능합니다.');
 if (strcmp($password_text, $repeated_password) !== 0) registration_error($errors, $MSG_WARNING_REPEAT_PASSWORD_DIFF . '!');
@@ -67,7 +67,7 @@ if (strlen($password_text) < 6) registration_error($errors, $MSG_WARNING_PASSWOR
 if ($errors) stop_registration($errors);
 
 $existing_user = pdo_query('SELECT `user_id` FROM `users` WHERE `user_id`=?', $user_id);
-if ($existing_user) stop_registration(array($MSG_USER_ID . ' Existed!'));
+if ($existing_user) stop_registration(array($MSG_USER_ID . ': ' . $MSG_EXISTED));
 
 $nick = htmlentities($nick, ENT_QUOTES, 'UTF-8');
 $school = htmlentities($school, ENT_QUOTES, 'UTF-8');

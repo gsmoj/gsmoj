@@ -6,7 +6,7 @@ $sql="select `private`,`contest_type` FROM `contest` WHERE `contest_id`=?";
 $result=pdo_query($sql,$cid);
 $num=count($result);
 if ($num<1){
-	echo "No Such Problem!";
+	echo $MSG_NO_SUCH_CONTEST;
 	
 	exit(0);
 }

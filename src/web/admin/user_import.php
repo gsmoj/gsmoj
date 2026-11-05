@@ -40,7 +40,8 @@ function import_user($filename) {
         while (($data = fgetcsv($h, 1000, ",")) !== FALSE) {
          // 每个单独的数组都被存入到嵌套的数组中
 	    if(!$check){
-                if ($data[0] == "学号") {
+                // 한국어 양식(학번)과 예전 중국어 양식(学号)을 모두 인식한다.
+                if ($data[0] == "학번" || $data[0] == "学号") {
                         $check=true;
                         echo "<p class='admin-field-label'>가져온 명단</p>\n";
                         $gbk=false;
@@ -115,11 +116,11 @@ if (isset($_FILES["fps"])) {
     require_once("../include/check_post_key.php");
     echo "<div class='admin-result-log'>";
     if ($_FILES["fps"]["error"] > 0) {
-        echo "&nbsp;&nbsp;- Error: " . $_FILES["fps"]["error"] . "File size is too big, change in PHP.ini<br />";
+        echo "&nbsp;&nbsp;- 오류 " . $_FILES["fps"]["error"] . ": 파일이 너무 큽니다. PHP.ini의 업로드 크기 제한을 확인하세요.<br />";
     } else {
         $tempfile = $_FILES["fps"]["tmp_name"];
         if (get_extension($_FILES["fps"]["name"]) == "zip") {
-            echo "&nbsp;&nbsp;- zip file, only fps/xml files in root dir are supported";
+            echo "&nbsp;&nbsp;- ZIP 파일은 최상위 폴더의 CSV 파일만 가져옵니다.";
             $resource = zip_open($tempfile);
             $i = 1;
             $tempfile = tempnam("/tmp", "fps");

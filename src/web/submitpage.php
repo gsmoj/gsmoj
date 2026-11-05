@@ -45,7 +45,7 @@ if (isset($_GET['id'])) {
     // 수행평가 전용 문제는 회차 밖에서 예제가 보이지 않게 한다.
     $gs_dedicated = pdo_query("SELECT 1 FROM problem WHERE problem_id=? AND defunct='A'", $id);
     if (!empty($gs_dedicated) && !(isset($_SESSION[$OJ_NAME . '_administrator']) || isset($_SESSION[$OJ_NAME . '_contest_creator']) || isset($_SESSION[$OJ_NAME . '_problem_editor']) || isset($_SESSION[$OJ_NAME . '_p' . $id]))) {
-        $view_errors = "<h2>No Such Problem!</h2>";
+        $view_errors = "<h2>$MSG_NO_PROBLEM</h2>";
         require("template/" . $OJ_TEMPLATE . "/error.php");
         exit(0);
     }
@@ -78,7 +78,7 @@ if (isset($_GET['id'])) {
     $row = $data[0];
     $problem_id = $row[0];
 } else {
-    $view_errors = "<h2>No Such Problem!</h2>";
+    $view_errors = "<h2>$MSG_NO_PROBLEM</h2>";
     require("template/" . $OJ_TEMPLATE . "/error.php");
     exit(0);
 }
@@ -204,7 +204,7 @@ if (isset($sample_sql)) {
         $result = pdo_query($sample_sql, $problem_id);
     }
     if ($result == false) {
-        $view_errors = "<h2>No Such Problem!</h2>";
+        $view_errors = "<h2>$MSG_NO_PROBLEM</h2>";
         require("template/" . $OJ_TEMPLATE . "/error.php");
         exit(0);
     }

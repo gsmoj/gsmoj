@@ -7,11 +7,11 @@ header('X-Content-Type-Options: nosniff');
 require_once('./include/cache_start.php');
 require_once('./include/db_info.inc.php');
 require_once('./include/setlang.php');
-$view_title = "Source Code";
+$view_title = $MSG_SOURCE_CODE;
 
 require_once("./include/const.inc.php");
 if (!isset($_GET['id'])) {
-    $view_errors = "No such code!\n";
+    $view_errors = $MSG_NO_SUCH_CODE;
     header('Content-Type: text/html; charset=UTF-8');
     require("template/" . $OJ_TEMPLATE . "/error.php");
     exit(0);
@@ -68,7 +68,7 @@ if ($ok == true) {
 
 } else {
 
-    echo "I am sorry, You could not view this code!";
+    echo $MSG_SOURCE_VIEW_DENIED;
 }
 if (file_exists('./include/cache_end.php'))
     require_once('./include/cache_end.php');

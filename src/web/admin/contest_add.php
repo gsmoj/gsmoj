@@ -89,7 +89,7 @@ if(isset($_POST['startdate'])){
   $user_id=$_SESSION[$OJ_NAME.'_'.'user_id'];
  // echo $sql.$title.$starttime.$endtime.$private.$langmask.$description.$password,$user_id;
   $cid = pdo_query($sql,$title,$starttime,$endtime,$private,$langmask,$description,$password,$subnet,$contest_type,$user_id) ;
-  echo "Add Contest ".$cid;
+  echo "대회를 등록했습니다: ".$cid;
   // 수행평가 관리 화면에 속하지 않는 회차는 assessment_id를 0으로 둔다.
   if($contest_type & 512) pdo_query("INSERT INTO `assessment_session`(assessment_id,contest_id,group_name,created_at) VALUES(0,?,?,NOW())",$cid,$assessment_group);
 
@@ -112,7 +112,7 @@ if(isset($_POST['startdate'])){
          pdo_query($sql_1,$cid,$pieces[$i],$pid);
          $pid++;
       }else{
-         print("Problem not exists:".$pieces[$i]."<br>\n");
+         print("존재하지 않는 문제: ".$pieces[$i]."<br>\n");
       }
     }
     //echo $sql_1;

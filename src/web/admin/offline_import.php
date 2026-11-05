@@ -295,7 +295,7 @@ else {
     system ("rmdir $tempdir");
  
   }else{
-    	echo " zip file Only <hr> \n";
+    	echo " ZIP 파일만 업로드할 수 있습니다. <hr> \n";
   }
 }
  

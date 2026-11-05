@@ -77,10 +77,10 @@ function submitSolution($pid,$solution,$language) {
 ?>
 
 <hr>
-&nbsp;&nbsp;- Import Problem ... <br>
+&nbsp;&nbsp;- 문제를 가져오는 중입니다... <br>
 &nbsp;&nbsp;- 가져오기에 실패하면 다음 문서를 참고하세요: <a href="https://github.com/zhblue/hustoj/blob/master/wiki/FAQ.md#%E5%90%8E%E5%8F%B0%E5%AF%BC%E5%85%A5%E9%97%AE%E9%A2%98%E5%A4%B1%E8%B4%A5" target="_blank">FAQ</a>
 <br>
-<a href="problem_list.php" > Return to Problem List </a>
+<a href="problem_list.php" > <?php echo $MSG_PROBLEM." ".$MSG_LIST?>(으)로 돌아가기 </a>
 <br>
 
 <?php
@@ -309,7 +309,7 @@ function import_fps($tempfile) {
 
 		  }
 		    if (!file_exists("$basedir/spj")) {
-		      echo "you need to compile $basedir/spj.cc for spj[  g++ -o $basedir/spj $basedir/spj.cc   ]<br> and rejudge $pid";
+		      echo "특별 채점기를 사용하려면 $basedir/spj.cc를 컴파일해야 합니다[  g++ -o $basedir/spj $basedir/spj.cc   ]<br> 컴파일 후 $pid번 문제를 재채점하세요.";
 		    }
 		    else {
 		      //unlink("$basedir/spj.cc");
@@ -330,7 +330,7 @@ function import_fps($tempfile) {
 			    //////system( " gcc -o $basedir/spj $basedir/spj.c  ");
 		  }
 	    if (!file_exists("$basedir/tpj")) {
-	      echo "you need to compile $basedir/tpj.cc for tpj[  g++ -o $basedir/tpj $basedir/tpj.cc   ]<br> and rejudge $pid";
+	      echo "상호작용 채점기를 사용하려면 $basedir/tpj.cc를 컴파일해야 합니다[  g++ -o $basedir/tpj $basedir/tpj.cc   ]<br> 컴파일 후 $pid번 문제를 재채점하세요.";
 	    }
 	    else {
 	      //unlink("$basedir/spj.cc");
@@ -381,12 +381,12 @@ function import_fps($tempfile) {
 
 
 if ($_FILES ["fps"] ["error"] > 0) {
-  echo "&nbsp;&nbsp;- Error: ".$_FILES ["fps"] ["error"]."File size is too big, change in PHP.ini<br />";
+  echo "&nbsp;&nbsp;- 오류 ".$_FILES ["fps"] ["error"].": 파일이 너무 큽니다. PHP.ini의 업로드 크기 제한을 확인하세요.<br />";
 }
 else {
   $tempfile = $_FILES ["fps"] ["tmp_name"];
   if (get_extension( $_FILES ["fps"] ["name"])=="zip") {
-    echo "&nbsp;&nbsp;- zip file, only fps/xml files in root dir are supported";
+    echo "&nbsp;&nbsp;- ZIP 파일은 최상위 폴더의 fps/xml 파일만 가져옵니다.";
     $resource = new ZipArchive;
     if ($resource->open($tempfile) === TRUE) {
         $tempfile_extract = tempnam("/tmp", "fps");
@@ -401,7 +401,7 @@ else {
         $resource->close();
         if (file_exists($tempfile_extract)) unlink($tempfile_extract);
     } else {
-        echo "&nbsp;&nbsp;- Error: Failed to open zip file.<br>";
+        echo "&nbsp;&nbsp;- 오류: ZIP 파일을 열 수 없습니다.<br>";
     }
     unlink ( $_FILES ["fps"] ["tmp_name"] );
   }

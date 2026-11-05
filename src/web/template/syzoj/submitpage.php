@@ -452,7 +452,7 @@ function fresh_result(solution_id)
 {
 var tb=window.document.getElementById('result');
 if(solution_id==undefined){
-	tb.innerHTML="Vcode Error!";		
+	tb.innerHTML="<?php echo $MSG_VCODE_WRONG?>";		
 	if(window.parent!==window && typeof window.parent.updateWorkspaceRun==='function') window.parent.updateWorkspaceRun('error','인증 코드 또는 실행 요청을 확인해 주세요.');
 	if($("#vcode")!=null) $("#vcode").click();
 	return ;

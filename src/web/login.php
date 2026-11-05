@@ -56,7 +56,7 @@ if (!$use_cookie) {
     if ($OJ_VCODE && ($vcode != $session_vcode || $vcode == "" || $vcode == null)) {
         $_SESSION[$OJ_NAME . '_' . "vfail"] = true;
         echo "<script language='javascript'>\n";
-        echo "alert('Verify Code Wrong!');\n";
+        echo "alert('$MSG_VCODE_WRONG');\n";
         echo "history.go(-1);\n";
         echo "</script>";
         exit(0);
@@ -73,7 +73,7 @@ if (!$use_cookie) {
                         (SELECT COUNT(1) FROM loginlog WHERE ip=? AND password='login fail' AND time>=?) as ip_fail;", $user_id, $fiveMinutesAgo, $ip, $fiveMinutesAgo);
                         
     if (isset($OJ_LOGIN_FAIL_LIMIT) && ($OJ_LOGIN_FAIL_LIMIT > 0) && ($failed[0][0] > $OJ_LOGIN_FAIL_LIMIT || $failed[0][1] > $OJ_LOGIN_FAIL_LIMIT * 4)) {
-        $view_errors = "Failed login too frequently!";
+        $view_errors = $MSG_LOGIN_TOO_FREQUENT;
         require("template/" . $OJ_TEMPLATE . "/error.php");
         exit(0);
     }
@@ -147,7 +147,7 @@ if ($login) {
         require("template/" . $OJ_TEMPLATE . "/error.php");
     } else {
         echo "<script language='javascript'>\n";
-        echo "alert('UserName or Password Wrong!');\n";
+        echo "alert('$MSG_LOGIN_FAILED');\n";
         echo "history.go(-1);\n";
         echo "</script>";
     }

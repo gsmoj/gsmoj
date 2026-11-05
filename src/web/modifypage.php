@@ -3,7 +3,7 @@ $OJ_CACHE_SHARE = false;
 require_once('./include/cache_start.php');
 require_once('./include/db_info.inc.php');
 require_once('./include/setlang.php');
-$view_title = "Welcome To Online Judge";
+$view_title = $MSG_MODIFY_USERINFO;
 if (!isset($_SESSION[$OJ_NAME . '_' . 'user_id'])) {
     $view_errors = "<a href=./loginpage.php>$MSG_Login</a>";
 

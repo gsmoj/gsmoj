@@ -28,7 +28,7 @@
 <?php
 $rank=1;
 ?>
-<center><h3>Contest Team RankList -- <?php echo $title?></h3>
+<center><h3>팀 <?php echo $MSG_CONTEST_RANKLIST?> -- <?php echo $title?></h3>
 <!-- <a href="contestrank.xls.php?cid=<?php echo $cid?>" >Download</a> -->
 <?php
 if($OJ_MEMCACHE)
@@ -36,12 +36,12 @@ if($OJ_MEMCACHE)
     if (isset($_SESSION[$OJ_NAME.'_'.'administrator'])) {
         echo ' | <a href="contestrank3.php?cid='.$cid.'">순위 공개</a>';
     }
-    echo '<a href="contestrank2.php?cid='.$cid.'">Replay</a>';
+    echo '<a href="contestrank2.php?cid='.$cid.'">순위 다시 보기</a>';
 }
  ?>
 </center>
 <div style="overflow: auto">
-<table id=rank><thead><tr class=toprow align=center><td class="{sorter:'false'}" width=5%>Rank<th width=10%>Team</th><th width=5%>Num</th><th width=5%>Solved</th><th width=5%>Average</th><th width=5%>Penalty</th>
+<table id=rank><thead><tr class=toprow align=center><td class="{sorter:'false'}" width=5%><?php echo $MSG_Number?><th width=10%>팀</th><th width=5%>인원</th><th width=5%><?php echo $MSG_SOVLED?></th><th width=5%>평균</th><th width=5%><?php echo $MSG_CONTEST_PENALTY?></th>
 <?php
 for ($i=0;$i<$pid_cnt;$i++)
 echo "<td><a href=problem.php?cid=$cid&pid=$i>$PID[$i]</a></td>";
@@ -174,7 +174,7 @@ if (isNaN(ac)) ac=parseInt(acc.textContent);
 if(cell.innerHTML!="*"&&ac>0){
 var r=parseInt(cell.innerHTML);
 if(r==1){
-cell.innerHTML="Winner";
+cell.innerHTML="1위";
 //cell.style.cssText="background-color:gold;color:red";
 cell.className="badge btn-warning";
 }

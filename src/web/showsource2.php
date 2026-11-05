@@ -8,7 +8,7 @@ $view_title = "Source Code";
 
 require_once("./include/const.inc.php");
 if (!isset($_GET['id'])) {
-    $view_errors = "No such code!\n";
+    $view_errors = $MSG_NO_SUCH_CODE;
     require("template/" . $OJ_TEMPLATE . "/error.php");
     exit(0);
 }

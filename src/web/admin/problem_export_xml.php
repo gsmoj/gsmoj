@@ -4,7 +4,7 @@ require_once ("../include/db_info.inc.php");
 
 if (!(isset($_SESSION[$OJ_NAME.'_'.'administrator']) || isset($_SESSION[$OJ_NAME.'_'.'problem_importer']))) {
   echo "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">";
-  echo "<a href='../loginpage.php'>Please Login First!</a>";
+  echo "<a href='../loginpage.php'>먼저 로그인하세요.</a>";
   exit ( 1 );
 }
 if (!isset($OJ_LANG)) {

@@ -36,7 +36,7 @@
                         </td>
 			<td><?php echo $u['uri']?></td>
 			<td><?php echo $u['refer']?></td>
-			<td><?php echo sprintf("%dmin %dsec",($u['lastmove']-$u['firsttime'])/60,($u['lastmove']-$u['firsttime']) % 60)?></td>
+			<td><?php echo sprintf("%d분 %d초",($u['lastmove']-$u['firsttime'])/60,($u['lastmove']-$u['firsttime']) % 60)?></td>
 			<td><?php echo $u['ua']?></td>
 		</tr>
 		<?php 
