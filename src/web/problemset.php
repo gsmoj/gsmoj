@@ -51,7 +51,7 @@ $has_filter = isset($_GET['search']) || $view_filter != "" || $view_category != 
 
 $page = "1";
 if (isset($_GET['page'])) {
-    $page = intval($_GET['page']);
+    $page = max(1, intval($_GET['page']));  // 0이나 음수 페이지는 LIMIT 오류가 나므로 1로 맞춘다.
     if (isset($_SESSION[$OJ_NAME . '_' . 'user_id']) && !$has_filter) {
         $sql = "update users set volume=? where user_id=?";
         pdo_query($sql, $page, $_SESSION[$OJ_NAME . '_' . 'user_id']);

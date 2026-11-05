@@ -223,7 +223,7 @@
                                     ."<td>".$row["time"]."</td>"."</tr>";
                             }
                         }else{
-                            echo "check database connection or account ! ";
+                            echo "공지를 불러오지 못했습니다. 데이터베이스 연결 또는 계정을 확인하세요.";
                         }
                         ?>
                     </tbody>
@@ -257,10 +257,10 @@ if(isset($pages) && $pages>1 ){
   echo "<li class='page-item'><a href='index.php?page=".(strval(1))."'>&lt;&lt;</a></li>";
   echo "<li class='page-item'><a href='index.php?page=".($page==1?strval(1):strval($page-1))."'>&lt;</a></li>";
   for($i=$spage; $i<=$epage; $i++){
-    echo "<li class='".($page==$i?"active ":"")."page-item'><a title='go to page' href='index.php?page=".$i."'>".$i."</a></li>";
+    echo "<li class='".($page==$i?"active ":"")."page-item'><a title='페이지 이동' href='index.php?page=".$i."'>".$i."</a></li>";
   }
-  echo "<li class='page-item'><a href='index.php?page=".($page==pages?strval($page):strval($page+1))."'>&gt;</a></li>";
-  echo "<li class='page-item'><a href='index.php?page=".(strval(pages))."'>&gt;&gt;</a></li>";
+  echo "<li class='page-item'><a href='index.php?page=".($page==$pages?strval($page):strval($page+1))."'>&gt;</a></li>";
+  echo "<li class='page-item'><a href='index.php?page=".(strval($pages))."'>&gt;&gt;</a></li>";
   echo "</ul>";
   echo "</nav>";
   echo "</div>";
@@ -315,7 +315,7 @@ $view_month_rank=mysql_query_cache("select user_id,nick,count(distinct(problem_i
                         }
                         ?>
                          <tr><td>
-                                 <center> Recent submission :
+                                 <center> 최근 제출 현황 :
                                          <?php echo $speed?> .
                                          <div id=submission style="width:80%;height:300px"></div>
                                  </center>
@@ -355,7 +355,10 @@ $view_month_rank=mysql_query_cache("select user_id,nick,count(distinct(problem_i
                     <tbody>
                     <?php
                         // 현재 진행 중인 특수 올림피아드(NOIP) 모드 대회의 문항들은 유출 방지를 위해 추천 목록에서 제외한다.
-        $noip_problems=array_merge(...mysql_query_cache("select problem_id from contest c left join contest_problem cp on start_time<'$now' and end_time>'$now' and  (c.title like ? or (c.contest_type & 20) >0) and c.contest_id=cp.contest_id","%$OJ_NOIP_KEYWORD%"));
+                        // 진행 중인 수행평가(contest_type & 512)도 함께 제외한다. 키워드가 비어 있으면 모든 대회와 일치하므로 제목 조건은 키워드가 있을 때만 붙인다.
+        $noip_title_sql = (isset($OJ_NOIP_KEYWORD) && $OJ_NOIP_KEYWORD) ? "c.title like ? or " : "";
+        $noip_params = $noip_title_sql ? array("%$OJ_NOIP_KEYWORD%") : array();
+        $noip_problems=array_merge(...mysql_query_cache("select problem_id from contest c left join contest_problem cp on start_time<'$now' and end_time>'$now' and  ($noip_title_sql(c.contest_type & (20|512)) >0) and c.contest_id=cp.contest_id",...$noip_params));
         $noip_problems=array_unique($noip_problems);
                          if(isset($_SESSION[$OJ_NAME."_user_id"])) $user_id=$_SESSION[$OJ_NAME."_user_id"]; else $user_id='guest';
                         $sql_problems = "select p.problem_id,title,max_in_date from (select problem_id,min(result) best,max(in_date) max_in_date from solution
