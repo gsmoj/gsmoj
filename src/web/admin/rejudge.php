@@ -8,7 +8,7 @@ if (!(isset($_SESSION[$OJ_NAME.'_'.'administrator']))){
         if (isset($_POST['rjpid'])){
                 $rjpid=intval($_POST['rjpid']);
                 if($rjpid == 0) {
-                    echo "Rejudge Problem ID should not equal to 0";
+                    echo "문제 번호는 0이 될 수 없습니다.";
                     exit(1);
                 }
                 $sql="UPDATE `solution` SET `result`=1,pass_rate=0 WHERE `problem_id`=? and problem_id>0";
@@ -18,7 +18,7 @@ if (!(isset($_SESSION[$OJ_NAME.'_'.'administrator']))){
                 $sql="delete from `sim` WHERE `s_id` in (select solution_id from solution where `problem_id`=?)";
                 pdo_query($sql,$rjpid) ;
                 $url="../status.php?problem_id=".$rjpid;
-                echo "Rejudged Problem ".$rjpid;
+                echo "재채점을 요청했습니다. 문제 ".$rjpid;
                 echo "<script>location.href='$url';</script>";
         }else if (isset($_POST['rjsid'])){
                 $rjsid=intval($_POST['rjsid']);
@@ -34,7 +34,7 @@ if (!(isset($_SESSION[$OJ_NAME.'_'.'administrator']))){
                         $url="../status.php?cid=".$cid."&top=".($rjsid+1);
                 else
                         $url="../status.php?top=".($rjsid+1);
-                echo "Rejudged Runid ".$rjsid;
+                echo "재채점을 요청했습니다. 채점번호 ".$rjsid;
                 echo "<script>location.href='$url';</script>";
         }else if (isset($_POST['result'])){
                 $result=intval($_POST['result']);
@@ -55,7 +55,7 @@ if (!(isset($_SESSION[$OJ_NAME.'_'.'administrator']))){
 				pdo_query($sql,$rjcid) ;
 			}
 			$url="../status.php?cid=".($rjcid);
-			echo "Rejudged Contest id :".$rjcid;
+			echo "재채점을 요청했습니다. 대회 ".$rjcid;
 			echo "<script>location.href='$url';</script>";
 		}else{
 			echo "<script>location.href='rejudge.php';</script>";

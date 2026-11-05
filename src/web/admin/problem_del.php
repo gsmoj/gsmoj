@@ -66,7 +66,7 @@ function recursiveDelete($dir) {
   
   ?>
         <script language=javascript>
-                alert("Nees enable system() in php.ini");
+                alert("채점 데이터를 지우려면 php.ini에서 system() 함수를 허용해야 합니다.");
                 history.go(-1);
         </script>
   <?php 

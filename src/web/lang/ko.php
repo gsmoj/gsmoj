@@ -674,7 +674,7 @@ $MSG_NUM="#";
 	$MSG_EXTERNAL_LINKS="외부 링크";
 	$MSG_SOLUTION_STATISTICS="채점 통계 리포트";
 	$MSG_PROBLEM_COPY="문제 복사";
-	$MSG_PROBLEM_REORDER="문제 번호 재정렬";
+	$MSG_PROBLEM_REORDER="문제 번호 변경";
 	// DataGSM 학교 계정 로그인
 	$MSG_DATAGSM_LOGIN="DataGSM으로 로그인";
 	$MSG_DATAGSM_OR_LOCAL="또는 기존 아이디로 로그인";

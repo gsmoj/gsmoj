@@ -125,7 +125,7 @@ if(isset($_POST['startdate'])){
       	 pdo_query($sql_2,$num,$cid,$pid);
          $num++;
       }else{
-         print("Problem not exists:".$pieces[$i]."<br>\n");
+         print("존재하지 않는 문제: ".$pieces[$i]."<br>\n");
       }
     }
 
@@ -158,7 +158,7 @@ if(isset($_POST['startdate'])){
   $result = pdo_query($sql,$cid);
 
   if(count($result)!=1){
-    echo "No such Contest!";
+    echo $MSG_NO_SUCH_CONTEST;
     exit(0);
   }
 

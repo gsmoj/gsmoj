@@ -19,25 +19,25 @@ $delay=pdo_query($sql);
     <tr>
 <td>
     <center>
-        <a class='btn btn-info btn-sm' href='#' onclick='toggleWatch()'>System Status</a>
+        <a class='btn btn-info btn-sm' href='#' onclick='toggleWatch()'>시스템 상태</a>
     </center>
 </td>
 <td id="watch" style="display:none;">
     <iframe src="watch.php?notext" width="100%" height="200"></iframe>
-     Delay:<?php echo $delay[0][0] ?>s/judge &nbsp;&nbsp;  
-		    CPU:<?php echo sys_getloadavg()[0];?>tasks/1min  &nbsp;&nbsp; 
+     채점 지연:<?php echo $delay[0][0] ?>초/건 &nbsp;&nbsp;  
+		    CPU 부하:<?php echo sys_getloadavg()[0];?>(1분 평균)  &nbsp;&nbsp; 
 	<?php if(function_exists('system')){  ?>
-		    FreeMem:<?php system(" free -h|grep Mem|awk '{print $7\"/\"$2 }'");?>&nbsp;&nbsp;  
-		    FreeDisk:<?php system("df -h|grep '/dev/'|grep -v 'shm'|awk '{print $4 \"/\" $2}'");?>&nbsp;&nbsp;  
+		    남은 메모리:<?php system(" free -h|grep Mem|awk '{print $7\"/\"$2 }'");?>&nbsp;&nbsp;  
+		    남은 디스크:<?php system("df -h|grep '/dev/'|grep -v 'shm'|awk '{print $4 \"/\" $2}'");?>&nbsp;&nbsp;  
 	<?php } ?>
 </td>
 <td>
     <div id="serverInfo" style="display:block;">
-       Delay:<?php echo $delay[0][0] ?>s/judge &nbsp;&nbsp;  
-		    CPU:<?php echo sys_getloadavg()[0];?>tasks/1min  &nbsp;&nbsp; 
+       채점 지연:<?php echo $delay[0][0] ?>초/건 &nbsp;&nbsp;  
+		    CPU 부하:<?php echo sys_getloadavg()[0];?>(1분 평균)  &nbsp;&nbsp; 
 	<?php if(function_exists('system')){  ?>
-		    FreeMem:<?php system(" free -h|grep Mem|awk '{print $7\"/\"$2 }'");?>&nbsp;&nbsp;  
-		    FreeDisk:<?php system("df -h|grep '/dev/'|grep -v 'shm'|awk '{print $4 \"/\" $2}'");?>&nbsp;&nbsp;  
+		    남은 메모리:<?php system(" free -h|grep Mem|awk '{print $7\"/\"$2 }'");?>&nbsp;&nbsp;  
+		    남은 디스크:<?php system("df -h|grep '/dev/'|grep -v 'shm'|awk '{print $4 \"/\" $2}'");?>&nbsp;&nbsp;  
 	<?php } ?>
 	            <?php echo $MSG_PROBLEM. pdo_query("select count(*) from problem ")[0][0];?>&nbsp;&nbsp;
                     <?php echo $MSG_USER. pdo_query("select count(*) from users ")[0][0];?>&nbsp;&nbsp;
@@ -70,7 +70,7 @@ $delay=pdo_query($sql);
       <td><p><?php echo $MSG_HELP_SEEOJ?></p></td>
     </tr>
  <tr>
-      <td><a class='btn btn-block btn-sm' href="langmask.html" target="main"><b>Langmask Calculator </b></a></td>
+      <td><a class='btn btn-block btn-sm' href="langmask.html" target="main"><b>언어 마스크 계산기 </b></a></td>
       <td><p>언어 마스크(Langmask)를 계산합니다.</p></td>
     </tr>
 
