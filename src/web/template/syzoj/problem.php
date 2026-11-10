@@ -36,6 +36,8 @@ div[class*=ace_br] {
 #main .padding .ui.grid > .row + .row.problem-meta-row { margin-top:0; padding-top:8px; }
 #main .padding .ui.grid > .row#submit-buttons { padding-top:18px; }
 .problem-meta-row > .ui.label { margin:0; }
+/* 화이트 모드에서 메모리·시간 제한 등 정보 라벨이 흰 배경에 묻히지 않도록 배경과 테두리를 준다. */
+body:not(.problem-workspace-dark) #main .problem-meta-row > .ui.label { background:#e8eef6 !important; color:#334155 !important; box-shadow:inset 0 0 0 1px #cfd8e3; }
 #show_tag_div { display:flex; flex-wrap:wrap; gap:8px; }
 #show_tag_div > .ui.label { margin:0; }
 .problem-actions { display:flex; flex-wrap:wrap; align-items:center; gap:8px; }
