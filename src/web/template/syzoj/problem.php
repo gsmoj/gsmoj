@@ -994,7 +994,9 @@ function admin_mod(){
 	}
 }
   $(document).ready(function(){
-    	$("#creator").load("problem-ajax.php?pid=<?php echo $id?>");
+    	$("#creator").load("problem-ajax.php?pid=<?php echo $id?>", function(text) {
+    		if (!$.trim(text)) $("#creator").closest(".label").hide();
+    	});
 	<?php if(isset($OJ_MARKDOWN)&&$OJ_MARKDOWN){ ?>
 		marked.use({
                   // MathJax 비동기 렌더링을 켠다.
