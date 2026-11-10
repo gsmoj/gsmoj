@@ -42,9 +42,9 @@ body:not(.problem-workspace-dark) #main .problem-meta-row > .ui.label { backgrou
 #show_tag_div > .ui.label { margin:0; }
 .problem-actions { display:flex; flex-wrap:wrap; align-items:center; gap:8px; }
 .problem-actions > .ui.button { margin:0; }
-/* 화이트 모드에서 문제 수정·채점 데이터 버튼이 흰 배경에 묻히지 않도록 진한 회청색으로 칠한다. */
-body:not(.problem-workspace-dark) #main .problem-actions > .ui.button.problem-admin-btn { background:#475569 !important; color:#fff !important; box-shadow:none !important; }
-body:not(.problem-workspace-dark) #main .problem-actions > .ui.button.problem-admin-btn:hover { background:#334155 !important; color:#fff !important; }
+/* 화이트 모드에서 문제 수정·채점 데이터 버튼이 흰 배경에 묻히지 않도록 옅은 파란 배경과 테두리를 준다. */
+body:not(.problem-workspace-dark) #main .problem-actions > .ui.button.problem-admin-btn { background:#eff6ff !important; color:#1d4ed8 !important; box-shadow:inset 0 0 0 1px #bfdbfe !important; }
+body:not(.problem-workspace-dark) #main .problem-actions > .ui.button.problem-admin-btn:hover { background:#dbeafe !important; color:#1e40af !important; box-shadow:inset 0 0 0 1px #93c5fd !important; }
 .ui.grid > .row > .column.problem-actions-row { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px; width:100%; }
 
 <?php if (isset($_GET['spa'])) { ?>
