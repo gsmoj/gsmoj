@@ -2,6 +2,13 @@
 $cache_time = 10;
 $OJ_CACHE_SHARE = false;
 
+require_once('./include/db_info.inc.php');
+// 로그인하지 않으면 답안 작성 칸에 로그인 안내가 뜨므로, 문제 화면을 열기 전에 로그인 페이지로 보낸다.
+if (!isset($_SESSION[$OJ_NAME . '_' . 'user_id']) && !(isset($OJ_GUEST) && $OJ_GUEST)) {
+    header('Location: loginpage.php');
+    exit(0);
+}
+
 require_once('./include/cache_start.php');
 require_once('./include/db_info.inc.php');
 require_once('./include/bbcode.php');

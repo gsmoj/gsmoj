@@ -124,15 +124,15 @@
           <?php echo $MSG_Time_Limit?>
           <input class="input input-mini" type=number min="0.001" max="300" step="0.001" name=time_limit size=20 value=1> sec
           <?php echo $MSG_Memory_Limit?>
-          <input class="input input-mini" type=number min="1" max="2048" step="1" name=memory_limit size=20 value=128> MiB<br><br>
+          <input class="input input-mini" type=number min="1" max="2048" step="1" name=memory_limit size=20 value=128> MiB
           <?php if (isset($_SESSION[$OJ_NAME."_"."administrator"]) || isset($_SESSION[$OJ_NAME."_"."problem_editor"])) { ?>
           <?php echo "$MSG_COIN"?>
-          <input class="input input-mini" type=number min="0" max="9999" step="1" name=coin size=20 value=1> <br><br>
+          <input class="input input-mini" type=number min="0" max="9999" step="1" name=coin size=20 value=1>
           <?php } ?>
         </section>
         <section class="problem-form-section">
           <?php echo "<h4>".$MSG_Description."(<64kB)</h4>"?>
-	  <textarea class="problem-md-editor" rows=33 name=description cols=80 placeholder="<?php echo problem_placeholder_attr($problem_form_placeholders['description'])?>" data-placeholder="<?php echo problem_placeholder_attr($problem_form_placeholders['description'])?>"></textarea><br>
+	  <textarea class="problem-md-editor" rows=13 name=description cols=80 placeholder="<?php echo problem_placeholder_attr($problem_form_placeholders['description'])?>" data-placeholder="<?php echo problem_placeholder_attr($problem_form_placeholders['description'])?>"></textarea><br>
         </section>
 	<div class="full">
         <section class="problem-form-section">

@@ -100,7 +100,7 @@ include_once("problem_md_editor.php");
         </section>
         <section class="problem-form-section">
           <?php echo "<h4>".$MSG_Description."</h4>"?>
-          <textarea class="problem-md-editor" rows=33 name=description cols=80><?php echo htmlentities(problem_editor_content($row['description']),ENT_QUOTES,"UTF-8")?></textarea>
+          <textarea class="problem-md-editor" rows=13 name=description cols=80><?php echo htmlentities(problem_editor_content($row['description']),ENT_QUOTES,"UTF-8")?></textarea>
         </section>
 	<div class="full">
         <section class="problem-form-section">
