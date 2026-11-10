@@ -42,6 +42,9 @@ body:not(.problem-workspace-dark) #main .problem-meta-row > .ui.label { backgrou
 #show_tag_div > .ui.label { margin:0; }
 .problem-actions { display:flex; flex-wrap:wrap; align-items:center; gap:8px; }
 .problem-actions > .ui.button { margin:0; }
+/* 화이트 모드에서 문제 수정·채점 데이터 버튼이 흰 배경에 묻히지 않도록 진한 회청색으로 칠한다. */
+body:not(.problem-workspace-dark) #main .problem-actions > .ui.button.problem-admin-btn { background:#475569 !important; color:#fff !important; box-shadow:none !important; }
+body:not(.problem-workspace-dark) #main .problem-actions > .ui.button.problem-admin-btn:hover { background:#334155 !important; color:#fff !important; }
 .ui.grid > .row > .column.problem-actions-row { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px; width:100%; }
 
 <?php if (isset($_GET['spa'])) { ?>
@@ -149,8 +152,8 @@ if(file_exists($solution_file)){
       ?>
       
         <div class="problem-actions">
-            <a class="small ui button" href="admin/problem_edit.php?id=<?php echo $id?>&getkey=<?php echo htmlentities($_SESSION[$OJ_NAME.'_'.'getkey'])?>"><?php echo $MSG_EDIT.$MSG_PROBLEM?></a>
-            <a class="small ui button" href='javascript:phpfm(<?php echo $row['problem_id'];?>)'><?php echo $MSG_TEST_DATA?></a>
+            <a class="small ui button problem-admin-btn" href="admin/problem_edit.php?id=<?php echo $id?>&getkey=<?php echo htmlentities($_SESSION[$OJ_NAME.'_'.'getkey'])?>"><?php echo $MSG_EDIT.$MSG_PROBLEM?></a>
+            <a class="small ui button problem-admin-btn" href='javascript:phpfm(<?php echo $row['problem_id'];?>)'><?php echo $MSG_TEST_DATA?></a>
         </div>
       <?php }?>
 			
