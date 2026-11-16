@@ -22,7 +22,7 @@ if (!(isset($_SESSION[$OJ_NAME.'_'.'administrator'])||isset($_SESSION[$OJ_NAME.'
                             $info=$history[$HL];
                     }
 if(function_exists('system')){
-           date_default_timezone_set("PRC");
+           date_default_timezone_set("Asia/Seoul"); // include/init.php와 같은 한국 표준시
                 if($HL<0||(isset($history[$HL][4]) && $history[$HL][4] <= (time()-$delay)*1000) ){
                         $info=array();
                            // system(" top -bn1 | grep \"Cpu\" | awk -F, '{print $4}' | awk '{print 100-$1}' ");
@@ -37,10 +37,11 @@ if(function_exists('system')){
 
                             array_push($info,(time())*1000);
 
-                            exec("df -m|grep '/dev/vda3'|grep -v 'shm'|awk '{print $3 }'",$info);
+                            // 루트 파일 시스템 사용량(MB). 특정 장치 이름(/dev/vda3)에 의존하지 않는다.
+                            exec("df -mP / | tail -1 | awk '{print $3 }'",$info);
                             $info[count($info)-1]=floatval($info[count($info)-1]);
-                            exec("df -m|grep 'aliyun'|grep -v 'shm'|awk '{print $3} '",$info);
-                            $info[count($info)-1]=floatval($info[count($info)-1]);
+                            // 기존 aliyun NAS 항목은 이 서버에 없으므로 0으로 기록해 이력 형식만 유지한다.
+                            array_push($info,0);
                             //echo json_encode($info);
                             array_push($history,$info);
                             while(count($history)>900) array_shift($history);
@@ -86,7 +87,7 @@ if(function_exists('system')){
                     <span style="color:rgb(77,167,77)">SWAP:<span id="swap"><?php echo $info[2] ?>M</span></span><br>
                     <span style="color:rgb(203,75,75)">TCP :<span id="tcp"><?php echo $info[3] ?></span>pairs </span> <br>
                     DISK:<span id="disk"><?php echo $info[5] ?></span>M  <br>
-                    NAS :<span id="nas"><?php echo intval($info[6]/1024) ?></span>G  <br>
+                    <?php if (!empty($info[6])) { ?>NAS :<span id="nas"><?php echo intval($info[6]/1024) ?></span>G  <br><?php } ?>
 </h1>
 <?php } ?>
         <script> //window.setTimeout("location.reload()",5000); </script>

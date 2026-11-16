@@ -57,8 +57,9 @@ if (isset($_GET['cid'])) {
     /**
      * NOIP 대회이거나 잠긴 대회인지 판단한다.
      * 대회가 진행 중이면서 NOIP 키워드가 있거나 잠겨 있는지 확인한다.
+     * 진행 중인 수행평가(contest_type 9번 비트, 512)도 NOIP처럼 정답 여부와 정답·제출 수를 숨긴다.
      */
-    $noip = (time() < $end_time) && (stripos($view_title, $OJ_NOIP_KEYWORD) !== false || contest_locked($cid, 16));
+    $noip = (time() < $end_time) && (stripos($view_title, $OJ_NOIP_KEYWORD) !== false || contest_locked($cid, 16 | 512));
     $hide_others = contest_locked($cid, 8);
 
     /**
@@ -121,9 +122,9 @@ if (isset($_GET['cid'])) {
 
         /**
          * NOIP 또는 숨김 설정에 따라 정답 수와 제출 수 표시 여부를 정한다.
-         * 관리자는 제한을 받지 않는다.
+         * 관리자와 회차 관리 교사(mNNNN)는 제한을 받지 않는다.
          */
-        if (($noip || $hide_others) && !(isset($_SESSION[$OJ_NAME . 'm' . $cid]) || isset($_SESSION[$OJ_NAME . '_administrator']))) {
+        if (($noip || $hide_others) && !(isset($_SESSION[$OJ_NAME . '_' . 'm' . $cid]) || isset($_SESSION[$OJ_NAME . '_administrator']))) {
             $view_problemset[$cnt][3] = "<span class=red>?</span>";
             $view_problemset[$cnt][4] = "<span class=red>?</span>";
         } else {

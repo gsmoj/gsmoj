@@ -9,7 +9,7 @@ $title = "";
 require_once("./include/const.inc.php");
 require_once("./include/my_func.inc.php");
 
-$user_id = $_SESSION[$OJ_NAME . '_' . 'user_id'];
+$user_id = isset($_SESSION[$OJ_NAME . '_' . 'user_id']) ? $_SESSION[$OJ_NAME . '_' . 'user_id'] : "";
 
 
 /************************  数据库  *******************************/
@@ -26,7 +26,9 @@ function getShareCodeListByPage($user_id)
 if (
     (isset($OJ_EXAM_CONTEST_ID) && $OJ_EXAM_CONTEST_ID > 0) ||
     (isset($OJ_ON_SITE_CONTEST_ID) && $OJ_ON_SITE_CONTEST_ID > 0) ||
-    (isset($OJ_SHARE_CODE) && !$OJ_SHARE_CODE)
+    (isset($OJ_SHARE_CODE) && !$OJ_SHARE_CODE) ||
+    // 현재 템플릿에 코드 공유 화면이 없으면 fatal 대신 안내를 보여준다.
+    !file_exists("template/" . $OJ_TEMPLATE . "/sharecodelist.php")
 ) {
     $view_errors = "코드 공유 기능을 지금은 사용할 수 없습니다!";
     require("template/" . $OJ_TEMPLATE . "/error.php");

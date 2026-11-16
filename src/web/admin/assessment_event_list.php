@@ -3,37 +3,59 @@
 // 학생별 요약을 먼저 보여 주고, 학생을 고르면 시간순 상세 기록을 보여 준다.
 require("admin-header.php");
 require_once("../include/const.inc.php");
+require_once("assessment_lib.php");
 
 $cid = intval($_GET['cid'] ?? 0);
-if (!(isset($_SESSION[$OJ_NAME.'_'.'administrator']) || isset($_SESSION[$OJ_NAME.'_'.'contest_creator']) || isset($_SESSION[$OJ_NAME.'_'."m$cid"]))) {
+// 감지 기록은 회차를 만든 사람(mNNNN)과 관리자만 본다.
+if (!(isset($_SESSION[$OJ_NAME.'_'.'administrator']) || isset($_SESSION[$OJ_NAME.'_'."m$cid"]))) {
     echo "<div class='admin-content-page'><div class='alert alert-danger'>권한이 없습니다.</div></div>";
     exit(1);
 }
 $MSG_ASSESSMENT = isset($MSG_ASSESSMENT) ? $MSG_ASSESSMENT : "수행평가";
 $MSG_ASSESSMENT_EVENT = isset($MSG_ASSESSMENT_EVENT) ? $MSG_ASSESSMENT_EVENT : "감지 기록";
 
-$contest = pdo_query("SELECT `title`,`start_time`,`end_time` FROM `contest` WHERE `contest_id`=? AND (`contest_type` & 512)<>0", $cid);
+$contest = pdo_query("SELECT `title`,`start_time`,`end_time`,
+        CASE WHEN `start_time`<=NOW() AND `end_time`>NOW() THEN 'running' WHEN `start_time`>NOW() THEN 'upcoming' ELSE 'ended' END AS state FROM `contest` WHERE `contest_id`=? AND (`contest_type` & 512)<>0", $cid);
 if (empty($contest)) {
     echo "<div class='admin-content-page'><div class='alert alert-danger'>".$MSG_ASSESSMENT."를 찾을 수 없습니다.</div></div>";
     exit(1);
 }
 $contest = $contest[0];
+// 의심 표시 기준은 이 회차가 속한 수행평가의 설정을 쓰고, 연결된 수행평가가 없으면 기본값을 쓴다.
+$asm_link = pdo_query("SELECT a.assessment_id, a.settings FROM `assessment_session` s JOIN `assessment` a ON a.assessment_id=s.assessment_id WHERE s.contest_id=? LIMIT 1", $cid);
+$asm_link = empty($asm_link) ? null : $asm_link[0];
+$th = asm_settings($asm_link);
+// 이탈은 복귀(return) 기록의 이탈 시간으로, 나머지는 글자 수로 판단한다.
+function ae_suspect($type, $amount) {
+    global $th;
+    $key = array("return" => "leave_seconds", "paste" => "paste_chars", "burst" => "burst_chars", "copy" => "copy_chars");
+    return isset($key[$type]) && intval($amount) >= intval($th[$key[$type]]);
+}
+if ($asm_link && intval($asm_link['assessment_id']) > 0) $back_url = "assessment_edit.php?id=".intval($asm_link['assessment_id']);
+else if (isset($_SESSION[$OJ_NAME.'_'.'administrator'])) $back_url = "contest_list.php?type=assessment";
+else $back_url = "assessment_list.php";
 $event_names = array("leave" => "화면 이탈", "return" => "화면 복귀", "paste" => "붙여넣기", "burst" => "코드 급증", "copy" => "복사");
 $place_names = array("problem" => "문제 화면", "editor" => "편집기");
 $view_user = isset($_GET['user']) ? strval($_GET['user']) : "";
 function ae_h($s) { return htmlentities(strval($s), ENT_QUOTES, 'UTF-8'); }
+// 회차 상태: 진행 중 / 시행 예정 / 종료를 배지로 구분한다.
+$state_names = array("running" => array("진행 중", "admin-badge--on"), "upcoming" => array("시행 예정", "admin-badge--info"), "ended" => array("종료", "admin-badge--off"));
+$st = $state_names[$contest['state']];
 ?>
 <title><?php echo ae_h($MSG_ASSESSMENT." ".$MSG_ASSESSMENT_EVENT)?></title>
 
 <div class="admin-content-page">
   <div class="admin-page-heading">
     <div>
-      <h3><?php echo ae_h($MSG_ASSESSMENT." ".$MSG_ASSESSMENT_EVENT)?> - <?php echo $cid?>. <?php echo ae_h($contest['title'])?></h3>
+      <h3><?php echo ae_h($MSG_ASSESSMENT." ".$MSG_ASSESSMENT_EVENT)?> - <?php echo $cid?>. <?php echo ae_h($contest['title'])?> <span class="admin-badge <?php echo $st[1]?>"><?php echo $st[0]?></span></h3>
       <p><?php echo ae_h($contest['start_time'])?> ~ <?php echo ae_h($contest['end_time'])?>. 화면 이탈·붙여넣기·복사·코드 급증(붙여넣기 없이 한 번에 많은 코드가 들어온 경우)을 학생별로 보여 줍니다. 기록은 참고 자료이며, 판단 전에 제출 코드와 함께 확인하세요.</p>
+      <p>의심 표시 기준: 화면 이탈 <?php echo intval($th['leave_seconds'])?>초, 붙여넣기 <?php echo intval($th['paste_chars'])?>자, 코드 급증 <?php echo intval($th['burst_chars'])?>자, 복사 <?php echo intval($th['copy_chars'])?>자 이상. 기준 미만도 기록하지만 의심으로 표시하지 않습니다.</p>
     </div>
-    <a href="contest_list.php?type=assessment" class="btn btn-default"><?php echo ae_h($MSG_ASSESSMENT."-".$MSG_LIST)?></a>
+    <a href="<?php echo ae_h($back_url)?>" class="btn btn-default"><?php echo ae_h($asm_link ? $MSG_ASSESSMENT."로 돌아가기" : $MSG_ASSESSMENT."-".$MSG_LIST)?></a>
   </div>
 
+<div id="ae-live" data-state="<?php echo $contest['state']?>">
+  <p class="admin-field-help" id="ae-status">회차 상태: <span class="admin-badge <?php echo $st[1]?>"><?php echo $st[0]?></span><?php if ($contest['state'] !== "ended") echo " · 5초마다 자동으로 갱신합니다."?> <span id="ae-updated"></span></p>
 <?php if ($view_user === "") {
     $sql = "SELECT e.`user_id`, u.`nick`, u.`group_name`,
                 SUM(e.`event_type`='leave') leave_cnt,
@@ -42,26 +64,31 @@ function ae_h($s) { return htmlentities(strval($s), ENT_QUOTES, 'UTF-8'); }
                 SUM(IF(e.`event_type`='paste', e.`amount`, 0)) paste_chars,
                 SUM(e.`event_type`='burst') burst_cnt,
                 SUM(e.`event_type`='copy') copy_cnt,
+                SUM((e.`event_type`='return' AND e.`amount`>=?) OR (e.`event_type`='paste' AND e.`amount`>=?)
+                    OR (e.`event_type`='burst' AND e.`amount`>=?) OR (e.`event_type`='copy' AND e.`amount`>=?)) suspect_cnt,
+                SUM(e.`event_type` IN ('leave','paste','burst','copy')) total_cnt,
                 MAX(e.`created_at`) last_at
             FROM `assessment_event` e LEFT JOIN `users` u ON u.`user_id`=e.`user_id`
             WHERE e.`contest_id`=?
             GROUP BY e.`user_id`, u.`nick`, u.`group_name`
-            ORDER BY (leave_cnt + paste_cnt + burst_cnt + copy_cnt) DESC, e.`user_id`";
-    $rows = pdo_query($sql, $cid);
+            ORDER BY suspect_cnt DESC, total_cnt DESC, e.`user_id`";
+    // MariaDB는 ORDER BY 식 안에서 집계 별칭(leave_cnt + …)을 쓰면 1247 오류를 내므로, 합계를 total_cnt 열로 따로 구해 정렬한다.
+    $rows = pdo_query($sql, intval($th['leave_seconds']), intval($th['paste_chars']), intval($th['burst_chars']), intval($th['copy_chars']), $cid);
 ?>
   <div class="admin-table-wrap">
   <table class="table">
     <tr>
       <td><?php echo $MSG_USER_ID?></td><td><?php echo $MSG_NICK?></td><td><?php echo isset($MSG_CLASS) ? $MSG_CLASS : "반"?></td>
-      <td>화면 이탈</td><td>이탈 시간(초)</td><td>붙여넣기</td><td>붙여넣은 글자 수</td><td>코드 급증</td><td>복사</td><td>마지막 기록</td>
+      <td>의심</td><td>화면 이탈</td><td>이탈 시간(초)</td><td>붙여넣기</td><td>붙여넣은 글자 수</td><td>코드 급증</td><td>복사</td><td>마지막 기록</td>
     </tr>
 <?php if (empty($rows)) { ?>
-    <tr><td colspan="10">아직 기록이 없습니다.</td></tr>
+    <tr><td colspan="11">아직 기록이 없습니다.</td></tr>
 <?php }
     foreach ($rows as $r) {
         echo "<tr>";
         echo "<td><a href='assessment_event_list.php?cid=$cid&user=".urlencode($r['user_id'])."'>".ae_h($r['user_id'])."</a></td>";
         echo "<td>".ae_h($r['nick'])."</td><td>".ae_h($r['group_name'])."</td>";
+        echo "<td>".(intval($r['suspect_cnt']) > 0 ? "<span class='admin-badge admin-badge--warn'>의심 ".intval($r['suspect_cnt'])."건</span>" : "-")."</td>";
         echo "<td>".intval($r['leave_cnt'])."</td><td>".intval($r['away_sec'])."</td>";
         echo "<td>".intval($r['paste_cnt'])."</td><td>".intval($r['paste_chars'])."</td>";
         echo "<td>".intval($r['burst_cnt'])."</td><td>".intval($r['copy_cnt'])."</td>";
@@ -78,9 +105,9 @@ function ae_h($s) { return htmlentities(strval($s), ENT_QUOTES, 'UTF-8'); }
   <p><a href="assessment_event_list.php?cid=<?php echo $cid?>">&lt; 학생별 요약</a> · <b><?php echo ae_h($view_user)?></b>의 상세 기록 (최대 1000건)</p>
   <div class="admin-table-wrap">
   <table class="table">
-    <tr><td>시각</td><td><?php echo $MSG_PROBLEM?></td><td>위치</td><td>종류</td><td>글자 수 / 이탈 시간(초)</td><td>줄 수</td><td>IP</td></tr>
+    <tr><td>시각</td><td><?php echo $MSG_PROBLEM?></td><td>위치</td><td>종류</td><td>글자 수 / 이탈 시간(초)</td><td>줄 수</td><td>의심</td><td>IP</td></tr>
 <?php if (empty($rows)) { ?>
-    <tr><td colspan="7">기록이 없습니다.</td></tr>
+    <tr><td colspan="8">기록이 없습니다.</td></tr>
 <?php }
     foreach ($rows as $r) {
         $num = intval($r['num']);
@@ -91,10 +118,38 @@ function ae_h($s) { return htmlentities(strval($s), ENT_QUOTES, 'UTF-8'); }
         echo "<td>".ae_h($event_names[$r['event_type']] ?? $r['event_type'])."</td>";
         echo "<td>".($r['event_type'] === "leave" ? "-" : intval($r['amount']))."</td>";
         echo "<td>".($r['event_type'] === "leave" || $r['event_type'] === "return" ? "-" : intval($r['line_count']))."</td>";
+        echo "<td>".(ae_suspect($r['event_type'], $r['amount']) ? "<span class='admin-badge admin-badge--warn'>의심</span>" : "-")."</td>";
         echo "<td>".ae_h($r['ip'])."</td>";
         echo "</tr>";
     } ?>
   </table>
   </div>
+<?php } ?>
+</div>
+<?php if ($contest['state'] !== "ended") { ?>
+<script>
+// 종료 전(예정·진행 중)에는 같은 주소를 다시 읽어 상태 배지와 기록 표만 바꾼다. 탭이 가려져 있으면 쉬고, 종료되면 멈춘다.
+(function () {
+  var timer = null;
+  function tick() {
+    if (document.hidden) { timer = setTimeout(tick, 5000); return; }
+    fetch(location.href, { credentials: 'same-origin', cache: 'no-store' }).then(function (r) { return r.text(); }).then(function (html) {
+      var doc = new DOMParser().parseFromString(html, 'text/html'), nu = doc.getElementById('ae-live'), cur = document.getElementById('ae-live');
+      if (!nu || !cur) throw new Error('응답을 읽지 못했습니다.');
+      cur.innerHTML = nu.innerHTML;
+      cur.setAttribute('data-state', nu.getAttribute('data-state'));
+      var h = document.querySelector('.admin-page-heading h3 .admin-badge'), nb = doc.querySelector('.admin-page-heading h3 .admin-badge');
+      if (h && nb) { h.className = nb.className; h.textContent = nb.textContent; }
+      document.getElementById('ae-updated').textContent = '· 갱신 ' + new Date().toLocaleTimeString('ko-KR');
+      if (nu.getAttribute('data-state') === 'ended') return;
+      timer = setTimeout(tick, 5000);
+    }).catch(function (e) {
+      document.getElementById('ae-updated').textContent = '· 갱신 실패: ' + e.message + ' (다시 시도합니다)';
+      timer = setTimeout(tick, 10000);
+    });
+  }
+  timer = setTimeout(tick, 5000);
+})();
+</script>
 <?php } ?>
 </div>

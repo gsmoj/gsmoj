@@ -30,9 +30,9 @@
 <?php
 $rank=1;
 ?>
-<center><h3 >Contest RankList -- <?php echo $title?></h3><a href="contestrank.xls.php?cid=<?php echo $cid?>" >Download</a></center>
+<center><h3 ><?php echo $MSG_CONTEST_RANKLIST?> -- <?php echo $title?></h3><a href="contestrank.xls.php?cid=<?php echo $cid?>" ><?php echo $MSG_DOWNLOAD?></a></center>
 <table id=rank   <?php if (isset($_GET['down'])) echo "border=1" ?>
-                                 ><thead><tr class=toprow align=center><td class="{sorter:'false'}" width=5%>Rank<th width=10%>User</th><th width=10%>Nick</th><th width=5%>Solved</th><th width=5%>Penalty</th>
+                                 ><thead><tr class=toprow align=center><td class="{sorter:'false'}" width=5%><?php echo $MSG_Number?><th width=10%><?php echo $MSG_USER?></th><th width=10%><?php echo $MSG_NICK?></th><th width=5%><?php echo $MSG_SOVLED?></th><th width=5%><?php echo $MSG_CONTEST_PENALTY?></th>
 <?php
 for ($i=0;$i<$pid_cnt;$i++)
 echo "<td><a href=problem.php?cid=$cid&pid=$i>$PID[$i]</a></td>";
@@ -162,7 +162,7 @@ function metal(){
 	 
 	  	     var r=i;
 	  	     if(r==1){
-	  	       cell.innerHTML="Winner";
+	  	       cell.innerHTML="1위";
                        //cell.style.cssText="background-color:gold;color:red";
                        cell.className="badge btn-warning";
 	  	     }else{

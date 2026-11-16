@@ -60,6 +60,15 @@ if(isset($_POST['startdate'])){
 
   if(!(isset($_SESSION[$OJ_NAME.'_'."m$cid"])||isset($_SESSION[$OJ_NAME.'_'.'administrator'])||isset($_SESSION[$OJ_NAME.'_'.'contest_creator']))) exit();
 
+  // 전용 문제는 이미 들어 있는 회차에서만 유지할 수 있고, 다른 대회·회차로 옮겨 넣을 수 없다.
+  require_once("assessment_lib.php");
+  $old_problems = pdo_query("SELECT problem_id FROM `contest_problem` WHERE `contest_id`=?",$cid);
+  $dedicated = array_diff(asm_dedicated_ids(explode(",", trim($_POST['cproblem']))), array_map("intval", array_column($old_problems, 'problem_id')));
+  if($dedicated){
+    echo "수행평가 전용 문제는 대회에 넣을 수 없습니다: ".implode(", ", $dedicated);
+    exit(1);
+  }
+
   // 수행평가 여부(9번 비트)는 수정 화면에서 바꿀 수 없다. 기존 값을 그대로 유지한다.
   $old_type = pdo_query("SELECT contest_type FROM `contest` WHERE `contest_id`=?",$cid);
   $contest_type = ($contest_type & ~512) | ((!empty($old_type) && (intval($old_type[0]['contest_type']) & 512)) ? 512 : 0);
@@ -116,12 +125,15 @@ if(isset($_POST['startdate'])){
       	 pdo_query($sql_2,$num,$cid,$pid);
          $num++;
       }else{
-         print("Problem not exists:".$pieces[$i]."<br>\n");
+         print("존재하지 않는 문제: ".$pieces[$i]."<br>\n");
       }
     }
 
-    $sql = "update `problem` set defunct='N' where `problem_id` in ($plist)";
-    pdo_query($sql) ;
+    // 수행평가에 넣은 문제는 공개 상태를 바꾸지 않는다. 모든 회차가 끝난 뒤 수행평가 화면의 "문제 공개"로 공개한다.
+    if(!($contest_type & 512)){
+      $sql = "update `problem` set defunct='N' where `problem_id` in ($plist) and defunct<>'A'";
+      pdo_query($sql) ;
+    }
   }
 
   // 수행평가의 참가 권한은 수정 화면에서 받지 않으므로 그대로 둔다.
@@ -146,7 +158,7 @@ if(isset($_POST['startdate'])){
   $result = pdo_query($sql,$cid);
 
   if(count($result)!=1){
-    echo "No such Contest!";
+    echo $MSG_NO_SUCH_CONTEST;
     exit(0);
   }
 

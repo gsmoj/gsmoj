@@ -49,9 +49,9 @@ if (!empty($result)) {
         $row = $result[0];
 
         if ($row) {
-            if (strpos($row['error'], "judge") !== false) echo "error1";
-            else if (strpos($row['error'], "php") !== false) echo "error2";
-            else if (strpos($row['error'], "PASS") !== false) echo "error3";
+            if (strpos($row['error'], "judge") !== false) echo $MSG_ERROR_INFO_HIDDEN . " (1)";
+            else if (strpos($row['error'], "php") !== false) echo $MSG_ERROR_INFO_HIDDEN . " (2)";
+            else if (strpos($row['error'], "PASS") !== false) echo $MSG_ERROR_INFO_HIDDEN . " (3)";
             else echo htmlentities(str_replace("\n\r", "\n", $row['error']), ENT_QUOTES, "UTF-8");
             $sql = "delete from custominput where solution_id=?";
             pdo_query($sql, $solution_id);

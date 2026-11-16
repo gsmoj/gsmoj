@@ -42,14 +42,14 @@ if(isset($_POST['do'])){
         $rows_cnt = count($result);
 
         if($rows_cnt == 1){
-          echo "&nbsp;&nbsp;&nbsp;&nbsp;".$id_pw[0]." ... Error : User already exist!<br>";
+          echo "&nbsp;&nbsp;&nbsp;&nbsp;".$id_pw[0]." ... 오류: 이미 있는 사용자입니다!<br>";
           $ulist = $ulist.$id_pw[0]." ".$id_pw[1]."\n";
         } else {
           $passwd = pwGen($id_pw[1]);
           if(!isset($OJ_EXPIRY_DAYS)) $OJ_EXPIRY_DAYS=365;
           $sql = "INSERT INTO `users` (`user_id`, `password`, `reg_time`,`expiry_date`, `nick`) VALUES (?, ?, NOW(),date_add(curdate(),interval $OJ_EXPIRY_DAYS  day), ?);";
           pdo_query($sql, $id_pw[0], $passwd, $id_pw[0]);
-          echo $id_pw[0]." is added!<br>";
+          echo $id_pw[0]." 등록했습니다.<br>";
 
           $ip = ($_SERVER['REMOTE_ADDR']);
           $sql="INSERT INTO `loginlog`(user_id,password,ip,time) VALUES(?,?,?,NOW())";
@@ -57,7 +57,7 @@ if(isset($_POST['do'])){
         }
       }
     }
-    echo "<br>Remained lines have error!";
+    echo "<br>아래 입력란에 남은 줄은 오류가 있어 등록하지 않았습니다.";
     echo "</div>";
   }
 }

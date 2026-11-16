@@ -7,6 +7,15 @@ if (isset($is_assessment) && $is_assessment && isset($cid) && intval($cid) > 0
     && isset($_SESSION[$OJ_NAME . '_' . 'user_id'])
     && !isset($_SESSION[$OJ_NAME . '_' . 'administrator']) && !isset($_SESSION[$OJ_NAME . '_' . 'm' . intval($cid)])
     && time() >= $start_time && time() < $end_time) {
+    // 코드 급증(burst) 기준은 수행평가별 설정(admin/assessment_edit.php의 burst_chars)을 따른다.
+    // 기준 미만도 기록해야 하므로 기본 기록 기준(100자)보다 낮게 정한 경우에만 더 작은 입력부터 보내고, 의심 표시는 기록 화면에서 기준값으로 판단한다.
+    // 타이핑까지 기록되지 않도록 20자 미만으로는 내리지 않는다. 수행평가에 연결되지 않은 회차는 기본값(100자/5줄)을 쓴다.
+    $gs_burst_chars = 100;
+    $gs_monitor_row = pdo_query("SELECT a.settings FROM assessment_session s JOIN assessment a ON a.assessment_id=s.assessment_id WHERE s.contest_id=? LIMIT 1", intval($cid));
+    if (!empty($gs_monitor_row)) {
+        $gs_monitor_settings = json_decode((string)$gs_monitor_row[0][0], true);
+        if (is_array($gs_monitor_settings) && isset($gs_monitor_settings['burst_chars'])) $gs_burst_chars = max(20, min(100, intval($gs_monitor_settings['burst_chars'])));
+    }
 ?>
 <script>
 (function(){
@@ -15,7 +24,7 @@ if (isset($is_assessment) && $is_assessment && isset($cid) && intval($cid) > 0
   var place = <?php echo json_encode($gs_monitor_place) ?>;
   var endAt = Date.now() + <?php echo intval(($end_time - time()) * 1000) ?>;
   var url = <?php echo json_encode((isset($path_fix) ? $path_fix : "") . "assessment_event.php") ?>;
-  var BURST_CHARS = 100, BURST_LINES = 5;
+  var BURST_CHARS = <?php echo intval($gs_burst_chars) ?>, BURST_LINES = 5;
 
   function send(type, amount, lines){
     if (Date.now() >= endAt) return;

@@ -452,7 +452,7 @@ function fresh_result(solution_id)
 {
 var tb=window.document.getElementById('result');
 if(solution_id==undefined){
-	tb.innerHTML="Vcode Error!";		
+	tb.innerHTML="<?php echo $MSG_VCODE_WRONG?>";		
 	if(window.parent!==window && typeof window.parent.updateWorkspaceRun==='function') window.parent.updateWorkspaceRun('error','인증 코드 또는 실행 요청을 확인해 주세요.');
 	if($("#vcode")!=null) $("#vcode").click();
 	return ;
@@ -460,7 +460,7 @@ if(solution_id==undefined){
 
 sid=parseInt(solution_id);
 if(sid<=0){
-	tb.innerHTML="<?php echo  str_replace("10",$OJ_SUBMIT_COOLDOWN_TIME,$MSG_BREAK_TIME) ?>";
+	tb.innerHTML="<?php echo  preg_replace('/[0-9]+/', intval($OJ_SUBMIT_COOLDOWN_TIME), $MSG_BREAK_TIME, 1) /* 언어마다 문구의 숫자가 달라 첫 숫자를 실제 대기시간으로 바꾼다. */ ?>";
 	if(window.parent!==window && typeof window.parent.updateWorkspaceRun==='function') window.parent.updateWorkspaceRun('error','잠시 후 다시 실행해 주세요.');
 	if($("#vcode")!=null) $("#vcode").click();
 	return ;

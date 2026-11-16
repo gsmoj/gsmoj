@@ -38,7 +38,10 @@ if ($rows_cnt > 0) {
 }
 // 볼 권한이 없는 수행평가는 아래의 제목·안내문·시작 시간 화면을 거치지 않고 여기서 막는다.
 if ($is_assessment) require_once("include/assessment_access_guard.php");
+// 회차 관리자(교사, mNNNN)는 참가 권한(cNNNN) 없이 수행평가 회차 화면과 문제를 미리 볼 수 있다(시작 전 포함).
+$gs_assessment_preview = $is_assessment && isset($_SESSION[$OJ_NAME . '_' . 'm' . $cid]);
 $contest_ok = true;
+$gs_time_over = false;  // 응시 시간 종료 안내 화면을 보여 줄지 여부
 $password = "";
 
 if (isset($_POST['password']))
@@ -62,14 +65,14 @@ if ($rows_cnt == 0 || ($row['defunct'] == 'Y' && !isset($_SESSION[$OJ_NAME . '_a
         $_SESSION[$OJ_NAME . '_' . 'c' . $cid] = true;
 
     // 비공개 대회 권한을 확인한다.
-    if ($row['private'] && !isset($_SESSION[$OJ_NAME . '_' . 'c' . $cid])) {
+    if ($row['private'] && !isset($_SESSION[$OJ_NAME . '_' . 'c' . $cid]) && !$gs_assessment_preview) {
 
         $sql = "SELECT count(*) FROM `privilege` WHERE `user_id`=? AND `rightstr`=?";
         $result = mysql_query_cache($sql, $user_id, "c$cid");
         $row = $result[0];
         $ccnt = intval($row[0]);
         if ($ccnt > 0) {
-            $contest_ok = true;
+            // 권한이 있어도 위에서 실패한 서브넷 제한을 되돌리지 않도록 $contest_ok는 바꾸지 않는다.
             $_SESSION[$OJ_NAME . '_' . 'c' . $cid] = true;
         } else {
             $contest_ok = false;
@@ -87,7 +90,7 @@ if ($rows_cnt == 0 || ($row['defunct'] == 'Y' && !isset($_SESSION[$OJ_NAME . '_a
     else $contest_is_over = false;
 
     // 대회가 시작 전이면 오류 페이지를 보여 준다.
-    if (!isset($_SESSION[$OJ_NAME . '_' . 'administrator']) && $unixnow < $start_time) {
+    if (!isset($_SESSION[$OJ_NAME . '_' . 'administrator']) && !$gs_assessment_preview && $unixnow < $start_time) {
         $view_errors = "<center>";
         $view_errors .= "<h3>$MSG_CONTEST_ID : $view_cid - $view_title</h3>";
         $view_errors .= "<p>$view_description</p>";
@@ -99,11 +102,16 @@ if ($rows_cnt == 0 || ($row['defunct'] == 'Y' && !isset($_SESSION[$OJ_NAME . '_a
         require("template/" . $OJ_TEMPLATE . "/error.php");
         exit(0);
     }
+
+    // 수행평가는 종료 시각이 지나면 학생의 회차 화면·문제·제출을 막는다. 관리자와 회차 관리자(교사)는 계속 볼 수 있다.
+    // 공개한 수행평가의 문제는 회차가 아니라 연습 경로(problem.php?id=)로 풀므로 영향이 없다.
+    if ($is_assessment && $contest_is_over && !isset($_SESSION[$OJ_NAME . '_' . 'administrator']) && !$gs_assessment_preview)
+        $gs_time_over = true;
 }
 
 // 개인 시간제한 대회 기능을 처리한다.
 if (!isset($OJ_CONTEST_LIMIT_KEYWORD)) $OJ_CONTEST_LIMIT_KEYWORD = "限时";
-if ($contest_ok && str_contains($view_description, $OJ_CONTEST_LIMIT_KEYWORD) && isset($_SESSION[$OJ_NAME . "_user_id"])) {
+if ($contest_ok && !$gs_time_over && str_contains($view_description, $OJ_CONTEST_LIMIT_KEYWORD) && isset($_SESSION[$OJ_NAME . "_user_id"])) {
     //echo "<!-- 개인 시간제한 대회  -->";
     $contest_limit_minutes = intval(getPartByMark($view_description, $OJ_CONTEST_LIMIT_KEYWORD, "分钟"));  //대회 설명에 "限时xx分钟"이라고 쓰면 개인 풀이 시간을 정할 수 있다.
     if ($contest_limit_minutes == 0) $contest_limit_minutes = 120;
@@ -132,12 +140,7 @@ if ($contest_ok && str_contains($view_description, $OJ_CONTEST_LIMIT_KEYWORD) &&
     //echo "<!-- $unixnow - $first_login_contest = ".($unixnow-$first_login_contest)." -->";
     if ($unixnow - $first_login_contest >= $contest_limit_minutes * 60 && !isset($_SESSION[$OJ_NAME . "_m" . $cid]) && !isset($_SESSION[$OJ_NAME . "_administrator"])) {
         $contest_ok = false;
-
-        $view_errors = "<center>";
-        $view_errors .= "<h3>$MSG_CONTEST_ID : $view_cid - $view_title</h3>";
-        $view_errors .= "<p>$view_description</p>";
-        require("template/" . $OJ_TEMPLATE . "/error.php");
-        exit(0);
+        $gs_time_over = true;
     } else {
         $time_left = $contest_limit_minutes * 60 - ($unixnow - $first_login_contest);
         if ($time_left > 0)
@@ -145,6 +148,26 @@ if ($contest_ok && str_contains($view_description, $OJ_CONTEST_LIMIT_KEYWORD) &&
     }
 
 };
+
+// 응시 시간이 끝났으면(수행평가 종료 또는 개인 제한시간 초과) 대회 설명·부가 버튼 없이 안내 문구만 보여 준다.
+if ($gs_time_over) {
+    if (!isset($MSG_CONTEST_TIME_OVER)) $MSG_CONTEST_TIME_OVER = "Time is over";
+    if (!isset($MSG_CONTEST_TIME_OVER_DETAIL)) $MSG_CONTEST_TIME_OVER_DETAIL = "You can no longer view or submit problems in this contest.";
+    if ($is_assessment) {
+        $gs_time_over_back_url = "assessment.php";
+        $gs_time_over_back_label = isset($MSG_ASSESSMENT_LIST_BACK) ? $MSG_ASSESSMENT_LIST_BACK : $MSG_ASSESSMENT;
+    } else {
+        $gs_time_over_back_url = "contest.php";
+        $gs_time_over_back_label = isset($MSG_CONTEST_LIST_BACK) ? $MSG_CONTEST_LIST_BACK : $MSG_CONTEST;
+    }
+    if (file_exists("template/" . $OJ_TEMPLATE . "/contest_time_over.php")) {
+        require("template/" . $OJ_TEMPLATE . "/contest_time_over.php");
+    } else {
+        $view_errors = "<h3>$MSG_CONTEST_TIME_OVER</h3><p>$MSG_CONTEST_TIME_OVER_DETAIL</p>";
+        require("template/" . $OJ_TEMPLATE . "/error.php");
+    }
+    exit(0);
+}
 
 // 대회 확인에 실패하면 오류 페이지와 비밀번호 입력 폼을 보여 준다.
 if (!$contest_ok) {

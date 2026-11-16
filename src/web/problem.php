@@ -2,6 +2,13 @@
 $cache_time = 10;
 $OJ_CACHE_SHARE = false;
 
+require_once('./include/db_info.inc.php');
+// 로그인하지 않으면 답안 작성 칸에 로그인 안내가 뜨므로, 문제 화면을 열기 전에 로그인 페이지로 보낸다.
+if (!isset($_SESSION[$OJ_NAME . '_' . 'user_id']) && !(isset($OJ_GUEST) && $OJ_GUEST)) {
+    header('Location: loginpage.php');
+    exit(0);
+}
+
 require_once('./include/cache_start.php');
 require_once('./include/db_info.inc.php');
 require_once('./include/bbcode.php');
@@ -30,7 +37,7 @@ if (isset($_GET['id'])) {
     $sql = "select c.contest_id,c.title,c.contest_type,c.user_id from contest c inner join contest_problem cp on c.contest_id=cp.contest_id and cp.problem_id=?  WHERE ( c.`end_time`>'$now' and c.defunct='N' ) or c.`private`='1' ";
     $used_in_contests = pdo_query($sql, $id);
 
-    if (isset($_SESSION[$OJ_NAME . '_' . 'administrator']) || isset($_SESSION[$OJ_NAME . '_' . 'problem_verifiter']) || isset($_SESSION[$OJ_NAME . '_' . 'contest_creator']) || isset($_SESSION[$OJ_NAME . '_' . 'problem_editor']))
+    if (isset($_SESSION[$OJ_NAME . '_' . 'administrator']) || isset($_SESSION[$OJ_NAME . '_' . 'problem_verifiter']) || isset($_SESSION[$OJ_NAME . '_' . 'contest_creator']) || isset($_SESSION[$OJ_NAME . '_' . 'problem_editor']) || isset($_SESSION[$OJ_NAME . '_p' . $id]))  // 문제 권한(pNNNN)이 있는 교사는 비공개 문제를 미리 볼 수 있다.
 	{
 		$sql = "SELECT * FROM `problem` WHERE `problem_id`=?";
 		$result = pdo_query($sql, $id);
@@ -38,10 +45,14 @@ if (isset($_GET['id'])) {
         $sql = "SELECT * FROM `problem` WHERE defunct='N' and `problem_id`=?";
 		$result = pdo_query($sql, $id);
 	}else{
+        // 공개(published_at)한 수행평가의 회차는 비공개 대회여도 문제를 가리지 않는다.
         $sql = "SELECT * FROM `problem` WHERE `problem_id`=? AND `defunct`='N' AND NOT EXISTS (
             SELECT 1 FROM `contest_problem` cp
             INNER JOIN `contest` c ON cp.contest_id=c.contest_id
-            WHERE cp.problem_id=? AND (c.end_time>'$now' AND c.defunct='N' OR c.private='1')
+            WHERE cp.problem_id=? AND (c.end_time>'$now' AND c.defunct='N' OR c.private='1' AND NOT EXISTS (
+                SELECT 1 FROM `assessment_session` gs INNER JOIN `assessment` ga ON ga.assessment_id=gs.assessment_id
+                WHERE gs.contest_id=c.contest_id AND ga.published_at IS NOT NULL
+            ))
         )";        //////////  people should not see the problem used in contest before they end by modifying url in browser address bar
     /////////   if you give students opportunities to test their result out side the contest ,they can bypass the penalty time of 20 mins for
     /////////   each non-AC sumbission in contest. if you give them opportunities to view problems before exam ,they will ask classmates to write
@@ -55,7 +66,7 @@ if (isset($_GET['id'])) {
     $cid = intval($_GET['cid']);
     $pid = intval($_GET['pid']);
     require_once("contest-check.php");
-    if (isset($_SESSION[$OJ_NAME . '_' . 'administrator']) || isset($_SESSION[$OJ_NAME . '_' . 'contest_creator']) || isset($_SESSION[$OJ_NAME . '_' . 'problem_editor']))
+    if (isset($_SESSION[$OJ_NAME . '_' . 'administrator']) || isset($_SESSION[$OJ_NAME . '_' . 'contest_creator']) || isset($_SESSION[$OJ_NAME . '_' . 'problem_editor']) || $gs_assessment_preview)  // 회차 관리자(교사)의 수행평가 미리 보기
         $sql = "SELECT langmask,private,defunct FROM `contest` WHERE `contest_id`=?";
     else
         $sql = "SELECT langmask,private,defunct FROM `contest` WHERE `defunct`='N' AND `contest_id`=? AND (`start_time`<='$now' AND ('$now'<`end_time` or private='N') )";
@@ -63,7 +74,7 @@ if (isset($_GET['id'])) {
     $result = pdo_query($sql, $cid);
     $rows_cnt = empty($result) ? 0 : count($result);
     if (empty($result) && !$OJ_FREE_PRACTICE && !isset($_SESSION[$OJ_NAME . '_administrator']) && !isset($_SESSION[$OJ_NAME . "_c" . $cid])) {
-        $view_errors = "<title>$MSG_CONTEST</title><h2>No such Contest!</h2>";
+        $view_errors = "<title>$MSG_CONTEST</title><h2>$MSG_NO_SUCH_CONTEST</h2>";
         require("template/" . $OJ_TEMPLATE . "/error.php");
         exit(0);
     }
@@ -71,7 +82,7 @@ if (isset($_GET['id'])) {
     $row = ($result[0]);
     $contest_ok = true;
 
-    if ($row[1] && !isset($_SESSION[$OJ_NAME . '_' . 'c' . $cid]))
+    if ($row[1] && !isset($_SESSION[$OJ_NAME . '_' . 'c' . $cid]) && !$gs_assessment_preview)
         $contest_ok = false;
 
     if ($row[2] == 'Y')
@@ -85,7 +96,7 @@ if (isset($_GET['id'])) {
 
     if (!$contest_ok) {
         //not started
-        $view_errors = "No such Contest!";
+        $view_errors = $MSG_NO_SUCH_CONTEST;
         require("template/" . $OJ_TEMPLATE . "/error.php");
         exit(0);
     } else {
@@ -102,7 +113,7 @@ if (isset($_GET['id'])) {
 
     //public
     if (!$contest_ok) {
-        $view_errors = "Not Invited!";
+        $view_errors = $MSG_NOT_INVITED;
         require("template/" . $OJ_TEMPLATE . "/error.php");
         exit(0);
     }
@@ -157,7 +168,7 @@ if (count($result) != 1) {
 }
 $flag = false;
 if (isset($OJ_NOIP_KEYWORD) && $OJ_NOIP_KEYWORD) {
-    //检查当前题目是不是在NOIP模式比赛中，如果是则不显示AC数量 2020.7.11 by ivan_zhou
+    // 현재 문제가 NOIP 모드 대회에 쓰이는지 확인하고, 쓰이면 정답 수를 표시하지 않는다. 2020.7.11 by ivan_zhou
     //$now =  date('Y-m-d H:i', time());
     $sql = "select 1 from `contest_problem` where (`problem_id`= ? ) and `contest_id` IN (select `contest_id` from `contest` where `start_time` < ? and `end_time` > ? and `title` like ?)";
     $rrs = pdo_query($sql, $id, $now, $now, "%$OJ_NOIP_KEYWORD%");
@@ -167,7 +178,7 @@ if ($flag || problem_locked($id, 28)) {
     $row['accepted'] = '<font color="red"> ? </font>';
     $row['submit'] = '<font color="red"> ? </font>';
 
-    // 使用$OJ_NOIP_TISHI 条件语句确定是否显示提示信息
+    // $OJ_NOIP_TISHI 조건으로 힌트 표시 여부를 정한다.
     if (isset($OJ_NOIP_HINT) && $OJ_NOIP_HINT) {
         //$row['hint'] = $MSG_NOIP_NOHINT;
     } else if (!(isset($_SESSION[$OJ_NAME . '_administrator']) || isset($_SESSION[$OJ_NAME . '_contest_creator']))) {
@@ -178,10 +189,10 @@ if ($flag || problem_locked($id, 28)) {
 $solution_file = "$OJ_DATA/$id/output.name";
 
 if (file_exists($solution_file)) {
-    // 读取文件内容
+    // 파일 내용을 읽는다.
     $content = file_get_contents($solution_file);
 
-    // 提取文件名部分（去掉扩展名）
+    // 확장자를 뺀 파일 이름을 추출한다.
     $filename = pathinfo($content, PATHINFO_FILENAME);
 
 }

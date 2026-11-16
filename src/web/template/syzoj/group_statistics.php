@@ -13,7 +13,7 @@
                                 echo "<option value='".htmlentities($group)."' ". ($group==$group_name?"selected":"") ."   >$group</option>";
                         }
 		?>
-	</select><a href="javascript:history.go(-1);" >Back</a> &nbsp;&nbsp;&nbsp;&nbsp; <a href="group_total.php?group_name=<?php echo htmlentities($group_name) ?>" >TotalView</a>
+	</select><a href="javascript:history.go(-1);" ><?php echo $MSG_BACK?></a> &nbsp;&nbsp;&nbsp;&nbsp; <a href="group_total.php?group_name=<?php echo htmlentities($group_name) ?>" ><?php echo $MSG_TOTAL_VIEW?></a>
 	<input type=hidden name=list value='<?php echo $pids ?>' >
 	<span id="swapButton" type=button class='ui button red' > <?php echo $MSG_TABLE_TRANSPOSE ?> </span>
 </form>

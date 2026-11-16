@@ -127,7 +127,7 @@ if(isset($_SESSION[$OJ_NAME.'_user_id'])&&isset($OJ_LIMIT_TO_1_IP)&& $OJ_LIMIT_T
                 setcookie($OJ_NAME."_user","");
                 setcookie($OJ_NAME."_check","");
                 session_destroy();
-                $view_errors="Logged in another ip address:$lastip, auto logout!";
+                $view_errors="$MSG_WARNING_LOGIN_FROM_DIFF_IP ($lastip) $MSG_AUTO_LOGOUT";
                 require("template/$OJ_TEMPLATE/error.php");
                 exit(0);
         }

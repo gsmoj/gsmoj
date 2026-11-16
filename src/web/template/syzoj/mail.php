@@ -1,4 +1,4 @@
-<?php $show_title="Mail - $OJ_NAME"; ?>
+<?php $show_title="$MSG_MAIL - $OJ_NAME"; ?>
 <?php include("template/$OJ_TEMPLATE/header.php");?>
 <div class="ui icon message">
   <i class="mail icon"></i>
@@ -16,9 +16,9 @@ if($view_content){
 }
 ?>
 <table><form method="post" action="mail.php" >
-        <tr><td>From:<?php echo htmlentities($from_user,ENT_QUOTES,"UTF-8")?>
-         To:<input name=to_user size=10 value="<?php if ($from_user==$_SESSION[$OJ_NAME.'_user_id']||$from_user=="") echo htmlentities($to_user) ;else echo htmlentities($from_user);?>">
-        Title:<input name=title size=20 value="<?php echo htmlentities($title)?>">
+        <tr><td><?php echo $MSG_MAIL_FROM?>: <?php echo htmlentities($from_user,ENT_QUOTES,"UTF-8")?>
+         <?php echo $MSG_MAIL_TO?>: <input name=to_user size=10 value="<?php if ($from_user==$_SESSION[$OJ_NAME.'_user_id']||$from_user=="") echo htmlentities($to_user) ;else echo htmlentities($from_user);?>">
+        <?php echo $MSG_TITLE?>: <input name=title size=20 value="<?php echo htmlentities($title)?>">
         <input type=submit value=<?php echo $MSG_SUBMIT?>></td>
         </tr>
         <tr><td>
@@ -27,7 +27,7 @@ if($view_content){
         </form>
         </table>
         <table border=1>
-        <tr><td>Mail ID<td>From:Title<td>Date</tr>
+        <tr><td><?php echo $MSG_MAIL_ID?><td><?php echo $MSG_MAIL_FROM.":".$MSG_TITLE?><td><?php echo $MSG_DATE?></tr>
         <tbody>
         <?php
         $cnt=0;

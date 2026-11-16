@@ -4,6 +4,11 @@ $OJ_CACHE_SHARE = false;
 $debug = false;
 require_once('./include/cache_start.php');
 require_once('./include/db_info.inc.php');
+// 접속자 정보는 로그인한 사용자만 볼 수 있다.
+if (!isset($_SESSION[$OJ_NAME . '_' . 'user_id'])) {
+    header("location:loginpage.php");
+    exit(0);
+}
 ini_set("display_errors", "Off");
 require_once('./include/setlang.php');
 require_once('./include/online.php');
@@ -31,8 +36,8 @@ if (isset($_SESSION[$OJ_NAME . '_' . 'administrator'])) {
     $result = pdo_query($sql, $search);
     $i = 0;
 } else {
-    $sql = "SELECT user_id,password,ip,time FROM `loginlog` order by log_id desc limit 20";
-    $result = pdo_query($sql);
+    // 로그인 기록과 IP는 관리자만 볼 수 있다.
+    $result = array();
 }
 
 foreach ($result as $row) {

@@ -19,6 +19,7 @@
                 <div class="field">
                     <label class="ui header"><?php echo $MSG_PASSWORD?>*</label>
                       <input name="opassword" placeholder="<?php echo $MSG_Input.$MSG_PASSWORD?>" type="password">
+                      <?php if (!empty($datagsm_linked)) { ?><small>DataGSM으로 로그인하는 계정은 비밀번호를 바꾸지 않을 때 비워 두고 저장할 수 있습니다.</small><?php } ?>
                     </div>
                 <div class="two fields">
                     <div class="field">
@@ -35,8 +36,9 @@
                     <input name="school" placeholder="<?php echo $MSG_SCHOOL?>" type="text" value="<?php echo htmlentities($row['school'],ENT_QUOTES,"UTF-8")?>">
                 </div>
                 <div class="field">
-                    <label for="email"><?php echo $MSG_EMAIL?>*</label>
-                    <input name="email" placeholder="<?php echo $MSG_EMAIL?>" type="text" value="<?php echo htmlentities($row['email'],ENT_QUOTES,"UTF-8")?>">
+                    <label for="email"><?php echo $MSG_EMAIL?></label>
+                    <input name="email" placeholder="<?php echo $MSG_EMAIL?>" type="text" value="<?php echo htmlentities($row['email'],ENT_QUOTES,"UTF-8")?>" readonly>
+                    <small>이메일은 바꿀 수 없습니다. 변경이 필요하면 관리자에게 문의하세요.</small>
                 </div>
                 <?php if($OJ_VCODE){?>
                   <div class="field">
@@ -50,7 +52,7 @@
             </form>
 </div>
 <?php if ($OJ_SaaS_ENABLE && $domain==$DOMAIN){ ?>
-  <div class="center"> <a name='MyOJ'>&nbsp;</a> <label >My OJ:</label>
+  <div class="center"> <a name='MyOJ'>&nbsp;</a> <label >내 OJ:</label>
           <form action="saasinit.php" method="post" role="form" class="ui form">
                 <div class="field">
                     <label for="template"><?php echo $MSG_TEMPLATE ?></label>

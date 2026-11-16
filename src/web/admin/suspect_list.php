@@ -1,10 +1,10 @@
 <?php
 require("admin-header.php");
 
-//if (!(isset($_SESSION[$OJ_NAME.'_'.'administrator'])|| isset($_SESSION[$OJ_NAME.'_'.'contest_creator']))) {
-//
-//	exit(1);
-//}
+if (!(isset($_SESSION[$OJ_NAME.'_'.'administrator'])|| isset($_SESSION[$OJ_NAME.'_'.'contest_creator']))) {
+	echo "<div class='admin-content-page'><div class='alert alert-danger'>권한이 없습니다.</div></div>";
+	exit(1);
+}
 
 if (isset($OJ_LANG)) {
 	require_once("../lang/$OJ_LANG.php");
@@ -103,7 +103,3 @@ if (isset($OJ_LANG)) {
 	</section>
 
 </div>
-
-<?php
-require("../oj-footer.php");
-?>

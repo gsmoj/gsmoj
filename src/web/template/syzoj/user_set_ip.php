@@ -16,7 +16,7 @@
       <br>
       
       <?php if (isset($OJ_RANK_LOCK_PERCENT)&&$OJ_RANK_LOCK_PERCENT!=0) { ?>
-      Lock Board Time: <?php echo date("Y-m-d H:i:s", $view_lock_time) ?><br/>
+      <?php echo $MSG_LOCK_BOARD_TIME?>: <?php echo date("Y-m-d H:i:s", $view_lock_time) ?><br/>
       <?php } ?>
       
       <?php if ($now>$end_time) {
@@ -80,9 +80,9 @@
 
 	  <?php
 	  if ($result2=="changed")
-	  	echo "<center><h4 class='text-danger'>User ".htmlentities($_POST['user_id'], ENT_QUOTES, 'UTF-8')."'s Login IP Changed to ".$ip."</h4></center>";
+	  	echo "<center><h4 class='text-danger'>$MSG_USER ".htmlentities($_POST['user_id'], ENT_QUOTES, 'UTF-8').$MSG_LOGIN_IP_CHANGED.$ip."</h4></center>";
 	  else
-	  	echo "<center><h4 class='text-danger'>Login IP Change</h4></center>";
+	  	echo "<center><h4 class='text-danger'>$MSG_SET_LOGIN_IP</h4></center>";
 	 	?>
 
 	  <center>
@@ -99,7 +99,7 @@
 			</div>
 
 			<div class="form-group">
-				<label class="col-sm-offset-2 col-sm-3 control-label"><?php echo "New IP"?></label>
+				<label class="col-sm-offset-2 col-sm-3 control-label"><?php echo $MSG_NEW_IP?></label>
 				<?php if(isset($_POST['ip'])) { ?>
 				<div class="col-sm-3"><input name="ip" class="form-control" value="<?php echo htmlentities($_POST['ip'], ENT_QUOTES, 'UTF-8')?>" type="text"  autocomplete="off" required ></div>
 				<?php } else { ?>

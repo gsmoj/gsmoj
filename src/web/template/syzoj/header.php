@@ -523,7 +523,7 @@
             }
             if ($gs_file_group >= 0) $gs_active_group = $gs_file_group;
             // 서버 모니터링을 열면 그룹 탭 대신 서버 모니터링 탭을 선택하고, 하위 기능 줄은 비워 둔다.
-            if ($gs_main_file === "monitor.php") $gs_active_group = "monitor";
+            if ($gs_is_admin && $gs_main_file === "monitor.php") $gs_active_group = "monitor";
         }
         $gs_top = $gs_in_admin ? 112 : 72;  // 고정 헤더 72px. 관리자 페이지는 같은 높이의 관리자 헤더 + 하위 기능 줄 40px
 ?>
@@ -592,8 +592,8 @@
                        $gs_cid_assessment = function_exists("is_assessment_contest") && is_assessment_contest($cid);   ?>
                             <a class="item" href="<?php echo $path_fix.($gs_cid_assessment ? "assessment.php" : "contest.php")?>"><?php echo ($gs_cid_assessment ? (isset($MSG_ASSESSMENT) ? $MSG_ASSESSMENT : "수행평가") : $MSG_CONTEST).$MSG_LIST?></a>
             <?php    }      ?>
-            <a class="item active" href="<?php echo $path_fix?>contest.php?cid=<?php echo $cid?>"><?php echo $MSG_PROBLEMS.$MSG_LIST?></a>
-            <a class="item active" href="<?php echo $path_fix?>status.php?cid=<?php echo $cid?>"><?php echo $MSG_STATUS.$MSG_LIST?></a>
+            <a class="item active" href="<?php echo $path_fix?>contest.php?cid=<?php echo $cid?>"><?php echo $MSG_PROBLEMS." ".$MSG_LIST?></a>
+            <a class="item active" href="<?php echo $path_fix?>status.php?cid=<?php echo $cid?>"><?php echo $MSG_STATUS?></a>
             <?php // 수행평가는 순위를 공개하지 않으므로 관리자와 회차 관리자(교사)에게만 순위 메뉴를 보여 준다.
             if (!(function_exists("is_assessment_contest") && is_assessment_contest($cid)) || isset($_SESSION[$OJ_NAME.'_'.'administrator']) || isset($_SESSION[$OJ_NAME.'_m'.$cid])) { ?>
             <a class="item active" href="<?php echo $path_fix?>contestrank.php?cid=<?php echo $cid?>"><?php echo $MSG_RANKLIST?></a>
@@ -636,6 +636,8 @@
                 <?php if($gs_logged_in) {
                         $gs_user_id = $_SESSION[$OJ_NAME.'_'.'user_id'];
                         $gs_user_name = !empty($_SESSION[$OJ_NAME.'_nick']) ? $_SESSION[$OJ_NAME.'_nick'] : $gs_user_id;
+                        // 닉네임은 이스케이프된 채 저장되므로 한 번 풀어 두고, 출력할 때 한 번만 이스케이프한다.
+                        $gs_user_name = html_entity_decode($gs_user_name, ENT_QUOTES, 'UTF-8');
                 ?>
                 <?php if($gs_mail_html){ ?>
                 <a class="gs-bell" href="<?php echo $path_fix?>mail.php" aria-label="<?php echo htmlentities($MSG_MAIL, ENT_QUOTES, 'UTF-8');?>" title="<?php echo htmlentities($MSG_MAIL, ENT_QUOTES, 'UTF-8');?>">
