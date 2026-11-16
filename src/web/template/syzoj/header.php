@@ -523,7 +523,7 @@
             }
             if ($gs_file_group >= 0) $gs_active_group = $gs_file_group;
             // 서버 모니터링을 열면 그룹 탭 대신 서버 모니터링 탭을 선택하고, 하위 기능 줄은 비워 둔다.
-            if ($gs_main_file === "monitor.php") $gs_active_group = "monitor";
+            if ($gs_is_admin && $gs_main_file === "monitor.php") $gs_active_group = "monitor";
         }
         $gs_top = $gs_in_admin ? 112 : 72;  // 고정 헤더 72px. 관리자 페이지는 같은 높이의 관리자 헤더 + 하위 기능 줄 40px
 ?>
