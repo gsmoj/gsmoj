@@ -34,6 +34,28 @@ td > code {
     white-space:nowrap;
 }
 
+/* 채점기가 만든 출력 비교(마크다운 표)를 테스트별 카드로 보여 준다. */
+.ui.segment.gs-diff-wrap { padding: 0; border: 0; box-shadow: none; background: transparent; }
+#errtxt.gs-diff { margin: 0; padding: 0; background: transparent; border: 0; white-space: normal; font-family: inherit; font-size: 14px; }
+#errtxt.gs-diff .gs-case { margin: 0 0 16px; padding: 16px 18px; border: 1px solid #e5e7eb; border-radius: 12px; background: #fff; }
+#errtxt.gs-diff .gs-case:last-child { margin-bottom: 0; }
+#errtxt.gs-diff h2 { margin: 0 0 12px; font-size: 15px; font-weight: 600; color: #111827; }
+#errtxt.gs-diff h2 a { color: #2563eb; }
+#errtxt.gs-diff .gs-table-scroll { overflow-x: auto; }
+#errtxt.gs-diff table { width: 100%; max-width: 760px; margin: 0; border-collapse: separate; border-spacing: 0; table-layout: fixed; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; }
+#errtxt.gs-diff th { padding: 8px 12px; background: #f9fafb; color: #4b5563; font-size: 13px; font-weight: 600; text-align: left; border-bottom: 1px solid #e5e7eb; }
+#errtxt.gs-diff td { padding: 7px 12px; color: #111827; font-family: Consolas, "D2Coding", "Courier New", monospace; font-size: 13px; line-height: 1.5; white-space: pre-wrap; word-break: break-all; vertical-align: top; border-top: 1px solid #f1f3f5; }
+#errtxt.gs-diff th + th, #errtxt.gs-diff td + td { border-left: 1px solid #e5e7eb; }
+#errtxt.gs-diff tbody tr:first-child td { border-top: 0; }
+#errtxt.gs-diff td > code { padding: 1px 6px; border-radius: 4px; background: #fee2e2; color: #b91c1c; font-family: inherit; font-size: 13px; white-space: pre-wrap; }
+#errtxt.gs-diff .gs-muted { color: #9ca3af; }
+#errtxt.gs-diff .gs-eof { display: inline-block; padding: 0 8px; border-radius: 999px; background: #f3f4f6; color: #6b7280; font-family: inherit; font-size: 12px; line-height: 20px; }
+#errtxt.gs-diff pre { margin: 0; padding: 12px; border-radius: 8px; background: #f9fafb; white-space: pre-wrap; }
+@media (max-width: 767px) {
+    #errtxt.gs-diff .gs-case { padding: 12px; }
+    #errtxt.gs-diff table { min-width: 420px; }
+}
+
 </style>
 <div class="padding">
     <div style="margin-top: 0px; margin-bottom: 14px; " v-if="content != null && content !== ''">
@@ -197,28 +219,34 @@ const marked = new Marked(
                 }
 
 
-        $("#errtxt table").addClass("ui mini-table cell striped");
-        $("#errtxt table tr:odd td").css({
-            "border": "1px solid grey",
-           // "text-align": "center",
-            "width": "200px",
-            "background-color": "#8521d022",
-            "height": "30px"
-        });
-        $("#errtxt table tr:even td").css({
-            "border": "1px solid grey",
-           // "text-align": "center",
-            "width": "200px",
-            "background-color": "#2185d022",
-            "height": "30px"
-        });
-        $("#errtxt table th").css({
-            "border": "1px solid grey",
-            "width": "200px",
-            "height": "30px",
-            "background-color": "#2185d088",
-            "text-align": "center"
-        });
+        // 출력 비교 결과(파일명 제목 + 표)가 있으면 테스트별 카드 모양으로 바꾼다. 일반 오류 문구는 그대로 둔다.
+        var $err=$("#errtxt");
+        if($err.find("table, h2").length){
+            $err.addClass("gs-diff").closest(".ui.segment").addClass("gs-diff-wrap");
+            $err.find("table").wrap("<div class='gs-table-scroll'></div>");
+            $err.find("h2").each(function(){
+                $(this).nextUntil("h2").addBack().wrapAll("<div class='gs-case'></div>");
+            });
+            // 줄 끝(↩)은 흐리게, 출력 끝(⛔)은 글자 배지로 보여 준다. 텍스트 노드만 바꿔 원래 내용은 이스케이프된 채로 둔다.
+            $err.find("td, td > code").contents().filter(function(){ return this.nodeType===3; }).each(function(){
+                var text=this.nodeValue;
+                if(text.indexOf("↩")<0 && text.indexOf("⛔")<0 && text.trim()!=="...") return;
+                var frag=document.createDocumentFragment();
+                if(text.trim()==="..."){
+                    var dots=document.createElement("span"); dots.className="gs-muted"; dots.textContent=text; frag.appendChild(dots);
+                }else{
+                    text.split(/(↩|⛔)/).forEach(function(part){
+                        if(part==="") return;
+                        var node;
+                        if(part==="↩"){ node=document.createElement("span"); node.className="gs-muted"; node.textContent="↩"; }
+                        else if(part==="⛔"){ node=document.createElement("span"); node.className="gs-eof"; node.textContent=<?php echo json_encode(isset($MSG_OUTPUT_END) ? $MSG_OUTPUT_END : "출력 끝")?>; }
+                        else node=document.createTextNode(part);
+                        frag.appendChild(node);
+                    });
+                }
+                this.parentNode.replaceChild(frag,this);
+            });
+        }
         <?php
           if(isset($OJ_DOWNLOAD)&&$OJ_DOWNLOAD && $coin>0 ){
             if(isset($OJ_DL_1ST_WA_ONLY) && $OJ_DL_1ST_WA_ONLY){
