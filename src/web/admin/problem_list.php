@@ -91,7 +91,7 @@ function pm_pagination($page, $spage, $epage, $pages, $extra_class = "") {
 $pm_can_manage = isset($_SESSION[$OJ_NAME.'_'.'administrator']) || isset($_SESSION[$OJ_NAME.'_'.'problem_editor']);
 // 선택한 문제 일괄 작업 버튼. 표 위·아래에 같은 버튼을 둔다(기존 동작과 같음).
 function pm_bulkbar($with_ai, $extra_class = "") {
-  global $OJ_NAME, $MSG_CHECK_TO, $MSG_NEW_CONTEST, $MSG_AVAILABLE, $MSG_RESERVED, $MSG_NEW_PROBLEM_LIST, $pm_can_manage;
+  global $OJ_NAME, $MSG_CHECK_TO, $MSG_NEW_CONTEST, $MSG_AVAILABLE, $MSG_RESERVED, $MSG_NEW_PROBLEM_LIST, $MSG_DELETE, $pm_can_manage;
   ?>
   <div class="pm-bulkbar <?php echo $extra_class?>">
     <span class="pm-bulkbar-label"><?php echo $MSG_CHECK_TO?></span>
@@ -102,6 +102,9 @@ function pm_bulkbar($with_ai, $extra_class = "") {
       <input class="btn btn-default btn-sm" type=submit name='disable' value='<?php echo $MSG_RESERVED ?>' onclick='$("form").attr("action","problem_df_change.php")'>
       <?php } ?>
       <input class="btn btn-default btn-sm" type=submit name='plist' value='<?php echo $MSG_NEW_PROBLEM_LIST?>' onclick='$("form").attr("action","news_add_page.php")'>
+      <?php if ($pm_can_manage) { // problem_del.php가 문제마다 관리자·작성자 권한을 다시 확인한다. ?>
+      <input class="btn btn-default btn-sm pm-bulk-delete" type=submit name='delete' value='<?php echo $MSG_DELETE ?>' onclick='return pm_bulk_delete();'>
+      <?php } ?>
       <?php if ($with_ai && isset($_SESSION[$OJ_NAME."_administrator"])) { ?><span class='btn btn-primary btn-sm' onclick='$(".ai.label.label-primary").click();'>AI 분류</span><?php } ?>
     </div>
   </div>
@@ -222,6 +225,24 @@ function delPid(pid){
 }
 function onlyUnique(value, index, array) {
   return array.indexOf(value) === index;
+}
+// 선택한 문제(다른 쪽에서 선택한 문제 포함)를 번호와 함께 확인받은 뒤 일괄 삭제한다.
+function pm_bulk_delete(){
+	let ids=($("input[name=hlist]").val()||"").split(",");
+	$("input[name='pid[]']:checked").each(function(){ ids.push($(this).val()); });
+	ids=ids.filter(function(v){ return /^[0-9]+$/.test(v) && parseInt(v,10)>0; }).filter(onlyUnique);
+	if(ids.length==0){
+		alert("삭제할 문제를 먼저 선택하세요.");
+		return false;
+	}
+	ids.sort(function(a,b){ return a-b; });
+	let shown=ids.length>30 ? ids.slice(0,30).join(", ")+" 외 "+(ids.length-30)+"개" : ids.join(", ");
+	if(!confirm("선택한 문제 "+ids.length+"개를 삭제합니다.\n문제 번호: "+shown+"\n\n채점 데이터도 함께 지워지며 되돌릴 수 없습니다. 계속할까요?")) return false;
+	if(!confirm("정말 삭제할까요? 문제 "+ids.length+"개가 영구히 삭제됩니다.")) return false;
+	$("input[name=hlist]").val(ids.join(","));
+	$("#pform").attr("action","problem_del.php");
+	if(!!sessionStorage) sessionStorage.removeItem('plist');
+	return true;
 }
 function addPid(pid){
 
