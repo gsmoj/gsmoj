@@ -47,13 +47,16 @@ if ($_SERVER['REQUEST_METHOD'] === "POST" && isset($_POST['action'])) {
         // 복사본의 문제를 고쳐도 원본이 바뀌지 않도록 문제를 공유하지 않고 채점 데이터까지 전용 문제로 복제한다.
         $pids = array();
         $failed = array();
+        $lost = array();
         foreach (asm_problems($id) as $p) {
             if ($p['title'] === null) continue;
             list($clone, $ok) = asm_clone_problem(intval($p['problem_id']), asm_me());
+            if (!$clone) { $lost[] = intval($p['problem_id']); continue; }
             $pids[] = $clone;
             if (!$ok) $failed[] = $clone;
         }
         asm_save_problems($new, $pids);
+        if ($lost) asm_back($new, false, "'".$a['title']."'를 복사했지만 문제 ".implode(", ", $lost)."번은 복사하지 못해 빠졌습니다. 문제를 다시 추가하세요.");
         if ($failed) asm_back($new, false, "'".$a['title']."'를 복사했지만 문제 ".implode(", ", $failed)."번의 채점 데이터를 복사하지 못했습니다. 채점 데이터를 확인하세요.");
         asm_back($new, true, "'".$a['title']."'를 복사했습니다. 문제는 채점 데이터까지 복제되었고, 회차는 새로 추가하세요.");
     }
@@ -82,6 +85,27 @@ if ($_SERVER['REQUEST_METHOD'] === "POST" && isset($_POST['action'])) {
         asm_back($id, true, "공개했습니다. 비공개 문제 ".$opened."개를 문제 목록에 공개했습니다. 전용 문제는 공개하지 않습니다.");
     }
 
+    // 기존 문제를 복사해 이 수행평가의 전용 문제로 가져온다. 원본은 그대로 두고 번호는 새로 받는다(5000번부터).
+    if ($action === "import_problem") {
+        $src = array_slice(array_unique(array_filter(array_map("intval", preg_split('/[^0-9]+/', isset($_POST['pids']) ? $_POST['pids'] : "")))), 0, 20);
+        if (!$src) asm_back($id, false, "복사할 문제 번호를 입력하세요. 여러 개는 쉼표로 구분합니다.");
+        $done = array();
+        $skip = array();
+        $failed = array();
+        foreach ($src as $pid) {
+            if (!asm_can_copy($pid)) { $skip[] = $pid; continue; }
+            list($clone, $ok) = asm_clone_problem($pid, $a['owner']);
+            if (!$clone) { $skip[] = $pid; continue; }
+            asm_attach_problem($a, $clone);
+            $done[] = $pid."→".$clone;
+            if (!$ok) $failed[] = $clone;
+        }
+        $msg = $done ? "문제 ".count($done)."개를 복사해 추가했습니다(".implode(", ", $done).")." : "";
+        if ($skip) $msg .= " 없거나 복사할 수 없는 문제: ".implode(", ", $skip).".";
+        if ($failed) $msg .= " 문제 ".implode(", ", $failed)."번의 채점 데이터를 복사하지 못했습니다. 채점 데이터를 확인하세요.";
+        asm_back($id, $done && !$failed, trim($msg));
+    }
+
     if ($action === "move_problem") {
         $pids = array_map(function ($r) { return intval($r['problem_id']); }, asm_problems($id));
         $i = array_search(isset($_POST['pid']) ? intval($_POST['pid']) : 0, $pids, true);
@@ -91,17 +115,6 @@ if ($_SERVER['REQUEST_METHOD'] === "POST" && isset($_POST['action'])) {
         list($pids[$i], $pids[$j]) = array($pids[$j], $pids[$i]);
         asm_save_problems($id, $pids);
         asm_back($id, true, "문제 순서를 바꾸고 시작 전 회차 ".asm_sync_session_problems($id)."개에 반영했습니다.");
-    }
-    if ($action === "import_problem") {
-        $pids = isset($_POST['pids']) && is_array($_POST['pids']) ? $_POST['pids'] : array();
-        $text = trim(isset($_POST['pid_text']) ? (string)$_POST['pid_text'] : "");
-        if ($text !== "") $pids = array_merge($pids, preg_split('/[\s,]+/', $text, -1, PREG_SPLIT_NO_EMPTY));
-        if (!$pids) asm_back($id, false, "가져올 문제를 고르거나 문제 번호를 입력하세요.");
-        list($added, $failed, $denied) = asm_import_problems($a, $pids);
-        $msg = $added ? "문제 ".count($added)."개를 전용 문제(".implode(", ", $added)."번)로 복제해 추가했습니다." : "추가한 문제가 없습니다.";
-        if ($denied) $msg .= " 가져올 수 없는 문제: ".implode(", ", $denied)."번(없는 문제이거나 사용 권한이 없습니다).";
-        if ($failed) $msg .= " 문제 ".implode(", ", $failed)."번은 채점 데이터를 복사하지 못했습니다. 채점 데이터를 확인하세요.";
-        asm_back($id, $added && !$denied && !$failed, $msg);
     }
     if ($action === "delete_problem") {
         $err = asm_remove_problem($a, isset($_POST['pid']) ? intval($_POST['pid']) : 0);
@@ -204,14 +217,6 @@ function asm_dt($v) { return str_replace(" ", "T", substr((string)$v, 0, 16)); }
   .asm-add { display: flex; flex-wrap: wrap; align-items: end; gap: 10px; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--admin-border); }
   .asm-add label { display: grid; gap: 4px; margin: 0; color: var(--admin-muted); font-size: 12px; font-weight: 600; }
   .asm-add select, .asm-add input { width: auto !important; }
-  .asm-import { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--admin-border); }
-  .asm-import summary { cursor: pointer; font-weight: 700; }
-  .asm-import form { display: grid; gap: 10px; margin: 10px 0 0; }
-  .asm-import-list { display: grid; gap: 4px; max-height: 240px; overflow-y: auto; padding: 8px 10px; border: 1px solid var(--admin-border); border-radius: 8px; }
-  .asm-import-list label { display: flex; align-items: center; gap: 6px; margin: 0; font-weight: 400; }
-  .asm-import-row { display: flex; flex-wrap: wrap; align-items: end; gap: 10px; }
-  .asm-import-row label { display: grid; gap: 4px; margin: 0; color: var(--admin-muted); font-size: 12px; font-weight: 600; }
-  .asm-import-row input { width: 220px !important; }
   .asm-readonly { padding: 12px 14px; border-radius: 10px; background: #f8fafc; color: var(--admin-muted); }
   @media (max-width: 900px) { .asm-grid, .asm-thresholds { grid-template-columns: minmax(0, 1fr); } }
 </style>
@@ -311,34 +316,17 @@ function asm_dt($v) { return str_replace(" ", "T", substr((string)$v, 0, 16)); }
             </td>
             <?php } ?>
           </tr>
-        <?php } if (!$problems) echo "<tr><td colspan='".($can ? 5 : 4)."' class='admin-field-help' style='padding:16px;text-align:center'>아직 문제가 없습니다.".($can ? " \"문제 추가\"로 이 ".$MSG_ASSESSMENT."에서만 쓰는 전용 문제를 만들거나 \"기존 문제 가져오기\"로 예전 문제를 복제하세요." : "")."</td></tr>"; ?>
+        <?php } if (!$problems) echo "<tr><td colspan='".($can ? 5 : 4)."' class='admin-field-help' style='padding:16px;text-align:center'>아직 문제가 없습니다.".($can ? " \"문제 추가\"로 이 ".$MSG_ASSESSMENT."에서만 쓰는 전용 문제를 만드세요." : "")."</td></tr>"; ?>
         </tbody>
       </table>
     </div>
-    <?php if ($can) { $candidates = asm_import_candidates($id); ?>
-    <details class="asm-import">
-      <summary>기존 문제 가져오기</summary>
-      <form method="post" action="assessment_edit.php?id=<?php echo $id?>">
-        <?php require("../include/set_post_key.php"); ?><input type="hidden" name="action" value="import_problem">
-        <?php if ($candidates) { ?>
-        <div class="asm-import-list">
-          <?php foreach ($candidates as $c) { ?>
-          <label><input type="checkbox" name="pids[]" value="<?php echo intval($c['problem_id'])?>">
-            <b><?php echo intval($c['problem_id'])?></b> <?php echo asm_h(str_replace("&#44;", ",", (string)$c['title']))?>
-            <?php if ($c['asm_title'] !== null) { ?><span class="admin-field-help">· <?php echo asm_h($c['asm_title'])?></span><?php } ?>
-          </label>
-          <?php } ?>
-        </div>
-        <?php } else { ?>
-        <p class="admin-field-help" style="margin:0">가져올 수 있는 전용 문제가 없습니다.</p>
-        <?php } ?>
-        <div class="asm-import-row">
-          <label>문제 번호 직접 입력 <input type="text" name="pid_text" class="form-control" placeholder="1001, 1002"></label>
-          <button type="submit" class="btn btn-primary btn-sm">가져오기</button>
-        </div>
-        <p class="admin-field-help" style="margin:0">고른 문제는 채점 데이터까지 이 <?php echo $MSG_ASSESSMENT?>의 전용 문제로 복제해 추가합니다. 복제본을 고치거나 지워도 원래 문제에는 영향이 없습니다. <?php echo asm_is_admin() ? "관리자는 모든 문제를 번호로 가져올 수 있습니다." : "직접 만든 문제만 가져올 수 있습니다."?></p>
-      </form>
-    </details>
+    <?php if ($can) { ?>
+    <form method="post" action="assessment_edit.php?id=<?php echo $id?>" class="asm-add">
+      <?php require("../include/set_post_key.php"); ?><input type="hidden" name="action" value="import_problem">
+      <label>기존 문제에서 복사 <input type="text" name="pids" required placeholder="문제 번호 (예: 1000, 1001)" style="width:240px !important"></label>
+      <button type="submit" class="btn btn-default">복사해서 추가</button>
+      <span class="admin-field-help">원본은 그대로 두고 채점 데이터까지 복제해 새 번호(5000번부터)의 전용 문제로 넣습니다.</span>
+    </form>
     <?php } ?>
     <p class="admin-field-help" style="margin:8px 0 0">문제를 추가·삭제하거나 순서를 바꾸면 아직 시작하지 않은 회차에만 반영됩니다. 전용 문제는 문제 목록에 나오지 않고 이 <?php echo $MSG_ASSESSMENT?>의 회차 안에서만 풀 수 있습니다.</p>
     <?php if (array_filter($problems, function ($p) { return $p['defunct'] === 'N'; })) { ?>
@@ -378,7 +366,7 @@ function asm_dt($v) { return str_replace(" ", "T", substr((string)$v, 0, 16)); }
               <a href="../status.php?cid=<?php echo $cid?>" target="_blank">채점 현황</a> ·
               <a href="../contestrank.php?cid=<?php echo $cid?>" target="_blank">순위</a>
               <?php if (asm_is_admin() || isset($_SESSION[$OJ_NAME.'_'."m".$cid])) { ?> · <a href="assessment_event_list.php?cid=<?php echo $cid?>">감지 기록</a><?php } ?>
-              <?php if (asm_is_admin()) { ?> · <a href="monitor.php?cid=<?php echo $cid?>#contest">모니터링</a><?php } ?>
+              <?php if (asm_is_admin() || isset($_SESSION[$OJ_NAME.'_'."m".$cid])) { ?> · <a href="monitor.php?cid=<?php echo $cid?>#contest">모니터링</a><?php } ?>
             </td>
             <?php if ($can) { ?>
             <td>

@@ -8,18 +8,20 @@ if (!asm_can_use()) {
     exit(1);
 }
 $MSG_ASSESSMENT = isset($MSG_ASSESSMENT) ? $MSG_ASSESSMENT : "수행평가";
+$MSG_CLASS = isset($MSG_CLASS) ? $MSG_CLASS : "반";
 $me = asm_me();
 $scope = isset($_GET['scope']) && $_GET['scope'] === "all" ? "all" : "mine";
 
-$where = $scope === "mine" && !asm_is_admin() ? "a.defunct='N' and a.owner=?" : "a.defunct='N'";
-$args = $scope === "mine" && !asm_is_admin() ? array($me) : array();
-if ($scope === "mine" && asm_is_admin()) { $where = "a.defunct='N' and a.owner=?"; $args = array($me); }
+// "내 수행평가"는 관리자도 자기가 만든 것만, "전체"는 모두 보여 준다.
+$where = $scope === "mine" ? "a.defunct='N' and a.owner=?" : "a.defunct='N'";
+$args = $scope === "mine" ? array($me) : array();
 $rows = call_user_func_array("pdo_query", array_merge(array("select a.assessment_id, a.title, a.owner, a.created_at, a.published_at,
         (select count(*) from assessment_problem p where p.assessment_id=a.assessment_id) as problems,
         (select count(*) from assessment_session s where s.assessment_id=a.assessment_id) as sessions,
         (select count(*) from assessment_session s join contest c on c.contest_id=s.contest_id where s.assessment_id=a.assessment_id and c.start_time<=now() and c.end_time>now()) as running,
         (select count(*) from assessment_session s join contest c on c.contest_id=s.contest_id where s.assessment_id=a.assessment_id and c.start_time>now()) as upcoming,
-        (select group_concat(s.group_name order by s.group_name separator ', ') from assessment_session s where s.assessment_id=a.assessment_id) as groups_list
+        (select group_concat(s.group_name order by s.group_name separator ',') from assessment_session s where s.assessment_id=a.assessment_id) as groups_list,
+        (select min(c.start_time) from assessment_session s join contest c on c.contest_id=s.contest_id where s.assessment_id=a.assessment_id) as first_start
     from assessment a where $where order by a.assessment_id desc limit 200"), $args));
 
 // 내가 만든 문제(수정 권한 pNNNN이 있는 문제). 전용 문제는 각 수행평가 화면에서 관리한다.
@@ -37,6 +39,10 @@ $getkey = isset($_SESSION[$OJ_NAME.'_'.'getkey']) ? $_SESSION[$OJ_NAME.'_'.'getk
   .asm-table td, .asm-table th { vertical-align: middle !important; white-space: nowrap; }
   .asm-table td.asm-title { white-space: normal; min-width: 220px; }
   .asm-table .btn { margin: 0 2px; }
+  .asm-table .asm-sub { display: block; color: var(--admin-muted); font-size: 12px; font-weight: 400; }
+  .asm-table td.asm-groups { white-space: normal; min-width: 140px; }
+  .asm-chip { display: inline-block; margin: 1px 3px 1px 0; padding: 1px 8px; border-radius: 999px; background: #f1f5f9; color: var(--admin-text); font-size: 12px; }
+  .asm-table td.asm-act { text-align: right; }
 </style>
 <div class="admin-content-page">
   <div class="admin-page-heading">
@@ -57,7 +63,7 @@ $getkey = isset($_SESSION[$OJ_NAME.'_'.'getkey']) ? $_SESSION[$OJ_NAME.'_'.'getk
   <section class="admin-card" style="margin-bottom:16px">
     <div class="admin-table-wrap">
       <table class="table asm-table">
-        <thead><tr><th>번호</th><th>제목</th><th>만든 사람</th><th>문제</th><th>반별 회차</th><th>상태</th><th>작업</th></tr></thead>
+        <thead><tr><th>제목</th><th>만든 사람</th><th>문제</th><th><?php echo $MSG_CLASS?>별 회차</th><th>상태</th><th style="text-align:right">작업</th></tr></thead>
         <tbody>
         <?php if (!empty($rows)) foreach ($rows as $r) {
             $mine = asm_can_manage($r);
@@ -68,16 +74,19 @@ $getkey = isset($_SESSION[$OJ_NAME.'_'.'getkey']) ? $_SESSION[$OJ_NAME.'_'.'getk
             if ($r['published_at']) $state .= " <span class='admin-badge admin-badge--on'>공개됨</span>";
         ?>
           <tr>
-            <td><?php echo intval($r['assessment_id'])?></td>
-            <td class="asm-title"><a href="assessment_edit.php?id=<?php echo intval($r['assessment_id'])?>"><b><?php echo asm_h($r['title'])?></b></a></td>
+            <td class="asm-title"><a href="assessment_edit.php?id=<?php echo intval($r['assessment_id'])?>"><b><?php echo asm_h($r['title'])?></b></a>
+              <span class="asm-sub">#<?php echo intval($r['assessment_id'])?><?php if ($r['first_start']) echo " · 첫 회차 ".asm_h(substr($r['first_start'], 0, 16))?></span></td>
             <td><?php echo asm_h($r['owner'])?></td>
             <td><?php echo intval($r['problems'])?>문제</td>
-            <td><?php echo intval($r['sessions'])?>회 <span class="admin-field-help"><?php echo asm_h($r['groups_list'])?></span></td>
+            <td class="asm-groups"><?php if ($r['groups_list'] !== null && $r['groups_list'] !== "") foreach (explode(",", $r['groups_list']) as $g) echo "<span class='asm-chip'>".asm_h($g)."</span>"; else echo "<span class='admin-field-help'>-</span>"?></td>
             <td><?php echo $state?></td>
-            <td><a class="btn btn-default btn-sm" href="assessment_edit.php?id=<?php echo intval($r['assessment_id'])?>"><?php echo $mine ? "관리" : "보기·복사"?></a></td>
+            <td class="asm-act">
+              <a class="btn btn-default btn-sm" href="assessment_edit.php?id=<?php echo intval($r['assessment_id'])?>"><?php echo $mine ? "관리" : "보기·복사"?></a>
+              <?php if ($mine && $r['sessions'] > 0) { ?><a class="btn btn-default btn-sm" href="monitor.php#contest">모니터링</a><?php } ?>
+            </td>
           </tr>
         <?php } else { ?>
-          <tr><td colspan="7" class="admin-field-help" style="padding:20px;text-align:center"><?php echo $scope === "mine" ? "아직 만든 ".$MSG_ASSESSMENT."가 없습니다. 오른쪽 위 \"새 ".$MSG_ASSESSMENT."\"로 시작하세요." : $MSG_ASSESSMENT."가 없습니다."?></td></tr>
+          <tr><td colspan="6" class="admin-field-help" style="padding:20px;text-align:center"><?php echo $scope === "mine" ? "아직 만든 ".$MSG_ASSESSMENT."가 없습니다. 오른쪽 위 \"새 ".$MSG_ASSESSMENT."\"로 시작하세요." : $MSG_ASSESSMENT."가 없습니다."?></td></tr>
         <?php } ?>
         </tbody>
       </table>

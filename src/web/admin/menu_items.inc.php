@@ -58,6 +58,7 @@ function gs_admin_menu() {
     if ($admin || $has('contest_creator') || $teacher) {
         $items[] = array("assessment_list.php", "수행평가 목록");
         $items[] = array("assessment_edit.php", "새 수행평가");
+        if ($teacher && !$admin) $items[] = array("monitor.php#contest", "수행평가 모니터링");   // 관리자는 "서버 모니터링" 탭을 쓴다
         if ($admin || $teacher) $items[] = array("user_group.php", "반 지정");
         if ($admin || $has('contest_creator')) $items[] = array("contest_list.php?type=assessment", "수행평가 회차 목록");
         if ($admin) $items[] = array("assessment_event_test.php", "감지 테스트");

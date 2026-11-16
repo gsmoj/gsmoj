@@ -21,11 +21,18 @@ function mon_json($data) {
 }
 
 // 서버 상태와 접속 기록은 운영 정보이므로 관리자만 볼 수 있다.
-if (!isset($_SESSION[$OJ_NAME.'_'.'administrator'])) {
+// 교사는 자기가 관리하는 회차(mNNNN)의 "대회·수행평가" 탭과 문제별 재채점만 쓸 수 있다.
+$mon_admin = isset($_SESSION[$OJ_NAME.'_'.'administrator']);
+$mon_teacher = !$mon_admin && isset($_SESSION[$OJ_NAME.'_'.'teacher']);
+if (!$mon_admin && !$mon_teacher) {
     if (isset($_GET['action'])) mon_fail(403, "관리자만 볼 수 있습니다.");
     require("admin-header.php");
     echo "<div class='admin-content-page'><div class='admin-page-heading'><div><h3>서버 모니터링</h3><p>관리자만 볼 수 있는 화면입니다. 왼쪽 메뉴에서 작업을 선택하세요.</p></div></div></div>";
     exit;
+}
+function mon_can_cid($cid) {
+    global $OJ_NAME;
+    return isset($_SESSION[$OJ_NAME.'_'.'administrator']) || isset($_SESSION[$OJ_NAME.'_'."m".intval($cid)]);
 }
 
 // 조치 요청 위조를 막기 위한 페이지 토큰(재채점 등 연속 요청을 보내므로 세션 단위 토큰을 쓴다).
@@ -256,10 +263,18 @@ function mon_log() {
 }
 
 function mon_contest_list() {
-    $rows = pdo_query("select contest_id, title, start_time, end_time, private, contest_type, defunct,
+    global $OJ_NAME;
+    // 교사는 자기가 관리자(mNNNN)인 회차만 본다.
+    $where = "";
+    $args = array();
+    if (!isset($_SESSION[$OJ_NAME.'_'.'administrator'])) {
+        $where = "where contest_id in (select substr(rightstr,2) from privilege where user_id=? and rightstr regexp '^m[0-9]+$')";
+        $args[] = $_SESSION[$OJ_NAME.'_'.'user_id'];
+    }
+    $rows = call_user_func_array("pdo_query", array_merge(array("select contest_id, title, start_time, end_time, private, contest_type, defunct,
             case when start_time<=now() and end_time>now() then 'running' when start_time>now() then 'upcoming' else 'ended' end as state
-        from contest
-        order by (case when start_time<=now() and end_time>now() then 0 when start_time>now() then 1 else 2 end), end_time desc limit 40");
+        from contest $where
+        order by (case when start_time<=now() and end_time>now() then 0 when start_time>now() then 1 else 2 end), end_time desc limit 40"), $args));
     $list = array();
     if (!empty($rows)) foreach ($rows as $r) {
         $list[] = array("id" => intval($r['contest_id']), "title" => $r['title'], "start" => $r['start_time'], "end" => $r['end_time'],
@@ -377,6 +392,7 @@ function mon_ids($body) {
 
 if (isset($_GET['action'])) {
     $action = $_GET['action'];
+    if ($mon_teacher && !in_array($action, array("contests", "contest", "rejudge_problem"), true)) mon_fail(403, "관리자만 쓸 수 있는 기능입니다.");
     if ($_SERVER['REQUEST_METHOD'] === "POST") {
         $sent = isset($_SERVER['HTTP_X_MONITOR_TOKEN']) ? $_SERVER['HTTP_X_MONITOR_TOKEN'] : "";
         if (!hash_equals($mon_token, $sent)) mon_fail(403, "요청이 만료되었습니다. 페이지를 새로고침해 주세요.");
@@ -406,6 +422,7 @@ if (isset($_GET['action'])) {
             $cid = isset($body['cid']) ? intval($body['cid']) : 0;
             $num = isset($body['num']) ? intval($body['num']) : -1;
             if ($cid <= 0 || $num < 0) mon_fail(400, "대회와 문제를 확인해 주세요.");
+            if (!mon_can_cid($cid)) mon_fail(403, "내가 관리하는 회차만 재채점할 수 있습니다.");
             $rows = pdo_query("select solution_id from solution where contest_id=? and num=? and problem_id>0", $cid, $num);
             pdo_query("update `solution` set `result`=1, pass_rate=0 where `contest_id`=? and num=? and problem_id>0", $cid, $num);
             if (!empty($rows)) trigger_judge(intval($rows[0][0]));
@@ -435,7 +452,9 @@ if (isset($_GET['action'])) {
     case "contests":
         mon_json(array("list" => mon_contest_list()));
     case "contest":
-        mon_json(mon_contest_detail(isset($_GET['cid']) ? intval($_GET['cid']) : 0));
+        $cid = isset($_GET['cid']) ? intval($_GET['cid']) : 0;
+        if (!mon_can_cid($cid)) mon_fail(403, "내가 관리하는 회차만 볼 수 있습니다.");
+        mon_json(mon_contest_detail($cid));
     case "access":
         mon_json(mon_access());
     }
@@ -445,8 +464,9 @@ if (isset($_GET['action'])) {
 $mon_groups = pdo_query("select distinct group_name from users where group_name<>'' order by group_name");
 require("admin-header.php");
 ?>
-<title>서버 모니터링</title>
+<title><?php echo $mon_teacher ? "수행평가 모니터링" : "서버 모니터링"?></title>
 <style>
+  .mon-tabs button[hidden] { display: none !important; }
   .mon-tabs { display: flex; flex-wrap: wrap; gap: 4px; margin: -4px 0 18px; border-bottom: 1px solid var(--admin-border); }
   .mon-tabs button { position: relative; height: auto !important; min-height: 0 !important; margin-bottom: -1px; padding: 10px 14px !important; border: 0; border-bottom: 2px solid transparent; border-radius: 0; background: none; color: var(--admin-muted); font-size: 14px; font-weight: 600; cursor: pointer; }
   .mon-tabs button:hover { color: var(--admin-text); }
@@ -520,8 +540,8 @@ require("admin-header.php");
 <div class="admin-content-page">
   <div class="admin-page-heading">
     <div>
-      <h3>서버 모니터링</h3>
-      <p>서버 상태와 대회·수행평가 중 채점·제출·접속 상황을 확인하고 조치합니다. 열려 있는 탭은 10초마다 갱신됩니다.</p>
+      <h3><?php echo $mon_teacher ? "수행평가 모니터링" : "서버 모니터링"?></h3>
+      <p><?php echo $mon_teacher ? "내가 관리하는 수행평가 회차의 제출·채점 상황을 확인하고 문제별로 재채점합니다. 10초마다 갱신됩니다." : "서버 상태와 대회·수행평가 중 채점·제출·접속 상황을 확인하고 조치합니다. 열려 있는 탭은 10초마다 갱신됩니다."?></p>
     </div>
     <div class="admin-heading-actions">
       <span class="mon-updated" id="mon-updated">불러오는 중…</span>
@@ -532,11 +552,11 @@ require("admin-header.php");
   <div class="mon-alerts" id="mon-alerts" role="status" aria-live="polite"></div>
 
   <nav class="mon-tabs" role="tablist">
-    <button type="button" data-tab="overview" class="is-active">개요</button>
-    <button type="button" data-tab="queue">채점 큐<span class="mon-tab-count" id="tab-queue-count" hidden></span></button>
-    <button type="button" data-tab="log">제출 로그</button>
+    <button type="button" data-tab="overview" class="is-active" <?php if ($mon_teacher) echo "hidden"?>>개요</button>
+    <button type="button" data-tab="queue" <?php if ($mon_teacher) echo "hidden"?>>채점 큐<span class="mon-tab-count" id="tab-queue-count" hidden></span></button>
+    <button type="button" data-tab="log" <?php if ($mon_teacher) echo "hidden"?>>제출 로그</button>
     <button type="button" data-tab="contest">대회·수행평가</button>
-    <button type="button" data-tab="access">접속·이상 징후</button>
+    <button type="button" data-tab="access" <?php if ($mon_teacher) echo "hidden"?>>접속·이상 징후</button>
   </nav>
 
   <!-- 개요 -->
@@ -668,6 +688,7 @@ require("admin-header.php");
 <script>
 (function () {
   var TOKEN = <?php echo json_encode($mon_token)?>;
+  var TEACHER = <?php echo $mon_teacher ? 'true' : 'false'?>;   // 교사는 자기 회차의 대회·수행평가 탭만 쓴다
   var state = { tab: 'overview', timer: null, contest: 0, logMaxId: 0, logMinId: 0, logQuery: '' };
 
   function $(id) { return document.getElementById(id); }
@@ -867,7 +888,7 @@ require("admin-header.php");
       $('contest-detail').innerHTML =
         '<section class="admin-card" style="margin-bottom:16px"><div class="admin-card-title">' + (c.assessment ? '수행평가' : '대회') + ' ' + c.id + ' · ' + STATE_LABEL[c.state] + '</div>' +
         '<h4 style="margin:0 0 6px">' + esc(c.title) + '</h4><p class="admin-field-help" style="margin:0 0 14px">' + esc(c.start) + ' ~ ' + esc(c.end) + (c.private ? ' · 비공개(참가자 ' + d.invited + '명 지정)' : ' · 공개') +
-        ' · <a href="../contest.php?cid=' + c.id + '" target="_blank">대회 화면</a> · <a href="../contestrank.php?cid=' + c.id + '" target="_blank">순위</a> · <a href="#" data-log-contest="' + c.id + '">제출 로그</a> · <a href="#" data-access-contest="' + c.id + '">접속 이상 징후</a></p>' +
+        ' · <a href="../contest.php?cid=' + c.id + '" target="_blank">대회 화면</a> · <a href="../contestrank.php?cid=' + c.id + '" target="_blank">순위</a> ' + (TEACHER ? '' : '· <a href="#" data-log-contest="' + c.id + '">제출 로그</a> · <a href="#" data-access-contest="' + c.id + '">접속 이상 징후</a>') + '</p>' +
         '<div class="mon-stats">' + stat('제출한 참가자', d.participants) + stat('최근 10분 활동', d.active_10m) + stat('채점 대기', d.waiting, d.waiting ? 'warn' : '') +
         stat('최근 10분 제출', r.total) + stat('최근 10분 컴파일·런타임 오류', (r.ce + r.re), errSpike ? 'danger' : '') + '</div>' +
         (errSpike ? '<div class="mon-alert is-danger" style="margin-bottom:12px"><span>⛔ 최근 10분 제출의 절반 이상이 컴파일·런타임 오류입니다. 문제 설정(입출력, 시간 제한, 언어)을 확인하세요.</span></div>' : '') +
@@ -911,7 +932,7 @@ require("admin-header.php");
   };
   function refresh(full) {
     clearTimeout(state.timer);
-    var jobs = [loadStats()];
+    var jobs = TEACHER ? [] : [loadStats()];
     if (state.tab === 'access') { if (full) jobs.push(loadAccess()); }
     else if (state.tab === 'log' && full) jobs.push(loadLog(true));
     else jobs.push(LOADERS[state.tab]());
@@ -920,6 +941,7 @@ require("admin-header.php");
     });
   }
   function showTab(tab, noLoad) {
+    if (TEACHER) tab = 'contest';
     state.tab = tab;
     document.querySelectorAll('.mon-tabs button').forEach(function (b) { b.classList.toggle('is-active', b.getAttribute('data-tab') === tab); });
     document.querySelectorAll('.mon-panel').forEach(function (p) { p.classList.toggle('is-active', p.id === 'panel-' + tab); });
