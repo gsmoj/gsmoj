@@ -153,6 +153,44 @@ function asm_clone_problem($pid, $owner) {
     $data = rtrim($OJ_DATA, "/");
     return array($new, asm_copy_dir($data."/".intval($pid), $data."/".$new));
 }
+// 다른 수행평가로 가져올 수 있는 문제인지 확인한다. 관리자는 모든 문제, 그 밖에는 자신이 만들었거나 권한(pNNNN)을 받은 문제만 가져올 수 있다.
+function asm_can_import($pid) {
+    if (asm_is_admin()) $r = pdo_query("select count(*) from problem where problem_id=?", intval($pid));
+    else $r = pdo_query("select count(*) from problem p join privilege pr on pr.rightstr=concat('p', p.problem_id) and pr.user_id=? where p.problem_id=?", asm_me(), intval($pid));
+    return !empty($r) && intval($r[0][0]) > 0;
+}
+// 가져오기 목록에 보여 줄 전용 문제. 처음 쓰인 수행평가 제목을 함께 돌려준다.
+function asm_import_candidates($exclude_id) {
+    $sql = "select p.problem_id, p.title,
+            (select a.title from assessment_problem ap join assessment a on a.assessment_id=ap.assessment_id where ap.problem_id=p.problem_id order by ap.assessment_id limit 1) as asm_title
+        from problem p
+        where p.defunct='A' and not exists (select 1 from assessment_problem x where x.assessment_id=? and x.problem_id=p.problem_id)";
+    if (asm_is_admin()) $r = pdo_query($sql." order by p.problem_id desc limit 300", intval($exclude_id));
+    else $r = pdo_query($sql." and exists (select 1 from privilege pr where pr.user_id=? and pr.rightstr=concat('p', p.problem_id)) order by p.problem_id desc limit 300", intval($exclude_id), asm_me());
+    return empty($r) ? array() : $r;
+}
+// 기존 문제를 채점 데이터까지 전용 문제로 복제해 수행평가 끝에 붙인다. 원본을 공유하지 않으므로 고치거나 지워도 다른 수행평가에 영향이 없다.
+// [추가한 새 번호들, 채점 데이터 복사에 실패한 새 번호들, 가져올 수 없는 원본 번호들]을 돌려준다.
+function asm_import_problems($a, $pids) {
+    $id = intval($a['assessment_id']);
+    $list = array_map(function ($r) { return intval($r['problem_id']); }, asm_problems($id));
+    $added = array();
+    $failed = array();
+    $denied = array();
+    foreach (array_slice(array_values(array_unique(array_filter(array_map("intval", $pids), function ($v) { return $v > 0; }))), 0, 20) as $pid) {
+        if (!asm_can_import($pid)) { $denied[] = $pid; continue; }
+        list($new, $ok) = asm_clone_problem($pid, $a['owner']);
+        if ($new <= 0) { $denied[] = $pid; continue; }
+        $list[] = $new;
+        $added[] = $new;
+        if (!$ok) $failed[] = $new;
+    }
+    if ($added) {
+        asm_save_problems($id, $list);
+        asm_sync_session_problems($id);
+    }
+    return array($added, $failed, $denied);
+}
 // 아직 시작하지 않은 회차의 대회 문제를 수행평가 문제 목록과 맞춘다. 시작한 회차는 제출이 섞이므로 건드리지 않는다.
 function asm_sync_session_problems($id) {
     $pids = array_map(function ($r) { return intval($r['problem_id']); }, asm_problems($id));
