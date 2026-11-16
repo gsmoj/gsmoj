@@ -135,10 +135,22 @@ if ($contest_ok && str_contains($view_description, $OJ_CONTEST_LIMIT_KEYWORD) &&
     if ($unixnow - $first_login_contest >= $contest_limit_minutes * 60 && !isset($_SESSION[$OJ_NAME . "_m" . $cid]) && !isset($_SESSION[$OJ_NAME . "_administrator"])) {
         $contest_ok = false;
 
-        $view_errors = "<center>";
-        $view_errors .= "<h3>$MSG_CONTEST_ID : $view_cid - $view_title</h3>";
-        $view_errors .= "<p>$view_description</p>";
-        require("template/" . $OJ_TEMPLATE . "/error.php");
+        // 개인 제한시간이 지나면 대회 설명·부가 버튼 없이 안내 문구만 보여 준다.
+        if (!isset($MSG_CONTEST_TIME_OVER)) $MSG_CONTEST_TIME_OVER = "Time is over";
+        if (!isset($MSG_CONTEST_TIME_OVER_DETAIL)) $MSG_CONTEST_TIME_OVER_DETAIL = "You can no longer view or submit problems in this contest.";
+        if ($is_assessment) {
+            $gs_time_over_back_url = "assessment.php";
+            $gs_time_over_back_label = isset($MSG_ASSESSMENT_LIST_BACK) ? $MSG_ASSESSMENT_LIST_BACK : $MSG_ASSESSMENT;
+        } else {
+            $gs_time_over_back_url = "contest.php";
+            $gs_time_over_back_label = isset($MSG_CONTEST_LIST_BACK) ? $MSG_CONTEST_LIST_BACK : $MSG_CONTEST;
+        }
+        if (file_exists("template/" . $OJ_TEMPLATE . "/contest_time_over.php")) {
+            require("template/" . $OJ_TEMPLATE . "/contest_time_over.php");
+        } else {
+            $view_errors = "<h3>$MSG_CONTEST_TIME_OVER</h3><p>$MSG_CONTEST_TIME_OVER_DETAIL</p>";
+            require("template/" . $OJ_TEMPLATE . "/error.php");
+        }
         exit(0);
     } else {
         $time_left = $contest_limit_minutes * 60 - ($unixnow - $first_login_contest);
