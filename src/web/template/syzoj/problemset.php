@@ -230,7 +230,8 @@ $(function(){
   // 비어 있는 조건은 주소에 남기지 않는다.
   $form.on('submit',function(){
     $form.find('input[name=search],select').each(function(){
-      if($.trim(this.value)===''||(this.name==='sort'&&this.value==='id')) this.disabled=true;
+      // jQuery 4에는 $.trim이 없으므로 기본 trim을 쓴다. 여기서 오류가 나면 분류·정렬을 바꿔도 폼이 전송되지 않는다.
+      if(String(this.value||'').trim()===''||(this.name==='sort'&&this.value==='id')) this.disabled=true;
     });
   });
   // 뒤로 가기로 돌아왔을 때 꺼 둔 입력을 다시 켠다.
