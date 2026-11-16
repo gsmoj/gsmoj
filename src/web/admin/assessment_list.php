@@ -45,7 +45,7 @@ $getkey = isset($_SESSION[$OJ_NAME.'_'.'getkey']) ? $_SESSION[$OJ_NAME.'_'.'getk
       <p>문제를 묶어 <?php echo $MSG_ASSESSMENT?>를 만들고, 반마다 시간을 정해 회차를 추가합니다. 회차의 참가자는 그 반 학생이며, 진행 중 결과·감지 기록은 만든 사람과 관리자만 볼 수 있습니다.</p>
     </div>
     <div class="admin-heading-actions">
-      <a class="btn btn-default" href="problem_add_page.php">문제 등록</a>
+      <a class="btn btn-default" href="problem_add_page.php?assessment=1" title="수행평가용 문제는 5000번부터 번호가 매겨집니다.">문제 등록</a>
       <a class="btn btn-primary" href="assessment_edit.php">새 <?php echo $MSG_ASSESSMENT?></a>
     </div>
   </div>
