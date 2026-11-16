@@ -1,17 +1,31 @@
 <?php
+// 문제 번호 대역: 일반 문제는 1000번부터, 수행평가 전용 문제는 5000번부터 매긴다(asm_next_problem_id).
+// AUTO_INCREMENT(최댓값+1)에 맡기면 5000번대 문제가 생긴 뒤로 일반 문제도 5000번대로 이어지므로 일반 문제 번호를 직접 정한다.
+define('GSMOJ_PROBLEM_ID_START', 1000);
+define('GSMOJ_ASSESSMENT_PROBLEM_ID_START', 5000);
+
+// 일반 문제(1000~4999)의 다음 번호. 대역이 가득 차면 0을 돌려 AUTO_INCREMENT에 맡긴다.
+function next_problem_id() {
+  $row = pdo_query("SELECT MAX(`problem_id`) FROM `problem` WHERE `problem_id`>=? AND `problem_id`<?", GSMOJ_PROBLEM_ID_START, GSMOJ_ASSESSMENT_PROBLEM_ID_START);
+  $max = (!empty($row) && $row[0][0] !== null) ? intval($row[0][0]) : 0;
+  $next = max(GSMOJ_PROBLEM_ID_START, $max + 1);
+  return $next < GSMOJ_ASSESSMENT_PROBLEM_ID_START ? $next : 0;
+}
+
 function addproblem($title, $time_limit, $memory_limit, $description, $input, $output, $sample_input, $sample_output, $hint, $source, $spj, $OJ_DATA) {
   //$spj=($spj);
   $args = array($title, $time_limit, $memory_limit, $description, $input, $output, $sample_input, $sample_output, $hint, $source, $spj);
-  // 수행평가 전용 문제(problem_add.php에서 assessment가 넘어온 경우)는 5000번부터 번호를 직접 정한다. 번호가 겹치면 다시 받는다.
+  // 수행평가 전용 문제(problem_add.php에서 assessment가 넘어온 경우)는 5000번부터, 일반 문제는 1000~4999 안에서 번호를 직접 정한다. 번호가 겹치면 다시 받는다.
   $asm = isset($_POST['assessment']) && intval($_POST['assessment']) > 0 && function_exists("asm_next_problem_id");
   for ($try = 0; $try < 3; $try++) {
+    $id = $asm ? asm_next_problem_id() : next_problem_id();
     $a = $args;
-    if ($asm) array_unshift($a, asm_next_problem_id());
-    $sql = "INSERT INTO `problem` (".($asm ? "`problem_id`," : "")."`title`,`time_limit`,`memory_limit`,`description`,`input`,`output`,`sample_input`,`sample_output`,`hint`,`source`,`spj`,`in_date`,`defunct`) VALUES(".($asm ? "?," : "")."?,?,?,?,?,?,?,?,?,?,?,NOW(),'Y')";
+    if ($id > 0) array_unshift($a, $id);
+    $sql = "INSERT INTO `problem` (".($id > 0 ? "`problem_id`," : "")."`title`,`time_limit`,`memory_limit`,`description`,`input`,`output`,`sample_input`,`sample_output`,`hint`,`source`,`spj`,`in_date`,`defunct`) VALUES(".($id > 0 ? "?," : "")."?,?,?,?,?,?,?,?,?,?,?,NOW(),'Y')";
     $pid = pdo_query($sql, $a);
-    if (!$asm || $pid !== -1) break;
+    if ($id == 0 || $pid !== -1) break;
   }
-  if ($asm && $pid !== -1) $pid = $a[0];
+  if ($id > 0 && $pid !== -1) $pid = $id;
 
   echo "New Problem:<a target=_blank href='../problem.php?id=$pid'>$pid ".htmlentities($title,ENT_QUOTES)."</a> added!<br>";
 

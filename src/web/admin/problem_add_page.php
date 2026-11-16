@@ -98,6 +98,10 @@
 <body>
   <div id="main">
     <header class="problem-page-title"><h3><?php echo htmlentities($page_heading, ENT_QUOTES, 'UTF-8')?></h3></header>
+    <p class="admin-field-help"><?php
+      if ($assessment) echo "수행평가 전용 문제입니다. 문제 번호는 5000번부터 매겨집니다.";
+      else echo "일반 문제입니다. 문제 번호는 1000번부터 매겨지며, 5000번 이후는 수행평가용 문제에 씁니다.";
+    ?></p>
     <form method=POST action=problem_add.php>
       <input type=hidden name=problem_id value="New Problem">
       <?php if ($assessment) { ?><input type=hidden name=assessment value="<?php echo intval($assessment['assessment_id'])?>"><?php } ?>
