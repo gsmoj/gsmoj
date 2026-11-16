@@ -279,8 +279,11 @@ if (!isset($cid) && !empty($result)) {
 }
 
 $last = 0;
+// 평균 대기: 화면에 보이는 50건이 아니라 최근 30분 제출 전체 기준(관리자 모니터와 동일)으로 계산한다.
+// 필터·재채점 기록에 따라 값이 달라지지 않도록 한 번만 조회한다.
 $avg_delay = 0;
-$total_count = 0;
+$avg_rows = pdo_query("select avg(greatest(0, timestampdiff(second, in_date, judgetime))) from solution where problem_id>0 and result>=4 and in_date >= now() - interval 30 minute and judgetime is not null");
+if (is_array($avg_rows) && !empty($avg_rows) && $avg_rows[0][0] !== null) $avg_delay = floatval($avg_rows[0][0]);
 $need_refresh_remote = false;
 
 // 추출된 50개 데이터 행을 하나씩 루프 돌리며 가공 처리 시작
@@ -480,12 +483,8 @@ for ($i = 0; $i < $rows_cnt; $i++) {
         $view_status[$i][7] = "----";
     }
 
-    // 제출 시점부터 채점 완료 시점까지 걸린 시스템 딜레이 평균치 연산 부
+    // 제출 시점부터 채점 완료 시점까지 걸린 시간(관리자 표시용)
     $used = (strtotime($row['judgetime']) - strtotime($row['in_date']));
-    if ($used > 0) {
-        $avg_delay += floatval($used);
-        $total_count++;
-    }
     
     // 최고 관리자인 경우 아이디 탭에 제출 시간 마진과 담당 채점 코어 인덱스 번호를 상세 추가 표출
     if (isset($_SESSION[$OJ_NAME . '_' . 'administrator'])) {
@@ -494,7 +493,6 @@ for ($i = 0; $i < $rows_cnt; $i++) {
     } else
         $view_status[$i][8] = $row['in_date'];
 }
-if ($total_count > 0) $avg_delay /= $total_count;
 
 ///////////////////////// 프론트엔드 템플릿 뷰어 연동 부
 if (isset($_GET['cid']))
