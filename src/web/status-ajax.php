@@ -27,6 +27,15 @@ $result = pdo_query($sql, $solution_id);
 if (!empty($result)) {
     $row = $result[0];
     $contest_id = $row['contest_id'];
+    // 수행평가 제출은 본인, 관리자, 소스 열람 권한자, 그 회차의 관리자(교사, mNNNN)만 조회할 수 있다.
+    if ($contest_id > 0 && is_assessment_contest($contest_id)
+            && !(isset($_SESSION[$OJ_NAME . '_' . 'user_id']) && $_SESSION[$OJ_NAME . '_' . 'user_id'] == $row['user_id'])
+            && !isset($_SESSION[$OJ_NAME . '_' . 'administrator'])
+            && !isset($_SESSION[$OJ_NAME . '_' . 'source_browser'])
+            && !isset($_SESSION[$OJ_NAME . '_' . "m$contest_id"])) {
+        http_response_code(403);
+        exit(0);
+    }
     if ($row['result']>=16 && $OJ_REMOTE_JUDGE) trigger_judge($solution_id);
     if (isset($_GET['tr']) && ($row['problem_id'] == 0 || ($row['problem_id'] > 0 && $OJ_SHOW_DIFF && !contest_locked($contest_id, 16))) &&
         (isset($_SESSION[$OJ_NAME . '_' . 'user_id']) && $_SESSION[$OJ_NAME . '_' . 'user_id'] == $row['user_id'])) {
