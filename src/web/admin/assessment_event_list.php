@@ -66,11 +66,13 @@ $st = $state_names[$contest['state']];
                 SUM(e.`event_type`='copy') copy_cnt,
                 SUM((e.`event_type`='return' AND e.`amount`>=?) OR (e.`event_type`='paste' AND e.`amount`>=?)
                     OR (e.`event_type`='burst' AND e.`amount`>=?) OR (e.`event_type`='copy' AND e.`amount`>=?)) suspect_cnt,
+                SUM(e.`event_type` IN ('leave','paste','burst','copy')) total_cnt,
                 MAX(e.`created_at`) last_at
             FROM `assessment_event` e LEFT JOIN `users` u ON u.`user_id`=e.`user_id`
             WHERE e.`contest_id`=?
             GROUP BY e.`user_id`, u.`nick`, u.`group_name`
-            ORDER BY suspect_cnt DESC, (leave_cnt + paste_cnt + burst_cnt + copy_cnt) DESC, e.`user_id`";
+            ORDER BY suspect_cnt DESC, total_cnt DESC, e.`user_id`";
+    // MariaDB는 ORDER BY 식 안에서 집계 별칭(leave_cnt + …)을 쓰면 1247 오류를 내므로, 합계를 total_cnt 열로 따로 구해 정렬한다.
     $rows = pdo_query($sql, intval($th['leave_seconds']), intval($th['paste_chars']), intval($th['burst_chars']), intval($th['copy_chars']), $cid);
 ?>
   <div class="admin-table-wrap">

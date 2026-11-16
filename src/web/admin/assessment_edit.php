@@ -208,7 +208,7 @@ function asm_dt($v) { return str_replace(" ", "T", substr((string)$v, 0, 16)); }
   .asm-thresholds label { display: grid; gap: 4px; margin: 0; color: var(--admin-muted); font-size: 12px; font-weight: 600; }
   .asm-ptable td, .asm-ptable th, .asm-stable td, .asm-stable th { vertical-align: middle !important; white-space: nowrap; }
   .asm-ptable .asm-ptitle { width: 100%; min-width: 200px; white-space: normal; }
-  .asm-pactions { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+  .asm-pactions { display: flex; flex-wrap: nowrap; align-items: center; gap: 6px; }
   .asm-pactions form { margin: 0; }
   .asm-card-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
   .asm-card-head .admin-card-title { margin-bottom: 0; }
