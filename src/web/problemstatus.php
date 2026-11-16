@@ -180,17 +180,19 @@ if (isset($_SESSION[$OJ_NAME . '_' . 'user_id'])) {
 /**
  * 查询AC该问题的用户解决方案，按时间和内存等综合评分排序
  */
+// 관리자 계정의 풀이는 관리자에게만 보인다.
+$gs_hide_admin = gs_hide_admin_sql("user_id");
 $sql = "SELECT * FROM (
   SELECT COUNT(*) att, user_id, min(10000000000000000000 + time*100000000000 + memory*100000 + code_length) score
   FROM solution
-  WHERE problem_id =? AND result =4
+  WHERE problem_id =? AND result =4 $gs_hide_admin
   GROUP BY user_id
   ORDER BY score 
   )c
     inner JOIN (
     SELECT solution_id, user_id, language, 10000000000000000000 + time*100000000000 + memory*100000 + code_length score, in_date
-    FROM solution 
-    WHERE problem_id =? AND result =4  
+    FROM solution
+    WHERE problem_id =? AND result =4 $gs_hide_admin
     ORDER BY score
     )b ON b.user_id=c.user_id AND b.score=c.score ORDER BY c.score, solution_id ASC LIMIT $start, $sz;";
 

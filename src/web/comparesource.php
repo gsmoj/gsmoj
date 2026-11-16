@@ -44,6 +44,8 @@ $view_source = "No source code available!";
 // 检查用户是否有权限查看源代码
 if (isset($_SESSION[$OJ_NAME . '_' . 'user_id']) && $row && $row['user_id'] == $_SESSION[$OJ_NAME . '_' . 'user_id']) $ok = true;
 if (isset($_SESSION[$OJ_NAME . '_' . 'source_browser'])) $ok = true;
+// 관리자 계정의 제출은 관리자에게만 보인다.
+if ($row && gs_is_hidden_admin($row['user_id'])) $ok = false;
 
 // 查询source_code表获取源代码
 $sql = "SELECT `source` FROM `source_code` WHERE `solution_id`=?";

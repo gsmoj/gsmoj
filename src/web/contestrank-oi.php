@@ -192,7 +192,7 @@ for ($i = 0; $i < $pid_cnt; $i++) {
 }
 
 $sql = "select s.num,s.user_id from solution s ,
-(select num,min(solution_id) minId from solution where contest_id=? and result=4 GROUP BY num ) c where s.solution_id = c.minId";
+(select num,min(solution_id) minId from solution where contest_id=? and result=4 ".gs_hide_admin_sql("user_id")." GROUP BY num ) c where s.solution_id = c.minId";
 $fb = mysql_query_cache($sql, $cid);
 if ($fb) $rows_cnt = count($fb);
 else $rows_cnt = 0;

@@ -62,6 +62,8 @@ $lang = $row["language"];
 // 检查用户权限：用户是解决方案的所有者或具有源码浏览权限
 if ($row && $row['user_id'] == $_SESSION[$OJ_NAME . '_' . 'user_id']) $ok = true;
 if (isset($_SESSION[$OJ_NAME . '_' . 'source_browser'])) $ok = true;
+// 관리자 계정의 제출은 관리자에게만 보인다.
+if ($row && gs_is_hidden_admin($row['user_id'])) $ok = false;
 $view_reinfo = "";
 
 // 如果用户有权限查看编译错误信息

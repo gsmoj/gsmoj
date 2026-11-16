@@ -94,9 +94,11 @@ if (isset($_GET['cid'])) {
         }
     } else {
         // 비로그인 게스트 혹은 타인의 기록을 볼 때: 랭킹 숨김 처리된 유저 제외 및 순수 연습 문제(`contest_id=0`)만 표출
-        $sql = "WHERE solution.user_id not in ($OJ_RANK_HIDDEN) and  problem_id>0 and (contest_id=0 or contest_id is null) "; 
+        $sql = "WHERE solution.user_id not in ($OJ_RANK_HIDDEN) and  problem_id>0 and (contest_id=0 or contest_id is null) ";
     }
 }
+// 관리자 계정의 제출은 대회·연습 어디서든 관리자에게만 보인다.
+$sql .= gs_hide_admin_sql("solution.user_id");
 
 $start_first = true;
 $order_str = " ORDER BY `solution_id` DESC "; // 최신 채점 제출 건이 가장 먼저 오도록 내림차순 정렬
