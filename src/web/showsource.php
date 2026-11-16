@@ -121,6 +121,9 @@ $row = $result[0];
 if ($row)
     $view_source = $row['source'];
 
+// 볼 권한이 없는 코드는 공용 안내 화면으로 막는다.
+if (!$ok) require("include/access_denied.php");
+
 /////////////////////////Template
 require("template/" . $OJ_TEMPLATE . "/showsource.php");
 /////////////////////////Common foot

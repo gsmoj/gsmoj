@@ -108,7 +108,8 @@ if (($ok && $OJ_FRIENDLY_LEVEL > 2) ||
         //$view_reinfo = "出于数据保密原因，当前错误提示不可查看，如果希望能让任何人都查看对比和运行错误,请管理员配置\$OJ_SHOW_DIFF=true;<br>然后编辑本文件，开放18行首注释，令is_valid总是返回true。 <br>\n Sorry , not available (RE:".$isRE.",OJ_SHOW_DIFF:".$OJ_SHOW_DIFF.",TR:".$OJ_TEST_RUN.",valid:".is_valid($row['error']).")";
     }
 } else {
-    if (empty($spj) || $spj[0][0] != 2) $view_errors = $MSG_WARNING_ACCESS_DENIED;
+    // 볼 권한이 없는 제출은 공용 안내 화면으로 막는다. 특수 채점(spj=2)에서 점수만 보여 주는 경우는 기존 화면을 쓴다.
+    if (empty($spj) || $spj[0][0] != 2) require("include/access_denied.php");
     require("template/" . $OJ_TEMPLATE . "/error.php");
     exit(0);
 }

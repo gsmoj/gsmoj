@@ -81,9 +81,9 @@ if ($ok == true) {
 
 } else {
 
-    $view_errors = $MSG_WARNING_ACCESS_DENIED;
-    require("template/" . $OJ_TEMPLATE . "/error.php");
-    exit(0);
+    // 볼 권한이 없는 제출은 공용 안내 화면으로 막는다.
+    $contest_id = $row ? intval($row['contest_id']) : 0;
+    require("include/access_denied.php");
 
 }
 
