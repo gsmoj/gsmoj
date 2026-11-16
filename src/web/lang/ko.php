@@ -374,7 +374,8 @@ $MSG_HINT="도움";
 	$MSG_STRING_INDEX_OUT_OF_BOUNDS_EXCEPTION="문자열에 대한 참조번호가 크기를 벗어났습니다. subString, charAt 등에 사용된 매개 변수를 확인해주세요.";
     $MSG_WRONG_OUTPUT_TYPE_EXCEPTION="숫자를 문자로 출력했는지, 출력할 수 없는 문자를 출력했는지 확인해주세요.";
     $MSG_EXPECTED="정답 출력";
-    $MSG_YOURS="채점 출력";
+    $MSG_YOURS="내 출력";
+    $MSG_OUTPUT_END="출력 끝";
     $MSG_FILENAME="파일명";
     $MSG_SIZE="크기";
 
