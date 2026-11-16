@@ -62,6 +62,8 @@ if (contest_locked($contest_id, 256))
 if ((!contest_locked($contest_id, 32)) && (isset($_SESSION[$OJ_NAME . '_' . 'user_id']) && $row && ($row['user_id'] == $_SESSION[$OJ_NAME . '_' . 'user_id'])) || isset($_SESSION[$OJ_NAME . '_' . 'source_browser'])) {
     $ok = true;
 }
+// 관리자 계정의 제출은 관리자에게만 보인다.
+if ($row && gs_is_hidden_admin($row['user_id'])) $ok = false;
 $spj = pdo_query("select spj from problem where problem_id=?", $row['problem_id']);
 if (!empty($spj) && $spj[0][0] == 2 && $OJ_HIDE_RIGHT_ANSWER && !isset($_SESSION[$OJ_NAME . '_' . 'source_browser'])) {
     $view_errors = "<h1>$MSG_MARK:$mark</h1><br>";

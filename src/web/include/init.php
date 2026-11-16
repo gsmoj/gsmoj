@@ -198,3 +198,30 @@ if(isset($_SESSION[$OJ_NAME."_user_id"])){
 }else{
 	 $coin=0;	
 }
+
+// 관리자 계정의 제출 기록은 관리자만 본다.
+// 관리자 권한(privilege.rightstr='administrator')을 가진 계정을 $OJ_RANK_HIDDEN에 더해 순위·채점 현황·사용자 정보에서 숨기고,
+// 그 밖의 화면은 gs_hide_admin_sql()·gs_is_hidden_admin()으로 거른다. 관리자 본인은 모든 기록을 그대로 본다.
+if(!isset($OJ_RANK_HIDDEN) || trim($OJ_RANK_HIDDEN)==="") $OJ_RANK_HIDDEN="'admin','zhblue'";
+$GS_ADMIN_USERS=array();
+$gs_admin_rows=mysql_query_cache("SELECT DISTINCT user_id FROM privilege WHERE rightstr='administrator'");
+if(is_array($gs_admin_rows)){
+	foreach($gs_admin_rows as $gs_admin_row) $GS_ADMIN_USERS[]=(string)$gs_admin_row['user_id'];
+}
+$GS_ADMIN_IDS=count($GS_ADMIN_USERS)>0 ? implode(",",array_map(function($u){ return "'".addslashes($u)."'"; },$GS_ADMIN_USERS)) : "''";
+if(count($GS_ADMIN_USERS)>0) $OJ_RANK_HIDDEN.=",".$GS_ADMIN_IDS;
+// 지금 보는 사람에게 관리자 제출을 숨겨야 하는지
+function gs_hide_admin_submissions(){
+	global $OJ_NAME;
+	return !isset($_SESSION[$OJ_NAME.'_'.'administrator']);
+}
+// solution 조회 WHERE 절에 붙일 조건. $col은 사용자 ID 열 이름이다.
+function gs_hide_admin_sql($col="user_id"){
+	global $GS_ADMIN_IDS;
+	return gs_hide_admin_submissions() ? " AND $col NOT IN ($GS_ADMIN_IDS) " : "";
+}
+// 이 사용자의 제출을 지금 보는 사람에게 숨겨야 하는지
+function gs_is_hidden_admin($user_id){
+	global $GS_ADMIN_USERS;
+	return gs_hide_admin_submissions() && in_array((string)$user_id,$GS_ADMIN_USERS,true);
+}

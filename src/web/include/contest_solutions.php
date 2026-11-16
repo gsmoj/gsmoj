@@ -3,7 +3,7 @@ if(isset($OJ_NO_CONTEST_WATCHER)&&$OJ_NO_CONTEST_WATCHER) require_once("contest-
 $sql="SELECT
         user_id,nick,solution.result,solution.num,solution.in_date,solution.pass_rate
 FROM
-        solution where solution.contest_id=? and num>=0 and problem_id>0 and in_date >=? and in_date < ?
+        solution where solution.contest_id=? and num>=0 and problem_id>0 and in_date >=? and in_date < ?".gs_hide_admin_sql("user_id")."
 ORDER BY user_id,solution_id";
 if($OJ_MEMCACHE){
         $result = mysql_query_cache($sql,$cid,date("Y-m-d H:i:s",$start_time),date("Y-m-d H:i:s",$end_time));

@@ -95,6 +95,8 @@ if (isset($OJ_AUTO_SHARE) && $OJ_AUTO_SHARE && isset($_SESSION[$OJ_NAME . '_' . 
 $view_source = "No source code available!";
 if (isset($_SESSION[$OJ_NAME . '_' . 'user_id']) && $row && $owner == $_SESSION[$OJ_NAME . '_' . 'user_id']) $ok = true;
 if (isset($_SESSION[$OJ_NAME . '_' . 'source_browser'])) $ok = true;
+// 관리자 계정의 제출은 관리자에게만 보인다.
+if (isset($owner) && gs_is_hidden_admin($owner)) $ok = false;
 
 $sql = "SELECT `source` FROM `source_code_user` WHERE `solution_id`=?";
 $result = pdo_query($sql, $id);
