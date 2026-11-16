@@ -6,6 +6,7 @@ header("Expires: Sat, 26 Jul 1997 05:00:00 GMT"); // 과거의 특정 날짜로 
 //////////////////////////// 공통 헤더 및 환경 설정 부
 $cache_time = 2;
 $OJ_CACHE_SHARE = false;
+require_once('./include/assessment_access_guard.php');  // 수행평가 접근 제한(캐시보다 먼저 확인)
 require_once('./include/cache_start.php');
 require_once('./include/db_info.inc.php');
 require_once('./include/memcache.php');
@@ -62,9 +63,9 @@ if (isset($_GET['cid'])) {
         // 실시간 소스 열람 차단(NOIP 모드) 시 예외 처리 화면 표출 후 스크립트 종료
         if ($noip) {
             $view_errors = "<h2> $MSG_NOIP_WARNING <a href=\"contest.php?cid=$cid\">$MSG_RETURN_CONTEST</a></h2>";
-            $refererUrl = parse_url($_SERVER['HTTP_REFERER']);
-            $top = intval($_GET['top']);
-            if ($refererUrl['path'] == "/submitpage.php") {
+            $refererUrl = parse_url(isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : "");
+            $top = isset($_GET['top']) ? intval($_GET['top']) : 0;
+            if (isset($refererUrl['path']) && $refererUrl['path'] == "/submitpage.php") {
                 $view_errors = "<h2>$MSG_SUBMIT $MSG_SUCCESS! $top </h2><a href=\"contest.php?cid=$cid\">$MSG_RETURN_CONTEST</a></h2>";
             }
             require("template/" . $OJ_TEMPLATE . "/error.php");
@@ -134,6 +135,8 @@ $param = array();
 if ((isset($OJ_ON_SITE_CONTEST_ID) && $OJ_ON_SITE_CONTEST_ID > 0 && !isset($_SESSION[$OJ_NAME . '_' . 'administrator']))
         || (isset($OJ_PUBLIC_STATUS) && !$OJ_PUBLIC_STATUS)
         || (isset($contest_type) && ($contest_type & 8) > 0)
+        // 수행평가(contest_type 9번 비트, 512)는 학생에게 자기 제출만 보여 준다. 관리자와 회차 관리자(교사, mNNNN)는 전체를 본다.
+        || (isset($contest_type) && ($contest_type & 512) > 0 && !isset($_SESSION[$OJ_NAME . '_' . 'administrator']) && !isset($_SESSION[$OJ_NAME . '_' . 'm' . $cid]))
 ) {
     if (!isset($_SESSION[$OJ_NAME . '_' . 'user_id']))
         $_GET['user_id'] = 'Guest';
@@ -290,8 +293,11 @@ if (!isset($cid) && !empty($result)) {
 }
 
 $last = 0;
+// 평균 대기: 화면에 보이는 50건이 아니라 최근 30분 제출 전체 기준(관리자 모니터와 동일)으로 계산한다.
+// 필터·재채점 기록에 따라 값이 달라지지 않도록 한 번만 조회한다.
 $avg_delay = 0;
-$total_count = 0;
+$avg_rows = pdo_query("select avg(greatest(0, timestampdiff(second, in_date, judgetime))) from solution where problem_id>0 and result>=4 and in_date >= now() - interval 30 minute and judgetime is not null");
+if (is_array($avg_rows) && !empty($avg_rows) && $avg_rows[0][0] !== null) $avg_delay = floatval($avg_rows[0][0]);
 $need_refresh_remote = false;
 
 // 추출된 50개 데이터 행을 하나씩 루프 돌리며 가공 처리 시작
@@ -409,7 +415,7 @@ for ($i = 0; $i < $rows_cnt; $i++) {
         $view_status[$i][3] .= "<a href=reinfo.php?sid=" . $row['solution_id'] . " class='" . $judge_color[$row['result']] . "' title='$MSG_Tips'>" . $judge_result[$row['result']] . $mark . "</a>";
     } else {
         // 대회 종료 전 얼려진(Lock) 시점이거나 타인의 코드인 경우 마스킹('----') 처리 분기
-        if (!$lock || $lock_time > $row['in_date'] || $row['user_id'] == $_SESSION[$OJ_NAME . '_' . 'user_id']) {
+        if (!$lock || $lock_time > $row['in_date'] || (isset($_SESSION[$OJ_NAME . '_' . 'user_id']) && $row['user_id'] == $_SESSION[$OJ_NAME . '_' . 'user_id'])) {
             // 소스코드 표절(SIM) 수치가 기준치를 넘었을 때의 경고 마크 주입 부
             if ($OJ_SIM && isset($row['sim']) && $row['sim'] > 80 && $row['sim_s_id'] != $row['s_id']) {
                 $view_status[$i][3] .= "<a href=reinfo.php?sid=" . $row['solution_id'] . " class='" . $judge_color[$row['result']] . "' title='$MSG_Tips'>*" . $judge_result[$row['result']];
@@ -472,11 +478,11 @@ for ($i = 0; $i < $rows_cnt; $i++) {
             if ($row["problem_id"] > 0) {
                 if ($row['contest_id'] > 0) {
                     if (isset($end_time) && time() < $end_time || isset($_SESSION[$OJ_NAME . '_' . 'source_browser']))
-                        $view_status[$i][6] .= "/<a target=_self href=\"$edit_link?cid=" . $row['contest_id'] . "&pid=" . $row['num'] . "&sid=" . $row['solution_id'] . "\">Edit</a>";
+                        $view_status[$i][6] .= "/<a target=_self href=\"$edit_link?cid=" . $row['contest_id'] . "&pid=" . $row['num'] . "&sid=" . $row['solution_id'] . "\">$MSG_EDIT</a>";
                     else
                         $view_status[$i][6] .= "";
                 } else {
-                    $view_status[$i][6] .= "/<a target=_self href=\"$edit_link?id=" . $row['problem_id'] . "&sid=" . $row['solution_id'] . "\">Edit</a>";
+                    $view_status[$i][6] .= "/<a target=_self href=\"$edit_link?id=" . $row['problem_id'] . "&sid=" . $row['solution_id'] . "\">$MSG_EDIT</a>";
                 }
             }
         }
@@ -491,12 +497,8 @@ for ($i = 0; $i < $rows_cnt; $i++) {
         $view_status[$i][7] = "----";
     }
 
-    // 제출 시점부터 채점 완료 시점까지 걸린 시스템 딜레이 평균치 연산 부
+    // 제출 시점부터 채점 완료 시점까지 걸린 시간(관리자 표시용)
     $used = (strtotime($row['judgetime']) - strtotime($row['in_date']));
-    if ($used > 0) {
-        $avg_delay += floatval($used);
-        $total_count++;
-    }
     
     // 최고 관리자인 경우 아이디 탭에 제출 시간 마진과 담당 채점 코어 인덱스 번호를 상세 추가 표출
     if (isset($_SESSION[$OJ_NAME . '_' . 'administrator'])) {
@@ -505,7 +507,6 @@ for ($i = 0; $i < $rows_cnt; $i++) {
     } else
         $view_status[$i][8] = $row['in_date'];
 }
-if ($total_count > 0) $avg_delay /= $total_count;
 
 ///////////////////////// 프론트엔드 템플릿 뷰어 연동 부
 if (isset($_GET['cid']))

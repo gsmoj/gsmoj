@@ -61,7 +61,7 @@
             echo "<label>유사도：</label>";
           echo "
           <select id=\"appendedInputButton\" class=\"form-control\" name=showsim onchange=\"document.getElementById('simform').submit();\">
-          <option value=0 ".($showsim==0?'selected':'').">All</option>
+          <option value=0 ".($showsim==0?'selected':'').">전체</option>
           <option value=80 ".($showsim==80?'selected':'').">80</option>
           <option value=85 ".($showsim==85?'selected':'').">85</option>
           <option value=90 ".($showsim==90?'selected':'').">90</option>
@@ -133,9 +133,9 @@
           </a>
           <?php
       if (isset($_GET['prevtop']))
-      echo "<a class=\"item\" href=\"status.php?".$str2."&top=".intval($_GET['prevtop'])."\">Prev</a>";
+      echo "<a class=\"item\" href=\"status.php?".$str2."&top=".intval($_GET['prevtop'])."\">$MSG_PREV_PAGE</a>";
       else
-      echo "<a class=\"item\" href=\"status.php?".$str2."&top=".($top+20)."\">Prev</a>";
+      echo "<a class=\"item\" href=\"status.php?".$str2."&top=".($top+20)."\">$MSG_PREV_PAGE</a>";
 
       ?>
 

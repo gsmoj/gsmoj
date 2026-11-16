@@ -8,13 +8,13 @@ $view_title = "Source Code";
 
 require_once("./include/const.inc.php");
 if (!isset($_GET['id'])) {
-    $view_errors = "No such code!\n";
+    $view_errors = $MSG_NO_SUCH_CODE;
     require("template/" . $OJ_TEMPLATE . "/error.php");
     exit(0);
 }
 if (!isset($_SESSION[$OJ_NAME . '_' . 'printer'])) {
 
-    $view_errors = "Not privileged!\n";
+    $view_errors = $MSG_WARNING_ACCESS_DENIED;
     require("template/" . $OJ_TEMPLATE . "/error.php");
     exit(0);
 

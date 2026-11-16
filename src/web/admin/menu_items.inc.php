@@ -22,10 +22,9 @@ function gs_admin_menu() {
         $items[] = array("user_group.php", "반 지정");
         $items[] = array("user_merge.php", "계정 통합");
     }
-    if ($admin || $has('user_adder')) {
-        $items[] = array("user_add.php", "사용자 추가");
-        $items[] = array("user_import.php", "사용자 가져오기");
-    }
+    if ($admin || $has('user_adder')) $items[] = array("user_add.php", "사용자 추가");
+    // user_import.php는 관리자와 문제 가져오기 권한(problem_importer)만 허용한다. 페이지 권한은 넓히지 않고 메뉴를 맞춘다.
+    if ($admin || $has('problem_importer')) $items[] = array("user_import.php", "사용자 가져오기");
     if ($admin || $has('password_setter')) $items[] = array("changepass.php", "비밀번호 설정");
     if ($admin) {
         $items[] = array("privilege_list.php", "권한 목록");
@@ -49,8 +48,9 @@ function gs_admin_menu() {
         $items[] = array("user_set_ip.php", "로그인 IP 지정");
         $items[] = array("team_generate.php", "팀 계정 생성");
         $items[] = array("team_generate2.php", "팀 계정 생성 2");
-        $items[] = array("offline_import.php", "오프라인 대회 가져오기");
     }
+    // offline_import.php는 문제와 채점 데이터를 만들므로 관리자와 문제 편집자(problem_editor)만 허용한다.
+    if ($admin || $has('problem_editor')) $items[] = array("offline_import.php", "오프라인 대회 가져오기");
     $groups[] = array("대회", $items);
 
     $items = array();
@@ -58,9 +58,10 @@ function gs_admin_menu() {
     if ($admin || $has('contest_creator') || $teacher) {
         $items[] = array("assessment_list.php", "수행평가 목록");
         $items[] = array("assessment_edit.php", "새 수행평가");
-        $items[] = array("problem_add_page.php", "수행평가 문제 등록");
+        if ($teacher && !$admin) $items[] = array("monitor.php#contest", "수행평가 모니터링");   // 관리자는 "서버 모니터링" 탭을 쓴다
         if ($admin || $teacher) $items[] = array("user_group.php", "반 지정");
         if ($admin || $has('contest_creator')) $items[] = array("contest_list.php?type=assessment", "수행평가 회차 목록");
+        if ($admin) $items[] = array("assessment_event_test.php", "감지 테스트");
     }
     $groups[] = array("수행평가", $items);
 
@@ -81,7 +82,7 @@ function gs_admin_menu() {
         $items[] = array("solution_statistics.php", "채점 통계 리포트");
         $items[] = array("problem_copy.php", "문제 복사");
         // 문제 번호를 실제로 바꾸는 기능이라 되돌리기 어렵다. 색으로 구분해 둔다.
-        $items[] = array("problem_changeid.php", "문제 번호 재정렬", "danger");
+        $items[] = array("problem_changeid.php", "문제 번호 변경", "danger");
     }
     $groups[] = array("고급 도구", $items);
 

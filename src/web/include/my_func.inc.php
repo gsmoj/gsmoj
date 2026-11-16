@@ -218,6 +218,75 @@ function is_assessment_contest($contest_id) {
 }
 
 /**
+ * 수행평가 회차를 조회·입장할 수 있는지 판별하는 함수
+ * 관리자, 회차 관리 권한(mNNNN)이 있는 사용자, 회차를 만든 사용자는 항상 가능하다.
+ * 그 외에는 회차에 지정된 반(assessment_session.group_name)의 학생만 가능하다.
+ * 반이 지정되지 않은 예전 회차만 참가 권한(cNNNN)으로 판단한다.
+ */
+function can_access_assessment($contest_id, $owner) {
+    global $OJ_NAME;
+    $contest_id = intval($contest_id);
+    $prefix = $OJ_NAME . '_';
+    if (isset($_SESSION[$prefix . 'administrator']) || isset($_SESSION[$prefix . 'm' . $contest_id])) return true;
+    if (!isset($_SESSION[$prefix . 'user_id'])) return false;
+    $user_id = $_SESSION[$prefix . 'user_id'];
+    if ($user_id === $owner) return true;
+    // 로그인 뒤에 받은 권한은 세션에 없으므로 DB도 확인한다.
+    $result = pdo_query("SELECT count(*) FROM `privilege` WHERE `user_id`=? AND `rightstr`=?", $user_id, "m$contest_id");
+    if (!empty($result) && intval($result[0][0]) > 0) return true;
+
+    $session = pdo_query("SELECT group_name FROM `assessment_session` WHERE `contest_id`=?", $contest_id);
+    if (!empty($session) && $session[0][0] !== "") {
+        $user = pdo_query("SELECT group_name FROM `users` WHERE `user_id`=?", $user_id);
+        return !empty($user) && $user[0][0] === $session[0][0];
+    }
+    if (isset($_SESSION[$prefix . 'c' . $contest_id])) return true;
+    $result = pdo_query("SELECT count(*) FROM `privilege` WHERE `user_id`=? AND `rightstr`=?", $user_id, "c$contest_id");
+    return !empty($result) && intval($result[0][0]) > 0;
+}
+
+/**
+ * 수행평가 목록에서 관리자가 아닌 사용자에게 보일 회차의 SQL 조건과 바인딩 인자를 돌려주는 함수
+ * 판단 기준은 can_access_assessment()와 같다.
+ */
+function assessment_visible_cond($user_id) {
+    $or = array("user_id=?");
+    $args = array($user_id);
+    $user = pdo_query("SELECT group_name FROM `users` WHERE `user_id`=?", $user_id);
+    if (!empty($user) && $user[0][0] !== "") {
+        $or[] = "contest_id IN (SELECT contest_id FROM assessment_session WHERE group_name=?)";
+        $args[] = $user[0][0];
+    }
+    $managed = array();
+    $joined = array();
+    $rights = pdo_query("SELECT rightstr FROM `privilege` WHERE `user_id`=?", $user_id);
+    foreach ($rights as $right) {
+        $id = intval(substr($right[0], 1));
+        if ($id <= 0) continue;
+        if ($right[0][0] === 'm') $managed[] = $id;
+        else if ($right[0][0] === 'c') $joined[] = $id;
+    }
+    if (!empty($managed)) $or[] = "contest_id IN (" . implode(",", $managed) . ")";
+    if (!empty($joined)) $or[] = "(contest_id IN (" . implode(",", $joined) . ") AND contest_id NOT IN (SELECT contest_id FROM assessment_session WHERE group_name<>''))";
+    return array("(" . implode(" OR ", $or) . ")", $args);
+}
+
+/**
+ * 수행평가 등록·수정 화면에서 쓰는 반 선택 상자를 출력하는 함수
+ */
+function assessment_group_select($current) {
+    $groups = pdo_query("SELECT DISTINCT group_name FROM `users` WHERE defunct='N' AND group_name<>'' ORDER BY group_name");
+    $names = array_map(function ($g) { return $g[0]; }, $groups);
+    if ($current !== "" && !in_array($current, $names, true)) $names[] = $current;
+    echo "<select name=group_name required style='width:150px;'><option value=''>반 선택</option>";
+    foreach ($names as $name) {
+        $h = htmlentities($name, ENT_QUOTES, "UTF-8");
+        echo "<option value='$h'" . ($name === $current ? " selected" : "") . ">$h</option>";
+    }
+    echo "</select>";
+}
+
+/**
  * 특정 문제가 진행 중인 보안 대회에 묶여있어 조회가 잠긴 상태인지 판별하는 함수
  */
 function problem_locked($problem_id, $level = 1) {

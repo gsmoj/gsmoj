@@ -15,7 +15,7 @@
       <br>
       
       <?php if (isset($OJ_RANK_LOCK_PERCENT)&&$OJ_RANK_LOCK_PERCENT!=0) { ?>
-      Lock Board Time: <?php echo date("Y-m-d H:i:s", $view_lock_time) ?><br/>
+      <?php echo $MSG_LOCK_BOARD_TIME?>: <?php echo date("Y-m-d H:i:s", $view_lock_time) ?><br/>
       <?php } ?>
       
       <?php if ($now>$end_time) {
@@ -82,11 +82,11 @@
         <?php echo $MSG_CONTEST_SUSPECT1?><br><br>
         <table class="table-hover table-striped text-center" align=center width=90% border=0>
           <tr>
-            <td>IP address</td>
-            <td>Used ID</td>
-            <td>Trace</td>
-            <td>Time</td>
-            <td>IP address count</td>
+            <td>IP 주소</td>
+            <td><?php echo $MSG_USED_ID?></td>
+            <td><?php echo $MSG_TRACE?></td>
+            <td><?php echo $MSG_TIME?></td>
+            <td>IP 주소 수</td>
           </tr>
 
           <?php
@@ -115,11 +115,11 @@
         <?php echo $MSG_CONTEST_SUSPECT2?><br><br>
         <table class="table-hover table-striped text-center" align=center width=90% border=0>
           <tr>
-            <td>Used ID</td>
-            <td>Trace</td>
-            <td>Used IP address</td>
-            <td>Time</td>
-            <td>IP address count</td>
+            <td><?php echo $MSG_USED_ID?></td>
+            <td><?php echo $MSG_TRACE?></td>
+            <td><?php echo $MSG_USED_IP?></td>
+            <td><?php echo $MSG_TIME?></td>
+            <td>IP 주소 수</td>
           </tr>
 
           <?php

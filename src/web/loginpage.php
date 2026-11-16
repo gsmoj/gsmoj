@@ -22,11 +22,11 @@ if (isset($_GET['datagsm_error']) && is_string($_GET['datagsm_error']) && isset(
 
 require_once("./include/db_info.inc.php");
 require_once("./include/setlang.php");
-$view_title = "LOGIN";
+$view_title = $MSG_LOGIN;
 
 if (isset($_SESSION[$OJ_NAME . '_' . 'user_id'])) {
     header("location:index.php");
-    echo "<a href=logout.php>Please logout First!</a>";
+    echo "<a href=logout.php>$MSG_LOGOUT_FIRST</a>";
     exit(1);
 }
 

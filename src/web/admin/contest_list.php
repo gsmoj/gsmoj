@@ -23,7 +23,7 @@ $list_name = $is_assessment ? (isset($MSG_ASSESSMENT) ? $MSG_ASSESSMENT : "수�
 <div class='padding admin-content-page'>
 <div class="admin-page-heading">
   <div><h3><?php echo $list_name?> 목록</h3><p><?php echo $is_assessment ? "수행평가를 검색하고 공개 여부, 사용 상태, 관리 기능을 확인합니다. 수행평가는 대회와 같은 방식으로 운영되며, 진행 중 화면 이탈·붙여넣기·복사가 기록됩니다." : "대회를 검색하고 공개 여부, 사용 상태, 관리 기능을 확인합니다."?></p></div>
-  <a href="contest_add.php<?php echo $is_assessment ? "?type=assessment" : ""?>" class="btn btn-primary"><?php echo $list_name?> 등록</a>
+  <a href="<?php echo $is_assessment ? "assessment_edit.php" : "contest_add.php"?>" class="btn btn-primary"><?php echo $is_assessment ? "새 ".$list_name : $list_name." 등록"?></a>
 </div>
 
 <?php
@@ -87,7 +87,7 @@ if(isset($_GET['keyword']) && $_GET['keyword']!=""){
     foreach($result as $row){
       echo "<tr>";
       echo "<td>".$row['contest_id']."</td>";
-      echo "<td><a href='../contest.php?cid=".$row['contest_id']."'>".$row['title']."</a></td>";
+      echo "<td><a href='../contest.php?cid=".$row['contest_id']."'>".htmlspecialchars($row['title'], ENT_QUOTES, 'UTF-8', false)."</a></td>";
       echo "<td>".$row['start_time']."</td>";
       echo "<td>".$row['end_time']."</td>";
       $cid = $row['contest_id'];
@@ -96,7 +96,8 @@ if(isset($_GET['keyword']) && $_GET['keyword']!=""){
         echo "<td><a href=contest_df_change.php?cid=".$row['contest_id']."&getkey=".htmlentities($_SESSION[$OJ_NAME.'_'.'getkey'], ENT_QUOTES, 'UTF-8').">".($row['defunct']=="N"?"<span class=green>$MSG_AVAILABLE </span>":"<span class=red>$MSG_RESERVED </span>")."</a></td>";
         echo "<td><a href=contest_edit.php?cid=".$row['contest_id'].">$MSG_EDIT</a></td>";
         echo "<td><a href=contest_add.php?cid=".$row['contest_id'].">$MSG_COPY</a></td>";
-        if(isset($_SESSION[$OJ_NAME.'_'.'administrator']) || isset($_SESSION[$OJ_NAME.'_'.'contest_creator'])){
+        // problem_export_xml.php는 채점 데이터까지 내보내므로 관리자와 problem_importer만 허용한다. 버튼도 같은 권한에만 보인다.
+        if(isset($_SESSION[$OJ_NAME.'_'.'administrator']) || isset($_SESSION[$OJ_NAME.'_'.'problem_importer'])){
           echo "<td><a href=\"problem_export_xml.php?cid=".$row['contest_id']."&getkey=".htmlentities($_SESSION[$OJ_NAME.'_'.'getkey'], ENT_QUOTES, 'UTF-8')."\">$MSG_EXPORT</a></td>";
         }else{
           echo "<td></td>";

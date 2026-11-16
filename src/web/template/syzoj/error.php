@@ -16,9 +16,9 @@
   <div class="content">
     <div class="header" style="margin-bottom: 10px; " ondblclick='$(this).load("refresh-privilege.php")'>
       <?php echo $view_errors;?>
-      <?php if ($OJ_LANG=="cn" && isset($spj[0][0]) && $spj[0][0]!=2 )  echo "<br>如果你是管理员，希望解决这个问题，请打开
-                        <a href='http://hustoj.com' target='_blank'>HUSTOJ常见问题</a>，按Ctrl+F查找上面错误信息中的关键词。<br>\n
-                        如果你不是管理员，可以联系管理员$OJ_ADMIN 。";?>
+      <?php if ($OJ_LANG=="cn" && isset($spj[0][0]) && $spj[0][0]!=2 )  echo "<br>관리자가 이 문제를 해결하려면
+                        <a href='http://hustoj.com' target='_blank'>HUSTOJ 자주 묻는 질문</a>을 열고 Ctrl+F로 위 오류 메시지의 키워드를 찾으세요.<br>\n
+                        관리자가 아니라면 관리자 $OJ_ADMIN 에게 문의하세요.";?>
     </div>
       <!-- <p><%= err.details %></p> -->
     <p>

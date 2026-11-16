@@ -1,12 +1,13 @@
 <?php
 require_once("./include/db_info.inc.php");
-header("content-type:   application/file");
-header("content-disposition:   attachment;   filename=\"ac-" . $_SESSION[$OJ_NAME . '_' . 'user_id'] . ".txt");
 if (!isset($_SESSION[$OJ_NAME . '_' . 'user_id'])) {
     $view_errors = "<a href=./loginpage.php>$MSG_Login</a>";
     require("template/" . $OJ_TEMPLATE . "/error.php");
     exit(0);
 }
+// 비로그인 사용자는 다운로드 헤더를 보내기 전에 로그인 안내로 끝낸다.
+header("content-type:   application/file");
+header("content-disposition:   attachment;   filename=\"ac-" . $_SESSION[$OJ_NAME . '_' . 'user_id'] . ".txt");
 $sql = "select distinct source,problem_id from source_code inner join \n 
 		(select solution_id,problem_id from solution where user_id=? and result=4) S \n
 		on source_code.solution_id=S.solution_id  \n

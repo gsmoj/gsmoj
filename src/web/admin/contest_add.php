@@ -3,8 +3,14 @@
   require_once("../include/db_info.inc.php");
   require_once("../lang/$OJ_LANG.php");
   require_once("../include/const.inc.php");
+  // 새 수행평가는 전용 문제를 관리하는 수행평가 화면에서만 만든다.
+  if(isset($_GET['type']) && $_GET['type'] === "assessment"){
+    header("Location: assessment_edit.php");
+    exit;
+  }
   require_once("admin-header.php");
-   header("Cache-control:private"); 
+  require_once("assessment_lib.php");
+   header("Cache-control:private");
 if(!(isset($_SESSION[$OJ_NAME.'_'.'administrator'])||isset($_SESSION[$OJ_NAME.'_'.'contest_creator']))){
     exit(1);
   }
@@ -53,6 +59,27 @@ if(isset($_POST['startdate'])){
   foreach($contest_types as $t){
     $contest_type |= 1<<$t;
   } 
+  if($contest_type & 512){
+    echo "수행평가는 수행평가 관리 화면에서 만드세요.";
+    exit(1);
+  }
+  $dedicated = asm_dedicated_ids(explode(",", isset($_POST['cproblem']) ? $_POST['cproblem'] : ""));
+  if($dedicated){
+    echo "수행평가 전용 문제는 대회에 넣을 수 없습니다: ".implode(", ", $dedicated);
+    exit(1);
+  }
+  // 수행평가는 지정한 반의 학생만 들어갈 수 있으므로 공개 범위·비밀번호·참가자 목록 대신 반을 받는다.
+  $assessment_group = "";
+  if($contest_type & 512){
+    $assessment_group = isset($_POST['group_name']) ? trim($_POST['group_name']) : "";
+    if($assessment_group === ""){
+      echo "반을 선택하세요.";
+      exit(1);
+    }
+    $private = 1;
+    $password = "";
+  }
+
   $sql = "INSERT INTO `contest`(`title`,`start_time`,`end_time`,`private`,`langmask`,`description`,`password`,subnet,contest_type,`user_id`)
           VALUES(?,?,?,?,?,?,?,?,?,?)";
 
@@ -62,7 +89,9 @@ if(isset($_POST['startdate'])){
   $user_id=$_SESSION[$OJ_NAME.'_'.'user_id'];
  // echo $sql.$title.$starttime.$endtime.$private.$langmask.$description.$password,$user_id;
   $cid = pdo_query($sql,$title,$starttime,$endtime,$private,$langmask,$description,$password,$subnet,$contest_type,$user_id) ;
-  echo "Add Contest ".$cid;
+  echo "대회를 등록했습니다: ".$cid;
+  // 수행평가 관리 화면에 속하지 않는 회차는 assessment_id를 0으로 둔다.
+  if($contest_type & 512) pdo_query("INSERT INTO `assessment_session`(assessment_id,contest_id,group_name,created_at) VALUES(0,?,?,NOW())",$cid,$assessment_group);
 
   $sql = "DELETE FROM `contest_problem` WHERE `contest_id`=$cid";
   $plist = trim($_POST['cproblem']);
@@ -83,12 +112,15 @@ if(isset($_POST['startdate'])){
          pdo_query($sql_1,$cid,$pieces[$i],$pid);
          $pid++;
       }else{
-         print("Problem not exists:".$pieces[$i]."<br>\n");
+         print("존재하지 않는 문제: ".$pieces[$i]."<br>\n");
       }
     }
     //echo $sql_1;
-    $sql = "UPDATE `problem` SET defunct='N' WHERE `problem_id` IN ($plist)";
-    pdo_query($sql) ;
+    // 수행평가에 넣은 문제는 공개 상태를 바꾸지 않는다. 모든 회차가 끝난 뒤 수행평가 화면의 "문제 공개"로 공개한다.
+    if(!($contest_type & 512)){
+      $sql = "UPDATE `problem` SET defunct='N' WHERE `problem_id` IN ($plist) AND defunct<>'A'";
+      pdo_query($sql) ;
+    }
   }
 
   $sql = "DELETE FROM `privilege` WHERE `rightstr`=?";
@@ -98,7 +130,7 @@ if(isset($_POST['startdate'])){
   pdo_query($sql,$_SESSION[$OJ_NAME.'_'.'user_id'],"m$cid");
 
   $_SESSION[$OJ_NAME.'_'."m$cid"] = true;
-  $pieces = explode("\n", trim($_POST['ulist']));
+  $pieces = explode("\n", trim(isset($_POST['ulist']) ? $_POST['ulist'] : ""));
 
   if(count($pieces)>0 && strlen($pieces[0])>0){
     $sql_1 = "INSERT INTO `privilege`(`user_id`,`rightstr`) VALUES (?,?)";
@@ -115,6 +147,10 @@ else{
     $result = pdo_query($sql,$cid);
     $row = $result[0];
     $copied_type = intval($row['contest_type']);
+    if($copied_type & 512){
+      echo "<script>alert('수행평가는 수행평가 관리 화면에서 복사하세요.');window.location.href='assessment_list.php';</script>";
+      exit;
+    }
     $title = $row['title']."-Copy";
 
     $private = $row['private'];
@@ -152,7 +188,7 @@ else{
   $pieces = explode(",",$plist);
   $pieces = array_unique($pieces);
   if($pieces[0]=="") unset($pieces[0]);
-  // 安全修复：每个ID元素强制intval，防止SQL注入
+  // 보안 수정: SQL 삽입을 막기 위해 각 ID를 intval로 변환한다.
   $plist = implode(",", array_map('intval', $pieces));
 
   }else if(isset($_GET['spid'])){
@@ -160,7 +196,7 @@ else{
     $spid = intval($_GET['spid']);
 
     $plist = "";
-    $sql = "select `problem_id` FROM `problem` WHERE `problem_id`>=? ";
+    $sql = "select `problem_id` FROM `problem` WHERE `problem_id`>=? AND defunct<>'A' ";
     $result = pdo_query($sql,$spid);
     foreach($result as $row){
       if($plist) $plist.=',';
@@ -256,6 +292,14 @@ else{
             </p>
           </td>
           <td height="10px">
+            <?php if($contest_type & 512){ ?>
+            <p align=left>
+              대상 반: <?php assessment_group_select("")?>
+              <span class="admin-field-help">선택한 반의 학생만 이 <?php echo $MSG_CONTEST?>를 보고 들어갈 수 있습니다.</span>
+              <input type=hidden name=private value=1>
+              <input type=hidden name=password value="">
+            </p>
+            <?php } else { ?>
             <p align=left>
               <?php echo $MSG_CONTEST."-".$MSG_Public?>:
               <select name=private style="width:150px;">
@@ -265,10 +309,12 @@ else{
               <?php echo $MSG_CONTEST."-".$MSG_PASSWORD?>:
               <input type=text name=password style="width:150px;" value="">
             </p>
+            <?php } ?>
           </td>
         </tr>
         <tr>
           <td height="*">
+            <?php if(!($contest_type & 512)){ ?>
             <p align=left>
               <?php echo $MSG_CONTEST."-".$MSG_USER?>
               <span class="admin-field-help">비공개 <?php echo $MSG_CONTEST?>에 참여할 사용자 ID를 한 줄에 하나씩 입력하세요.</span>
@@ -297,6 +343,7 @@ else{
               <textarea id="ulist" name='ulist' rows='10' style='width:100%;' placeholder='user1<?php echo "\n"?>user2<?php echo "\n"?>user3<?php echo "\n"?>
               <?php echo $MSG_PRIVATE_USERS_ADD?><?php echo "\n"?>'><?php if(isset($ulist)){ echo $ulist;}?></textarea>
             </p>
+            <?php } ?>
           </td>
         </tr>
       </table>

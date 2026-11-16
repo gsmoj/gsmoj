@@ -24,37 +24,41 @@ if ($_SERVER['REQUEST_METHOD'] === "POST" && isset($_POST['action'])) {
     $action = $_POST['action'];
 
     if ($action === "save") {
+        // 삭제됐거나 없는 수행평가 번호로 저장하면 새로 만들지 않고 오류를 돌려준다.
+        if ($id && !$a) asm_back(0, false, "저장할 ".$MSG_ASSESSMENT."를 찾을 수 없습니다. 삭제되었을 수 있습니다.");
         if ($a && !asm_can_manage($a)) asm_back($id, false, "만든 사람과 관리자만 수정할 수 있습니다.");
         $title = trim(isset($_POST['title']) ? $_POST['title'] : "");
         if ($title === "" || mb_strlen($title, "UTF-8") > 200) asm_back($id, false, "제목을 200자 이내로 입력하세요.");
-        list($pids, $missing) = asm_parse_problems(isset($_POST['problems']) ? $_POST['problems'] : "");
-        if ($missing) asm_back($id, false, "없는 문제 번호가 있습니다: ".implode(", ", $missing));
         $settings = array();
         foreach (asm_settings(null) as $k => $v) $settings[$k] = max(0, min(100000, intval(isset($_POST[$k]) ? $_POST[$k] : $v)));
         $desc = isset($_POST['description']) ? $_POST['description'] : "";
         if (!$a) {
             $id = intval(pdo_query("insert into assessment(title,description,owner,settings,created_at,defunct) values(?,?,?,?,now(),'N')", $title, $desc, asm_me(), json_encode($settings)));
-            asm_save_problems($id, $pids);
-            asm_back($id, true, "새 ".$MSG_ASSESSMENT."를 만들었습니다. 아래에서 ".$MSG_CLASS."별 회차를 추가하세요.");
+            asm_back($id, true, "새 ".$MSG_ASSESSMENT."를 만들었습니다. 아래에서 문제와 ".$MSG_CLASS."별 회차를 추가하세요.");
         }
-        $old = array_map(function ($r) { return intval($r['problem_id']); }, asm_problems($id));
         pdo_query("update assessment set title=?, description=?, settings=? where assessment_id=?", $title, $desc, json_encode($settings), $id);
-        $msg = "저장했습니다.";
-        if ($old !== $pids) {
-            asm_save_problems($id, $pids);
-            $n = asm_sync_session_problems($id);
-            $started = count(array_filter(asm_sessions($id), function ($s) { return $s['state'] !== 'upcoming'; }));
-            $msg .= " 문제 목록을 시작 전 회차 ".$n."개에 반영했습니다.".($started ? " 이미 시작했거나 끝난 회차 ".$started."개는 문제를 바꾸지 않았습니다." : "");
-        }
-        asm_back($id, true, $msg);
+        asm_back($id, true, "저장했습니다.");
     }
 
     if ($action === "copy") {
         if (!$a) asm_back(0, false, "복사할 ".$MSG_ASSESSMENT."를 찾을 수 없습니다.");
         $new = intval(pdo_query("insert into assessment(title,description,owner,settings,created_at,defunct) values(?,?,?,?,now(),'N')",
             $a['title']." (복사)", (string)$a['description'], asm_me(), (string)$a['settings']));
-        asm_save_problems($new, array_map(function ($r) { return intval($r['problem_id']); }, asm_problems($id)));
-        asm_back($new, true, "'".$a['title']."'를 복사했습니다. 문제와 설정만 복사되며 회차는 새로 추가하세요.");
+        // 복사본의 문제를 고쳐도 원본이 바뀌지 않도록 문제를 공유하지 않고 채점 데이터까지 전용 문제로 복제한다.
+        $pids = array();
+        $failed = array();
+        $lost = array();
+        foreach (asm_problems($id) as $p) {
+            if ($p['title'] === null) continue;
+            list($clone, $ok) = asm_clone_problem(intval($p['problem_id']), asm_me());
+            if (!$clone) { $lost[] = intval($p['problem_id']); continue; }
+            $pids[] = $clone;
+            if (!$ok) $failed[] = $clone;
+        }
+        asm_save_problems($new, $pids);
+        if ($lost) asm_back($new, false, "'".$a['title']."'를 복사했지만 문제 ".implode(", ", $lost)."번은 복사하지 못해 빠졌습니다. 문제를 다시 추가하세요.");
+        if ($failed) asm_back($new, false, "'".$a['title']."'를 복사했지만 문제 ".implode(", ", $failed)."번의 채점 데이터를 복사하지 못했습니다. 채점 데이터를 확인하세요.");
+        asm_back($new, true, "'".$a['title']."'를 복사했습니다. 문제는 채점 데이터까지 복제되었고, 회차는 새로 추가하세요.");
     }
 
     if (!$a || !asm_can_manage($a)) asm_back($id, false, "만든 사람과 관리자만 회차를 관리할 수 있습니다.");
@@ -64,24 +68,88 @@ if ($_SERVER['REQUEST_METHOD'] === "POST" && isset($_POST['action'])) {
         return empty($r) ? null : $r[0][0];
     };
 
+    // 모든 회차가 끝난 뒤 만든 사람이나 관리자가 공개한다. 전용 문제(defunct='A')를 뺀 비공개 문제(defunct='Y')를 문제 목록에 공개하고
+    // 공개 시각(published_at)을 기록한다. 순위와 다른 학생의 코드는 공개하지 않는다.
+    if ($action === "publish") {
+        if ($a['published_at']) asm_back($id, false, "이미 공개한 ".$MSG_ASSESSMENT."입니다.");
+        $all = asm_sessions($id);
+        if (!$all) asm_back($id, false, "회차가 없는 ".$MSG_ASSESSMENT."는 공개할 수 없습니다.");
+        foreach ($all as $s) if ($s['state'] !== 'ended') asm_back($id, false, "모든 회차가 끝난 뒤에 공개할 수 있습니다. '".$s['group_name']."' 회차가 아직 끝나지 않았습니다.");
+        $opened = 0;
+        foreach (asm_problems($id) as $p) {
+            if ($p['defunct'] !== 'Y') continue;
+            pdo_query("update problem set defunct='N' where problem_id=? and defunct='Y'", $p['problem_id']);
+            $opened++;
+        }
+        pdo_query("update assessment set published_at=now() where assessment_id=? and published_at is null", $id);
+        asm_back($id, true, "공개했습니다. 비공개 문제 ".$opened."개를 문제 목록에 공개했습니다. 전용 문제는 공개하지 않습니다.");
+    }
+
+    // 기존 문제를 복사해 이 수행평가의 전용 문제로 가져온다. 원본은 그대로 두고 번호는 새로 받는다(5000번부터).
+    if ($action === "import_problem") {
+        $src = array_slice(array_unique(array_filter(array_map("intval", preg_split('/[^0-9]+/', isset($_POST['pids']) ? $_POST['pids'] : "")))), 0, 20);
+        if (!$src) asm_back($id, false, "복사할 문제 번호를 입력하세요. 여러 개는 쉼표로 구분합니다.");
+        $done = array();
+        $skip = array();
+        $failed = array();
+        foreach ($src as $pid) {
+            if (!asm_can_copy($pid)) { $skip[] = $pid; continue; }
+            list($clone, $ok) = asm_clone_problem($pid, $a['owner']);
+            if (!$clone) { $skip[] = $pid; continue; }
+            asm_attach_problem($a, $clone);
+            $done[] = $pid."→".$clone;
+            if (!$ok) $failed[] = $clone;
+        }
+        $msg = $done ? "문제 ".count($done)."개를 복사해 추가했습니다(".implode(", ", $done).")." : "";
+        if ($skip) $msg .= " 없거나 복사할 수 없는 문제: ".implode(", ", $skip).".";
+        if ($failed) $msg .= " 문제 ".implode(", ", $failed)."번의 채점 데이터를 복사하지 못했습니다. 채점 데이터를 확인하세요.";
+        asm_back($id, $done && !$failed, trim($msg));
+    }
+
+    if ($action === "move_problem") {
+        $pids = array_map(function ($r) { return intval($r['problem_id']); }, asm_problems($id));
+        $i = array_search(isset($_POST['pid']) ? intval($_POST['pid']) : 0, $pids, true);
+        if ($i === false) asm_back($id, false, "문제를 찾을 수 없습니다.");
+        $j = $i + (isset($_POST['dir']) && $_POST['dir'] === "down" ? 1 : -1);
+        if (!isset($pids[$j])) asm_back($id, false, "더 옮길 수 없습니다.");
+        list($pids[$i], $pids[$j]) = array($pids[$j], $pids[$i]);
+        asm_save_problems($id, $pids);
+        asm_back($id, true, "문제 순서를 바꾸고 시작 전 회차 ".asm_sync_session_problems($id)."개에 반영했습니다.");
+    }
+    if ($action === "delete_problem") {
+        $err = asm_remove_problem($a, isset($_POST['pid']) ? intval($_POST['pid']) : 0);
+        asm_back($id, $err === "", $err === "" ? "문제를 삭제했습니다." : $err);
+    }
+
     if ($action === "add_session") {
+        if ($a['published_at']) asm_back($id, false, "공개한 ".$MSG_ASSESSMENT."에는 회차를 추가할 수 없습니다. 복사해서 새로 만드세요.");
         $group = trim(isset($_POST['group']) ? $_POST['group'] : "");
         $start = asm_valid_datetime(isset($_POST['start']) ? $_POST['start'] : "");
         $end = asm_valid_datetime(isset($_POST['end']) ? $_POST['end'] : "");
         if ($group === "") asm_back($id, false, $MSG_CLASS."을 고르세요.");
         if (!$start || !$end || $start >= $end) asm_back($id, false, "시작·끝 시각을 확인하세요. 끝은 시작보다 늦어야 합니다.");
-        if (count(asm_problems($id)) == 0) asm_back($id, false, "먼저 문제를 넣고 저장하세요.");
+        if (count(asm_problems($id)) == 0) asm_back($id, false, "먼저 문제를 추가하세요.");
         $members = count(asm_group_members($group));
         if ($members == 0) asm_back($id, false, "'".$group."' ".$MSG_CLASS."에 학생이 없습니다. 사용자 → ".$MSG_CLASS." 지정에서 먼저 지정하세요.");
         list($new_cid, $added) = asm_create_session($a, $group, $start, $end);
         asm_back($id, true, "'".$group."' 회차(".$MSG_ASSESSMENT." ".$new_cid.")를 만들고 학생 ".$added."명을 참가자로 지정했습니다.");
     }
     if ($action === "update_time") {
+        if ($a['published_at']) asm_back($id, false, "공개한 ".$MSG_ASSESSMENT."의 회차 시간은 바꿀 수 없습니다.");
         $group = $own_session($cid);
         if ($group === null) asm_back($id, false, "회차를 찾을 수 없습니다.");
         $start = asm_valid_datetime(isset($_POST['start']) ? $_POST['start'] : "");
         $end = asm_valid_datetime(isset($_POST['end']) ? $_POST['end'] : "");
         if (!$start || !$end || $start >= $end) asm_back($id, false, "시작·끝 시각을 확인하세요.");
+        // 시작한 회차의 시작 시각은 바꿀 수 없고, 끝난 회차는 관리자만 끝 시각을 옮겨 다시 열 수 있다.
+        $cur = pdo_query("select start_time, end_time, start_time<=now() as started, end_time<=now() as ended from contest where contest_id=?", $cid);
+        if (empty($cur)) asm_back($id, false, "회차를 찾을 수 없습니다.");
+        $cur = $cur[0];
+        if (intval($cur['started'])) {
+            if (substr($start, 0, 16) !== substr((string)$cur['start_time'], 0, 16)) asm_back($id, false, "이미 시작한 회차의 시작 시각은 바꿀 수 없습니다.");
+            $start = $cur['start_time'];
+        }
+        if (intval($cur['ended']) && !asm_is_admin()) asm_back($id, false, "끝난 회차의 시간은 관리자만 바꿀 수 있습니다.");
         pdo_query("update contest set start_time=?, end_time=? where contest_id=?", $start, $end, $cid);
         asm_back($id, true, "'".$group."' 회차 시간을 바꿨습니다.");
     }
@@ -119,7 +187,11 @@ $flash = isset($_SESSION[$OJ_NAME.'_'.'asm_flash']) ? $_SESSION[$OJ_NAME.'_'.'as
 unset($_SESSION[$OJ_NAME.'_'.'asm_flash']);
 $can = !$a || asm_can_manage($a);
 $problems = $a ? asm_problems($id) : array();
-$sessions = $a ? asm_sessions($id) : array();
+// 관리자가 대신 추가한 전용 문제의 권한은 다음 로그인 전까지 세션에 없으므로, 만든 사람이 이 화면을 열 때 싣는다.
+if ($a && $a['owner'] === asm_me()) {
+    foreach ($problems as $p) if ($p['defunct'] === 'A') $_SESSION[$OJ_NAME.'_'."p".intval($p['problem_id'])] = true;
+}
+$sessions =$a ? asm_sessions($id) : array();
 $settings = asm_settings($a);
 $groups = pdo_query("select group_name, count(*) from users where defunct='N' and group_name<>'' group by group_name order by group_name");
 $used_groups = array_map(function ($s) { return $s['group_name']; }, $sessions);
@@ -135,6 +207,11 @@ function asm_dt($v) { return str_replace(" ", "T", substr((string)$v, 0, 16)); }
   .asm-thresholds { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
   .asm-thresholds label { display: grid; gap: 4px; margin: 0; color: var(--admin-muted); font-size: 12px; font-weight: 600; }
   .asm-ptable td, .asm-ptable th, .asm-stable td, .asm-stable th { vertical-align: middle !important; white-space: nowrap; }
+  .asm-ptable .asm-ptitle { width: 100%; min-width: 200px; white-space: normal; }
+  .asm-pactions { display: flex; flex-wrap: nowrap; align-items: center; gap: 6px; }
+  .asm-pactions form { margin: 0; }
+  .asm-card-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+  .asm-card-head .admin-card-title { margin-bottom: 0; }
   .asm-stable form { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 0; }
   .asm-stable input[type=datetime-local] { width: 190px !important; height: 30px !important; min-height: 30px !important; font-size: 12px !important; }
   .asm-add { display: flex; flex-wrap: wrap; align-items: end; gap: 10px; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--admin-border); }
@@ -147,12 +224,12 @@ function asm_dt($v) { return str_replace(" ", "T", substr((string)$v, 0, 16)); }
   <div class="admin-page-heading">
     <div>
       <h3><?php echo $a ? asm_h($a['title']) : "새 ".$MSG_ASSESSMENT?></h3>
-      <p><?php echo $a ? "만든 사람 ".asm_h($a['owner'])." · ".asm_h($a['created_at']).($a['published_at'] ? " · 공개됨 ".asm_h($a['published_at']) : " · 비공개") : "제목과 문제를 정해 저장한 뒤 ".$MSG_CLASS."별 회차를 추가합니다."?></p>
+      <p><?php echo $a ? "만든 사람 ".asm_h($a['owner'])." · ".asm_h($a['created_at']).($a['published_at'] ? " · 공개됨 ".asm_h($a['published_at']) : " · 비공개") : "제목을 정해 저장한 뒤 문제와 ".$MSG_CLASS."별 회차를 추가합니다."?></p>
     </div>
     <div class="admin-heading-actions">
       <a class="btn btn-default" href="assessment_list.php">목록</a>
       <?php if ($a) { ?>
-      <form method="post" action="assessment_edit.php?id=<?php echo $id?>" style="margin:0" onsubmit="return confirm('이 <?php echo $MSG_ASSESSMENT?>의 문제와 설정을 복사해 내 <?php echo $MSG_ASSESSMENT?>로 만들까요?')">
+      <form method="post" action="assessment_edit.php?id=<?php echo $id?>" style="margin:0" onsubmit="return confirm('이 <?php echo $MSG_ASSESSMENT?>의 문제(채점 데이터 포함)와 설정을 복제해 내 <?php echo $MSG_ASSESSMENT?>로 만들까요?')">
         <?php require("../include/set_post_key.php"); ?><input type="hidden" name="action" value="copy">
         <button type="submit" class="btn btn-default">복사해서 새로 만들기</button>
       </form>
@@ -175,12 +252,7 @@ function asm_dt($v) { return str_replace(" ", "T", substr((string)$v, 0, 16)); }
         <label for="asm-desc">안내문 <span class="admin-field-help">(회차 화면에 보이는 설명, 회차를 만들 때 복사됩니다)</span></label>
         <textarea id="asm-desc" name="description" rows="4" <?php if (!$can) echo "readonly"?>><?php echo $a ? asm_h($a['description']) : ""?></textarea>
       </div>
-      <div class="asm-field">
-        <label for="asm-problems">문제 번호 <span class="admin-field-help">(쉼표·공백 구분, 순서대로 A, B, C…)</span></label>
-        <textarea id="asm-problems" name="problems" rows="3" placeholder="1001, 1002, 1003" <?php if (!$can) echo "readonly"?>><?php echo implode(", ", array_map(function ($p) { return intval($p['problem_id']); }, $problems))?></textarea>
-        <span class="admin-field-help">문제를 바꾸면 아직 시작하지 않은 회차에만 반영됩니다. 새 문제는 "문제 등록"에서 만들 수 있고, 비공개로 만들어집니다.</span>
-      </div>
-      <div class="asm-field">
+      <div class="asm-field asm-wide">
         <label>부정행위 감지 기준 <span class="admin-field-help">(이 값 이상이면 의심으로 표시, 미만도 기록)</span></label>
         <div class="asm-thresholds">
           <label>화면 이탈(초) <input type="number" name="leave_seconds" min="0" value="<?php echo intval($settings['leave_seconds'])?>" <?php if (!$can) echo "readonly"?>></label>
@@ -197,19 +269,66 @@ function asm_dt($v) { return str_replace(" ", "T", substr((string)$v, 0, 16)); }
 
   <?php if ($a) { ?>
   <section class="admin-card" style="margin-bottom:16px">
-    <div class="admin-card-title">문제 (<?php echo count($problems)?>개)</div>
+    <div class="asm-card-head">
+      <div class="admin-card-title">문제 (<?php echo count($problems)?>개)</div>
+      <?php if ($can) { ?><a class="btn btn-primary btn-sm" href="problem_add_page.php?assessment=<?php echo $id?>">문제 추가</a><?php } ?>
+    </div>
     <div class="admin-table-wrap">
       <table class="table asm-ptable">
-        <thead><tr><th>순서</th><th>번호</th><th>제목</th><th>공개</th></tr></thead>
+        <thead><tr><th>순서</th><th>번호</th><th>제목</th><th>구분</th><?php if ($can) echo "<th>관리</th>"; ?></tr></thead>
         <tbody>
-        <?php foreach ($problems as $p) { ?>
-          <tr><td><b><?php echo chr(65 + intval($p['num']))?></b></td><td><?php echo intval($p['problem_id'])?></td>
-            <td><a href="../problem.php?id=<?php echo intval($p['problem_id'])?>" target="_blank"><?php echo asm_h($p['title'])?></a></td>
-            <td><?php echo $p['defunct'] === 'N' ? "<span class='admin-badge admin-badge--warn'>공개 중</span>" : "<span class='admin-badge admin-badge--off'>비공개</span>"?></td></tr>
-        <?php } if (!$problems) echo "<tr><td colspan='4' class='admin-field-help' style='padding:16px;text-align:center'>아직 문제가 없습니다.</td></tr>"; ?>
+        <?php foreach ($problems as $i => $p) {
+            $pid = intval($p['problem_id']);
+            $dedicated = $p['defunct'] === 'A';
+            $title = asm_h(str_replace("&#44;", ",", (string)$p['title']));
+            $can_edit = $can && (asm_is_admin() || isset($_SESSION[$OJ_NAME.'_'."p".$pid]));
+            $lock = $can ? asm_problem_lock($id, $p) : "";
+        ?>
+          <tr><td><b><?php echo chr(65 + intval($p['num']))?></b></td><td><?php echo $pid?></td>
+            <td class="asm-ptitle"><?php echo ($dedicated && !$can) ? $title : "<a href='../problem.php?id=".$pid."' target='_blank'>".$title."</a>"?></td>
+            <td><?php
+              if ($dedicated) echo "<span class='admin-badge admin-badge--info'>전용</span>";
+              else if ($p['defunct'] === 'N') echo "<span class='admin-badge admin-badge--warn'>공개 중</span>";
+              else echo "<span class='admin-badge admin-badge--off'>비공개</span>";
+            ?></td>
+            <?php if ($can) { ?>
+            <td>
+              <div class="asm-pactions">
+                <?php if ($can_edit) { ?>
+                <a class="btn btn-default btn-sm" href="problem_edit.php?id=<?php echo $pid?>">수정</a>
+                <a class="btn btn-default btn-sm" href="testdata.php?pid=<?php echo $pid?>">채점 데이터</a>
+                <?php } ?>
+                <?php foreach (array("up" => array("▲", "위로", $i > 0), "down" => array("▼", "아래로", $i < count($problems) - 1)) as $dir => $m) { if (!$m[2]) continue; ?>
+                <form method="post" action="assessment_edit.php?id=<?php echo $id?>">
+                  <?php require("../include/set_post_key.php"); ?><input type="hidden" name="action" value="move_problem"><input type="hidden" name="pid" value="<?php echo $pid?>"><input type="hidden" name="dir" value="<?php echo $dir?>">
+                  <button type="submit" class="btn btn-default btn-sm" title="<?php echo $m[1]?>" aria-label="<?php echo $m[1]?>"><?php echo $m[0]?></button>
+                </form>
+                <?php } ?>
+                <?php if ($lock === "") { ?>
+                <form method="post" action="assessment_edit.php?id=<?php echo $id?>" onsubmit="return confirm(<?php echo asm_h(json_encode($dedicated ? "이 전용 문제와 채점 데이터를 삭제할까요?" : "이 문제를 수행평가에서 뺄까요? 문제 자체는 지워지지 않습니다.", JSON_UNESCAPED_UNICODE))?>)">
+                  <?php require("../include/set_post_key.php"); ?><input type="hidden" name="action" value="delete_problem"><input type="hidden" name="pid" value="<?php echo $pid?>">
+                  <button type="submit" class="btn btn-danger btn-sm">삭제</button>
+                </form>
+                <?php } else { ?>
+                <span class="admin-field-help"><?php echo $lock?>는 삭제 불가</span>
+                <?php } ?>
+              </div>
+            </td>
+            <?php } ?>
+          </tr>
+        <?php } if (!$problems) echo "<tr><td colspan='".($can ? 5 : 4)."' class='admin-field-help' style='padding:16px;text-align:center'>아직 문제가 없습니다.".($can ? " \"문제 추가\"로 이 ".$MSG_ASSESSMENT."에서만 쓰는 전용 문제를 만드세요." : "")."</td></tr>"; ?>
         </tbody>
       </table>
     </div>
+    <?php if ($can) { ?>
+    <form method="post" action="assessment_edit.php?id=<?php echo $id?>" class="asm-add">
+      <?php require("../include/set_post_key.php"); ?><input type="hidden" name="action" value="import_problem">
+      <label>기존 문제에서 복사 <input type="text" name="pids" required placeholder="문제 번호 (예: 1000, 1001)" style="width:240px !important"></label>
+      <button type="submit" class="btn btn-default">복사해서 추가</button>
+      <span class="admin-field-help">원본은 그대로 두고 채점 데이터까지 복제해 새 번호(5000번부터)의 전용 문제로 넣습니다.</span>
+    </form>
+    <?php } ?>
+    <p class="admin-field-help" style="margin:8px 0 0">문제를 추가·삭제하거나 순서를 바꾸면 아직 시작하지 않은 회차에만 반영됩니다. 전용 문제는 문제 목록에 나오지 않고 이 <?php echo $MSG_ASSESSMENT?>의 회차 안에서만 풀 수 있습니다.</p>
     <?php if (array_filter($problems, function ($p) { return $p['defunct'] === 'N'; })) { ?>
     <p class="admin-field-help" style="margin:8px 0 0">"공개 중"인 문제는 문제 목록에서 누구나 볼 수 있습니다. <?php echo $MSG_ASSESSMENT?> 전에 비공개로 바꾸려면 관리자에게 요청하세요.</p>
     <?php } ?>
@@ -246,7 +365,8 @@ function asm_dt($v) { return str_replace(" ", "T", substr((string)$v, 0, 16)); }
               <a href="../contest.php?cid=<?php echo $cid?>" target="_blank">회차 화면</a> ·
               <a href="../status.php?cid=<?php echo $cid?>" target="_blank">채점 현황</a> ·
               <a href="../contestrank.php?cid=<?php echo $cid?>" target="_blank">순위</a>
-              <?php if (asm_is_admin()) { ?> · <a href="monitor.php?cid=<?php echo $cid?>#contest">모니터링</a><?php } ?>
+              <?php if (asm_is_admin() || isset($_SESSION[$OJ_NAME.'_'."m".$cid])) { ?> · <a href="assessment_event_list.php?cid=<?php echo $cid?>">감지 기록</a><?php } ?>
+              <?php if (asm_is_admin() || isset($_SESSION[$OJ_NAME.'_'."m".$cid])) { ?> · <a href="monitor.php?cid=<?php echo $cid?>#contest">모니터링</a><?php } ?>
             </td>
             <?php if ($can) { ?>
             <td>
@@ -267,7 +387,7 @@ function asm_dt($v) { return str_replace(" ", "T", substr((string)$v, 0, 16)); }
         </tbody>
       </table>
     </div>
-    <?php if ($can) { ?>
+    <?php if ($can && !$a['published_at']) { ?>
     <form method="post" action="assessment_edit.php?id=<?php echo $id?>" class="asm-add">
       <?php require("../include/set_post_key.php"); ?>
       <input type="hidden" name="action" value="add_session">
@@ -283,6 +403,25 @@ function asm_dt($v) { return str_replace(" ", "T", substr((string)$v, 0, 16)); }
       <label>끝 <input type="datetime-local" name="end" required></label>
       <button type="submit" class="btn btn-primary">회차 추가</button>
       <span class="admin-field-help"><?php echo $MSG_CLASS?>이 없으면 <a href="user_group.php">사용자 → <?php echo $MSG_CLASS?> 지정</a>에서 먼저 학생을 묶으세요. 회차마다 비공개 <?php echo $MSG_ASSESSMENT?>가 하나씩 만들어지고, 그 <?php echo $MSG_CLASS?> 학생만 참가할 수 있습니다.</span>
+    </form>
+    <?php } ?>
+  </section>
+
+  <?php
+    $ended_all = $sessions && !array_filter($sessions, function ($s) { return $s['state'] !== 'ended'; });
+    $to_open = count(array_filter($problems, function ($p) { return $p['defunct'] === 'Y'; }));
+  ?>
+  <section class="admin-card" style="margin-top:16px">
+    <div class="asm-card-head">
+      <div class="admin-card-title">문제 공개</div>
+      <?php if ($a['published_at']) { ?><span class="admin-badge admin-badge--on">공개됨 · <?php echo asm_h($a['published_at'])?></span><?php } ?>
+    </div>
+    <p class="admin-field-help" style="margin:0 0 10px">모든 회차가 끝난 뒤 공개하면 전용 문제를 뺀 비공개 문제가 문제 목록에 공개되고 공개 시각이 기록됩니다. 전용 문제, 순위, 다른 학생의 코드는 공개하지 않습니다. 공개한 뒤에는 회차를 추가하거나 회차 시간을 바꿀 수 없습니다.</p>
+    <?php if ($can && !$a['published_at']) { ?>
+    <form method="post" action="assessment_edit.php?id=<?php echo $id?>" style="display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:0" onsubmit="return confirm('모든 회차가 끝났습니다. 이 <?php echo $MSG_ASSESSMENT?>를 공개할까요? 비공개 문제 <?php echo $to_open?>개가 문제 목록에 공개되며 되돌릴 수 없습니다.')">
+      <?php require("../include/set_post_key.php"); ?><input type="hidden" name="action" value="publish">
+      <button type="submit" class="btn btn-primary" <?php if (!$ended_all) echo "disabled"?>>문제 공개</button>
+      <?php if (!$ended_all) { ?><span class="admin-field-help"><?php echo $sessions ? "진행 중이거나 예정된 회차가 있어 아직 공개할 수 없습니다." : "회차가 없어 공개할 수 없습니다."?></span><?php } ?>
     </form>
     <?php } ?>
   </section>

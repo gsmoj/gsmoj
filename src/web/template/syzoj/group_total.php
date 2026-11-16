@@ -18,10 +18,10 @@
                 ?>
         </select>
 		
-        <span class='ui button primary' onclick="$('body').html($('#statistics').parent().html()).css('overflow','scroll');">FullScreen</span>
+        <span class='ui button primary' onclick="$('body').html($('#statistics').parent().html()).css('overflow','scroll');"><?php echo $MSG_FULLSCREEN?></span>
         <span id="swapButton" type=button class='ui button red' > 행과 열 전환 </span>
         <a class='ui button green'  href="?group_name=<?php echo htmlentities($group_name)?>&down"><?php echo $MSG_DOWNLOAD ?></a>
-	&nbsp;  &nbsp;  &nbsp;  &nbsp; <a href="javascript:history.go(-1);" >Back</a>
+	&nbsp;  &nbsp;  &nbsp;  &nbsp; <a href="javascript:history.go(-1);" ><?php echo $MSG_BACK?></a>
 
 	
 </form>

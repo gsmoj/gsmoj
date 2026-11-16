@@ -28,7 +28,8 @@ if(isset($OJ_LANG)){
 </header>
 
 <?php
-$sql = "SELECT COUNT('problem_id') AS ids FROM `problem`";
+// 수행평가 전용 문제(defunct='A')는 각 수행평가 화면에서 관리하므로 목록에서 제외한다.
+$sql = "SELECT COUNT('problem_id') AS ids FROM `problem` WHERE defunct<>'A'";
 $result = pdo_query($sql);
 $row = $result[0];
 
@@ -52,10 +53,10 @@ $sql = "";
 if(isset($_GET['keyword']) && $_GET['keyword']!=""){
   $keyword = $_GET['keyword'];
   $keyword = "%$keyword%";
-  $sql = "SELECT `problem_id`,`title`,`accepted`,`in_date`,`defunct`,`source`,`remote_oj`,`remote_id`,`coin`  FROM `problem` WHERE (problem_id LIKE ?) OR (title LIKE ?) OR (description LIKE ?) OR (source LIKE ?) OR (hint LIKE ?) ORDER BY `problem_id` ASC";
+  $sql = "SELECT `problem_id`,`title`,`accepted`,`in_date`,`defunct`,`source`,`remote_oj`,`remote_id`,`coin`  FROM `problem` WHERE defunct<>'A' AND ((problem_id LIKE ?) OR (title LIKE ?) OR (description LIKE ?) OR (source LIKE ?) OR (hint LIKE ?)) ORDER BY `problem_id` ASC";
   $result = pdo_query($sql,$keyword,$keyword,$keyword,$keyword,$keyword);
 }else{
-  $sql = "SELECT `problem_id`,`title`,`accepted`,`in_date`,`defunct`,`source`,`remote_oj`,`remote_id`,`coin`  FROM `problem` ORDER BY `problem_id` DESC LIMIT $sid, $idsperpage";
+  $sql = "SELECT `problem_id`,`title`,`accepted`,`in_date`,`defunct`,`source`,`remote_oj`,`remote_id`,`coin`  FROM `problem` WHERE defunct<>'A' ORDER BY `problem_id` DESC LIMIT $sid, $idsperpage";
   $result = pdo_query($sql);
 }
 ?>
@@ -90,16 +91,18 @@ function pm_pagination($page, $spage, $epage, $pages, $extra_class = "") {
 $pm_can_manage = isset($_SESSION[$OJ_NAME.'_'.'administrator']) || isset($_SESSION[$OJ_NAME.'_'.'problem_editor']);
 // 선택한 문제 일괄 작업 버튼. 표 위·아래에 같은 버튼을 둔다(기존 동작과 같음).
 function pm_bulkbar($with_ai, $extra_class = "") {
-  global $OJ_NAME, $MSG_CHECK_TO, $MSG_NEW_CONTEST, $MSG_AVAILABLE, $MSG_RESERVED, $MSG_NEW_PROBLEM_LIST;
+  global $OJ_NAME, $MSG_CHECK_TO, $MSG_NEW_CONTEST, $MSG_AVAILABLE, $MSG_RESERVED, $MSG_NEW_PROBLEM_LIST, $pm_can_manage;
   ?>
   <div class="pm-bulkbar <?php echo $extra_class?>">
     <span class="pm-bulkbar-label"><?php echo $MSG_CHECK_TO?></span>
     <div class="pm-bulkbar-actions">
       <input class="btn btn-default btn-sm" type=submit name='problem2contest' value='<?php echo $MSG_NEW_CONTEST?>'>
+      <?php if ($pm_can_manage) { // problem_df_change.php는 관리자와 problem_editor만 허용하므로 공개/비공개 일괄 버튼도 그 권한에만 보인다. ?>
       <input class="btn btn-default btn-sm" type=submit name='enable' value='<?php echo $MSG_AVAILABLE ?>' onclick='$("form").attr("action","problem_df_change.php")'>
       <input class="btn btn-default btn-sm" type=submit name='disable' value='<?php echo $MSG_RESERVED ?>' onclick='$("form").attr("action","problem_df_change.php")'>
+      <?php } ?>
       <input class="btn btn-default btn-sm" type=submit name='plist' value='<?php echo $MSG_NEW_PROBLEM_LIST?>' onclick='$("form").attr("action","news_add_page.php")'>
-      <?php if ($with_ai && isset($_SESSION[$OJ_NAME."_administrator"])) { ?><span class='btn btn-primary btn-sm' onclick='$(".ai.label.label-primary").click();'>AI-category</span><?php } ?>
+      <?php if ($with_ai && isset($_SESSION[$OJ_NAME."_administrator"])) { ?><span class='btn btn-primary btn-sm' onclick='$(".ai.label.label-primary").click();'>AI 분류</span><?php } ?>
     </div>
   </div>
   <?php
@@ -108,6 +111,7 @@ function pm_bulkbar($with_ai, $extra_class = "") {
 <form id='pform' class="pm-list-form" method=post action=contest_add.php>
 <input type="hidden" name=keyword value="<?php if(isset($_GET['keyword']))echo htmlentities($_GET['keyword'],ENT_QUOTES,"utf-8")?>">
 <input type="hidden" name=hlist value="" >
+<?php require_once("../include/set_post_key.php");?>
 <?php pm_bulkbar(true); ?>
 <div class="pm-table-wrap">
 <table class="table">
@@ -134,8 +138,9 @@ function pm_bulkbar($with_ai, $extra_class = "") {
 		$view = "";
         echo "<tr>";
         echo "<td><label class='pm-id'><input type=checkbox name='pid[]' value='".$row['problem_id']."'>".$row['problem_id']."</label></td>";
-        echo "<td class='pm-col-title'><a href='../problem.php?id=".$row['problem_id']."'>".$row['title']."</a>";
-               if(!empty($row['remote_oj']))echo "<a class='pm-remote' href='".$row['source']."' target=_blank>".$row['remote_oj'].$row['remote_id']."</a>";
+        // 제목·분류는 원문으로 저장되므로(쉼표만 &#44;) 기존 엔티티는 살리고 출력 시 이스케이프한다.
+        echo "<td class='pm-col-title'><a href='../problem.php?id=".$row['problem_id']."'>".htmlspecialchars($row['title'], ENT_QUOTES, 'UTF-8', false)."</a>";
+               if(!empty($row['remote_oj']))echo "<a class='pm-remote' href='".(preg_match('/^https?:\/\//i', $row['source']) ? htmlspecialchars($row['source'], ENT_QUOTES, 'UTF-8') : '#')."' target=_blank>".htmlspecialchars($row['remote_oj'].$row['remote_id'], ENT_QUOTES, 'UTF-8', false)."</a>";
         echo "</td>";
         echo "<td>".$row['accepted']."</td>";
         echo "<td class='pm-date'>".$row['in_date']."</td>";
@@ -158,7 +163,7 @@ function pm_bulkbar($with_ai, $extra_class = "") {
 			$label_theme = $color_theme[$hash_num%count($color_theme)];
 
 			if ($label_theme=="") $label_theme = "default";
-			$view .= "<a title='".htmlentities($cat,ENT_QUOTES,'UTF-8')."' class='label label-$label_theme' style='display: inline-block;' href='problem_list.php?keyword=".htmlentities(urlencode($cat),ENT_QUOTES,'UTF-8')."'>".mb_substr($cat,0,10,'utf8')."</a>";
+			$view .= "<a title='".htmlentities($cat,ENT_QUOTES,'UTF-8')."' class='label label-$label_theme' style='display: inline-block;' href='problem_list.php?keyword=".htmlentities(urlencode($cat),ENT_QUOTES,'UTF-8')."'>".htmlspecialchars(mb_substr($cat,0,10,'utf8'), ENT_QUOTES, 'UTF-8', false)."</a>";
 		}
 		echo "<div id='source_".$row['problem_id']."' class=\"show_tag_controled\">";
     	echo $view;
@@ -302,8 +307,7 @@ function modify_source(pid){
 	//alert(pid);
 	let view=$("#source_"+pid);
 	let old=removeAIEnd(view.text());
-	let html="<input id='new_source_"+pid+"' type=text value='"+old+"' >";
-	view.html(html);
+	view.empty().append($("<input type=text>").attr("id","new_source_"+pid).val(old));
 	$('#new_source_'+pid).on("blur change",function (){
 		let ns=($(this).val());
 		    $.ajax({
@@ -311,7 +315,7 @@ function modify_source(pid){
 			type: 'POST',
 			data: { m:'problem_set_source' , pid:pid , ns:ns},
 			success: function(data) {
-				$("#source_"+pid).html("<span class='label label-info'>"+ns+"</span>");		
+				$("#source_"+pid).empty().append($("<span class='label label-info'>").text(ns));		
 			},
 			error: function() {
 				console.log("분류 추가 실패");
@@ -333,7 +337,7 @@ function modify_source(pid){
 			success: function(data) {
 				console.log(data);
 				if(parseInt(data)>=0){
-					$("#source_"+pid).html("<span class='label label-info'>"+ns+"</span>");		
+					$("#source_"+pid).empty().append($("<span class='label label-info'>").text(ns));		
 				}
 			},
 			error: function() {

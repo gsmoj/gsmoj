@@ -1,6 +1,7 @@
 <?php
 $OJ_CACHE_SHARE = true;
 $cache_time = 3;
+require_once("./include/assessment_access_guard.php");  // 수행평가 접근 제한(캐시보다 먼저 확인)
 require_once("./include/db_info.inc.php");
 $gs_guard_label = "통계";
 require_once("./include/assessment_rank_guard.php");  // 수행평가 통계 비공개(캐시보다 먼저 확인)
@@ -9,7 +10,7 @@ require_once("./include/const.inc.php");
 require_once("./include/my_func.inc.php");
 
 // contest start time
-if (!isset($_GET['cid'])) die("No Such Contest!");
+if (!isset($_GET['cid'])) die($MSG_NO_SUCH_CONTEST);
 $cid = intval($_GET['cid']);
 if (isset($OJ_NO_CONTEST_WATCHER) && $OJ_NO_CONTEST_WATCHER) require_once("contest-check.php");
 
@@ -38,7 +39,7 @@ if ($noip) {
     exit(0);
 }
 
-$view_title = "Contest Statistics";
+$view_title = $MSG_CONTEST_STATISTICS;
 
 $sql = "SELECT count(`num`) FROM `contest_problem` WHERE `contest_id`=?";
 $result = mysql_query_cache($sql, $cid);
@@ -115,7 +116,7 @@ $lock = $end_time - ($end_time - $start_time) * $OJ_RANK_LOCK_PERCENT;
 $view_lock_time = $start_time + ($end_time - $start_time) * (1 - $OJ_RANK_LOCK_PERCENT);
 $locked_msg = "";
 if (time() > $view_lock_time && time() < $end_time + $OJ_RANK_LOCK_DELAY) {
-    $locked_msg = "The board has been locked.";
+    $locked_msg = $MSG_BOARD_LOCKED;
 }
 
 /////////////////////////Template

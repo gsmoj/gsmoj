@@ -159,7 +159,7 @@ function getMark($users, $start, $end, $s)
 
 
 // contest start time
-if (!isset($_GET['cid'])) die("No Such Contest!");
+if (!isset($_GET['cid'])) die($MSG_NO_SUCH_CONTEST);
 $cid = intval($_GET['cid']);
 if (isset($OJ_NO_CONTEST_WATCHER) && $OJ_NO_CONTEST_WATCHER) require_once("contest-check.php");
 
@@ -181,7 +181,7 @@ if ($rows_cnt > 0) {
 }
 
 if ($start_time == 0) {
-    echo "No Such Contest";
+    echo $MSG_NO_SUCH_CONTEST;
     //require_once("oj-footer.php");
     exit(0);
 }
@@ -261,7 +261,7 @@ foreach ($absentList as $row) {
 $rank = 1;
 //echo "<style> td{font-size:14} </style>";
 //echo "<title>Contest RankList -- $title</title>";
-echo "<center><h3>Contest RankList -- $title</h3></center>";
+echo "<center><h3>$MSG_CONTEST_RANKLIST -- $title</h3></center>";
 echo "<table border=1><tr><td>Rank<td>User<td>Nick<td>Solved<td>Mark<td>Penalty";
 for ($i = 0; $i < $pid_cnt; $i++)
     echo "<td>$PID[$i]";

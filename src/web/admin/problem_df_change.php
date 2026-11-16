@@ -6,7 +6,7 @@ if(!(isset($_SESSION[$OJ_NAME.'_'.'administrator']) || isset($_SESSION[$OJ_NAME.
 }
 
 if($_SERVER['REQUEST_METHOD']=="POST"){
-  //require_once("../include/check_post_key.php");
+  require_once("../include/check_post_key.php");
 }else{
   require_once("../include/check_get_key.php");
 }
@@ -30,18 +30,27 @@ if(isset($_POST['pid'])&&!empty($_POST['pid'])) {
     $pieces = explode(",", $plist);
     $pieces = array_unique($pieces);
     if (isset($pieces[0]) && $pieces[0] === "") unset($pieces[0]);
-    // 安全修复：每个ID元素强制intval，并过滤掉非正整数，防止SQL注入及意外的0
+    // 보안 수정: SQL 삽입과 의도하지 않은 0을 막기 위해 ID를 intval로 변환하고 양의 정수만 남긴다.
     $intPieces = array_map('intval', $pieces);
     $intPieces = array_filter($intPieces, function ($v) { return $v > 0; });
     $intPieces = array_values($intPieces);
     $plist = $intPieces ? implode(",", $intPieces) : "";
   }
 
+// 보안 수정: 관리자가 아니면 자신이 권한을 가진 문제만 일괄 전환한다.
+if($plist && !isset($_SESSION[$OJ_NAME.'_'.'administrator'])){
+  $ownPieces = array();
+  foreach(explode(",", $plist) as $i){
+    if(isset($_SESSION[$OJ_NAME.'_'."p".intval($i)])) $ownPieces[] = intval($i);
+  }
+  $plist = implode(",", $ownPieces);
+}
+
 if(isset($_POST['enable'])&&$plist){
-  $sql = "UPDATE `problem` SET defunct='N' WHERE `problem_id` IN ($plist)";           
+  $sql = "UPDATE `problem` SET defunct='N' WHERE `problem_id` IN ($plist) AND defunct<>'A'";
   pdo_query($sql);
 }else if(isset($_POST['disable'])&&$plist){
-  $sql = "UPDATE `problem` SET defunct='Y' WHERE `problem_id` IN ($plist)";           
+  $sql = "UPDATE `problem` SET defunct='Y' WHERE `problem_id` IN ($plist) AND defunct<>'A'";
   pdo_query($sql);
 }else{
   $id = intval($_GET['id']);
@@ -52,8 +61,9 @@ if(isset($_POST['enable'])&&$plist){
   $defunct = $row[0];
   echo $defunct;
 
-  if($defunct=='Y') $sql = "UPDATE `problem` SET `defunct`='N' WHERE `problem_id`=?";
-  else $sql = "UPDATE `problem` SET `defunct`='Y' WHERE `problem_id`=?";
+  // 수행평가 전용 문제(defunct='A')의 상태는 바꾸지 않는다.
+  if($defunct=='Y') $sql = "UPDATE `problem` SET `defunct`='N' WHERE `problem_id`=? AND defunct<>'A'";
+  else $sql = "UPDATE `problem` SET `defunct`='Y' WHERE `problem_id`=? AND defunct<>'A'";
    if(isset($_SESSION[$OJ_NAME.'_'.'administrator']) || isset($_SESSION[$OJ_NAME.'_'."p".$id]) ){
         pdo_query($sql,$id) ;
    }

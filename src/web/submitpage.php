@@ -20,11 +20,11 @@ $problem_id = 1000;
 if (!empty($_SERVER['HTTP_REFERER'])) {
     $queryString = parse_url($_SERVER['HTTP_REFERER'], PHP_URL_QUERY);
     if ($queryString) {
-        // 将查询参数解析为关联数组
+        // 쿼리 문자열을 연관 배열로 변환한다.
         parse_str($queryString, $queryParams);
-        // 检查是否存在 cid 参数
+        // cid 인자가 있는지 확인한다.
         if (isset($queryParams['cid'])) {
-            // 返回过滤后的 cid（例如：确保是整数）
+            // 정수로 변환한 cid를 사용한다.
             $sql = "select contest_type,end_time from contest where contest_id=?";
             $contest_type = pdo_query($sql, intval($queryParams['cid']));
             if (!empty($contest_type)) {
@@ -42,6 +42,33 @@ if (!empty($_SERVER['HTTP_REFERER'])) {
 }
 if (isset($_GET['id'])) {
     $id = intval($_GET['id']);
+    // 수행평가 전용 문제는 회차 밖에서 예제가 보이지 않게 한다.
+    $gs_dedicated = pdo_query("SELECT 1 FROM problem WHERE problem_id=? AND defunct='A'", $id);
+    if (!empty($gs_dedicated) && !(isset($_SESSION[$OJ_NAME . '_administrator']) || isset($_SESSION[$OJ_NAME . '_contest_creator']) || isset($_SESSION[$OJ_NAME . '_problem_editor']) || isset($_SESSION[$OJ_NAME . '_p' . $id]))) {
+        $view_errors = "<h2>$MSG_NO_PROBLEM</h2>";
+        require("template/" . $OJ_TEMPLATE . "/error.php");
+        exit(0);
+    }
+    // 연습 경로는 problem.php의 id 경로와 같은 조건으로 연다. 비활성 문제와 진행 중이거나 시작 전인 대회·수행평가, 비공개 대회에 쓰인 문제는 열지 않는다.
+    // 관리자·문제 검수자·대회 출제자·문제 편집자·문제 작성자(pNNNN)는 제한하지 않는다.
+    if ($id > 0 && !(isset($_SESSION[$OJ_NAME . '_' . 'administrator']) || isset($_SESSION[$OJ_NAME . '_' . 'problem_verifiter']) || isset($_SESSION[$OJ_NAME . '_' . 'contest_creator']) || isset($_SESSION[$OJ_NAME . '_' . 'problem_editor']) || isset($_SESSION[$OJ_NAME . '_' . 'p' . $id]))) {
+        $gs_now = date('Y-m-d H:i', time());
+        if (isset($OJ_FREE_PRACTICE) && $OJ_FREE_PRACTICE) {
+            $gs_practice = pdo_query("SELECT `problem_id` FROM `problem` WHERE `defunct`='N' AND `problem_id`=?", $id);
+        } else {
+            $sql = "SELECT `problem_id` FROM `problem` WHERE `problem_id`=? AND `defunct`='N' AND NOT EXISTS (
+            SELECT 1 FROM `contest_problem` cp
+            INNER JOIN `contest` c ON cp.contest_id=c.contest_id
+            WHERE cp.problem_id=? AND (c.end_time>? AND c.defunct='N' OR c.private='1' AND NOT EXISTS (SELECT 1 FROM `assessment_session` gs INNER JOIN `assessment` ga ON ga.assessment_id=gs.assessment_id WHERE gs.contest_id=c.contest_id AND ga.published_at IS NOT NULL))
+        )";
+            $gs_practice = pdo_query($sql, $id, $id, $gs_now);
+        }
+        if (empty($gs_practice)) {
+            $view_errors = "<h2>$MSG_NO_SUCH_PROBLEM</h2>";
+            require("template/" . $OJ_TEMPLATE . "/error.php");
+            exit(0);
+        }
+    }
 } else if (isset($_GET['cid']) && isset($_GET['pid'])) {
     $cid = intval($_GET['cid']);
     $pid = intval($_GET['pid']);
@@ -51,7 +78,7 @@ if (isset($_GET['id'])) {
     $row = $data[0];
     $problem_id = $row[0];
 } else {
-    $view_errors = "<h2>No Such Problem!</h2>";
+    $view_errors = "<h2>$MSG_NO_PROBLEM</h2>";
     require("template/" . $OJ_TEMPLATE . "/error.php");
     exit(0);
 }
@@ -77,20 +104,20 @@ if (isset($_GET['sid'])) {
             $start_time = strtotime($row['start_time']);
             $end_time = strtotime($row['end_time']);
             $now = time();
-            if ($end_time < $now) { // 当前提交，属于已经结束的比赛，考察是否有进行中的比赛在使用。
+            if ($end_time < $now) { // 이미 끝난 대회의 제출이면 진행 중인 대회에서 쓰이는지 확인한다.
                 $need_check_using = true;
-            } else {            // 属于进行中的比赛，可以看
+            } else {            // 진행 중인 대회의 제출이면 볼 수 있다.
                 $need_check_using = false;
             }
         }
-    } else { //非比赛提交.考察是否有进行中的比赛在使用
+    } else { // 대회 밖 제출이면 진행 중인 대회에서 쓰이는지 확인한다.
         //	echo $now.'+'.$end_time;
         if (isset($_SESSION[$OJ_NAME . '_' . 'source_browser']))
             $need_check_using = false;
         else
             $need_check_using = true;
     }
-    // 检查是否使用中
+    // 사용 중인지 확인한다.
     //echo $now.'*'.$end_time;
     $now = date('Y-m-d H:i', time());
     $sql = "select contest_id from contest where contest_id in (select contest_id from contest_problem where problem_id=?) 
@@ -177,7 +204,7 @@ if (isset($sample_sql)) {
         $result = pdo_query($sample_sql, $problem_id);
     }
     if ($result == false) {
-        $view_errors = "<h2>No Such Problem!</h2>";
+        $view_errors = "<h2>$MSG_NO_PROBLEM</h2>";
         require("template/" . $OJ_TEMPLATE . "/error.php");
         exit(0);
     }
@@ -208,7 +235,7 @@ if (!$view_src) {
         if (count($result) > 0) {
             $lastlang = $result[0][0];
         } else {
-            $lastlang = 1;   // 默认语言 default language : 0=C  1=C++ 3=Java  6=Python
+            $lastlang = 1;   // 기본 언어: 0=C  1=C++ 3=Java  6=Python
         }
         //echo "last=$lastlang";
     }
@@ -227,11 +254,11 @@ if (!$view_src) {
         }
     }
 	if(($view_src=="") && isset($_SESSION[$OJ_NAME.'_administrator']) && file_exists("$OJ_DATA/$problem_id/Main.c")){
-			//管理员自动加载可能的c标程
+			// 관리자에게는 C 표준 풀이가 있으면 자동으로 불러온다.
 			$view_src = file_get_contents( "$OJ_DATA/$problem_id/Main.c" );
 		    $lastlang = intval($_COOKIE['lastlang']);
 	}else if(($view_src=="") && isset($_SESSION[$OJ_NAME.'_administrator']) && file_exists("$OJ_DATA/$problem_id/Main.cc")){
-			//管理员自动加载可能的c++标程
+			// 관리자에게는 C++ 표준 풀이가 있으면 자동으로 불러온다.
 			$view_src = file_get_contents( "$OJ_DATA/$problem_id/Main.cc" );
 		    $lastlang = intval($_COOKIE['lastlang']);
 	}

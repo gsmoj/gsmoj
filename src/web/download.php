@@ -13,7 +13,7 @@ if(file_exists($zipname)){
     die();
 }
 if ((!isset($OJ_DOWNLOAD)) || !$OJ_DOWNLOAD) {
-    $view_errors = "Download Disabled!";
+    $view_errors = $MSG_DOWNLOAD_DISABLED;
     require("template/" . $OJ_TEMPLATE . "/error.php");
     exit(0);
 

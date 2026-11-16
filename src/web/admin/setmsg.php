@@ -9,7 +9,7 @@ $saved_notice = "";
 $msgfile="msg/".$domain.".txt";
 if(isset($_POST['do'])){
   require_once("../include/check_post_key.php");
-  mkdir("msg");
+  if(!is_dir("msg")) mkdir("msg");
   $fp = fopen($msgfile,"w");
   $msg = $_POST['msg'];
 
@@ -53,5 +53,3 @@ include("kindeditor.php");
     <?php require_once("../include/set_post_key.php");?>
   </form>
 </div>
-
-<?php require_once('../oj-footer.php'); ?>

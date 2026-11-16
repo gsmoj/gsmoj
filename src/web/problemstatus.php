@@ -25,6 +25,31 @@ if (isset($_GET['page']))
     $page = strval(intval($_GET['page']));
 else
     $page = 0;
+
+// 문제 번호가 없거나 볼 수 없는 문제이면 통계를 보여주지 않는다. 공개 범위는 problem.php의 id 조회 조건과 같다.
+$now = date('Y-m-d H:i', time());
+$result = array();
+if (isset($id) && $id > 0) {
+    if (isset($_SESSION[$OJ_NAME . '_' . 'administrator']) || isset($_SESSION[$OJ_NAME . '_' . 'problem_verifiter']) || isset($_SESSION[$OJ_NAME . '_' . 'contest_creator']) || isset($_SESSION[$OJ_NAME . '_' . 'problem_editor'])) {
+        $sql = "SELECT 1 FROM `problem` WHERE `problem_id`=?";
+        $result = pdo_query($sql, $id);
+    } else if (isset($OJ_FREE_PRACTICE) && $OJ_FREE_PRACTICE) {
+        $sql = "SELECT 1 FROM `problem` WHERE defunct='N' and `problem_id`=?";
+        $result = pdo_query($sql, $id);
+    } else {
+        $sql = "SELECT 1 FROM `problem` WHERE `problem_id`=? AND `defunct`='N' AND NOT EXISTS (
+            SELECT 1 FROM `contest_problem` cp
+            INNER JOIN `contest` c ON cp.contest_id=c.contest_id
+            WHERE cp.problem_id=? AND (c.end_time>? AND c.defunct='N' OR c.private='1')
+        )";
+        $result = pdo_query($sql, $id, $id, $now);
+    }
+}
+if (empty($result)) {
+    $view_errors = "<title>$MSG_NO_SUCH_PROBLEM</title><h2>$MSG_NO_SUCH_PROBLEM</h2>";
+    require("template/" . $OJ_TEMPLATE . "/error.php");
+    exit(0);
+}
 ?>
 
 <?php
@@ -119,8 +144,8 @@ if ($start + $sz > $acuser)
 /**
  * 检查问题是否在进行中的比赛中
  */
-$sql = "SELECT 1 FROM `contest_problem` WHERE `problem_id`=$id AND `contest_id` IN (SELECT `contest_id` FROM `contest` WHERE `start_time`<? AND `end_time`>?)";
-$rrs = pdo_query($sql, $now, $now);
+$sql = "SELECT 1 FROM `contest_problem` WHERE `problem_id`=? AND `contest_id` IN (SELECT `contest_id` FROM `contest` WHERE `start_time`<? AND `end_time`>?)";
+$rrs = pdo_query($sql, $id, $now, $now);
 $flag = count($rrs) == 0;
 
 /**

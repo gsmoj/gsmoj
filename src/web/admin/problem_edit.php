@@ -5,7 +5,7 @@ require_once("../include/my_func.inc.php");
 require_once("problem_markdown.inc.php");
 
 // 교사는 아래 문제별 확인(pNNNN)으로 자기가 만든 문제만 수정할 수 있다.
-if (!(isset($_SESSION[$OJ_NAME.'_'.'administrator']) || isset($_SESSION[$OJ_NAME.'_'.'problem_editor']) || isset($_SESSION[$OJ_NAME.'_'.'teacher']))) {
+if (!(isset($_SESSION[$OJ_NAME.'_'.'administrator']) || isset($_SESSION[$OJ_NAME.'_'.'problem_editor']) || isset($_SESSION[$OJ_NAME.'_'.'teacher']) || isset($_SESSION[$OJ_NAME.'_'.'contest_creator']))) {
   exit(1);
 }
 
@@ -100,7 +100,7 @@ include_once("problem_md_editor.php");
         </section>
         <section class="problem-form-section">
           <?php echo "<h4>".$MSG_Description."</h4>"?>
-          <textarea class="problem-md-editor" rows=33 name=description cols=80><?php echo htmlentities(problem_editor_content($row['description']),ENT_QUOTES,"UTF-8")?></textarea>
+          <textarea class="problem-md-editor" rows=13 name=description cols=80><?php echo htmlentities(problem_editor_content($row['description']),ENT_QUOTES,"UTF-8")?></textarea>
         </section>
 	<div class="full">
         <section class="problem-form-section">
@@ -343,6 +343,9 @@ function untransform() {
   
       echo "문제를 수정했습니다. ";
       echo "<a href='../problem.php?id=$id'>문제 보기</a>";
+      require_once("assessment_lib.php");
+      $assessment_id = asm_of_problem($id);
+      if ($assessment_id) echo " · <a href='assessment_edit.php?id=$assessment_id'>수행평가로 돌아가기</a>";
       echo "</div>";
     }
     ?>
