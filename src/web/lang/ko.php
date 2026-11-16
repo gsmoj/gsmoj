@@ -283,6 +283,8 @@ $MSG_HINT="도움";
 	$MSG_RECENT_CONTEST="최근 대회";
 	$MSG_PASS_RATE="통과율";
 	$MSG_SHOW_TAGS="태그 보기";
+	$MSG_SHOW_CATEGORY="분류 보기";
+	$MSG_HIDE_CATEGORY="분류 숨기기";
 	$MSG_SHOW_ALL_TAGS="모든 태그";
     $MSG_TABLE_TRANSPOSE="표 전치";
 

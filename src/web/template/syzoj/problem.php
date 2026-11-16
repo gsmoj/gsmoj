@@ -40,6 +40,7 @@ div[class*=ace_br] {
 body:not(.problem-workspace-dark) #main .problem-meta-row > .ui.label { background:#e8eef6 !important; color:#334155 !important; box-shadow:inset 0 0 0 1px #cfd8e3; }
 #show_tag_div { display:flex; flex-wrap:wrap; gap:8px; }
 #show_tag_div > .ui.label { margin:0; }
+#show_tag_div.gs-tags-hidden { display:none; }
 .problem-actions { display:flex; flex-wrap:wrap; align-items:center; gap:8px; }
 .problem-actions > .ui.button { margin:0; }
 /* 화이트 모드에서 문제 수정·채점 데이터 버튼이 흰 배경에 묻히지 않도록 옅은 파란 배경과 테두리를 준다. */
@@ -280,10 +281,12 @@ document.addEventListener('keydown', function(e) {
   ?>
     <div class="row">
       <div class="column">
-        <h4 class="ui block header top attached" id="show_tag_title_div" style="margin-bottom: 0; margin-left: -1px; margin-right: -1px; ">
-        <?php echo $MSG_SOURCE?>
+        <?php // 분류는 풀이 힌트가 될 수 있으므로 "분류 보기"를 눌러야 보여 준다. ?>
+        <h4 class="ui block header top attached" id="show_tag_title_div" style="margin-bottom: 0; margin-left: -1px; margin-right: -1px; display:flex; align-items:center; justify-content:space-between; gap:8px;">
+        <span><?php echo $MSG_SOURCE?></span>
+        <button type="button" class="ui mini basic button" id="show_tag_toggle" aria-expanded="false" aria-controls="show_tag_div" style="margin:0;"><?php echo isset($MSG_SHOW_CATEGORY) ? $MSG_SHOW_CATEGORY : $MSG_SHOW_TAGS?></button>
         </h4>
-        <div fd="source" pid="<?php echo $id?>" class="ui bottom attached segment" id="show_tag_div">
+        <div fd="source" pid="<?php echo $id?>" class="ui bottom attached segment gs-tags-hidden" id="show_tag_div">
           <?php foreach($cats as $cat){
             if(trim($cat)=="") continue;
             $label_theme=$color[$tcolor%count($color)];
@@ -299,7 +302,25 @@ document.addEventListener('keydown', function(e) {
             </a>
           <?php } ?>
         </div>
-     
+        <script>
+        (function(){
+          var btn=document.getElementById('show_tag_toggle');
+          var box=document.getElementById('show_tag_div');
+          var head=document.getElementById('show_tag_title_div');
+          var showLabel=btn.textContent;
+          var hideLabel=<?php echo json_encode(isset($MSG_HIDE_CATEGORY) ? $MSG_HIDE_CATEGORY : "분류 숨기기")?>;
+          // 숨겨 둔 동안에는 머리글만 단독 상자로 보이도록 attached 모양을 뺀다.
+          head.classList.remove('top','attached');
+          btn.addEventListener('click',function(){
+            var hidden=box.classList.toggle('gs-tags-hidden');
+            head.classList.toggle('top',!hidden);
+            head.classList.toggle('attached',!hidden);
+            btn.textContent=hidden?showLabel:hideLabel;
+            btn.setAttribute('aria-expanded',hidden?'false':'true');
+          });
+        })();
+        </script>
+
       </div>
     </div>
   <?php } ?>
