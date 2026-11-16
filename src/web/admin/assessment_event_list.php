@@ -14,7 +14,8 @@ if (!(isset($_SESSION[$OJ_NAME.'_'.'administrator']) || isset($_SESSION[$OJ_NAME
 $MSG_ASSESSMENT = isset($MSG_ASSESSMENT) ? $MSG_ASSESSMENT : "수행평가";
 $MSG_ASSESSMENT_EVENT = isset($MSG_ASSESSMENT_EVENT) ? $MSG_ASSESSMENT_EVENT : "감지 기록";
 
-$contest = pdo_query("SELECT `title`,`start_time`,`end_time` FROM `contest` WHERE `contest_id`=? AND (`contest_type` & 512)<>0", $cid);
+$contest = pdo_query("SELECT `title`,`start_time`,`end_time`,
+        CASE WHEN `start_time`<=NOW() AND `end_time`>NOW() THEN 'running' WHEN `start_time`>NOW() THEN 'upcoming' ELSE 'ended' END AS state FROM `contest` WHERE `contest_id`=? AND (`contest_type` & 512)<>0", $cid);
 if (empty($contest)) {
     echo "<div class='admin-content-page'><div class='alert alert-danger'>".$MSG_ASSESSMENT."를 찾을 수 없습니다.</div></div>";
     exit(1);
@@ -37,19 +38,24 @@ $event_names = array("leave" => "화면 이탈", "return" => "화면 복귀", "p
 $place_names = array("problem" => "문제 화면", "editor" => "편집기");
 $view_user = isset($_GET['user']) ? strval($_GET['user']) : "";
 function ae_h($s) { return htmlentities(strval($s), ENT_QUOTES, 'UTF-8'); }
+// 회차 상태: 진행 중 / 시행 예정 / 종료를 배지로 구분한다.
+$state_names = array("running" => array("진행 중", "admin-badge--on"), "upcoming" => array("시행 예정", "admin-badge--info"), "ended" => array("종료", "admin-badge--off"));
+$st = $state_names[$contest['state']];
 ?>
 <title><?php echo ae_h($MSG_ASSESSMENT." ".$MSG_ASSESSMENT_EVENT)?></title>
 
 <div class="admin-content-page">
   <div class="admin-page-heading">
     <div>
-      <h3><?php echo ae_h($MSG_ASSESSMENT." ".$MSG_ASSESSMENT_EVENT)?> - <?php echo $cid?>. <?php echo ae_h($contest['title'])?></h3>
+      <h3><?php echo ae_h($MSG_ASSESSMENT." ".$MSG_ASSESSMENT_EVENT)?> - <?php echo $cid?>. <?php echo ae_h($contest['title'])?> <span class="admin-badge <?php echo $st[1]?>"><?php echo $st[0]?></span></h3>
       <p><?php echo ae_h($contest['start_time'])?> ~ <?php echo ae_h($contest['end_time'])?>. 화면 이탈·붙여넣기·복사·코드 급증(붙여넣기 없이 한 번에 많은 코드가 들어온 경우)을 학생별로 보여 줍니다. 기록은 참고 자료이며, 판단 전에 제출 코드와 함께 확인하세요.</p>
       <p>의심 표시 기준: 화면 이탈 <?php echo intval($th['leave_seconds'])?>초, 붙여넣기 <?php echo intval($th['paste_chars'])?>자, 코드 급증 <?php echo intval($th['burst_chars'])?>자, 복사 <?php echo intval($th['copy_chars'])?>자 이상. 기준 미만도 기록하지만 의심으로 표시하지 않습니다.</p>
     </div>
     <a href="<?php echo ae_h($back_url)?>" class="btn btn-default"><?php echo ae_h($asm_link ? $MSG_ASSESSMENT."로 돌아가기" : $MSG_ASSESSMENT."-".$MSG_LIST)?></a>
   </div>
 
+<div id="ae-live" data-state="<?php echo $contest['state']?>">
+  <p class="admin-field-help" id="ae-status">회차 상태: <span class="admin-badge <?php echo $st[1]?>"><?php echo $st[0]?></span><?php if ($contest['state'] !== "ended") echo " · 5초마다 자동으로 갱신합니다."?> <span id="ae-updated"></span></p>
 <?php if ($view_user === "") {
     $sql = "SELECT e.`user_id`, u.`nick`, u.`group_name`,
                 SUM(e.`event_type`='leave') leave_cnt,
@@ -116,5 +122,32 @@ function ae_h($s) { return htmlentities(strval($s), ENT_QUOTES, 'UTF-8'); }
     } ?>
   </table>
   </div>
+<?php } ?>
+</div>
+<?php if ($contest['state'] !== "ended") { ?>
+<script>
+// 종료 전(예정·진행 중)에는 같은 주소를 다시 읽어 상태 배지와 기록 표만 바꾼다. 탭이 가려져 있으면 쉬고, 종료되면 멈춘다.
+(function () {
+  var timer = null;
+  function tick() {
+    if (document.hidden) { timer = setTimeout(tick, 5000); return; }
+    fetch(location.href, { credentials: 'same-origin', cache: 'no-store' }).then(function (r) { return r.text(); }).then(function (html) {
+      var doc = new DOMParser().parseFromString(html, 'text/html'), nu = doc.getElementById('ae-live'), cur = document.getElementById('ae-live');
+      if (!nu || !cur) throw new Error('응답을 읽지 못했습니다.');
+      cur.innerHTML = nu.innerHTML;
+      cur.setAttribute('data-state', nu.getAttribute('data-state'));
+      var h = document.querySelector('.admin-page-heading h3 .admin-badge'), nb = doc.querySelector('.admin-page-heading h3 .admin-badge');
+      if (h && nb) { h.className = nb.className; h.textContent = nb.textContent; }
+      document.getElementById('ae-updated').textContent = '· 갱신 ' + new Date().toLocaleTimeString('ko-KR');
+      if (nu.getAttribute('data-state') === 'ended') return;
+      timer = setTimeout(tick, 5000);
+    }).catch(function (e) {
+      document.getElementById('ae-updated').textContent = '· 갱신 실패: ' + e.message + ' (다시 시도합니다)';
+      timer = setTimeout(tick, 10000);
+    });
+  }
+  timer = setTimeout(tick, 5000);
+})();
+</script>
 <?php } ?>
 </div>
