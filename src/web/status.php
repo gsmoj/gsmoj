@@ -135,6 +135,8 @@ $param = array();
 if ((isset($OJ_ON_SITE_CONTEST_ID) && $OJ_ON_SITE_CONTEST_ID > 0 && !isset($_SESSION[$OJ_NAME . '_' . 'administrator']))
         || (isset($OJ_PUBLIC_STATUS) && !$OJ_PUBLIC_STATUS)
         || (isset($contest_type) && ($contest_type & 8) > 0)
+        // 수행평가(contest_type 9번 비트, 512)는 학생에게 자기 제출만 보여 준다. 관리자와 회차 관리자(교사, mNNNN)는 전체를 본다.
+        || (isset($contest_type) && ($contest_type & 512) > 0 && !isset($_SESSION[$OJ_NAME . '_' . 'administrator']) && !isset($_SESSION[$OJ_NAME . '_' . 'm' . $cid]))
 ) {
     if (!isset($_SESSION[$OJ_NAME . '_' . 'user_id']))
         $_GET['user_id'] = 'Guest';
