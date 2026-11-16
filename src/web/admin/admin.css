@@ -1332,6 +1332,8 @@ body:not(.admin-menu-frame) .admin-form-shell .alert { max-width: 880px; }
 .pm-bulkbar-actions { display: flex; flex-wrap: wrap; gap: 6px; }
 body:not(.admin-menu-frame) .pm-bulkbar input[type="submit"] { height: 34px; min-height: 34px; min-width: 0; padding: 0 12px; color: #334155; border-color: #cbd5e1; background: #fff; font-size: 13px; }
 body:not(.admin-menu-frame) .pm-bulkbar input[type="submit"]:hover { color: var(--admin-primary); border-color: #93c5fd; background: #eff6ff; }
+body:not(.admin-menu-frame) .pm-bulkbar input[type="submit"].pm-bulk-delete { color: #dc2626; border-color: #fca5a5; }
+body:not(.admin-menu-frame) .pm-bulkbar input[type="submit"].pm-bulk-delete:hover { color: #fff; border-color: #dc2626; background: #dc2626; }
 body:not(.admin-menu-frame) .pm-bulkbar .btn-primary { height: 34px; min-height: 34px; padding: 0 12px; font-size: 13px; line-height: 32px; }
 
 /* 목록: 표 */
