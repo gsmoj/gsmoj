@@ -1,9 +1,17 @@
 <?php
 function addproblem($title, $time_limit, $memory_limit, $description, $input, $output, $sample_input, $sample_output, $hint, $source, $spj, $OJ_DATA) {
   //$spj=($spj);
-  $sql = "INSERT INTO `problem` (`title`,`time_limit`,`memory_limit`,`description`,`input`,`output`,`sample_input`,`sample_output`,`hint`,`source`,`spj`,`in_date`,`defunct`) VALUES(?,?,?,?,?,?,?,?,?,?,?,NOW(),'Y')";
-  //echo $sql;
-  $pid = pdo_query($sql, $title, $time_limit, $memory_limit, $description, $input, $output, $sample_input, $sample_output, $hint, $source, $spj);
+  $args = array($title, $time_limit, $memory_limit, $description, $input, $output, $sample_input, $sample_output, $hint, $source, $spj);
+  // 수행평가 전용 문제(problem_add.php에서 assessment가 넘어온 경우)는 5000번부터 번호를 직접 정한다. 번호가 겹치면 다시 받는다.
+  $asm = isset($_POST['assessment']) && intval($_POST['assessment']) > 0 && function_exists("asm_next_problem_id");
+  for ($try = 0; $try < 3; $try++) {
+    $a = $args;
+    if ($asm) array_unshift($a, asm_next_problem_id());
+    $sql = "INSERT INTO `problem` (".($asm ? "`problem_id`," : "")."`title`,`time_limit`,`memory_limit`,`description`,`input`,`output`,`sample_input`,`sample_output`,`hint`,`source`,`spj`,`in_date`,`defunct`) VALUES(".($asm ? "?," : "")."?,?,?,?,?,?,?,?,?,?,?,NOW(),'Y')";
+    $pid = pdo_query($sql, $a);
+    if (!$asm || $pid !== -1) break;
+  }
+  if ($asm && $pid !== -1) $pid = $a[0];
 
   echo "New Problem:<a target=_blank href='../problem.php?id=$pid'>$pid ".htmlentities($title,ENT_QUOTES)."</a> added!<br>";
 

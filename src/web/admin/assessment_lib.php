@@ -144,11 +144,30 @@ function asm_copy_dir($from, $to) {
     }
     return $ok;
 }
-// 문제 행과 채점 데이터를 복제해 전용 문제를 만든다. 제출 통계는 복제하지 않는다. [새 번호, 데이터 복사 성공 여부]를 돌려준다.
+// 수행평가 전용 문제는 5000번부터 번호를 매겨 일반 문제 번호와 섞이지 않게 한다.
+function asm_next_problem_id() {
+    $r = pdo_query("select max(problem_id) from problem");
+    return max(5000, (empty($r) || $r[0][0] === null ? 0 : intval($r[0][0])) + 1);
+}
+// 복사할 수 있는 문제인지: 관리자는 모두, 그 밖에는 내 문제·공개 문제·수행평가에 들어 있는 전용 문제만(숨긴 대회 문제는 제외).
+function asm_can_copy($pid) {
+    global $OJ_NAME;
+    $r = pdo_query("select defunct from problem where problem_id=?", $pid);
+    if (empty($r)) return false;
+    if (asm_is_admin() || isset($_SESSION[$OJ_NAME.'_'."p".$pid])) return true;
+    return $r[0][0] === 'N' || ($r[0][0] === 'A' && asm_of_problem($pid) > 0);
+}
+// 문제 행과 채점 데이터를 복제해 전용 문제를 만든다. 번호는 항상 새로 받고 제출 통계는 복제하지 않는다. [새 번호, 데이터 복사 성공 여부]를 돌려준다.
 function asm_clone_problem($pid, $owner) {
     global $OJ_DATA;
-    $new = intval(pdo_query("insert into problem(title,description,input,output,sample_input,sample_output,spj,hint,source,in_date,time_limit,memory_limit,defunct,coin,remote_oj,remote_id)
-        select title,description,input,output,sample_input,sample_output,spj,hint,source,now(),time_limit,memory_limit,'A',coin,remote_oj,remote_id from problem where problem_id=?", $pid));
+    $new = -1;
+    for ($try = 0; $try < 3 && $new === -1; $try++) {   // 동시에 만들어 번호가 겹치면 다시 받는다
+        $id = asm_next_problem_id();
+        $r = pdo_query("insert into problem(problem_id,title,description,input,output,sample_input,sample_output,spj,hint,source,in_date,time_limit,memory_limit,defunct,coin,remote_oj,remote_id)
+            select ?,title,description,input,output,sample_input,sample_output,spj,hint,source,now(),time_limit,memory_limit,'A',coin,remote_oj,remote_id from problem where problem_id=?", $id, $pid);
+        if ($r !== -1) $new = $id;
+    }
+    if ($new === -1) return array(0, false);
     asm_grant_problem($owner, $new);
     $data = rtrim($OJ_DATA, "/");
     return array($new, asm_copy_dir($data."/".intval($pid), $data."/".$new));
