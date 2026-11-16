@@ -47,13 +47,16 @@ if ($_SERVER['REQUEST_METHOD'] === "POST" && isset($_POST['action'])) {
         // 복사본의 문제를 고쳐도 원본이 바뀌지 않도록 문제를 공유하지 않고 채점 데이터까지 전용 문제로 복제한다.
         $pids = array();
         $failed = array();
+        $lost = array();
         foreach (asm_problems($id) as $p) {
             if ($p['title'] === null) continue;
             list($clone, $ok) = asm_clone_problem(intval($p['problem_id']), asm_me());
+            if (!$clone) { $lost[] = intval($p['problem_id']); continue; }
             $pids[] = $clone;
             if (!$ok) $failed[] = $clone;
         }
         asm_save_problems($new, $pids);
+        if ($lost) asm_back($new, false, "'".$a['title']."'를 복사했지만 문제 ".implode(", ", $lost)."번은 복사하지 못해 빠졌습니다. 문제를 다시 추가하세요.");
         if ($failed) asm_back($new, false, "'".$a['title']."'를 복사했지만 문제 ".implode(", ", $failed)."번의 채점 데이터를 복사하지 못했습니다. 채점 데이터를 확인하세요.");
         asm_back($new, true, "'".$a['title']."'를 복사했습니다. 문제는 채점 데이터까지 복제되었고, 회차는 새로 추가하세요.");
     }
@@ -80,6 +83,27 @@ if ($_SERVER['REQUEST_METHOD'] === "POST" && isset($_POST['action'])) {
         }
         pdo_query("update assessment set published_at=now() where assessment_id=? and published_at is null", $id);
         asm_back($id, true, "공개했습니다. 비공개 문제 ".$opened."개를 문제 목록에 공개했습니다. 전용 문제는 공개하지 않습니다.");
+    }
+
+    // 기존 문제를 복사해 이 수행평가의 전용 문제로 가져온다. 원본은 그대로 두고 번호는 새로 받는다(5000번부터).
+    if ($action === "import_problem") {
+        $src = array_slice(array_unique(array_filter(array_map("intval", preg_split('/[^0-9]+/', isset($_POST['pids']) ? $_POST['pids'] : "")))), 0, 20);
+        if (!$src) asm_back($id, false, "복사할 문제 번호를 입력하세요. 여러 개는 쉼표로 구분합니다.");
+        $done = array();
+        $skip = array();
+        $failed = array();
+        foreach ($src as $pid) {
+            if (!asm_can_copy($pid)) { $skip[] = $pid; continue; }
+            list($clone, $ok) = asm_clone_problem($pid, $a['owner']);
+            if (!$clone) { $skip[] = $pid; continue; }
+            asm_attach_problem($a, $clone);
+            $done[] = $pid."→".$clone;
+            if (!$ok) $failed[] = $clone;
+        }
+        $msg = $done ? "문제 ".count($done)."개를 복사해 추가했습니다(".implode(", ", $done).")." : "";
+        if ($skip) $msg .= " 없거나 복사할 수 없는 문제: ".implode(", ", $skip).".";
+        if ($failed) $msg .= " 문제 ".implode(", ", $failed)."번의 채점 데이터를 복사하지 못했습니다. 채점 데이터를 확인하세요.";
+        asm_back($id, $done && !$failed, trim($msg));
     }
 
     if ($action === "move_problem") {
@@ -296,6 +320,14 @@ function asm_dt($v) { return str_replace(" ", "T", substr((string)$v, 0, 16)); }
         </tbody>
       </table>
     </div>
+    <?php if ($can) { ?>
+    <form method="post" action="assessment_edit.php?id=<?php echo $id?>" class="asm-add">
+      <?php require("../include/set_post_key.php"); ?><input type="hidden" name="action" value="import_problem">
+      <label>기존 문제에서 복사 <input type="text" name="pids" required placeholder="문제 번호 (예: 1000, 1001)" style="width:240px !important"></label>
+      <button type="submit" class="btn btn-default">복사해서 추가</button>
+      <span class="admin-field-help">원본은 그대로 두고 채점 데이터까지 복제해 새 번호(5000번부터)의 전용 문제로 넣습니다.</span>
+    </form>
+    <?php } ?>
     <p class="admin-field-help" style="margin:8px 0 0">문제를 추가·삭제하거나 순서를 바꾸면 아직 시작하지 않은 회차에만 반영됩니다. 전용 문제는 문제 목록에 나오지 않고 이 <?php echo $MSG_ASSESSMENT?>의 회차 안에서만 풀 수 있습니다.</p>
     <?php if (array_filter($problems, function ($p) { return $p['defunct'] === 'N'; })) { ?>
     <p class="admin-field-help" style="margin:8px 0 0">"공개 중"인 문제는 문제 목록에서 누구나 볼 수 있습니다. <?php echo $MSG_ASSESSMENT?> 전에 비공개로 바꾸려면 관리자에게 요청하세요.</p>
@@ -334,7 +366,7 @@ function asm_dt($v) { return str_replace(" ", "T", substr((string)$v, 0, 16)); }
               <a href="../status.php?cid=<?php echo $cid?>" target="_blank">채점 현황</a> ·
               <a href="../contestrank.php?cid=<?php echo $cid?>" target="_blank">순위</a>
               <?php if (asm_is_admin() || isset($_SESSION[$OJ_NAME.'_'."m".$cid])) { ?> · <a href="assessment_event_list.php?cid=<?php echo $cid?>">감지 기록</a><?php } ?>
-              <?php if (asm_is_admin()) { ?> · <a href="monitor.php?cid=<?php echo $cid?>#contest">모니터링</a><?php } ?>
+              <?php if (asm_is_admin() || isset($_SESSION[$OJ_NAME.'_'."m".$cid])) { ?> · <a href="monitor.php?cid=<?php echo $cid?>#contest">모니터링</a><?php } ?>
             </td>
             <?php if ($can) { ?>
             <td>
