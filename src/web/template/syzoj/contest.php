@@ -50,18 +50,19 @@ $show_title=$gs_contest_label.$view_cid." - ".$view_title." - $OJ_NAME"; ?>
                 <div class="ui buttons right floated">
 
                     <?php
+          // 수행평가는 진행 상태·공개 여부 배지를 보여 주지 않는다(시작·종료는 위 시간 표시와 진행 막대로 안내).
+          if (!$is_assessment) {
           if ($now>$end_time)
           echo "<span class=\"ui small button grey\">$MSG_Ended</span>";
           else if ($now<$start_time)
           echo "<span class=\"ui small button red\">$MSG_Contest_Pending</span>";
           else
           echo "<span class=\"ui small button green\">$MSG_Running</span>";
-          ?>
-                    <?php
           if ($view_private=='0')
           echo "<span class=\"ui small button blue\">$MSG_Public</span>";
           else
           echo "<span class=\"ui small button pink\">$MSG_Private</span>";
+          }
           ?>
         <?php if(isset($_SESSION[$OJ_NAME.'_'.'administrator']) || isset($_SESSION[$OJ_NAME.'_m'.$cid ])) {?>
           <a href="suspect_list.php?cid=<?php echo $view_cid?>" class="ui small blue button"><?php echo $MSG_IP_VERIFICATION?></a>
