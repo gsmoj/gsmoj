@@ -16,22 +16,6 @@ if (isset($OJ_REGISTER) && !$OJ_REGISTER) exit(0);
 // 브라우저 탭 등에 표시될 웹 페이지의 제목을 지정
 $view_title = "Register a new account"; // [수정] Registe 오타를 Register로 수정
 
-/////////////////////////// 메인 로직 처리부 (백엔드 이메일 검증 추가)
-
-// 사용자가 폼을 제출(POST 방식)했을 때 서버 측에서 이메일을 최종 검사합니다.
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['email'])) {
-    $email = trim($_POST['email']);
-    
-    // 이메일이 @gsm.hs.kr로 끝나지 않는 경우 (뒤에서 10글자가 일치하는지 비교)
-    if (substr($email, -10) !== "@gsm.hs.kr") {
-        echo "<script>
-            alert('gsm.hs.kr 도메인의 학교 이메일만 가입 가능합니다.');
-            history.go(-1);
-        </script>";
-        exit(0); // 조건에 맞지 않으면 처리를 중단하고 종료
-    }
-}
-
 ///////////////////////// 템플릿(HTML 화면) 출력
 // 현재 설정된 테마($OJ_TEMPLATE) 폴더 내의 실제 회원가입 폼 화면(HTML)을 불러옴
 require("template/" . $OJ_TEMPLATE . "/registerpage.php");
