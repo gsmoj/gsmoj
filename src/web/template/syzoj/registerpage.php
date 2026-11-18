@@ -35,7 +35,7 @@
 
     <div class="field">
       <label for="email"><?php echo $MSG_EMAIL?>*</label>
-      <input id="email" name="email" placeholder="example@gsm.hs.kr*" type="text" required>
+      <input id="email" name="email" placeholder="example@gmail.com*" type="text" required>
     </div>
 
     <?php if($OJ_VCODE){?>
@@ -71,10 +71,10 @@ function check(){
     $("#rptpassword").focus();
     return false;
   }
-  // 4. GSM 학교 이메일 도메인 체크 (@gsm.hs.kr 고정)
+  // 4. 이메일 형식 체크 (도메인 제한 없음)
   var email = $("#email").val().trim();
-  if(!email.endsWith("@gsm.hs.kr")) {
-    alert("광주소프트웨어마이스터고 이메일(@gsm.hs.kr)로만 가입할 수 있습니다.");
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    alert("이메일 형식이 올바르지 않습니다.");
     $("#email").focus();
     return false;
   }

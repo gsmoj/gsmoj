@@ -61,7 +61,6 @@ if (has_bad_words($user_id) || has_bad_words($school) || has_bad_words($nick)) {
 }
 if (mb_strlen($email) > 100) registration_error($errors, "$MSG_EMAIL: $MSG_TOO_LONG");
 elseif (filter_var($email, FILTER_VALIDATE_EMAIL) === false) registration_error($errors, '이메일 형식이 올바르지 않습니다.');
-elseif (substr($email, -10) !== '@gsm.hs.kr') registration_error($errors, 'gsm.hs.kr 도메인의 학교 이메일만 가입 가능합니다.');
 if (strcmp($password_text, $repeated_password) !== 0) registration_error($errors, $MSG_WARNING_REPEAT_PASSWORD_DIFF . '!');
 if (strlen($password_text) < 6) registration_error($errors, $MSG_WARNING_PASSWORD_SHORT);
 if ($errors) stop_registration($errors);
