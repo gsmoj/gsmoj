@@ -1,4 +1,4 @@
-<?php $show_title = htmlspecialchars($wb['title'], ENT_QUOTES, 'UTF-8')." - 문제집 - $OJ_NAME"; ?>
+<?php $show_title = htmlspecialchars($wb['title'], ENT_QUOTES, 'UTF-8')." - 코스 - $OJ_NAME"; ?>
 <?php include("template/$OJ_TEMPLATE/header.php"); ?>
 <?php $wb_pct = $wb_total > 0 ? round(100 * $wb_solved / $wb_total) : 0; ?>
 <style>
@@ -32,7 +32,7 @@
 </style>
 
 <div class="gs-page-head">
-  <a class="wb-back" href="workbook.php">&lsaquo; 문제집 목록</a>
+  <a class="wb-back" href="workbook.php">&lsaquo; 코스 목록</a>
   <h1><?php echo htmlspecialchars($wb['title'], ENT_QUOTES, 'UTF-8')?></h1>
   <?php if (trim((string)$wb['description']) !== "") { ?><p class="wb-desc"><?php echo htmlspecialchars($wb['description'], ENT_QUOTES, 'UTF-8')?></p><?php } ?>
   <?php if ($wb_logged_in && $wb_total > 0) { ?>

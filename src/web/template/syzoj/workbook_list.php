@@ -1,4 +1,4 @@
-<?php $show_title = "문제집 - $OJ_NAME"; ?>
+<?php $show_title = "코스 - $OJ_NAME"; ?>
 <?php include("template/$OJ_TEMPLATE/header.php"); ?>
 <style>
 .wb-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:16px; margin-bottom:2rem; }
@@ -14,14 +14,14 @@
 </style>
 
 <div class="gs-page-head">
-  <h1>문제집</h1>
+  <h1>코스</h1>
   <p>정해진 순서대로 풀면서 실력을 쌓아 보세요</p>
 </div>
 
 <?php // 카드가 흰 패널(.padding) 안에 겹치지 않도록 회색 배경 위에 바로 놓는다. ?>
 <div class="wb-list">
   <?php if (empty($wb_books)) { ?>
-  <div class="gs-empty">아직 등록된 문제집이 없어요</div>
+  <div class="gs-empty">아직 등록된 코스가 없어요</div>
   <?php } else { ?>
   <div class="wb-grid">
     <?php foreach ($wb_books as $b) {

@@ -570,7 +570,7 @@
           ?>
             <a class="item <?php if ($url=="problemset.php" || $url=="problem.php" || $url=="category.php") echo "active";?>"
                 href="<?php echo $path_fix?>problemset.php"><?php echo $MSG_PROBLEMS?></a>
-            <a class="item <?php if ($url=="workbook.php") echo "active";?>" href="<?php echo $path_fix?>workbook.php"><?php echo isset($MSG_WORKBOOK) ? $MSG_WORKBOOK : "문제집"?></a>
+            <a class="item <?php if ($url=="workbook.php") echo "active";?>" href="<?php echo $path_fix?>workbook.php"><?php echo isset($MSG_WORKBOOK) ? $MSG_WORKBOOK : "코스"?></a>
             <a class="item <?php if ($url=="contest.php") echo "active";?>" href="<?php echo $path_fix?>contest.php"><?php echo $MSG_CONTEST_MENU?></a>
             <a class="item <?php if ($url=="assessment.php") echo "active";?>" href="<?php echo $path_fix?>assessment.php<?php if(isset($_SESSION[$OJ_NAME."_user_id"])) echo "?my" ?>"><?php echo isset($MSG_ASSESSMENT) ? $MSG_ASSESSMENT : "수행평가"?></a>
             <a class="item <?php if ($url=="status.php" || $url=="showsource.php") echo "active";?>" href="<?php echo $path_fix?>status.php"><?php echo $MSG_STATUS?></a>

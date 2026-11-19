@@ -21,7 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === "POST" && isset($_POST['action'])) {
     require_once("../include/check_post_key.php");
     $action = $_POST['action'];
     $wb = $id ? wb_get($id) : null;
-    if ($id && !$wb) wb_back(0, false, "문제집을 찾을 수 없습니다. 삭제되었을 수 있습니다.");
+    if ($id && !$wb) wb_back(0, false, "코스를 찾을 수 없습니다. 삭제되었을 수 있습니다.");
 
     if ($action === "save") {
         $title = trim(isset($_POST['title']) ? (string)$_POST['title'] : "");
@@ -34,10 +34,10 @@ if ($_SERVER['REQUEST_METHOD'] === "POST" && isset($_POST['action'])) {
         }
         $new = intval(pdo_query("INSERT INTO `workbook`(`title`,`description`,`owner`,`created_at`,`updated_at`,`defunct`) VALUES(?,?,?,NOW(),NOW(),'N')",
             $title, $desc, $_SESSION[$OJ_NAME.'_'.'user_id']));
-        wb_back($new, $new > 0, $new > 0 ? "문제집을 만들었습니다. 이제 문제 번호를 순서대로 넣으세요." : "문제집을 만들지 못했습니다. 데이터베이스 업데이트를 확인하세요.");
+        wb_back($new, $new > 0, $new > 0 ? "코스를 만들었습니다. 이제 문제 번호를 순서대로 넣으세요." : "코스를 만들지 못했습니다. 데이터베이스 업데이트를 확인하세요.");
     }
     // 아래 작업은 이미 만든 문제집에서만 한다.
-    if (!$wb) wb_back(0, false, "문제집을 먼저 만드세요.");
+    if (!$wb) wb_back(0, false, "코스를 먼저 만드세요.");
 
     // 화면에서 정한 순서대로 문제 목록을 통째로 바꾼다. 없는 문제와 수행평가 전용 문제는 빼고 알려 준다.
     if ($action === "set_problems") {
@@ -66,7 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] === "POST" && isset($_POST['action'])) {
     // 문제집은 학생 화면에서만 숨기고(defunct='Y') 문제 목록 기록은 남긴다.
     if ($action === "delete") {
         pdo_query("UPDATE `workbook` SET `defunct`='Y', `updated_at`=NOW() WHERE `workbook_id`=?", $id);
-        $_SESSION[$OJ_NAME.'_'.'wb_flash'] = array(true, "문제집을 삭제했습니다.");
+        $_SESSION[$OJ_NAME.'_'.'wb_flash'] = array(true, "코스를 삭제했습니다.");
         header("Location: workbook_list.php");
         exit;
     }
@@ -79,12 +79,12 @@ if (!$is_admin) {
     exit(1);
 }
 if (!wb_ready()) {
-    echo "<div class='admin-content-page'><div class='alert alert-warning'>문제집 테이블이 아직 없습니다. <a href='update_db.php'>데이터베이스 업데이트</a>를 먼저 실행하세요.</div></div>";
+    echo "<div class='admin-content-page'><div class='alert alert-warning'>코스 테이블이 아직 없습니다. <a href='update_db.php'>데이터베이스 업데이트</a>를 먼저 실행하세요.</div></div>";
     exit(1);
 }
 $wb = $id ? wb_get($id) : null;
 if ($id && !$wb) {
-    echo "<div class='admin-content-page'><div class='alert alert-danger'>문제집을 찾을 수 없습니다. <a href='workbook_list.php'>목록으로</a></div></div>";
+    echo "<div class='admin-content-page'><div class='alert alert-danger'>코스를 찾을 수 없습니다. <a href='workbook_list.php'>목록으로</a></div></div>";
     exit(1);
 }
 $flash = isset($_SESSION[$OJ_NAME.'_'.'wb_flash']) ? $_SESSION[$OJ_NAME.'_'.'wb_flash'] : null;
@@ -104,7 +104,7 @@ if ($wb) {
 // 제목에 깨진 글자가 있어도 목록 전체가 비지 않도록 대체 문자로 바꾼다.
 $wb_json_flags = JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_INVALID_UTF8_SUBSTITUTE;
 ?>
-<title><?php echo $wb ? wb_h($wb['title']) : "새 문제집"?></title>
+<title><?php echo $wb ? wb_h($wb['title']) : "새 코스"?></title>
 <style>
   .wb-grid { display: grid; gap: 14px; }
   .wb-field { display: grid; gap: 6px; }
@@ -140,14 +140,14 @@ $wb_json_flags = JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX
 <div class="admin-content-page">
   <div class="admin-page-heading">
     <div>
-      <h3><?php echo $wb ? wb_h($wb['title']) : "새 문제집"?></h3>
+      <h3><?php echo $wb ? wb_h($wb['title']) : "새 코스"?></h3>
       <p><?php echo $wb ? "만든 사람 ".wb_h($wb['owner'])." · 문제 ".count($problems)."개" : "제목을 정해 만든 뒤, 문제를 체크해 넣고 풀 순서를 정합니다."?></p>
     </div>
     <div class="admin-heading-actions">
       <a class="btn btn-default" href="workbook_list.php">목록</a>
       <?php if ($wb) { ?>
       <a class="btn btn-default" href="../workbook.php?id=<?php echo $id?>" target="_blank">학생 화면 보기</a>
-      <form method="post" action="workbook_edit.php?id=<?php echo $id?>" style="margin:0" onsubmit="return confirm('이 문제집을 삭제할까요? 문제 자체는 지워지지 않습니다.')">
+      <form method="post" action="workbook_edit.php?id=<?php echo $id?>" style="margin:0" onsubmit="return confirm('이 코스를 삭제할까요? 문제 자체는 지워지지 않습니다.')">
         <?php require("../include/set_post_key.php"); ?><input type="hidden" name="action" value="delete">
         <button type="submit" class="btn btn-danger">삭제</button>
       </form>
@@ -166,7 +166,7 @@ $wb_json_flags = JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX
         <input type="text" id="wb-title" name="title" maxlength="200" required value="<?php echo $wb ? wb_h($wb['title']) : ""?>" placeholder="예: 기초 100제">
       </div>
       <div class="wb-field">
-        <label for="wb-desc">설명 <span class="admin-field-help">(문제집 목록과 문제집 화면 위에 보입니다)</span></label>
+        <label for="wb-desc">설명 <span class="admin-field-help">(코스 목록과 코스 화면 위에 보입니다)</span></label>
         <textarea id="wb-desc" name="description" rows="3" placeholder="예: 입출력부터 반복문까지 순서대로 풀어 보세요."><?php echo $wb ? wb_h($wb['description']) : ""?></textarea>
       </div>
     </div>
@@ -187,7 +187,7 @@ $wb_json_flags = JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX
       <input type="hidden" name="action" value="set_problems">
       <input type="hidden" name="pids" id="wb-pids" value="">
       <div class="wb-card-head">
-        <div class="admin-card-title">문제집 순서 <span id="wb-order-count"></span></div>
+        <div class="admin-card-title">코스 순서 <span id="wb-order-count"></span></div>
         <button type="button" class="btn btn-default btn-sm" id="wb-clear">모두 빼기</button>
       </div>
       <div class="wb-panel-body"><ol class="wb-order" id="wb-order"></ol></div>
@@ -243,7 +243,7 @@ $wb_json_flags = JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX
         box.checked = !!chosen[p[0]];
         box.addEventListener('change', function () {
           if (box.checked) {
-            if (order.length >= MAX) { box.checked = false; alert('문제집에는 최대 ' + MAX + '개까지 넣을 수 있습니다.'); return; }
+            if (order.length >= MAX) { box.checked = false; alert('코스에는 최대 ' + MAX + '개까지 넣을 수 있습니다.'); return; }
             order.push(p[0]);
           } else {
             order = order.filter(function (id) { return id !== p[0]; });
@@ -341,7 +341,7 @@ $wb_json_flags = JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX
 
     search.addEventListener('input', renderPick);
     $('wb-clear').addEventListener('click', function () {
-      if (order.length === 0 || !confirm('문제집 순서에서 모든 문제를 뺄까요? 저장해야 반영됩니다.')) return;
+      if (order.length === 0 || !confirm('코스 순서에서 모든 문제를 뺄까요? 저장해야 반영됩니다.')) return;
       order = [];
       touch();
       renderOrder();
