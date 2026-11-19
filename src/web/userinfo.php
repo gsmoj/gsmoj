@@ -8,6 +8,11 @@ require_once("include/const.inc.php");
 require_once("include/my_func.inc.php");
 require_once("include/memcache.php");
 require_once("include/iplocation.php");
+if (!isset($_SESSION[$OJ_NAME . '_' . 'user_id'])) {
+    $view_errors = "<a href=loginpage.php>$MSG_Login</a>";
+    require("template/" . $OJ_TEMPLATE . "/error.php");
+    exit(0);
+}
 // check user
 $user = $_GET['user'];
 if (!is_valid_user_name($user)) {
