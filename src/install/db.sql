@@ -341,6 +341,23 @@ CREATE TABLE IF NOT EXISTS `assessment_session` (
   UNIQUE KEY `uk_contest` (`contest_id`),
   KEY `idx_assessment` (`assessment_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='수행평가 반별 회차(회차마다 대회 1개)';
+CREATE TABLE IF NOT EXISTS `workbook` (
+  `workbook_id` int unsigned NOT NULL AUTO_INCREMENT,
+  `title` varchar(255) NOT NULL DEFAULT '',
+  `description` text,
+  `owner` varchar(48) NOT NULL DEFAULT '' COMMENT '만든 관리자',
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  `defunct` char(1) NOT NULL DEFAULT 'N',
+  PRIMARY KEY (`workbook_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='문제집';
+CREATE TABLE IF NOT EXISTS `workbook_problem` (
+  `workbook_id` int unsigned NOT NULL,
+  `num` int NOT NULL DEFAULT 0 COMMENT '문제집 안의 순서(0부터)',
+  `problem_id` int NOT NULL DEFAULT 0,
+  PRIMARY KEY (`workbook_id`,`num`),
+  KEY `idx_problem` (`problem_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='문제집 문제 목록';
 
 delimiter //
 

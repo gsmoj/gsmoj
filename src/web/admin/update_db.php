@@ -336,6 +336,26 @@ $tsql[68]="CREATE TABLE IF NOT EXISTS $DB_NAME.`assessment_session` (
   KEY `idx_assessment` (`assessment_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='수행평가 반별 회차(회차마다 대회 1개)';";
 $csql[68]="";
+// 문제집: 관리자가 정한 순서대로 문제를 묶어 학생에게 보여 준다(예: 기초 100제).
+$tsql[69]="CREATE TABLE IF NOT EXISTS $DB_NAME.`workbook` (
+  `workbook_id` int unsigned NOT NULL AUTO_INCREMENT,
+  `title` varchar(255) NOT NULL DEFAULT '',
+  `description` text,
+  `owner` varchar(48) NOT NULL DEFAULT '' COMMENT '만든 관리자',
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  `defunct` char(1) NOT NULL DEFAULT 'N',
+  PRIMARY KEY (`workbook_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='문제집';";
+$csql[69]="";
+$tsql[70]="CREATE TABLE IF NOT EXISTS $DB_NAME.`workbook_problem` (
+  `workbook_id` int unsigned NOT NULL,
+  `num` int NOT NULL DEFAULT 0 COMMENT '문제집 안의 순서(0부터)',
+  `problem_id` int NOT NULL DEFAULT 0,
+  PRIMARY KEY (`workbook_id`,`num`),
+  KEY `idx_problem` (`problem_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='문제집 문제 목록';";
+$csql[70]="";
 
 // 删除6个月以前的非正确源码，优化数据库空间。
 // delete from source_code  where solution_id in (select solution_id from solution where result>4 and  in_date<date_sub(now(),interval 6 month) ); //
