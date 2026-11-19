@@ -101,6 +101,14 @@ if(basename($_SERVER['PHP_SELF'])!=="cron.php"){
 		if(!empty($result)){
 			$row=$result[0];
 			$ceinfo=$row[0];
+			// AI 답변으로 테스트 정답·출력이 새지 않도록, 학생 요청이면 결과 화면과 같은 기준으로 비교 내용을 지우고 넘긴다.
+			if($table=="runtimeinfo"){
+				require_once(dirname(__FILE__)."/../include/judge_diff.inc.php");
+				if(!gs_can_see_test_output($problem_id, 0)){
+					$stripped=gs_strip_test_output($ceinfo);
+					$ceinfo=$stripped[0];
+				}
+			}
 		}else{
 			echo $MSG_AI_INVALID_PARAM;
 			exit();

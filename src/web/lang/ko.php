@@ -379,6 +379,7 @@ $MSG_HINT="도움";
     $MSG_EXPECTED="정답 출력";
     $MSG_YOURS="내 출력";
     $MSG_OUTPUT_END="출력 끝";
+    $MSG_TEST_OUTPUT_HIDDEN="테스트 데이터의 정답과 내 출력은 공개하지 않습니다. 아래 표에서 테스트별 결과(오답·시간 초과·런타임 오류 등)를 확인하세요.";
     $MSG_FILENAME="파일명";
     $MSG_SIZE="크기";
 

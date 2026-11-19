@@ -51,6 +51,12 @@ td > code {
 #errtxt.gs-diff .gs-muted { color: #9ca3af; }
 #errtxt.gs-diff .gs-eof { display: inline-block; padding: 0 8px; border-radius: 999px; background: #f3f4f6; color: #6b7280; font-family: inherit; font-size: 12px; line-height: 20px; }
 #errtxt.gs-diff pre { margin: 0; padding: 12px; border-radius: 8px; background: #f9fafb; white-space: pre-wrap; }
+#errtxt.gs-diff p { margin: 0 0 12px; color: #4b5563; font-family: inherit; font-size: 14px; line-height: 1.6; white-space: normal; }
+#errtxt.gs-diff .gs-result { display: inline-block; padding: 0 10px; border-radius: 999px; font-family: inherit; font-size: 12px; font-weight: 600; line-height: 22px; }
+#errtxt.gs-diff .gs-result.is-ac { background: #dcfce7; color: #15803d; }
+#errtxt.gs-diff .gs-result.is-wa { background: #fee2e2; color: #b91c1c; }
+#errtxt.gs-diff .gs-result.is-tle { background: #fef3c7; color: #b45309; }
+#errtxt.gs-diff .gs-result.is-re { background: #ede9fe; color: #6d28d9; }
 @media (max-width: 767px) {
     #errtxt.gs-diff .gs-case { padding: 12px; }
     #errtxt.gs-diff table { min-width: 420px; }
@@ -245,6 +251,21 @@ const marked = new Marked(
                     });
                 }
                 this.parentNode.replaceChild(frag,this);
+            });
+            // 테스트별 결과 요약 표의 채점기 약어(WA, TLE, RE 등)를 한국어 배지로 바꿔 결과 종류를 구분해 보여 준다.
+            var gsResult=<?php echo json_encode(array(
+                "AC" => array($MSG_Accepted, "is-ac"), "PE" => array($MSG_Presentation_Error, "is-wa"), "WA" => array($MSG_Wrong_Answer, "is-wa"),
+                "TLE" => array($MSG_Time_Limit_Exceed, "is-tle"), "MLE" => array($MSG_Memory_Limit_Exceed, "is-tle"),
+                "OLE" => array($MSG_Output_Limit_Exceed, "is-tle"), "RE" => array($MSG_Runtime_Error, "is-re")
+            ), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT)?>;
+            $err.find("td").each(function(){
+                var m=/^(AC|PE|WA|TLE|MLE|OLE|RE)(\/[\d.]+)?$/.exec(this.textContent.trim());
+                if(!m || !gsResult[m[1]]) return;
+                var badge=document.createElement("span");
+                badge.className="gs-result "+gsResult[m[1]][1];
+                badge.textContent=gsResult[m[1]][0]+(m[2] ? " "+m[2].substring(1) : "");
+                this.textContent="";
+                this.appendChild(badge);
             });
         }
         <?php

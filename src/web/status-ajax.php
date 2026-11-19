@@ -10,6 +10,7 @@ $OJ_CACHE_SHARE = false;
 require_once('./include/db_info.inc.php');
 require_once('./include/setlang.php');
 require_once('./include/my_func.inc.php');
+require_once('./include/judge_diff.inc.php');
 $view_title = "$MSG_STATUS";
 
 require_once("./include/const.inc.php");
@@ -32,6 +33,8 @@ if (!empty($result)) {
         (isset($_SESSION[$OJ_NAME . '_' . 'user_id']) && $_SESSION[$OJ_NAME . '_' . 'user_id'] == $row['user_id'])) {
 
         $res = $row['result'];
+        // 문제 채점(problem_id>0)의 실행 결과는 학생에게 정답·출력 비교를 숨긴다. 직접 입력한 테스트 실행(problem_id=0)은 그대로 보여 준다.
+        $gs_strip = $res != 11 && intval($row['problem_id']) > 0 && !gs_can_see_test_output($row['problem_id'], $contest_id);
 
         if ($res == 11) {
             $sql = "SELECT `error` FROM `compileinfo` WHERE `solution_id`=?";
@@ -49,6 +52,10 @@ if (!empty($result)) {
         $row = $result[0];
 
         if ($row) {
+            if ($gs_strip) {
+                list($row['error'], $gs_hidden) = gs_strip_test_output($row['error']);
+                if ($gs_hidden && isset($MSG_TEST_OUTPUT_HIDDEN)) $row['error'] = $MSG_TEST_OUTPUT_HIDDEN . "\n\n" . $row['error'];
+            }
             if (strpos($row['error'], "judge") !== false) echo $MSG_ERROR_INFO_HIDDEN . " (1)";
             else if (strpos($row['error'], "php") !== false) echo $MSG_ERROR_INFO_HIDDEN . " (2)";
             else if (strpos($row['error'], "PASS") !== false) echo $MSG_ERROR_INFO_HIDDEN . " (3)";

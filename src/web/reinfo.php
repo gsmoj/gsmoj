@@ -5,6 +5,7 @@ require_once('./include/cache_start.php');
 require_once('./include/db_info.inc.php');
 require_once('./include/setlang.php');
 require_once('./include/my_func.inc.php');
+require_once('./include/judge_diff.inc.php');
 $view_title = "Welcome To Online Judge";
 if (!isset($_SESSION[$OJ_NAME . '_' . 'user_id'])) {
     header("location:loginpage.php");
@@ -89,9 +90,13 @@ if (($ok && $OJ_FRIENDLY_LEVEL > 2) ||
     $result = pdo_query($sql, $id);
 
     $error_info = null;
+    $gs_output_hidden = false;
     if (isset($result[0])) {
         $row_runtime = $result[0];
         $error_info = $row_runtime['error'];
+        // 학생에게는 테스트의 정답·출력 비교를 숨기고 결과 요약과 오류 메시지만 보여 준다.
+        if ($error_info !== null && !gs_can_see_test_output($row['problem_id'], $contest_id))
+            list($error_info, $gs_output_hidden) = gs_strip_test_output($error_info);
         $view_reinfo = htmlentities(str_replace("\n\r", "\n", $error_info ?? ""), ENT_QUOTES, "UTF-8");
     }
 
@@ -100,6 +105,7 @@ if (($ok && $OJ_FRIENDLY_LEVEL > 2) ||
     else if ($error_info !== null && strpos($error_info, "PASS") !== false) $view_reinfo = $MSG_ERROR_INFO_HIDDEN . " (3)";
     else if ($OJ_SHOW_DIFF && $row && ($ok || $isRE) && ($OJ_TEST_RUN || is_valid($error_info) || $ok)) {
         $view_reinfo = htmlentities(str_replace("\n\r", "\n", $error_info ?? ""), ENT_QUOTES, "UTF-8");
+        if ($gs_output_hidden) $view_reinfo = (isset($MSG_TEST_OUTPUT_HIDDEN) ? $MSG_TEST_OUTPUT_HIDDEN : "") . "\n\n" . $view_reinfo;
 
         $view_reinfo .= "<br>$MSG_MARK:$mark";
 
