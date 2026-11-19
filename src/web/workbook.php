@@ -6,10 +6,10 @@ require_once('./include/const.inc.php');
 require_once('./include/setlang.php');
 require_once('./include/my_func.inc.php');
 require_once('./include/workbook.inc.php');
-$view_title = "문제집";
+$view_title = "코스";
 
 if (!wb_ready()) {
-    $view_errors = "문제집을 아직 쓸 수 없습니다. 관리자에게 문의하세요.";
+    $view_errors = "코스를 아직 쓸 수 없습니다. 관리자에게 문의하세요.";
     require("template/" . $OJ_TEMPLATE . "/error.php");
     exit(0);
 }
@@ -18,7 +18,7 @@ $wb_logged_in = isset($_SESSION[$OJ_NAME . '_' . 'user_id']);
 if (isset($_GET['id'])) {
     $wb = wb_get(intval($_GET['id']));
     if (!$wb) {
-        $view_errors = "해당 문제집이 없습니다.";
+        $view_errors = "해당 코스가 없습니다.";
         require("template/" . $OJ_TEMPLATE . "/error.php");
         exit(0);
     }

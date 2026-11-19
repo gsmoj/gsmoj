@@ -4,7 +4,7 @@
 	$MSG_BBS="Q&A";
 	$MSG_HOME="홈";
 	$MSG_PROBLEMS="문제";
-	$MSG_WORKBOOK="문제집";
+	$MSG_WORKBOOK="코스";
 	$MSG_STATUS="채점 현황";
 	$MSG_RANKLIST="순위";
 	$MSG_CONTEST="대회";

@@ -7,7 +7,7 @@ if (!isset($_SESSION[$OJ_NAME.'_'.'administrator'])) {
     exit(1);
 }
 if (!wb_ready()) {
-    echo "<div class='admin-content-page'><div class='alert alert-warning'>문제집 테이블이 아직 없습니다. <a href='update_db.php'>데이터베이스 업데이트</a>를 먼저 실행하세요.</div></div>";
+    echo "<div class='admin-content-page'><div class='alert alert-warning'>코스 테이블이 아직 없습니다. <a href='update_db.php'>데이터베이스 업데이트</a>를 먼저 실행하세요.</div></div>";
     exit(1);
 }
 $flash = isset($_SESSION[$OJ_NAME.'_'.'wb_flash']) ? $_SESSION[$OJ_NAME.'_'.'wb_flash'] : null;
@@ -17,7 +17,7 @@ $rows = pdo_query("SELECT w.`workbook_id`, w.`title`, w.`owner`, w.`updated_at`,
     FROM `workbook` w WHERE w.`defunct`='N' ORDER BY w.`workbook_id` DESC");
 if (!is_array($rows)) $rows = array();
 ?>
-<title>문제집 관리</title>
+<title>코스 관리</title>
 <style>
   .wb-table td, .wb-table th { vertical-align: middle !important; white-space: nowrap; }
   .wb-table td.wb-title { width: 100%; min-width: 220px; white-space: normal; }
@@ -27,11 +27,11 @@ if (!is_array($rows)) $rows = array();
 <div class="admin-content-page">
   <div class="admin-page-heading">
     <div>
-      <h3>문제집 관리</h3>
-      <p>문제를 원하는 순서로 묶어 학생에게 보여 줍니다(예: 기초 100제). 학생은 상단 메뉴의 "문제집"에서 순서대로 풀고 진행도를 확인합니다.</p>
+      <h3>코스 관리</h3>
+      <p>문제를 원하는 순서로 묶어 학생에게 보여 줍니다(예: 기초 100제). 학생은 상단 메뉴의 "코스"에서 순서대로 풀고 진행도를 확인합니다.</p>
     </div>
     <div class="admin-heading-actions">
-      <a class="btn btn-primary" href="workbook_edit.php">새 문제집</a>
+      <a class="btn btn-primary" href="workbook_edit.php">새 코스</a>
     </div>
   </div>
 
@@ -55,7 +55,7 @@ if (!is_array($rows)) $rows = array();
             </td>
           </tr>
         <?php } ?>
-        <?php if (!$rows) { ?><tr><td colspan="6" style="color:var(--admin-muted)">아직 문제집이 없습니다. "새 문제집"으로 만들어 보세요.</td></tr><?php } ?>
+        <?php if (!$rows) { ?><tr><td colspan="6" style="color:var(--admin-muted)">아직 코스가 없습니다. "새 코스"로 만들어 보세요.</td></tr><?php } ?>
         </tbody>
       </table>
     </div>

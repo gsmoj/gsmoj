@@ -35,7 +35,7 @@ function gs_admin_menu() {
     $items = array();
     if ($admin || $has('problem_editor') || $has('contest_creator')) $items[] = array("problem_list.php", "문제 목록");
     if ($admin || $has('problem_editor')) $items[] = array("problem_add_page.php", "문제 등록");
-    if ($admin) $items[] = array("workbook_list.php", "문제집 관리");
+    if ($admin) $items[] = array("workbook_list.php", "코스 관리");
     if ($admin || $has('problem_importer')) {
         $items[] = array("problem_import.php", "문제 가져오기");
         $items[] = array("problem_export.php", "문제 내보내기");
