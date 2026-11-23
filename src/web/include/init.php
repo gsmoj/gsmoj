@@ -225,3 +225,20 @@ function gs_is_hidden_admin($user_id){
 	global $GS_ADMIN_USERS;
 	return gs_hide_admin_submissions() && in_array((string)$user_id,$GS_ADMIN_USERS,true);
 }
+// 문제별로 관리자 계정이 낸 제출 수와 정답 수. 문제를 등록할 때 넣은 풀이가 정답·제출 수에 섞이지 않도록
+// 일반 사용자에게 보여 줄 때 이 값을 뺀다. 관리자가 보거나 관리자 계정이 없으면 빈 배열을 돌려준다.
+// $cid를 주면 그 대회에서 낸 제출만 센다. 반환값: array(problem_id => array(제출 수, 정답 수))
+function gs_admin_problem_counts($pids,$cid=null){
+	global $GS_ADMIN_IDS,$GS_ADMIN_USERS;
+	$counts=array();
+	if(!gs_hide_admin_submissions() || count($GS_ADMIN_USERS)==0) return $counts;
+	$pids=array_values(array_filter(array_map('intval',(array)$pids),function($p){ return $p>0; }));
+	if(count($pids)==0) return $counts;
+	$sql="SELECT problem_id,count(1) sub,sum(result=4) ac FROM solution WHERE user_id IN ($GS_ADMIN_IDS) AND problem_id IN (".implode(",",$pids).")";
+	if($cid!==null) $sql.=" AND contest_id=".intval($cid);
+	$rows=pdo_query($sql." GROUP BY problem_id");
+	if(is_array($rows)){
+		foreach($rows as $r) $counts[intval($r['problem_id'])]=array(intval($r['sub']),intval($r['ac']));
+	}
+	return $counts;
+}

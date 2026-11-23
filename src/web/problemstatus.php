@@ -73,26 +73,31 @@ $view_problem = array();
 /**
  * 统计问题的提交数据，包括总提交数、提交用户数、AC用户数等
  */
+// 관리자 계정의 제출(문제 등록 때 넣은 풀이 등)은 일반 사용자에게 보여 주는 통계에서 뺀다.
+$gs_hide_admin = gs_hide_admin_sql("user_id");
+
 // total submit
-$sql = "SELECT count(*) FROM solution WHERE problem_id=?";
+$sql = "SELECT count(*) FROM solution WHERE problem_id=? $gs_hide_admin";
 $result = pdo_query($sql, $id);
 $row = $result[0];
 $view_problem[0][0] = $MSG_SUBMIT;
 $view_problem[0][1] = $row[0];
-$sql = "update problem set submit=? where problem_id=?";
-pdo_query($sql, $row[0], $id);
+if ($gs_hide_admin === "") {  // 전체 제출을 센 경우에만 문제 표의 제출 수를 고친다.
+    $sql = "update problem set submit=? where problem_id=?";
+    pdo_query($sql, $row[0], $id);
+}
 
 $total = intval($row[0]);
 
 // total users
-$sql = "SELECT count(DISTINCT user_id) FROM solution WHERE problem_id=?";
+$sql = "SELECT count(DISTINCT user_id) FROM solution WHERE problem_id=? $gs_hide_admin";
 $result = pdo_query($sql, $id);
 $row = $result[0];
 $view_problem[1][0] = "$MSG_USER($MSG_SUBMIT)";
 $view_problem[1][1] = $row[0];
 
 // ac users
-$sql = "SELECT count(DISTINCT user_id) FROM solution WHERE problem_id=? AND result='4'";
+$sql = "SELECT count(DISTINCT user_id) FROM solution WHERE problem_id=? AND result='4' $gs_hide_admin";
 $result = pdo_query($sql, $id);
 $row = $result[0];
 $acuser = intval($row[0]);
@@ -104,7 +109,7 @@ $i = 3;
 /**
  * 统计各种评测结果的提交数量
  */
-$sql = "SELECT result, count(1) FROM solution WHERE problem_id=? AND result>=4 GROUP BY result ORDER BY result";
+$sql = "SELECT result, count(1) FROM solution WHERE problem_id=? AND result>=4 $gs_hide_admin GROUP BY result ORDER BY result";
 $result = pdo_query($sql, $id);
 
 foreach ($result as $row) {
@@ -113,7 +118,7 @@ foreach ($result as $row) {
 
     $view_problem_title[$i] = $jresult[$row[0]];
     $view_problem_number[$i] = $row[1];
-    if ($row[0] == 4) {
+    if ($row[0] == 4 && $gs_hide_admin === "") {
         $sql = "update problem set accepted=? where problem_id=?";
         pdo_query($sql, $row[1], $id);
     }
@@ -180,8 +185,7 @@ if (isset($_SESSION[$OJ_NAME . '_' . 'user_id'])) {
 /**
  * 查询AC该问题的用户解决方案，按时间和内存等综合评分排序
  */
-// 관리자 계정의 풀이는 관리자에게만 보인다.
-$gs_hide_admin = gs_hide_admin_sql("user_id");
+// 관리자 계정의 풀이는 관리자에게만 보인다($gs_hide_admin은 위에서 정했다).
 $sql = "SELECT * FROM (
   SELECT COUNT(*) att, user_id, min(10000000000000000000 + time*100000000000 + memory*100000 + code_length) score
   FROM solution

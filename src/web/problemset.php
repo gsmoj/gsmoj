@@ -187,6 +187,12 @@ if (isset($_SESSION[$OJ_NAME . '_' . 'administrator'])) {  // 수행평가 전�
  */
 pdo_query("SET sort_buffer_size = 1024*1024");   // Out of sort memory, consider increasing server sort buffer size
 $sql = "select `problem_id`,`title`,`source`,`submit`,`accepted`,defunct,coin FROM problem A WHERE $filter_sql $order_by $limit_sql ";
+// 일반 사용자에게는 관리자 계정의 제출(문제 등록 때 넣은 풀이 등)을 뺀 제출·정답 수를 보여 주고, 그 값으로 정렬한다.
+if (gs_hide_admin_submissions() && count($GS_ADMIN_USERS) > 0) {
+    $sql = "select * from (select A.`problem_id`,A.`title`,A.`source`,GREATEST(A.`submit`-IFNULL(G.gs_sub,0),0) `submit`,GREATEST(A.`accepted`-IFNULL(G.gs_ac,0),0) `accepted`,A.defunct,A.coin
+            FROM problem A LEFT JOIN (select problem_id gs_pid,count(1) gs_sub,sum(result=4) gs_ac from solution where user_id in ($GS_ADMIN_IDS) and problem_id>0 group by problem_id) G ON G.gs_pid=A.problem_id
+            WHERE $filter_sql) A $order_by $limit_sql ";
+}
 $count_sql = "select count(1) from problem where  $filter_sql ";
 //echo htmlentities( $sql);
 if (!empty($filter_params) || $view_filter != "") {

@@ -51,6 +51,8 @@ if (isset($_GET['cid'])) {
     $result = mysql_query_cache($sql);
     $view_problemset = array();
     $pids = array_column($result, 'problem_id');
+    // 일반 사용자에게는 관리자 계정이 이 대회에서 낸 제출을 뺀 정답·제출 수를 보여 준다.
+    $gs_admin_cnt = gs_admin_problem_counts($pids, $cid);
     if (!empty($pids)) $pids = implode(",", $pids);
     $cnt = 0;
 
@@ -128,8 +130,10 @@ if (isset($_GET['cid'])) {
             $view_problemset[$cnt][3] = "<span class=red>?</span>";
             $view_problemset[$cnt][4] = "<span class=red>?</span>";
         } else {
-            $view_problemset[$cnt][3] = $row['accepted'];
-            $view_problemset[$cnt][4] = $row['submit'];
+            $gs_sub = $gs_ac = 0;
+            if (isset($gs_admin_cnt[intval($row['problem_id'])])) list($gs_sub, $gs_ac) = $gs_admin_cnt[intval($row['problem_id'])];
+            $view_problemset[$cnt][3] = max(0, intval($row['accepted']) - $gs_ac);
+            $view_problemset[$cnt][4] = max(0, intval($row['submit']) - $gs_sub);
         }
 
 
