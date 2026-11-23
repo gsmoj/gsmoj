@@ -166,6 +166,15 @@ if (count($result) != 1) {
     $row = $result[0];
     $view_title = $row['title'];
 }
+// 일반 사용자에게는 관리자 계정의 제출(문제 등록 때 넣은 풀이 등)을 뺀 제출·정답 수를 보여 준다.
+if (isset($row['problem_id'])) {
+    $gs_admin_cnt = gs_admin_problem_counts(array($row['problem_id']));
+    if (isset($gs_admin_cnt[intval($row['problem_id'])])) {
+        list($gs_sub, $gs_ac) = $gs_admin_cnt[intval($row['problem_id'])];
+        $row['submit'] = max(0, intval($row['submit']) - $gs_sub);
+        $row['accepted'] = max(0, intval($row['accepted']) - $gs_ac);
+    }
+}
 $flag = false;
 if (isset($OJ_NOIP_KEYWORD) && $OJ_NOIP_KEYWORD) {
     // 현재 문제가 NOIP 모드 대회에 쓰이는지 확인하고, 쓰이면 정답 수를 표시하지 않는다. 2020.7.11 by ivan_zhou
