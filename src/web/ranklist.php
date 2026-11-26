@@ -116,6 +116,9 @@ if (!$scope && $rows_cnt > 0) {
     foreach ($result as $k => $r) $result[$k]['submit'] = isset($gs_counts[$r['user_id']]) ? $gs_counts[$r['user_id']] : 0;
 }
 $view_rank = array();
+// 기간별 순위에서도 티어는 전체 맞힌 문제 수 기준으로 표시한다. 순위 열이 있으므로 배지에는 순위를 넣지 않는다.
+require_once('./include/tier.inc.php');
+if ($result) gs_tier_prefetch(array_column($result, 'user_id'));
 $i = 0;
 for ($i = 0; $i < $rows_cnt; $i++) {
 
@@ -126,6 +129,7 @@ for ($i = 0; $i < $rows_cnt; $i++) {
     $view_rank[$i][0] = $rank;
     $view_rank[$i][1] = "<a href='userinfo.php?user=" . htmlentities($row['user_id'], ENT_QUOTES, "UTF-8") . "'>" . $row['user_id'] . "</a>";
     if (isset($row['starred']) && $row['starred'] > 0) $view_rank[$i][1] = "⭐" . $view_rank[$i][1] . "<span title='같은 이름의 계정으로 hustoj 프로젝트에 별을 주면 이 별이 켜집니다' >⭐</span>";     //github starred rewarding
+    $view_rank[$i][1] .= gs_user_tier_badge($row['user_id'], false);
     $view_rank[$i][2] = "<div class=center>" . htmlentities($row['nick'], ENT_QUOTES, "UTF-8") . "</div>";
     $view_rank[$i][3] = "<div class=center>" . htmlentities($row['group_name'], ENT_QUOTES, "UTF-8") . "</div>";
     $view_rank[$i][4] = "<div class=center><a href='status.php?user_id=" . htmlentities($row['user_id'], ENT_QUOTES, "UTF-8") . "&jresult=4'>" . $row['solved'] . "</a>" . "</div>";

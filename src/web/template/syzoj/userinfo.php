@@ -499,40 +499,24 @@
 }
 </style>
 <?php
-    $calsed = '비단잉어'; // 锦鲤 -> 행운의 비단잉어 (예외 최고 등급)
-    $calledid = -1;
-    $acneed = [10,20,30,50,80,100,200,300,500,800,1000];
-
-    // 💡 [티어 번역] 한국 정서에 맞춘 알고리즘 티어 명칭 맵핑
-    $accall = ["뉴비", "초보", "중수", "고수", "치터킬러", "킹", "마스터", "그랜드마스터", "신", "올림피아드 갓"];
-    for ($i = count($accall);$i > 0; $i--) {
-        if ($AC < $acneed[$i]) {$calsed = $accall[$i - 1];$calledid=$i-1;}
-    }
-
+    // 티어 명칭·기준·색상은 include/tier.inc.php에서 공통으로 관리한다.
+    require_once(dirname(__FILE__)."/../../include/tier.inc.php");
+    $gs_tier = gs_tier($AC);
+    $calsed = $gs_tier['name'];
+    $tier_now = $gs_tier['index'];
     // 아이콘, Semantic 색상, 글자색, 배경색
-    $tier_icons = [
-        ['leaf', 'olive', '#5c7a1a', '#eef5d8'],
-        ['paw', 'green', '#1e7f4a', '#dcf3e5'],
-        ['bolt', 'teal', '#0d7a76', '#d7f1ef'],
-        ['fire', 'orange', '#b45309', '#fdebd3'],
-        ['shield alternate', 'blue', '#1d5fb8', '#dbeafe'],
-        ['chess king', 'violet', '#6d3fc0', '#ece4fb'],
-        ['graduation cap', 'purple', '#8a2fb0', '#f3e1fa'],
-        ['gem', 'pink', '#b4235f', '#fbe0ec'],
-        ['sun', 'yellow', '#a16207', '#fdf1c4'],
-        ['trophy', 'red', '#b42318', '#fde2e0'],
-        ['certificate', 'yellow', '#a16207', '#fdf1c4'],
-    ];
-    $tier_names = array_merge($accall, ['비단잉어']);
-    $tier_now = $calledid < 0 ? count($accall) : $calledid;
+    $tier_icons = [];
+    $tier_names = [];
+    foreach (gs_tier_list() as $gs_t) {
+        $tier_icons[] = [$gs_t[2], $gs_t[3], $gs_t[4], $gs_t[5]];
+        $tier_names[] = $gs_t[1];
+    }
     $tier_cur = $tier_icons[$tier_now];
-    if ($calledid < 0) {
+    if ($gs_tier['to'] === null) {
         $tier_pct = 100;
     } else {
-        $tier_from = $calledid == 0 ? 0 : $acneed[$calledid];
-        $tier_to = $acneed[$calledid + 1];
-        $tier_pct = max(0, min(100, round(($AC - $tier_from) / ($tier_to - $tier_from) * 100)));
-        $tier_next = $tier_names[$calledid + 1];
+        $tier_pct = max(0, min(100, round(($AC - $gs_tier['from']) / ($gs_tier['to'] - $gs_tier['from']) * 100)));
+        $tier_next = $gs_tier['next'];
     }
 
     date_default_timezone_set('Asia/Seoul'); // 💡 타임존을 PRC(중국)에서 Asia/Seoul(한국)로 변경
@@ -574,6 +558,7 @@
             <div class="up-nick-row">
                 <h1 class="up-nick"><?php echo $nick?></h1>
                 <span class="up-badge" style="color:<?php echo $tier_cur[2] ?>;background:<?php echo $tier_cur[3] ?>"><i class="<?php echo $tier_cur[1] . ' ' . $tier_cur[0] ?> icon"></i><?php echo $calsed ?></span>
+                <span class="up-badge" style="color:#a16207;background:#fdf1c4" title="문제풀이 순위"><i class="trophy icon"></i>#<?php echo $Rank ?>위</span>
             </div>
             <?php if ($school != "") { ?>
             <div class="up-school"><i class="blue graduation cap icon"></i><?php echo $school?></div>
@@ -601,8 +586,8 @@
         <div class="up-progress">
             <div class="up-progress-top">
                 <span class="up-progress-name"><?php echo $calsed ?></span>
-                <?php if ($calledid >= 0) { ?>
-                <span class="up-progress-next"><?php echo $tier_next ?>까지 <b><?php echo $tier_pct ?>%</b> · AC <?php echo $acneed[$calledid+1]-$AC ?>개 남음</span>
+                <?php if ($gs_tier['to'] !== null) { ?>
+                <span class="up-progress-next"><?php echo $tier_next ?>까지 <b><?php echo $tier_pct ?>%</b> · AC <?php echo $gs_tier['to']-$AC ?>개 남음</span>
                 <?php } else { ?>
                 <span class="up-progress-next">최고 등급입니다</span>
                 <?php } ?>

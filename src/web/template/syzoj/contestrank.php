@@ -39,6 +39,11 @@
 		else
 			$tag="div";
 				
+              // 참가자 옆 티어 배지. 대회 순위와 헷갈리지 않도록 전체 순위는 넣지 않는다.
+              require_once(dirname(__FILE__)."/../../include/tier.inc.php");
+              $gs_tier_ids=array();
+              for ($i=0;$i<$user_cnt;$i++) $gs_tier_ids[]=$U[$i]->user_id;
+              gs_tier_prefetch($gs_tier_ids);
               for ($i=0;$i<$user_cnt;$i++){
                 $uuid=$U[$i]->user_id;
                 $nick=$U[$i]->nick;
@@ -66,7 +71,7 @@
                   echo "<td bgcolor=#ffff77>";
                 else
                   echo "<td>";
-                  echo "<a name=\"$uuid\" href=userinfo.php?user=$uuid>$uuid</a>";
+                  echo "<a name=\"$uuid\" href=userinfo.php?user=$uuid>$uuid</a>".gs_user_tier_badge($uuid, false);
                 echo "</td>";
                 
                 echo "<td>";

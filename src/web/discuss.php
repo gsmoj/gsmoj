@@ -138,7 +138,7 @@ echo "<title>$MSG_BBS</title>";
                 if ($row['author_id'] == "admin") {
                     echo "<td>admin</td>";
                 } else {
-                    echo "<td><a href=\"../userinfo.php?user={$row['author_id']}\">{$row['author_id']}</a></td>";
+                    echo "<td><a href=\"../userinfo.php?user={$row['author_id']}\">{$row['author_id']}</a>" . gs_user_tier_badge($row['author_id']) . "</td>";
                 }
 
                 echo "<td>";

@@ -48,7 +48,7 @@ $isadmin = isset($_SESSION[$OJ_NAME . '_' . 'administrator']);
 
                         <a name=post<?php echo $row['rid']; ?>></a>
                         <div style="display:inline;text-align:left; float:left; margin:0 10px"><a
-                                    href="userinfo.php?user=<?php echo $row['author_id'] ?>"><?php echo $row['author_id']; ?> </a>
+                                    href="userinfo.php?user=<?php echo $row['author_id'] ?>"><?php echo $row['author_id']; ?> </a><?php echo gs_user_tier_badge($row['author_id']); ?>
                             @ <?php echo $row['time']; ?></div>
                         <div class="mon" style="display:inline;text-align:right; float:right">
                             <?php if (isset($_SESSION[$OJ_NAME . '_' . 'administrator'])) { ?>

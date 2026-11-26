@@ -1,6 +1,7 @@
 <?php $show_title=$id." - $MSG_SOURCE_CODE - $OJ_NAME"; ?>
 <?php include("template/$OJ_TEMPLATE/header.php");?>
 <div class="padding">
+<?php if ($ok==true) echo gs_resubmit_button(isset($gs_resubmit_url) ? $gs_resubmit_url : ''); ?>
 <link href='<?php echo $OJ_CDN_URL?>highlight/styles/shCore.css' rel='stylesheet' type='text/css'/>
 <link href='<?php echo $OJ_CDN_URL?>highlight/styles/shThemeDefault.css' rel='stylesheet' type='text/css'/>
 <script src='<?php echo $OJ_CDN_URL?>highlight/scripts/shCore.js' type='text/javascript'></script>

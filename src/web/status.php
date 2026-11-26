@@ -282,6 +282,10 @@ if (!isset($cid) && !empty($result)) {
     }
 }
 
+// 사용자 옆 티어·순위 배지를 위해 화면에 나오는 사용자 정보를 한 번에 읽어 둔다.
+require_once('./include/tier.inc.php');
+if (!empty($result)) gs_tier_prefetch(array_column($result, 'user_id'));
+
 $last = 0;
 // 평균 대기: 화면에 보이는 50건이 아니라 최근 30분 제출 전체 기준(관리자 모니터와 동일)으로 계산한다.
 // 필터·재채점 기록에 따라 값이 달라지지 않도록 한 번만 조회한다.
@@ -323,6 +327,7 @@ for ($i = 0; $i < $rows_cnt; $i++) {
         else
             $view_status[$i][1] = "<a href='userinfo.php?user=" . $row['user_id'] . "' title='" . $row['nick'] . "'>" . $row['user_id'] . "</a>";
     }
+    $view_status[$i][1] .= gs_user_tier_badge($row['user_id']);
     
     // 깃허브 스타(Star)처럼 오픈소스 기여 유저 요소를 표시하기 위한 특별 별 표시 처리
     if (isset($row['starred']) && $row['starred'] > 0) {

@@ -88,6 +88,7 @@ body{
   }
   .editor-tool-button:hover { color:#1d4ed8; border-color:#93b4e8; background:#fff; }
   .editor-tool-button .icon { margin:0 !important; }
+  .editor-tool-button.is-off { color:#94a3b8; border-style:dashed; }
   body::after { border-top-color:#d6dee9; background:#edf2f7; backdrop-filter:none; }
   #Submit { background:#2563eb !important; box-shadow:0 2px 8px rgba(37,99,235,.24) !important; }
   #Submit:hover { background:#1d4ed8 !important; }
@@ -114,6 +115,7 @@ body{
   body.editor-dark #source .ace_gutter { background:#1f201b !important; color:#9ca3af !important; }
   body.editor-dark #language_span, body.editor-dark::after { border-color:#334155 !important; background:#1f2937 !important; color:#e5e7eb !important; }
   body.editor-dark #language, body.editor-dark .editor-tool-button { border-color:#475569; background:#111827; color:#e5e7eb; }
+  body.editor-dark .editor-tool-button.is-off { color:#64748b; }
   body.editor-dark #countDown { color:#cbd5e1; }
 <?php if(isset($_GET['spa'])){ ?>
   #language_span, #Submit, #countDown, .submission-problem-label { display:none !important; }
@@ -171,6 +173,7 @@ echo"<option value=$i ".( $lastlang==$i?"selected":"").">
   <button type="button" class="editor-tool-button" onclick="toggleTheme(event)" title="편집기 테마 전환"><i class="adjust icon"></i></button>
   <button type="button" class="editor-tool-button" onclick="increaseFontSize(event)" title="글자 확대"><i class="plus icon"></i></button>
   <button type="button" class="editor-tool-button" onclick="decreaseFontSize(event)" title="글자 축소"><i class="minus icon"></i></button>
+  <button type="button" class="editor-tool-button" id="autocompleteToggle" onclick="toggleAutocomplete(event)" title="자동완성 켜기/끄기" aria-pressed="true"><i class="magic icon"></i></button>
 </span>
 <?php } ?>
 <?php if($OJ_VCODE){?>
@@ -790,12 +793,22 @@ function loadFromBlockly(){
 <script src="<?php echo $OJ_CDN_URL?>ace/ext-language_tools.js"></script>
 <script>
     ace.require("ace/ext/language_tools");
+    // Enter는 항상 줄바꿈으로 쓰고, 자동완성 후보는 Tab으로만 고르게 한다.
+    // 자동완성 창이 처음 만들어지기 전에 바꿔야 하므로 ace.edit보다 먼저 둔다.
+    (function(){
+        var Autocomplete = ace.require("ace/autocomplete").Autocomplete;
+        if (!Autocomplete || !Autocomplete.prototype.commands) return;
+        var passEnter = function(ed){ ed.completer.detach(); return false; };  // false를 돌려주면 기본 줄바꿈이 실행된다.
+        Autocomplete.prototype.commands["Return"] = passEnter;
+        Autocomplete.prototype.commands["Shift-Return"] = passEnter;
+    })();
     var editor = ace.edit("source");
     var savedEditorTheme = localStorage.getItem('gsmoj_editor_theme');
+    var gsAutocompleteOn = localStorage.getItem('gsmoj_editor_autocomplete') !== 'off';  // 도구 모음의 자동완성 버튼으로 켜고 끈다.
     editor.setOptions({
-        enableBasicAutocompletion: true,
-        enableSnippets: true,
-        enableLiveAutocompletion: true,  // true면 자동완성을 켜고, false면 끈다.
+        enableBasicAutocompletion: gsAutocompleteOn,
+        enableSnippets: gsAutocompleteOn,
+        enableLiveAutocompletion: gsAutocompleteOn,
         // fontFamily: "Consolas",  // MacOS missing align
 	// theme: "ace/theme/ambiance",   // Black theme
         fontSize: "18px",
@@ -850,6 +863,7 @@ editor.getSession().on("change", function() {
 
 	}
 	if(typeof(editor) != "undefined") editor.resize();
+	applyAutocomplete(gsAutocompleteOn);
 	window.setInterval('autoSave();',5000);
 	$("body").dblclick(function(){
                  if (event.ctrlKey==1) formatCode();
@@ -888,6 +902,29 @@ editor.getSession().on("change", function() {
     const themeName = currentTheme === 'monokai' ? 'xcode' : 'monokai';
     applyEditorTheme(themeName);
 }
+
+   // 자동완성 켜기/끄기. 설정은 브라우저에 저장되고, 문제 화면의 도구 버튼 상태도 함께 바꾼다.
+   function applyAutocomplete(on) {
+    gsAutocompleteOn = !!on;
+    editor.setOptions({
+        enableBasicAutocompletion: gsAutocompleteOn,
+        enableSnippets: gsAutocompleteOn,
+        enableLiveAutocompletion: gsAutocompleteOn
+    });
+    if (!gsAutocompleteOn && editor.completer) editor.completer.detach();
+    localStorage.setItem('gsmoj_editor_autocomplete', gsAutocompleteOn ? 'on' : 'off');
+    const title = gsAutocompleteOn ? '자동완성 켜짐 (Tab으로 선택, 누르면 끄기)' : '자동완성 꺼짐 (누르면 켜기)';
+    $('#autocompleteToggle').toggleClass('is-off', !gsAutocompleteOn).attr('title', title).attr('aria-pressed', gsAutocompleteOn ? 'true' : 'false');
+    if (window.parent !== window && typeof window.parent.setProblemWorkspaceAutocomplete === 'function') {
+        window.parent.setProblemWorkspaceAutocomplete(gsAutocompleteOn);
+    }
+   }
+
+   function toggleAutocomplete(event) {
+    if (event) event.preventDefault();
+    applyAutocomplete(!gsAutocompleteOn);
+    editor.focus();
+   }
 
 	var level = 0;
 var LOOP_SIZE = 100;
