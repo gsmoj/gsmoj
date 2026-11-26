@@ -57,7 +57,7 @@ $isadmin = isset($_SESSION[$OJ_NAME . '_' . 'administrator']);
                     if ($row['author_id'] == "admin") {
                         echo "admin";
                     } else {
-                        echo "<a href='../userinfo.php?user={$row['author_id']}'>{$row['author_id']}</a>";
+                        echo "<a href='../userinfo.php?user={$row['author_id']}'>{$row['author_id']}</a>" . gs_user_tier_badge($row['author_id']);
                     }
                     ?>
                 </td>

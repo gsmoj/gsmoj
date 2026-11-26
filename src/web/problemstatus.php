@@ -16,6 +16,7 @@ require_once('./include/setlang.php');
 $view_title = "$OJ_NAME";
 
 require_once("./include/const.inc.php");
+require_once("./include/tier.inc.php");
 
 // 获取问题ID和页面参数
 if (isset($_GET['id']))
@@ -228,7 +229,7 @@ foreach ($result as $row) {
     if (intval($row['att']) > 1)
         $view_solution[$j][1] .= "(" . $row['att'] . ")";
 
-    $view_solution[$j][2] = "<a href='userinfo.php?user=" . $row['user_id'] . "'>" . $row['user_id'] . "</a>";
+    $view_solution[$j][2] = "<a href='userinfo.php?user=" . $row['user_id'] . "'>" . $row['user_id'] . "</a>" . gs_user_tier_badge($row['user_id']);
 
     if ($flag)
         $view_solution[$j][3] = "$s_memory KiB";

@@ -282,9 +282,12 @@ $view_month_rank=mysql_query_cache("select user_id,nick,count(distinct(problem_i
                 <table class="ui very basic center aligned table" style="table-layout: fixed; ">
                     <tbody>
         <?php
+                            // 좁은 칸이라 티어 아이콘만 표시하고, 티어 이름은 마우스를 올리면 보이게 한다.
+                            require_once(dirname(__FILE__)."/../../include/tier.inc.php");
+                            gs_tier_prefetch(array_column($view_month_rank, 0));
                             foreach ( $view_month_rank as $row ) {
                                     echo "<tr>".
-                                            "<td><a target='_blank' href='userinfo.php?user=".htmlentities($row[0],ENT_QUOTES,"UTF-8")."'>".htmlentities($row[0],ENT_QUOTES,"UTF-8")."</a></td>".
+                                            "<td><a target='_blank' href='userinfo.php?user=".htmlentities($row[0],ENT_QUOTES,"UTF-8")."'>".htmlentities($row[0],ENT_QUOTES,"UTF-8")."</a>".gs_user_tier_badge($row[0], false, false)."</td>".
                                             "<td>".($row[1])."</td>".
                                             "<td>".($row[2])."</td>".
                                             "</tr>";

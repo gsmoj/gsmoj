@@ -357,7 +357,7 @@
             align-items: center;
             gap: 8px;
             min-height: 0;
-            max-width: 180px;
+            max-width: 280px;
             padding: 4px 0;
             border: 0;
             background: transparent;
@@ -381,6 +381,7 @@
             font-weight: 600;
         }
         .gs-user-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .gs-user-button .gs-tier { flex: 0 0 auto; margin-left: 0; font-size: 12px; }
         .gs-auth { display: flex; align-items: center; gap: 8px; }
         .gs-auth a {
             display: inline-flex;
@@ -422,7 +423,8 @@
             .gs-search { flex-basis: 180px; width: 180px; margin-right: 8px; }
             .gs-search input[type="search"] { padding-right: 12px !important; }
             .gs-search kbd { display: none; }
-            .gs-user-button { max-width: 130px; }
+            .gs-user-button { max-width: 190px; }
+            .gs-user-button .gs-tier-name { display: none; }
         }
 
         @media (max-width: 991px) {
@@ -653,6 +655,11 @@
                     <button type="button" class="gs-user-button" aria-haspopup="true">
                         <span class="gs-avatar" aria-hidden="true"><?php echo htmlentities(mb_substr($gs_user_name, 0, 1, 'UTF-8'), ENT_QUOTES, 'UTF-8')?></span>
                         <span class="gs-user-name"><?php echo htmlentities($gs_user_name, ENT_QUOTES, 'UTF-8')?></span>
+                        <?php
+                          // 내 티어와 문제풀이 순위를 이름 옆에 표시한다.
+                          require_once(dirname(__FILE__)."/../../include/tier.inc.php");
+                          echo gs_user_tier_badge($gs_user_id);
+                        ?>
                     </button>
                     <div class="gs-dropdown">
                         <div class="gs-user-meta">

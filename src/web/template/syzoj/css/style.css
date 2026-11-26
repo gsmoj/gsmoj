@@ -370,3 +370,9 @@ textarea:focus {
     display: none;
   }
 }
+
+/* 사용자 티어·순위 배지 (include/tier.inc.php) */
+.gs-tier { display:inline-flex; align-items:center; gap:.2em; margin-left:.35em; padding:.1em .45em; border-radius:999px; font-size:.78em; font-weight:600; line-height:1.5; white-space:nowrap; vertical-align:middle; }
+.gs-tier > i.icon { margin:0 !important; height:auto; font-size:.95em; }
+.gs-tier-rank { opacity:.8; font-weight:700; }
+.gs-tier-name + .gs-tier-rank { margin-left:.15em; }

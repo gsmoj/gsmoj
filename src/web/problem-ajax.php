@@ -24,7 +24,8 @@ $result = mysql_query_cache($sql, "p" . $pid);
 
 if ($result) {
     $row = $result[0];
-    echo "<a href='userinfo.php?user=" . htmlentities($row['user_id']) . "'>" . htmlentities($row['user_id']) . "</a>";
+    require_once('./include/tier.inc.php');
+    echo "<a href='userinfo.php?user=" . htmlentities($row['user_id']) . "'>" . htmlentities($row['user_id']) . "</a>" . gs_user_tier_badge($row['user_id']);
 } else {
     echo "$MSG_IMPORTED";
 }
