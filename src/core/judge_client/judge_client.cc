@@ -208,6 +208,7 @@ static char http_username[BUFFER_SIZE/10];
 static char http_password[BUFFER_SIZE/10];
 static int http_download = 1;
 static double cpu_compensation = 1.0;
+static double python_time_factor = 1.0; // Python 시간 제한 배수(1이면 기존과 같다)
 
 static int shm_run = 0;
 
@@ -604,6 +605,7 @@ void load_conf(const char * judge_path ,int sys ){
 			read_int(buf, "OJ_INTERNAL_MARK", &internal_mark);
 			read_int(buf, "OJ_TURBO_MODE", &turbo_mode);
 			read_double(buf, "OJ_CPU_COMPENSATION", &cpu_compensation);
+			read_double(buf, "OJ_PYTHON_TIME_FACTOR", &python_time_factor);
 			read_int(buf, "OJ_COPY_DATA", &copy_data);
 			read_buf(buf, "OJ_CC_STD", cc_std);
 			read_buf(buf, "OJ_CPP_STD", cpp_std);
@@ -4281,6 +4283,11 @@ int main(int argc, char **argv)
 
 	get_solution(solution_id, work_dir, lang,p_id);
 
+	// Python은 정해도 C/C++보다 느리므로 문제 시간 제한에 배수를 곱한다. 아래 VM 언어 추가 시간은 그대로 더해진다.
+	if (lang == LANG_PYTHON && python_time_factor > 1.0)
+	{
+		time_lmt = time_lmt * python_time_factor;
+	}
 	//java and other VM language are lucky to have the global bonus in judge.conf
 	if (lang >= LANG_JAVA && lang != LANG_OBJC && lang != LANG_CLANG && lang != LANG_CLANGPP  && lang != LANG_GO )
 	{ //ObjectivC Clang Clang++ Go not VM or Script

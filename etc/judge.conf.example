@@ -14,6 +14,8 @@ OJ_MOD=0
 #Java and Other VM language bonus
 OJ_JAVA_TIME_BONUS=2
 OJ_JAVA_MEMORY_BONUS=64
+#Python time limit factor: Python gets (problem time limit x factor) + OJ_JAVA_TIME_BONUS. 1 = disabled
+OJ_PYTHON_TIME_FACTOR=2
 #JVM Compiler Settings
 OJ_JAVA_XMS=-Xms64M
 OJ_JAVA_XMX=-Xmx128M
