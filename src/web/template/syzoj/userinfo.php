@@ -556,7 +556,8 @@
     }
     $stat_max = 0;
     foreach ($view_userstat as $row) $stat_max = max($stat_max, $row[1]);
-    $stat_rate = $stat_total ? round($stat_ac / $stat_total * 100, 1) : 0;
+    // 정답률 = 푼 문제 수(같은 문제를 여러 번 맞혀도 1번) ÷ 실제 제출 횟수
+    $stat_rate = $stat_total ? round(min($AC, $stat_total) / $stat_total * 100, 1) : 0;
 
     $up_initial = '';
     if (preg_match('/^./u', trim($nick), $m)) $up_initial = $m[0];

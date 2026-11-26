@@ -103,6 +103,18 @@ if (!empty($param)) {
 }
 if ($result) $rows_cnt = count($result);
 else $rows_cnt = 0;
+// 기본 순위의 users.submit은 채점기가 "시도한 문제 수"로 저장하므로, 정답률이 거의 100%로 보인다.
+// 화면에 보이는 사용자의 실제 제출 횟수를 제출 기록에서 세어 "제출" 칸과 정답률(푼 문제 수 ÷ 실제 제출 횟수)에 쓴다.
+// 기간별 순위(scope)는 이미 실제 제출 횟수로 세므로 그대로 둔다.
+if (!$scope && $rows_cnt > 0) {
+    $gs_ids = array();
+    foreach ($result as $r) $gs_ids[] = $r['user_id'];
+    $gs_in = implode(",", array_fill(0, count($gs_ids), "?"));
+    $gs_counts = array();
+    $gs_rows = pdo_query("SELECT `user_id`, count(1) AS `cnt` FROM `solution` WHERE `user_id` IN ($gs_in) AND `problem_id`>0 GROUP BY `user_id`", $gs_ids);
+    if (is_array($gs_rows)) foreach ($gs_rows as $r) $gs_counts[$r['user_id']] = intval($r['cnt']);
+    foreach ($result as $k => $r) $result[$k]['submit'] = isset($gs_counts[$r['user_id']]) ? $gs_counts[$r['user_id']] : 0;
+}
 $view_rank = array();
 $i = 0;
 for ($i = 0; $i < $rows_cnt; $i++) {
