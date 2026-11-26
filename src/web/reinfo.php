@@ -51,6 +51,8 @@ if (!is_array($result) || count($result) == 0) {
     exit(0);
 }
 $row = $result[0];
+require_once('./include/resubmit.inc.php');
+$gs_resubmit_url = gs_resubmit_url($row);
 $lang = $row['language'];
 $contest_id = intval($row['contest_id']);
 if ($contest_id > 0) $_GET["cid"] = $cid = $contest_id;

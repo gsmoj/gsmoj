@@ -64,6 +64,7 @@ td > code {
 
 </style>
 <div class="padding">
+    <?php echo gs_resubmit_button(isset($gs_resubmit_url) ? $gs_resubmit_url : ''); ?>
     <div style="margin-top: 0px; margin-bottom: 14px; " v-if="content != null && content !== ''">
     <p class="transition visible">
            <strong ><?php echo "$MSG_ERROR_INFO";?> </strong>

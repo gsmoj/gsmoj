@@ -17,6 +17,8 @@ $id = intval($_GET['id']);
 $sql = "SELECT * FROM `solution` WHERE `solution_id`=?";
 $result = pdo_query($sql, $id);
 $row = $result[0];
+require_once('./include/resubmit.inc.php');
+$gs_resubmit_url = gs_resubmit_url($row);
 $slanguage = $row['language'];
 $sresult = $row['result'];
 $stime = $row['time'];

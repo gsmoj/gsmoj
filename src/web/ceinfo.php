@@ -53,6 +53,8 @@ $id = intval($_GET['sid']);
 $sql = "SELECT * FROM `solution` WHERE `solution_id`=?";
 $result = pdo_query($sql, $id);
 $row = $result[0];
+require_once('./include/resubmit.inc.php');
+$gs_resubmit_url = gs_resubmit_url($row);
 
 // 检查比赛是否被锁定
 if (contest_locked($row['contest_id'], 256))

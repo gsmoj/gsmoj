@@ -167,6 +167,7 @@ $MSG_HINT="도움";
 	$MSG_PYTHON_TIME_FACTOR="Python은 시간제한 %s배";
 	$MSG_Memory_Limit="메모리제한";
 	$MSG_EDIT="수정";
+	$MSG_RESUBMIT="코드 수정 후 재제출";
 	$MSG_TESTDATA="채점 데이터";
 	$MSG_CLICK_VIEW_HINT="힌트보기";
 

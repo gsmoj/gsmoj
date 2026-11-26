@@ -376,3 +376,6 @@ textarea:focus {
 .gs-tier > i.icon { margin:0 !important; height:auto; font-size:.95em; }
 .gs-tier-rank { opacity:.8; font-weight:700; }
 .gs-tier-name + .gs-tier-rank { margin-left:.15em; }
+/* 채점 결과·소스 보기의 재제출 버튼 (include/resubmit.inc.php) */
+.gs-resubmit-bar { display:flex; justify-content:flex-end; margin:0 0 14px; }
+.gs-resubmit-bar .ui.button { margin:0; }

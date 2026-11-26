@@ -5,6 +5,7 @@
 <link href='<?php echo $OJ_CDN_URL?>highlight/styles/shCore.css' rel='stylesheet' type='text/css'/>
 <link href='<?php echo $OJ_CDN_URL?>highlight/styles/shThemeDefault.css' rel='stylesheet' type='text/css'/>
 <div class="padding">
+    <?php echo gs_resubmit_button(isset($gs_resubmit_url) ? $gs_resubmit_url : ''); ?>
     <div style="margin-top: 0px; margin-bottom: 14px; padding-bottom: 0px; " >
         <p class="transition visible">
            <strong ><?php echo $MSG_SOURCE_CODE ?></strong>
