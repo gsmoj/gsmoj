@@ -12,10 +12,11 @@
 .wb-row-count { flex:0 0 auto; min-width:5.5em; color:#6b7280; font-size:13px; text-align:right; white-space:nowrap; }
 .wb-row-count b { color:#111827; font-weight:600; }
 .wb-row-progress { display:flex; flex:0 0 200px; align-items:center; gap:10px; }
-.wb-track { flex:1 1 auto; height:6px; overflow:hidden; border-radius:999px; background:#eceef1; }
+.wb-track { display:block; flex:1 1 auto; height:6px; overflow:hidden; border-radius:999px; background:#eceef1; }
 .wb-fill { height:100%; border-radius:inherit; background:#2563eb; }
 .wb-fill.is-done { background:#16a34a; }
-.wb-row-progress span { min-width:4.5em; color:#374151; font-size:13px; text-align:right; white-space:nowrap; font-variant-numeric:tabular-nums; }
+/* 막대 안의 span(.wb-track, .wb-fill)에는 걸리지 않도록 "푼 수 / 전체" 글자 칸에만 준다. */
+.wb-row-solved { flex:0 0 auto; min-width:4.5em; color:#374151; font-size:13px; text-align:right; white-space:nowrap; font-variant-numeric:tabular-nums; }
 .wb-row-arrow { flex:0 0 auto; color:#c5cad1; font-size:18px; line-height:1; }
 @media (max-width:767px) {
   /* 좁은 화면에서는 제목·설명을 윗줄에, 문제 수·진행도를 아랫줄에 둔다. */
@@ -55,7 +56,7 @@
       <?php if ($wb_logged_in) { ?>
       <span class="wb-row-progress" title="<?php echo $pct?>% 해결">
         <span class="wb-track"><span class="wb-fill<?php if ($b['total'] > 0 && $b['solved'] >= $b['total']) echo ' is-done'?>" style="display:block; width:<?php echo $pct?>%"></span></span>
-        <span><?php echo $b['solved']?> / <?php echo $b['total']?></span>
+        <span class="wb-row-solved"><?php echo $b['solved']?> / <?php echo $b['total']?></span>
       </span>
       <?php } ?>
       <span class="wb-row-arrow" aria-hidden="true">&rsaquo;</span>
