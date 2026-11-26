@@ -462,6 +462,7 @@ body.problem-split-active .problem-split-shell *::after { transition:none !impor
 .workspace-tool-button { width:40px; padding:0; color:#475569; border:1px solid #c3cedb; background:#fff; }
 .workspace-tool-button:hover { color:#1d4ed8; border-color:#8eadd8; }
 .workspace-tool-button .icon { margin:0 !important; }
+.workspace-tool-button.is-off { color:#94a3b8; border-style:dashed; }
 #workspaceSubmit { min-width:112px; padding:0 22px; color:#fff; border:1px solid #2563eb; background:#2563eb; }
 #workspaceSubmit:hover { border-color:#1d4ed8; background:#1d4ed8; }
 #workspaceRun { min-width:88px; padding:0 18px; color:#fff; border:1px solid #16a34a; background:#16a34a; }
@@ -485,6 +486,7 @@ body.problem-workspace-dark .workspace-run-result { color:#e2e8f0; }
 body.problem-workspace-dark .workspace-run-result:empty::before { color:#64748b; }
 body.problem-workspace-dark #workspaceLanguage,
 body.problem-workspace-dark .workspace-tool-button { color:#e5e7eb; border-color:#475569; background:#111827; }
+body.problem-workspace-dark .workspace-tool-button.is-off { color:#64748b; }
 body.problem-workspace-dark #main .ui.header,
 body.problem-workspace-dark #main .font-content,
 body.problem-workspace-dark #main p,
@@ -710,7 +712,7 @@ $(document).ready(function() {
     $('body').addClass('problem-split-active');
     shell.addClass('problem-split-shell');
     main.removeClass('container').addClass('problem-split-pane');
-    shell.prepend("<header id='workspaceTopBar'><div class='workspace-controls'><label class='workspace-language-label' for='workspaceLanguage'>언어</label><select id='workspaceLanguage' aria-label='제출 언어 선택'></select><button type='button' class='workspace-tool-button' data-editor-action='theme' title='편집기 테마 전환'><i class='adjust icon'></i></button><button type='button' class='workspace-tool-button' data-editor-action='increase' title='글자 확대'><i class='plus icon'></i></button><button type='button' class='workspace-tool-button' data-editor-action='decrease' title='글자 축소'><i class='minus icon'></i></button></div></header>");
+    shell.prepend("<header id='workspaceTopBar'><div class='workspace-controls'><label class='workspace-language-label' for='workspaceLanguage'>언어</label><select id='workspaceLanguage' aria-label='제출 언어 선택'></select><button type='button' class='workspace-tool-button' data-editor-action='theme' title='편집기 테마 전환'><i class='adjust icon'></i></button><button type='button' class='workspace-tool-button' data-editor-action='increase' title='글자 확대'><i class='plus icon'></i></button><button type='button' class='workspace-tool-button' data-editor-action='decrease' title='글자 축소'><i class='minus icon'></i></button><button type='button' class='workspace-tool-button' data-editor-action='autocomplete' title='자동완성 켜기/끄기' aria-pressed='true'><i class='magic icon'></i></button></div></header>");
     const runButtonHtml=<?php echo json_encode((isset($OJ_TEST_RUN) && $OJ_TEST_RUN && intval($row['spj']) !== 2 && empty($solution_name)) ? "<button type='button' id='workspaceRun'><i class='play icon'></i>실행</button>" : "")?>;
     shell.append("<footer id='workspaceBottomBar'><div id='workspaceRunResult' class='workspace-run-result' role='status' aria-live='polite'></div><span id='workspaceCountdown'></span>"+runButtonHtml+"<button type='button' id='workspaceSubmit'><i class='paper plane icon'></i>제출</button></footer>");
     shell.append("<section id='submitPage' class='is-loading' aria-label='답안 작성'><div id='dragButton' role='separator' aria-label='문제와 답안 영역 너비 조절' aria-orientation='vertical'></div><iframe id='ansFrame' title='답안 작성' src='"+submitURL+separator+"spa=1'></iframe></section>");
@@ -727,6 +729,14 @@ $(document).ready(function() {
       document.body.classList.toggle('problem-workspace-dark',dark);
       localStorage.setItem('gsmoj_editor_theme',dark?'monokai':'xcode');
     };
+    // 답안 화면(iframe)에서 자동완성을 켜고 끌 때 상단 버튼 모양을 맞춘다.
+    window.setProblemWorkspaceAutocomplete=function(on){
+      $(".workspace-tool-button[data-editor-action='autocomplete']")
+        .toggleClass('is-off',!on)
+        .attr('aria-pressed',on?'true':'false')
+        .attr('title',on?'자동완성 켜짐 (Tab으로 선택, 누르면 끄기)':'자동완성 꺼짐 (누르면 켜기)');
+    };
+    window.setProblemWorkspaceAutocomplete(localStorage.getItem('gsmoj_editor_autocomplete')!=='off');
     let workspaceStatusLocked=false;
     window.updateWorkspaceSubmission=function(state,data){
       const button=$('#workspaceSubmit');
@@ -833,6 +843,7 @@ $(document).ready(function() {
       if(action==='theme') frameWindow.toggleTheme(eventProxy);
       if(action==='increase') frameWindow.increaseFontSize(eventProxy);
       if(action==='decrease') frameWindow.decreaseFontSize(eventProxy);
+      if(action==='autocomplete' && typeof frameWindow.toggleAutocomplete==='function') frameWindow.toggleAutocomplete(eventProxy);
     });
     $('#workspaceSubmit').on('click',function(){
       const frameWindow=answerWindow();
