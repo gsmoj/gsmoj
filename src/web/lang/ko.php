@@ -164,6 +164,7 @@
 $MSG_HINT="도움";
 	$MSG_Source="출처";
 	$MSG_Time_Limit="시간제한";
+	$MSG_PYTHON_TIME_FACTOR="Python은 시간제한 %s배";
 	$MSG_Memory_Limit="메모리제한";
 	$MSG_EDIT="수정";
 	$MSG_TESTDATA="채점 데이터";

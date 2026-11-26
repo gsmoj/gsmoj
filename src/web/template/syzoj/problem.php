@@ -106,6 +106,9 @@ if(file_exists($solution_file)){
 	      
 	  <span class="ui label" problem_id="<?php echo $id?>" ><?php echo $MSG_Memory_Limit ?>：<span tb="problem" fd="memory_limit"><?php echo $row['memory_limit']; ?></span> MB</span>
           <span class="ui label" problem_id="<?php echo $id?>" ><?php echo $MSG_Time_Limit ?>：<span tb="problem" fd="time_limit"><?php echo $row['time_limit']; ?></span> S</span>
+          <?php if (isset($OJ_PYTHON_TIME_FACTOR) && $OJ_PYTHON_TIME_FACTOR > 1 && isset($MSG_PYTHON_TIME_FACTOR)) { // 채점기 judge.conf의 OJ_PYTHON_TIME_FACTOR와 같은 값으로 맞춘다. ?>
+          <span class="ui label"><?php echo htmlentities(sprintf($MSG_PYTHON_TIME_FACTOR, $OJ_PYTHON_TIME_FACTOR + 0), ENT_QUOTES, "UTF-8"); ?></span>
+          <?php } ?>
          <!-- <span class="ui label">표준 입출력</span> -->
       </div>
       <div class="row problem-meta-row">

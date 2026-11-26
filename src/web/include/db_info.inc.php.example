@@ -88,6 +88,7 @@ static $OJ_HIDE_RIGHT_ANSWER = true;
 static $OJ_DL_1ST_WA_ONLY = false;
 static $OJ_DOWNLOAD = false;
 static $OJ_TEST_RUN = false;
+static $OJ_PYTHON_TIME_FACTOR = 2; // 문제 화면 표시용. 채점기 judge.conf의 OJ_PYTHON_TIME_FACTOR와 같게 둔다.
 static $OJ_MATHJAX = true;
 static $OJ_BLOCKLY = false;
 static $OJ_ENCODE_SUBMIT = false;
