@@ -55,8 +55,10 @@ function addproblem($title, $time_limit, $memory_limit, $description, $input, $o
 
   $basedir = "$OJ_DATA/$pid";
   if (!is_dir($basedir)) {
-    mkdir($basedir, 0711, true);
+    mkdir($basedir, 0771, true);
   }
+  // 그룹(devgroup)은 목록 조회·수정 가능, 기타 사용자는 통과만 허용(spj가 judge 사용자로 파일을 읽음). umask와 무관하게 고정한다.
+  @chmod($basedir, 02771);
 
   return $pid;
 }
@@ -69,6 +71,7 @@ function mkdata($pid, $filename, $input, $OJ_DATA) {
   if ($fp) {
     fputs($fp, preg_replace("(\r\n)", "\n", $input));
     fclose($fp);
+    @chmod($basedir."/$filename", 0664);
   }
   else {
     echo "- Error while opening".$basedir."/$filename ,try [chgrp -R www-data $OJ_DATA] and [chmod -R 771 $OJ_DATA ] ";
