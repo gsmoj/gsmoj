@@ -48,7 +48,8 @@ if (empty($td_problem)) {
 $td_title = $td_problem[0][0];
 
 $td_dir = rtrim($OJ_DATA, "/")."/".$pid;
-if (!is_dir($td_dir)) @mkdir($td_dir, 0775, true);
+// include/problem.php의 addproblem()과 같은 권한(그룹 조회·수정, 기타 사용자는 통과만)으로 맞춘다.
+if (!is_dir($td_dir) && @mkdir($td_dir, 0771, true)) @chmod($td_dir, 02771);
 
 // 쓰기 요청 위조를 막기 위한 페이지 토큰. 여러 번 연속 요청(업로드 등)을 보내므로 일회용 csrf 대신 세션 토큰을 쓴다.
 if (empty($_SESSION[$OJ_NAME.'_'.'testdata_token'])) {
